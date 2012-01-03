@@ -65,12 +65,23 @@ public class ImageCreate extends PieMenuButton {
 		return matcher.matches();
 	}
 	
-	class ImageFileFilter extends javax.swing.filechooser.FileFilter {
-	    public boolean accept(File file) {
-	        String filename = file.getName().toLowerCase();
-	        return filename.endsWith(".png") || filename.endsWith(".jpg") || filename.endsWith(".gif");
+	class ImageFileFilter extends javax.swing.filechooser.FileFilter 
+	{
+	    public boolean accept(File file) 
+	    {
+	    	if (file.isFile())
+	    	{
+    	        String filename = file.getName().toLowerCase();
+    	        return filename.endsWith(".png") || filename.endsWith(".jpg") || filename.endsWith(".gif");
+	    	}
+	    	else
+	    	{
+	    		return true;
+	    	}
 	    }
-	    public String getDescription() {
+	    
+	    public String getDescription() 
+	    {
 	        return "*.png, *.jpg, *.gif";
 	    }
 	}
