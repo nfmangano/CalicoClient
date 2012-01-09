@@ -207,18 +207,6 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		if (setLock_bounds == null)
 			setLock_bounds = addIcon(imgSpan);
 		
-		switch (this.position)
-		{
-			case POSITION_TOP:
-			case POSITION_BOTTOM:
-				setLock_bounds.setSize(setLock_bounds.width, setLock_bounds.height);
-				break;
-			case POSITION_LEFT:
-			case POSITION_RIGHT:
-				setLock_bounds.setSize(setLock_bounds.width, setLock_bounds.height);
-				break;
-		}		
-		
 		lockButton = new PImage();
 		
 		lockButton.setImage(img);
