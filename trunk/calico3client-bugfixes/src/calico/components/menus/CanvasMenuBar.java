@@ -190,7 +190,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		}
 		
 		Image img = getTextImage(text,font);
-		
+
 		int imgSpan = 0;
 		switch (this.position)
 		{
@@ -207,31 +207,29 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		if (setLock_bounds == null)
 			setLock_bounds = addIcon(imgSpan);
 		
-		lockButton = new PImage();
-		
-		lockButton.setImage(img);
-		
 		switch (this.position)
 		{
 			case POSITION_TOP:
 			case POSITION_BOTTOM:
-				setLock_bounds.setSize(imgSpan, setLock_bounds.height);
+				setLock_bounds.setSize(setLock_bounds.width, setLock_bounds.height);
 				break;
 			case POSITION_LEFT:
 			case POSITION_RIGHT:
-				setLock_bounds.setSize(setLock_bounds.height, imgSpan);
+				setLock_bounds.setSize(setLock_bounds.width, setLock_bounds.height);
 				break;
-		}
-		lockButton.setBounds(setLock_bounds);
+		}		
 		
+		lockButton = new PImage();
+		
+		lockButton.setImage(img);
+		
+		lockButton.setBounds(setLock_bounds);
 		
 		super.text_rect_array[setLock_button_array_index] = setLock_bounds;
 
 		text_button_array[setLock_button_array_index] = buttonHandler;
 		
-		
 		addChild(0,lockButton);
-		
 	}
 	
 	private void changeLock()

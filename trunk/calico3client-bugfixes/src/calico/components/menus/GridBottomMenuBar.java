@@ -64,7 +64,7 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 		
 //		addSpacer();
 		
-		addTextRightAligned(
+		addTextEndAligned(
 				"  Exit  ", 
 				new Font("Verdana", Font.BOLD, 12),
 				new CanvasTextButton(cuid) {

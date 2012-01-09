@@ -226,7 +226,19 @@ public class CanvasGenericMenuBar extends PComposite
 	{
 		Image img = getTextImage(text,font);
 		
-		Rectangle temp = addIcon(img.getWidth(null));
+		int imageSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imageSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imageSpan = img.getHeight(null);
+				break;
+		}
+		Rectangle temp = addIcon(imageSpan);
 		
 		PImage img2 = new PImage();
 		
@@ -244,11 +256,23 @@ public class CanvasGenericMenuBar extends PComposite
 		return img2;
 	}
 	
-	public PImage addTextRightAligned(String text, Font font, CanvasTextButton buttonHandler)
+	public PImage addTextEndAligned(String text, Font font, CanvasTextButton buttonHandler)
 	{
 		Image img = getTextImage(text,font);
 		
-		Rectangle temp = addIconEndAligned(img.getWidth(null));
+		int imageSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imageSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imageSpan = img.getHeight(null);
+				break;
+		}
+		Rectangle temp = addIconEndAligned(imageSpan);
 		
 		PImage img2 = new PImage();
 		
@@ -341,20 +365,9 @@ public class CanvasGenericMenuBar extends PComposite
 		g.drawImage(background, null, null);
 		
 		//the 110 might be arbitrary
-		BufferedImage finalImage = null;
-		switch (this.position)
-		{
-			case POSITION_TOP:
-			case POSITION_BOTTOM:
-				finalImage = new BufferedImage(110, menubar.defaultSpriteSize, BufferedImage.TYPE_INT_ARGB );
-				break;
-			case POSITION_LEFT:
-			case POSITION_RIGHT:
-				finalImage = new BufferedImage(menubar.defaultSpriteSize, 110, BufferedImage.TYPE_INT_ARGB );
-				break;
-		}
+		BufferedImage textImage = new BufferedImage(110, menubar.defaultSpriteSize, BufferedImage.TYPE_INT_ARGB );
 		
-		Graphics2D g2 = (Graphics2D) finalImage.getGraphics();
+		Graphics2D g2 = (Graphics2D) textImage.getGraphics();
 		g2.setBackground(new Color(83,83,83));
 		//g.drawImage(this.background, null, null);
 
@@ -362,15 +375,6 @@ public class CanvasGenericMenuBar extends PComposite
 		
 		FontMetrics fontmetrics = g2.getFontMetrics(font);
 		Rectangle2D strbounds = fontmetrics.getStringBounds(text, g2);
-		
-		switch (this.position)
-		{
-			case POSITION_LEFT:
-			case POSITION_RIGHT:
-				strbounds.setRect(strbounds.getX(), strbounds.getY(), strbounds.getHeight(), strbounds.getWidth());
-				g2.rotate(-Math.PI/2, 0, 0); // strbounds.getX(), strbounds.getY());
-				g2.translate(-110, 0);
-		}
 		
 		int offset = (int) Math.ceil(Math.abs(strbounds.getY()));
 		
@@ -391,10 +395,23 @@ public class CanvasGenericMenuBar extends PComposite
 		
 		//g2.drawImage(img,  3, 3, null);
 		
-		return (Image)finalImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
+		textImage = (BufferedImage)textImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
 		
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				return textImage;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				BufferedImage rotatedImage =  new BufferedImage((int)strbounds.getHeight(), (int)strbounds.getWidth(), BufferedImage.TYPE_INT_ARGB);
+				g2 = (Graphics2D) rotatedImage.getGraphics();
+				g2.rotate(Math.PI/2);
+				g2.translate(0, -(int)strbounds.getHeight()); 
+				g2.drawImage(textImage, 0, 0, null);
+				return rotatedImage;
+			default: 
+				throw new IllegalStateException("Unknown menu bar position " + position);
+		}
 	}
-	
-	
-		
 }
