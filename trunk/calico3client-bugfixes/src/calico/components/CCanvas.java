@@ -96,7 +96,7 @@ public class CCanvas extends PCanvas
 		Calico.logger.debug("setting canvas sizes ");
 		setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
-		setBackground( CalicoOptions.canvas.background_color);
+		setBackground( CCanvasController.getActiveCanvasBackgroundColor() );
 
 		//setCamera( (CCanvasCamera) getCamera() );
 
@@ -137,7 +137,7 @@ public class CCanvas extends PCanvas
 		pline.addPoint(0, x, y);
 		pline.addPoint(1, x2, y2);
 		pline.setStroke(new BasicStroke( 1.0f ));
-		pline.setStrokePaint( CalicoOptions.canvas.background_color );
+		pline.setStrokePaint( CCanvasController.getActiveCanvasBackgroundColor() );
 		return pline;
 	}
 	
@@ -444,7 +444,7 @@ public class CCanvas extends PCanvas
 			//logger.debug("Canvas "+cell_coord+" render image");
 			getCamera().removeChild(menuBar);
 			//getCamera().removeChild(topMenuBar);
-			Image img = getCamera().toImage(CGrid.gwidth, CGrid.gheight, CalicoOptions.canvas.background_color);
+			Image img = getCamera().toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
 
 			getCamera().addChild(menuBar);
 			//getCamera().addChild(topMenuBar);
@@ -457,7 +457,7 @@ public class CCanvas extends PCanvas
 			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = (Graphics2D)bimg.createGraphics();
 			g.setComposite(AlphaComposite.Src);
-			g.setColor(CalicoOptions.canvas.background_color);
+			g.setColor(CCanvasController.getActiveCanvasBackgroundColor());
 			g.fill(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.draw(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.dispose();
@@ -473,7 +473,7 @@ public class CCanvas extends PCanvas
 		getCamera().removeChild(menuBar);
 		//getCamera().removeChild(topMenuBar);
 		
-		Image img = getCamera().toImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, CalicoOptions.canvas.background_color);
+		Image img = getCamera().toImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, CCanvasController.getActiveCanvasBackgroundColor());
 		getCamera().addChild(menuBar);
 		//getCamera().addChild(topMenuBar);
 		

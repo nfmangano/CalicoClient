@@ -3,6 +3,7 @@ package calico.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
@@ -73,6 +74,22 @@ public class CCanvasController {
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR,
 				uuid));
 		// no_notify_clear(uuid);
+	}
+	
+	public static Color getActiveCanvasBackgroundColor() {
+		if (CalicoDataStore.Mode == Calico.MODE_EXPERT) {
+			return CalicoOptions.canvas.writable_background_color;
+		} else {
+			return CalicoOptions.canvas.readonly_background_color;
+		}
+	}
+	
+	public static void canvasWritabilityChanged() {
+		Color canvasBackground = getActiveCanvasBackgroundColor();
+		for (CCanvas canvas : CCanvasController.canvasdb.values())
+		{
+			canvas.setBackground(canvasBackground);
+		}
 	}
 
 	public static void no_notify_clear_for_state_change(long uuid) {
