@@ -20,8 +20,9 @@ import org.apache.log4j.Logger;
 
 import calico.*;
 import calico.components.grid.CGrid;
-import calico.components.menus.CanvasBottomMenuBar;
+import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.CanvasGenericMenuBar;
+import calico.components.menus.CanvasStatusBar;
 import calico.components.menus.CanvasTopMenuBar;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
@@ -67,7 +68,8 @@ public class CCanvas extends PCanvas
 
 	private Rectangle grid_thumb_coords = new Rectangle();
 	
-	public CanvasBottomMenuBar menuBar = null;
+	public CanvasMenuBar menuBar = null;
+	public CanvasStatusBar statusBar = null;
 	public CanvasTopMenuBar topMenuBar = null;
 
 	private PComposite clientListPopup = null;
@@ -217,6 +219,10 @@ public class CCanvas extends PCanvas
 		{
 			this.menuBar.clickMenu(point);
 		}
+		if(this.statusBar.isPointInside(point))
+		{
+			this.statusBar.clickMenu(point);
+		}
 		else if(this.topMenuBar!=null && this.topMenuBar.isPointInside(point))
 		{
 			this.topMenuBar.clickMenu(point);	
@@ -228,6 +234,10 @@ public class CCanvas extends PCanvas
 		if (this.menuBar != null
 			&& this.menuBar.isPointInside(point))
 			return true;
+		
+		if (this.statusBar != null
+				&& this.statusBar.isPointInside(point))
+				return true;
 		
 		if (this.topMenuBar != null
 			&& this.topMenuBar.isPointInside(point))
@@ -382,7 +392,7 @@ public class CCanvas extends PCanvas
 		super.setBounds(x,y,w,h);
 	}
 
-	public void drawTopToolbar()
+	private void drawTopMenuBar()
 	{
 		if(topMenuBar!=null)
 		{
@@ -392,9 +402,10 @@ public class CCanvas extends PCanvas
 		topMenuBar = new CanvasTopMenuBar(uuid);
 		getCamera().addChild(topMenuBar);
 	}
-	public void drawBottomToolbar()
-	{		
-		CanvasBottomMenuBar temp = new CanvasBottomMenuBar(this.uuid);
+	
+	private void drawMenuBar()
+	{
+		CanvasMenuBar temp = new CanvasMenuBar(this.uuid);
 		getCamera().addChild(temp);
 		
 		if(this.menuBar!=null)
@@ -407,7 +418,29 @@ public class CCanvas extends PCanvas
 		this.menuBar.repaint();
 	}
 	
-	public void removeTopToolBar(){
+	private void drawStatusBar()
+	{
+		CanvasStatusBar temp = new CanvasStatusBar(this.uuid);
+		getCamera().addChild(temp);
+		
+		if(this.statusBar!=null)
+		{
+			getCamera().removeChild(this.statusBar);
+			this.statusBar = null;
+		}
+		
+		this.statusBar = temp;
+		this.statusBar.repaint();
+	}
+	
+	public void drawMenuBars()
+	{		
+//		drawTopMenuBar();
+		drawMenuBar();
+		drawStatusBar();
+	}
+	
+	public void removeTopMenuBar(){
 		if(topMenuBar!=null)
 		{
 			getCamera().removeChild(topMenuBar);
@@ -415,22 +448,11 @@ public class CCanvas extends PCanvas
 		}
 	}
 	
-	
-	public void drawToolbar()
-	{
-		//drawTopToolbar();
-		//drawTopToolbar();
-		drawBottomToolbar();
-		//drawBottomToolbar();
-	}
-	
 	public void redrawToolbar_clients()
 	{
 		if (this.menuBar != null)
 			this.menuBar.redrawClients();
 	}
-
-
 
 	public void setAsCurrent()
 	{
@@ -443,10 +465,12 @@ public class CCanvas extends PCanvas
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
 			getCamera().removeChild(menuBar);
+			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
 			Image img = getCamera().toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
 
 			getCamera().addChild(menuBar);
+			getCamera().addChild(statusBar);
 			//getCamera().addChild(topMenuBar);
 			
 			return img;
@@ -471,10 +495,12 @@ public class CCanvas extends PCanvas
 	public void getBlobs()
 	{
 		getCamera().removeChild(menuBar);
+		getCamera().removeChild(statusBar);
 		//getCamera().removeChild(topMenuBar);
 		
 		Image img = getCamera().toImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, CCanvasController.getActiveCanvasBackgroundColor());
 		getCamera().addChild(menuBar);
+		getCamera().addChild(statusBar);
 		//getCamera().addChild(topMenuBar);
 		
 		int imgwidth = img.getWidth(null);
@@ -793,7 +819,7 @@ public class CCanvas extends PCanvas
 		
 //		this.getLayer().removeAllChildren();
 		clearEverythingExceptMenu();
-		drawToolbar();
+		drawMenuBars();
 		this.getLayer().repaint();
 		
 		

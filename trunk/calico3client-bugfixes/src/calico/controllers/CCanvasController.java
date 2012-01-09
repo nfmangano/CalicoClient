@@ -149,7 +149,7 @@ public class CCanvasController {
 		
 		Networking.synchroized = true;
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawToolbar();
+			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 //		canvasdb.get(uuid).setEnabled(true);
 //		canvasdb.get(uuid).setInteracting(false);
 //		canvasdb.get(uuid).setIgnoreRepaint(false);
@@ -191,7 +191,7 @@ public class CCanvasController {
 			return;
 		}
 		
-		canvasdb.get(uuid).drawToolbar();
+		canvasdb.get(uuid).drawMenuBars();
 		if (CalicoDataStore.isInViewPort) {
 			CViewportCanvas.getInstance().drawToolbar();
 
@@ -227,7 +227,7 @@ public class CCanvasController {
 	 * Reloads the top menu bar (this shows state changes and stuff)
 	 */
 	public static void redrawTopMenubar() {
-		canvasdb.get(getCurrentUUID()).drawTopToolbar();
+		canvasdb.get(getCurrentUUID()).drawMenuBars();
 		// TODO do this also for grid and for viewport views
 	}
 
@@ -274,7 +274,7 @@ public class CCanvasController {
 		// This code here is to fix the bug where the viewport messes up the
 		// cameras of the canvas
 		CCanvas canvas = CCanvasController.canvasdb.get(uuid);
-		canvas.drawBottomToolbar();
+		canvas.drawMenuBars();
 		
 //		//get bounds of contents on canvas
 //		Rectangle boundsOfChildren = CCanvasController.canvasdb.get(uuid).getLayer().getUnionOfChildrenBounds(null).getBounds();
@@ -449,7 +449,7 @@ public class CCanvasController {
 		if (CalicoDataStore.gridObject != null)
 			CalicoDataStore.gridObject.updateCell(canvas);
 		
-		canvasdb.get(canvas).drawToolbar();
+		canvasdb.get(canvas).drawMenuBars();
 	}
 	
 	public static boolean isEmpty(long cuid)
