@@ -29,7 +29,7 @@ import calico.CalicoOptions;
 import calico.components.CGroup;
 import calico.components.CStroke;
 import calico.components.decorators.CGroupDecorator;
-import calico.components.menus.CanvasBottomMenuBar;
+import calico.components.menus.CanvasMenuBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.controllers.CGroupDecoratorController;
@@ -66,7 +66,7 @@ public class PalettePlugin extends CalicoPlugin
 
 //		CalicoEventHandler.getInstance().addListenerForType("PALETTE", this, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
 		
-//		CanvasBottomMenuBar.addMenuButton(PaletteButton.class);
+//		CanvasMenuBar.addMenuButton(PaletteButton.class);
 //		CGroup.registerPieMenuButton(SaveToPaletteButton.class);
 //		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 //		for (Integer event : this.getNetworkCommands())
@@ -96,7 +96,7 @@ public class PalettePlugin extends CalicoPlugin
 	public void onPluginStart()
 	{
 		//register for palette events
-		CanvasBottomMenuBar.addMenuButtonRightAligned(PaletteButton.class);
+		CanvasMenuBar.addMenuButtonRightAligned(PaletteButton.class);
 		CGroup.registerPieMenuButton(SaveToPaletteButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
