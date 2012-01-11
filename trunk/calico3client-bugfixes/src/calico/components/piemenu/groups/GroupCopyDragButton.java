@@ -34,7 +34,7 @@ public class GroupCopyDragButton extends PieMenuButton
 	
 	public GroupCopyDragButton(long uuid)
 	{
-		super("grid.canvas.copy");
+		super("group.copy");
 
 		guuid = uuid;
 	}

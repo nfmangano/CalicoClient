@@ -15,7 +15,7 @@ public class CutCanvasButton extends PieMenuButton {
 	private long uuid = 0L;
 	public CutCanvasButton()
 	{
-		super("group.move");		
+		super("grid.canvas.move");		
 	}
 	
 	public void onClick(InputEventInfo ev)

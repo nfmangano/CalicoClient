@@ -15,7 +15,7 @@ public class GroupDeleteButton extends PieMenuButton
 	
 	public GroupDeleteButton(long uuid)
 	{
-		super("eraser.eraser");
+		super("group.delete");
 		uuidToBeDeleted = uuid;
 	}
 	
