@@ -14,11 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>calico3client-nopen</name>
-			<type>2</type>
-			<location>/Users/calvmari/Documents/workspace/calico3client-nopen</location>
-		</link>
-	</linkedResources>
 </projectDescription>
