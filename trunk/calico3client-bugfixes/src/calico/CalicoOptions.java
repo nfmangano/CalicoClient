@@ -102,7 +102,8 @@ public class CalicoOptions
 	public static class canvas
 	{
 		public static boolean lowquality_on_interaction = false;
-		public static Color background_color = Color.WHITE;
+		public static Color writable_background_color = Color.WHITE;
+		public static Color readonly_background_color = new Color(0xF4F4FF);
 		public static class input
 		{
 			public static int default_mode = Calico.MODE_EXPERT;

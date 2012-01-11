@@ -27,7 +27,7 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 		Calico.logger.debug("loaded generic menu bar for GridBottomMenuBar");
 		cuid = c;
 		
-		addLeftCap();
+		addCap(CanvasGenericMenuBar.ALIGN_START);
 		
 		
 //		addIcon(new GridViewportChangeButton(GridViewportChangeButton.BUT_MINUS));
@@ -64,7 +64,7 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 		
 //		addSpacer();
 		
-		addTextRightAligned(
+		addTextEndAligned(
 				"  Exit  ", 
 				new Font("Verdana", Font.BOLD, 12),
 				new CanvasTextButton(cuid) {
@@ -73,11 +73,11 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 					}
 				}
 		);
-		addSpacer(ALIGN_RIGHT);
+		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailGridButton());
 		
 		
-		//addRightCap();
+		//addCap();
 		
 	}
 	

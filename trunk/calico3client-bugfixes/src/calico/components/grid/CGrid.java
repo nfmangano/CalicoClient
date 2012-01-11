@@ -21,7 +21,7 @@ import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.components.CViewportCanvas;
-import calico.components.menus.CanvasBottomMenuBar;
+import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.GridBottomMenuBar;
 import calico.components.menus.buttons.CanvasNavButton;
 import calico.controllers.CCanvasController;
@@ -561,7 +561,7 @@ public class CGrid extends PCanvas
 		
 		centerViewportSquareOnCanvas(cuid);
 		
-		CCanvasController.canvasdb.get(cuid).drawBottomToolbar();
+		CCanvasController.canvasdb.get(cuid).drawMenuBars();
 	}
 
 
