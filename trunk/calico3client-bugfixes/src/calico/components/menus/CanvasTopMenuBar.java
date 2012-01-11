@@ -48,7 +48,7 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 		String coordtxt = CCanvasController.canvasdb.get(cuid).getGridCoordTxt();
 		
 		
-		addLeftCap();
+		addCap(CanvasGenericMenuBar.ALIGN_START);
 		
 		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
 		
@@ -70,7 +70,7 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 		
 		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
 		
-		addRightCap();
+		addCap(CanvasGenericMenuBar.ALIGN_END);
 		
 
 		this.invalidatePaint();

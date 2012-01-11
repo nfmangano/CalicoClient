@@ -17,7 +17,7 @@ import calico.Calico;
 
 import calico.CalicoOptions;
 import calico.components.grid.CGrid;
-import calico.components.menus.CanvasBottomMenuBar;
+import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.CanvasTopMenuBar;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.CArrowController;
@@ -47,7 +47,7 @@ public class CViewportCanvas extends PCanvas{
 	//private static int canImgh = 0;
 	
 	
-	public CanvasBottomMenuBar menuBar = null;
+	public CanvasMenuBar menuBar = null;
 //	private CanvasTopMenuBar topMenuBar = null;
 	
 	public static int PreferredScreenWidth = 0;
@@ -357,7 +357,7 @@ public class CViewportCanvas extends PCanvas{
 			getCamera().removeChild(this.menuBar);
 			this.menuBar = null;
 		}
-		CCanvasController.canvasdb.get(cuidWorkingCanvas).drawBottomToolbar();
+		CCanvasController.canvasdb.get(cuidWorkingCanvas).drawMenuBars();
 		this.menuBar = CCanvasController.canvasdb.get(cuidWorkingCanvas).menuBar;
 		
 		getCamera().addChild(this.menuBar);
@@ -624,7 +624,7 @@ public class CViewportCanvas extends PCanvas{
 		//scale the point first of all
 		
 		
-		CCanvasController.canvasdb.get(cuidWorkingCanvas).removeTopToolBar();
+		CCanvasController.canvasdb.get(cuidWorkingCanvas).removeTopMenuBar();
 		if(PieMenu.isPieMenuActive()){
 			PieMenu.clearMenu();
 		}

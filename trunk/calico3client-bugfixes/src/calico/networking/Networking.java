@@ -145,7 +145,7 @@ public class Networking
 			if (Networking.connectionState == Networking.ConnectionState.Connected)
 			{
 				Networking.connectionState = Networking.ConnectionState.Connecting;
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawBottomToolbar();
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 			}
 			
 			Random rand = new Random();

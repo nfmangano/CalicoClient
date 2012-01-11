@@ -37,9 +37,11 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	public static final int POSITION_TOP = 1;
 	public static final int POSITION_BOTTOM = 2;
+	public static final int POSITION_LEFT = 3;
+	public static final int POSITION_RIGHT = 4;
 	
-	public static final int ALIGN_LEFT = 10;
-	public static final int ALIGN_RIGHT = 11;
+	public static final int ALIGN_START = 10;
+	public static final int ALIGN_END = 11;
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -54,12 +56,12 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	//private long cuid = 0L;
 	
-	private int xcoord_position = 3;
-	private int xcoord_position_right_aligned = -3;
+	private int empty_space_start = 3;
+	private int empty_space_end = 0;
 	
 	private int icon_padding = 4;
 	
-	private int position = CanvasGenericMenuBar.POSITION_BOTTOM;
+	protected int position = CanvasGenericMenuBar.POSITION_BOTTOM;
 	
 	
 	private Rectangle screenBounds = null;
@@ -69,24 +71,44 @@ public class CanvasGenericMenuBar extends PComposite
 	public CanvasGenericMenuBar(int position, Rectangle screenBounds)
 	{
 		this.position = position;
-		xcoord_position_right_aligned += screenBounds.width;
+		
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				empty_space_end += screenBounds.width;
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				empty_space_end += screenBounds.height;
+				break;
+		}
 		
 		this.screenBounds = new Rectangle(screenBounds);
 		if(CalicoDataStore.isInViewPort){
-			
 			this.screenBounds = new Rectangle(CViewportCanvas.getInstance().getBounds());
 		}
 		icon_padding = CalicoOptions.menu.menubar.padding;
 		
-		
-		if(this.position==CanvasGenericMenuBar.POSITION_TOP)
+		int menubarWidth = menubar.defaultIconDimension+menubar.iconBuffer*2;
+		switch (this.position)
 		{
-			//CalicoOptions.menu.menubar.padding
-			this.rect_overall = new Rectangle(0,0,this.screenBounds.width,menubar.defaultIconDimension+menubar.iconBuffer*2);
-		}
-		else if(this.position==CanvasGenericMenuBar.POSITION_BOTTOM)
-		{
-			this.rect_overall = new Rectangle(0, this.screenBounds.height-(menubar.defaultIconDimension+menubar.iconBuffer*2),this.screenBounds.width,menubar.defaultIconDimension+menubar.iconBuffer*2);
+			case CanvasGenericMenuBar.POSITION_TOP:
+				this.rect_overall = new Rectangle(0, 0, this.screenBounds.width, menubarWidth);
+				empty_space_end -= 3;
+				break;
+			case CanvasGenericMenuBar.POSITION_BOTTOM:
+				this.rect_overall = new Rectangle(0, this.screenBounds.height-menubarWidth, this.screenBounds.width, menubarWidth);
+				empty_space_end -= 3;
+				break;
+			case CanvasGenericMenuBar.POSITION_LEFT:
+				this.rect_overall = new Rectangle(0, 0, menubarWidth, this.screenBounds.height);
+				empty_space_end -= menubarWidth;
+				break;
+			case CanvasGenericMenuBar.POSITION_RIGHT:
+				this.rect_overall = new Rectangle(this.screenBounds.width-menubarWidth, 0, menubarWidth, this.screenBounds.height);
+				empty_space_end -= menubarWidth;
+				break;
 		}
 		
 		setBounds(this.rect_overall);
@@ -101,27 +123,17 @@ public class CanvasGenericMenuBar extends PComposite
 		this(CanvasGenericMenuBar.POSITION_BOTTOM);
 	}
 	
-	public void addGap(int size)
-	{
-		xcoord_position = xcoord_position + size;
-	}
-	
 	public void addSpacer()
 	{
-		addSpacer(ALIGN_LEFT);
+		addSpacer(ALIGN_START);
 	}
 	
 	public void addSpacer(int align)
 	{
 		//xcoord_position = xcoord_position + 24;
-		addRightCap(align);
+		addCap(align);
 		//xcoord_position = xcoord_position + 5;
-		addLeftCap(align);
-	}
-	
-	public void addSpacerRightAligned()
-	{
-		
+		addCap(align);
 	}
 	
 	public Rectangle addIcon()
@@ -129,40 +141,54 @@ public class CanvasGenericMenuBar extends PComposite
 		return addIcon(menubar.defaultIconDimension);
 	}
 	
-	public Rectangle addIcon(Rectangle rect)
+	public Rectangle addIcon(int span)
 	{
-		return addIcon(rect.width);
-	}
-	
-	public Rectangle addIcon(int width)
-	{
-		int xpos = xcoord_position;
+		int startPosition = empty_space_start;
 		
-		Rectangle temp = addIcon(width, xpos);
+		Rectangle temp = addIcon(span, startPosition);
 		
-		xcoord_position = xcoord_position + (temp.width);//+icon_padding);
-		return temp;
-	}
-	
-	public Rectangle addIconRightAligned(int width)
-	{
-		int xpos_rightAligned = xcoord_position_right_aligned - width;
-		
-		Rectangle temp = addIcon(width, xpos_rightAligned);
-		
-		xcoord_position_right_aligned -= width;
-		return temp;
-	}
-	
-	private Rectangle addIcon(int width, int xpos) {
-		Rectangle temp = null;
-		if(this.position==CanvasGenericMenuBar.POSITION_BOTTOM)
+		int tempSpan = 0;
+		switch (this.position)
 		{
-			temp = new Rectangle(xpos,this.screenBounds.height-(menubar.defaultIconDimension + menubar.iconBuffer),width,menubar.defaultIconDimension);
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				tempSpan = temp.width;
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				tempSpan = temp.height;
+				break;
 		}
-		else if(this.position==CanvasGenericMenuBar.POSITION_TOP)
+		empty_space_start = empty_space_start + tempSpan;
+		return temp;
+	}
+	
+	private Rectangle addIconEndAligned(int span)
+	{
+		int endPosition = empty_space_end - span;
+		
+		Rectangle temp = addIcon(span, endPosition);
+		
+		empty_space_end -= span;
+		return temp;
+	}
+	
+	private Rectangle addIcon(int span, int startPosition) {
+		Rectangle temp = null;
+		switch (this.position)
 		{
-			temp = new Rectangle(xpos, menubar.iconBuffer, width, menubar.defaultIconDimension);
+			case CanvasGenericMenuBar.POSITION_BOTTOM:
+				temp = new Rectangle(startPosition, this.screenBounds.height-(menubar.defaultIconDimension + menubar.iconBuffer), span, menubar.defaultIconDimension);
+				break;
+			case CanvasGenericMenuBar.POSITION_TOP:
+    			temp = new Rectangle(startPosition, menubar.iconBuffer, span, menubar.defaultIconDimension);
+    			break;
+			case CanvasGenericMenuBar.POSITION_LEFT:
+				temp = new Rectangle(menubar.iconBuffer, startPosition, menubar.defaultIconDimension, span);
+				break;
+			case CanvasGenericMenuBar.POSITION_RIGHT:
+				temp = new Rectangle(this.screenBounds.width-(menubar.defaultIconDimension + menubar.iconBuffer), startPosition, menubar.defaultIconDimension, span);
+				break;
 		}
 		return temp;
 	}
@@ -180,7 +206,7 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	public void addIconRightAligned(CanvasMenuButton icon)
 	{
-		rect_array[button_array_index] = addIconRightAligned(menubar.defaultIconDimension);
+		rect_array[button_array_index] = addIconEndAligned(menubar.defaultIconDimension);
 		button_array[button_array_index] = icon;
 		button_array[button_array_index].setBounds(rect_array[button_array_index]);
 		
@@ -200,7 +226,19 @@ public class CanvasGenericMenuBar extends PComposite
 	{
 		Image img = getTextImage(text,font);
 		
-		Rectangle temp = addIcon(img.getWidth(null));
+		int imageSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imageSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imageSpan = img.getHeight(null);
+				break;
+		}
+		Rectangle temp = addIcon(imageSpan);
 		
 		PImage img2 = new PImage();
 		
@@ -218,11 +256,23 @@ public class CanvasGenericMenuBar extends PComposite
 		return img2;
 	}
 	
-	public PImage addTextRightAligned(String text, Font font, CanvasTextButton buttonHandler)
+	public PImage addTextEndAligned(String text, Font font, CanvasTextButton buttonHandler)
 	{
 		Image img = getTextImage(text,font);
 		
-		Rectangle temp = addIconRightAligned(img.getWidth(null));
+		int imageSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imageSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imageSpan = img.getHeight(null);
+				break;
+		}
+		Rectangle temp = addIconEndAligned(imageSpan);
 		
 		PImage img2 = new PImage();
 		
@@ -252,16 +302,11 @@ public class CanvasGenericMenuBar extends PComposite
 		addText(text, new Font("Monospaced", Font.BOLD, 14), buttonHandler);
 	}
 	
-	public void addLeftCap()
-	{
-		addLeftCap(ALIGN_LEFT);
-	}
-	
-	public void addLeftCap(int align)
+	public void addCap(int align)
 	{
 		try
 		{
-			Rectangle temp = (align == ALIGN_LEFT)?addIcon(2):addIconRightAligned(2);
+			Rectangle temp = (align == ALIGN_START)?addIcon(2):addIconEndAligned(2);
 			
 			PImage img = new PImage();
 			//this is using a sprite and scaling it
@@ -283,39 +328,6 @@ public class CanvasGenericMenuBar extends PComposite
 		}
 		//getImagePart
 	}
-	
-	public void addRightCap()
-	{
-		addRightCap(ALIGN_LEFT);
-	}
-	
-	public void addRightCap(int align)
-	{
-		try
-		{
-			
-			Rectangle temp = (align == ALIGN_LEFT)?addIcon(2):addIconRightAligned(2);
-			
-			PImage img = new PImage();
-			
-			img.setImage(CalicoIconManager.getImagePart(CalicoIconManager.getIconImage("menu.button_bg"),
-				menubar.defaultIconDimension,
-				0,
-				4,
-				menubar.defaultIconDimension
-			) );
-			
-			img.setBounds(temp);
-			addChild(0,img);
-			//button_array_index++;
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//getImagePart
-	}	
 	
 	/**
 	 * They clicked the menu, this should process which button they pushed
@@ -343,9 +355,7 @@ public class CanvasGenericMenuBar extends PComposite
 		}
 	}
 	
-	
-	
-	public static Image getTextImage(String text, Font font)
+	protected Image getTextImage(String text, Font font)
 	{
 		Image background = CalicoIconManager.getIconImage("menu.button_bg");
 		//button_bg_black.png = 88x66 px
@@ -353,9 +363,11 @@ public class CanvasGenericMenuBar extends PComposite
 		Graphics2D g = (Graphics2D) bgBuf.getGraphics();
 		g.setBackground(new Color(83,83,83));
 		g.drawImage(background, null, null);
+		
 		//the 110 might be arbitrary
-		BufferedImage finalImage = new BufferedImage(110, menubar.defaultSpriteSize, BufferedImage.TYPE_INT_ARGB );
-		Graphics2D g2 = (Graphics2D) finalImage.getGraphics();
+		BufferedImage textImage = new BufferedImage(110, menubar.defaultSpriteSize, BufferedImage.TYPE_INT_ARGB );
+		
+		Graphics2D g2 = (Graphics2D) textImage.getGraphics();
 		g2.setBackground(new Color(83,83,83));
 		//g.drawImage(this.background, null, null);
 
@@ -383,10 +395,23 @@ public class CanvasGenericMenuBar extends PComposite
 		
 		//g2.drawImage(img,  3, 3, null);
 		
-		return (Image)finalImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
+		textImage = (BufferedImage)textImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
 		
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				return textImage;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				BufferedImage rotatedImage =  new BufferedImage((int)strbounds.getHeight(), (int)strbounds.getWidth(), BufferedImage.TYPE_INT_ARGB);
+				g2 = (Graphics2D) rotatedImage.getGraphics();
+				g2.rotate(Math.PI/2);
+				g2.translate(0, -(int)strbounds.getHeight()); 
+				g2.drawImage(textImage, 0, 0, null);
+				return rotatedImage;
+			default: 
+				throw new IllegalStateException("Unknown menu bar position " + position);
+		}
 	}
-	
-	
-		
 }

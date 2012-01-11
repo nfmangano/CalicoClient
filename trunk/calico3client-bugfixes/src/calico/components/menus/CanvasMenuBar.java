@@ -34,7 +34,7 @@ import edu.umd.cs.piccolo.event.*;
 
 
 
-public class CanvasBottomMenuBar extends CanvasGenericMenuBar
+public class CanvasMenuBar extends CanvasGenericMenuBar
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -49,18 +49,15 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 	private static ObjectArrayList<Class<?>> externalButtons = new ObjectArrayList<Class<?>>();
 	private static ObjectArrayList<Class<?>> externalButtons_rightAligned = new ObjectArrayList<Class<?>>();
 	
-	public CanvasBottomMenuBar(long c)
+	public CanvasMenuBar(long c)
 	{		
-		super(CanvasGenericMenuBar.POSITION_BOTTOM, CCanvasController.canvasdb.get(c).getBounds());		
+		super(CanvasGenericMenuBar.POSITION_LEFT, CCanvasController.canvasdb.get(c).getBounds());		
 		
 		cuid = c;
 		
 		Rectangle rect_default = new Rectangle(0,0,20,20);
 		
-		addLeftCap();
-		
-		
-		
+		addCap(CanvasGenericMenuBar.ALIGN_START);
 		
 		addIcon(new ReturnToGrid());
 		
@@ -100,7 +97,7 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 		addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_RIGHT));
 		
 
-		//addRightCap();
+		//addCap();
 		addSpacer();
 				
 		addIcon(new ClearButton(cuid));
@@ -128,54 +125,8 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 		addIcon(new MBModeChangeButton(cuid, Calico.MODE_POINTER));
 		
 		//Begin align right
-		addTextRightAligned(
-				"  Exit  ", 
-				new Font("Verdana", Font.BOLD, 12),
-				new CanvasTextButton(cuid) {
-					public void actionMouseClicked(Rectangle boundingBox) {
-						Calico.exit();
-					}
-				}
-		);
-		addSpacer(ALIGN_RIGHT);
+		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailButton(cuid));
-		
-		
-		
-		if (Networking.connectionState == Networking.ConnectionState.Connecting)
-		{
-			addSpacer(ALIGN_RIGHT);
-			addTextRightAligned(
-					" reconnect...   ", 
-					new Font("Verdana", Font.BOLD, 12),
-					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
-							//Do nothing
-						}
-					}
-			);
-			
-			addTextRightAligned(
-					" Attempting to", 
-					new Font("Verdana", Font.BOLD, 12),
-					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
-							//Do nothing
-						}
-					}
-			);
-			
-			addTextRightAligned(
-					"   Disconnected!", 
-					new Font("Verdana", Font.BOLD, 12),
-					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
-							//Do nothing
-						}
-					}
-			);
-
-		}
 		
 	//	addSpacer();addSpacer();
 		//addIcon(new MBDeveloperButton(cuid, "canvas_clear"));
@@ -190,7 +141,7 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 			
 			for (Class<?> button : externalButtons_rightAligned)
 			{
-				addSpacer(ALIGN_RIGHT);
+				addSpacer(ALIGN_END);
 				addIconRightAligned((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
 			}
 		}
@@ -199,27 +150,8 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 			e.printStackTrace();
 		}
 		
-		if (!Networking.synchroized)
-		{
-			addSpacer(ALIGN_RIGHT);
-			addTextRightAligned(
-					" LOST SYNC!!  ", 
-					new Font("Verdana", Font.BOLD, 12),
-					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
-							int result = JOptionPane.showOptionDialog(null, "The canvas is not synchronized with the server. Press OK to synchronize", "Out of Sync Alert!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-							if (result == 0)
-							{
-								Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
-							}
-						}
-					}
-			);
-		}
 		
 		this.invalidatePaint();
-		
-		
 	}
 	
 	private void setLock()
@@ -235,7 +167,7 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 				long time = (new Date()).getTime();
 				CCanvasController.lock_canvas(cuid, !lockValue, CalicoDataStore.Username, time);
 //				setLock();
-				CCanvasController.canvasdb.get(cuid).drawToolbar();
+				CCanvasController.canvasdb.get(cuid).drawMenuBars();
 			}
 		});
 		
@@ -258,25 +190,34 @@ public class CanvasBottomMenuBar extends CanvasGenericMenuBar
 		}
 		
 		Image img = getTextImage(text,font);
+
+		int imgSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imgSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imgSpan = img.getHeight(null);
+				break;
+		}		
 		
 		if (setLock_bounds == null)
-			setLock_bounds = addIcon(img.getWidth(null));
+			setLock_bounds = addIcon(imgSpan);
 		
 		lockButton = new PImage();
 		
 		lockButton.setImage(img);
 		
-		setLock_bounds.setSize(img.getWidth(null), setLock_bounds.height);
 		lockButton.setBounds(setLock_bounds);
-		
 		
 		super.text_rect_array[setLock_button_array_index] = setLock_bounds;
 
 		text_button_array[setLock_button_array_index] = buttonHandler;
 		
-		
 		addChild(0,lockButton);
-		
 	}
 	
 	private void changeLock()

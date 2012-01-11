@@ -139,7 +139,7 @@ public class SendPackets implements Runnable
 				if (Networking.connectionState == Networking.ConnectionState.Connected)
 				{
 					Networking.connectionState = Networking.ConnectionState.Connecting;
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawBottomToolbar();
+					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 					ErrorMessage.popup("Warning, you have been disconnected!");
 				}
 				try {

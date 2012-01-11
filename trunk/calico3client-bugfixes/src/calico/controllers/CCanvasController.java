@@ -3,6 +3,7 @@ package calico.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
@@ -74,6 +75,22 @@ public class CCanvasController {
 				uuid));
 		// no_notify_clear(uuid);
 	}
+	
+	public static Color getActiveCanvasBackgroundColor() {
+		if (CalicoDataStore.Mode == Calico.MODE_EXPERT) {
+			return CalicoOptions.canvas.writable_background_color;
+		} else {
+			return CalicoOptions.canvas.readonly_background_color;
+		}
+	}
+	
+	public static void canvasWritabilityChanged() {
+		Color canvasBackground = getActiveCanvasBackgroundColor();
+		for (CCanvas canvas : CCanvasController.canvasdb.values())
+		{
+			canvas.setBackground(canvasBackground);
+		}
+	}
 
 	public static void no_notify_clear_for_state_change(long uuid) {
 		// TODO: This should somehow cache the groups
@@ -132,7 +149,7 @@ public class CCanvasController {
 		
 		Networking.synchroized = true;
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawToolbar();
+			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 //		canvasdb.get(uuid).setEnabled(true);
 //		canvasdb.get(uuid).setInteracting(false);
 //		canvasdb.get(uuid).setIgnoreRepaint(false);
@@ -174,7 +191,7 @@ public class CCanvasController {
 			return;
 		}
 		
-		canvasdb.get(uuid).drawToolbar();
+		canvasdb.get(uuid).drawMenuBars();
 		if (CalicoDataStore.isInViewPort) {
 			CViewportCanvas.getInstance().drawToolbar();
 
@@ -210,7 +227,7 @@ public class CCanvasController {
 	 * Reloads the top menu bar (this shows state changes and stuff)
 	 */
 	public static void redrawTopMenubar() {
-		canvasdb.get(getCurrentUUID()).drawTopToolbar();
+		canvasdb.get(getCurrentUUID()).drawMenuBars();
 		// TODO do this also for grid and for viewport views
 	}
 
@@ -257,7 +274,7 @@ public class CCanvasController {
 		// This code here is to fix the bug where the viewport messes up the
 		// cameras of the canvas
 		CCanvas canvas = CCanvasController.canvasdb.get(uuid);
-		canvas.drawBottomToolbar();
+		canvas.drawMenuBars();
 		
 //		//get bounds of contents on canvas
 //		Rectangle boundsOfChildren = CCanvasController.canvasdb.get(uuid).getLayer().getUnionOfChildrenBounds(null).getBounds();
@@ -432,7 +449,7 @@ public class CCanvasController {
 		if (CalicoDataStore.gridObject != null)
 			CalicoDataStore.gridObject.updateCell(canvas);
 		
-		canvasdb.get(canvas).drawToolbar();
+		canvasdb.get(canvas).drawMenuBars();
 	}
 	
 	public static boolean isEmpty(long cuid)

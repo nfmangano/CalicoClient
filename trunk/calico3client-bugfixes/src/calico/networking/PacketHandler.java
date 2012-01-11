@@ -604,7 +604,7 @@ public class PacketHandler
 		
 		CCanvasController.canvasdb.put(uuid, can);
 		
-		CCanvasController.canvasdb.get(uuid).drawToolbar();
+		CCanvasController.canvasdb.get(uuid).drawMenuBars();
 		
 		
 		// Should we run the consistency
@@ -703,7 +703,7 @@ public class PacketHandler
 	private static void CONSISTENCY_FAILED(CalicoPacket p)
 	{
 		Networking.synchroized = false;
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawToolbar();
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
 	
 	private static void CONSISTENCY_DEBUG(CalicoPacket p)
@@ -752,7 +752,7 @@ public class PacketHandler
 		if (Networking.synchroized == true && foundConflict == false)
 		{
 			Networking.synchroized = true;
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawToolbar();
+			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 		}
 		
 	}

@@ -5,8 +5,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import calico.components.CCanvas;
 import calico.components.CSession;
 import calico.components.grid.CGrid;
+import calico.controllers.CCanvasController;
 
 
 
@@ -108,6 +110,7 @@ public class CalicoDataStore
 		
 		Mode = mode;
 		Mode_Reverse = (int) (Math.log(Mode)/Math.log(2.0));
+		CCanvasController.canvasWritabilityChanged();
 		
 		//Calico.logger.debug("Switching to mode "+Mode+" ("+Mode_Reverse+")");
 	}
