@@ -1,6 +1,7 @@
 package calico.components.menus;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -61,7 +62,10 @@ public class CanvasMenuButton extends PImage
 		}
 		else
 		{
-			g.drawImage(this.bgBuf.getSubimage(0,0, menubar.defaultSpriteSize,menubar.defaultSpriteSize).getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH), null, null);
+			Image bgBuf = this.bgBuf.getSubimage(0,0, menubar.defaultSpriteSize,menubar.defaultSpriteSize).getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+			AffineTransform rot90Degrees = AffineTransform.getRotateInstance(Math.PI/2, menubar.defaultIconDimension/2, menubar.defaultIconDimension/2);
+			g.drawImage(bgBuf, rot90Degrees, null);
+//			g.rotate(Math.PI/2, menubar.defaultSpriteSize/2, menubar.defaultSpriteSize/2);
 		}
 		
 		BufferedImage unscaledImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);

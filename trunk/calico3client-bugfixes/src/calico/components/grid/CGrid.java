@@ -604,8 +604,9 @@ public class CGrid extends PCanvas
 			draggingCell=true;
 			CCanvas canvas = CCanvasController.canvasdb.get(cuid);
 			PCamera canvasCam =canvas.getCamera();		
-			canvasCam.removeChild(canvas.menuBar);
-			canvasCam.removeChild(canvas.topMenuBar);
+			canvasCam.removeChild(canvas.menuBarLeft);
+			canvasCam.removeChild(canvas.menuBarRight);
+//			canvasCam.removeChild(canvas.topMenuBar);
 			Image img = canvasCam.toImage(imgw-16, imgh-16, Color.YELLOW);			
 			pressedCellMainImage =  new PImage(img);
 			

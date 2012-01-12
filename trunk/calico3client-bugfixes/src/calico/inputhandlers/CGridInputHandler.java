@@ -164,7 +164,8 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		long canvasClicked = CCanvasController.getCanvasAtPoint( point );
 		boolean lockStatus = CCanvasController.canvasdb.get(canvasClicked).getLockValue();
 		PieMenu.displayPieMenu(point, 
-				(lockStatus)?new UnlockCanvasButton():new LockCanvasButton(),
+				new UnlockCanvasButton(),
+				new LockCanvasButton(),
 				new CutCanvasButton(),
 				new CopyCanvasButton(),	
 				new DeleteCanvasButton()

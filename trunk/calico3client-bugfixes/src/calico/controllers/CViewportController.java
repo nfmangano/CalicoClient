@@ -129,7 +129,7 @@ public class CViewportController {
 					canvasCam.removeChild(i);
 				}
 			}
-			canvasCam.removeChild(canvas.menuBar);
+//			canvasCam.removeChild(canvas.menuBar);
 //			canvasCam.removeChild(canvas.topMenuBar);
 			
 			
@@ -148,8 +148,8 @@ public class CViewportController {
 			
 
 			Image img = canvasCam.toImage(width, height, null);
-			if (canvas.menuBar != null)
-				canvasCam.addChild(canvas.menuBar);
+//			if (canvas.menuBar != null)
+//				canvasCam.addChild(canvas.menuBar);
 //			if (canvas.topMenuBar != null)
 //				canvasCam.addChild(canvas.topMenuBar);			
 			
