@@ -8,7 +8,7 @@ public class ShiftToRightPalette extends PaletteBarMenuItem {
 	
 	public ShiftToRightPalette()
 	{
-		this.setImage(calico.iconsets.CalicoIconManager.getIconImage("arrow.right"));
+		this.setImage(CalicoIconManager.getIconImage("palette.down"));
 	}
 	
 

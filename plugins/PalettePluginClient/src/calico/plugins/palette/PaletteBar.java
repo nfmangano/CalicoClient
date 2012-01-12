@@ -64,7 +64,7 @@ public class PaletteBar extends PComposite
 		
 
 		
-		if (menuBarIconsVisible)
+		if (true)
 		{
 			
 			newChildren.add(new NewPalette());
@@ -72,11 +72,11 @@ public class PaletteBar extends PComposite
 			newChildren.add(new OpenPalette());
 			newChildren.add(new ClosePalette());
 			newChildren.add(new ImportImages());
-			newChildren.add(new HideMenuBarIcons());
+//			newChildren.add(new HideMenuBarIcons());
 		}
 		else
 		{
-			newChildren.add(new ShowMenuBarIcons());
+//			newChildren.add(new ShowMenuBarIcons());
 		}
 		
 		newChildren.add(new ShiftToLeftPalette());

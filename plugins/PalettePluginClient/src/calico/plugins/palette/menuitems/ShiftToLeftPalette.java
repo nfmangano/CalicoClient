@@ -11,7 +11,7 @@ public class ShiftToLeftPalette extends PaletteBarMenuItem {
 	
 	public ShiftToLeftPalette()
 	{
-		this.setImage(calico.iconsets.CalicoIconManager.getIconImage("arrow.left"));
+		this.setImage(CalicoIconManager.getIconImage("palette.up"));
 	}
 	
 	@Override
