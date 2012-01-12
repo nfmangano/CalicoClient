@@ -56,7 +56,7 @@ public class EmailButton extends CanvasMenuButton
 		cuid = c;
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("email"));
+			setImage(CalicoIconManager.getIconImage("email.canvas"));
 		}
 		catch(Exception e)
 		{

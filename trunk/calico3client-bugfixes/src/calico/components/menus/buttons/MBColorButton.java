@@ -35,7 +35,7 @@ public class MBColorButton extends CanvasMenuButton
 	private long cuid = 0L;
 	private Color color = Color.BLACK;
 		
-	public MBColorButton(long c, Color col, Rectangle2D bounds)
+	public MBColorButton(long c, Color col, String iconPath, Rectangle2D bounds)
 	{
 		super();
 		cuid = c;
@@ -45,12 +45,12 @@ public class MBColorButton extends CanvasMenuButton
 			//Color curColor = CalicoOptions.getColor("pen.default_color");
 			//setImage(CalicoOptions.getColorImage(color));
 			
-			if(CalicoDataStore.PenColor.equals(color))
+			if(CalicoDataStore.PenColor.equals(color) && CalicoDataStore.Mode == Calico.MODE_EXPERT)
 			{
 				setSelected(true);
 			}
 			
-			setImage(CalicoOptions.getColorImageRect(color, 16));
+			setImage(CalicoIconManager.getIconImage(iconPath));
 			setBounds(bounds);
 			
 		}
@@ -67,6 +67,9 @@ public class MBColorButton extends CanvasMenuButton
 		//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
 		Calico.logger.debug("Pressed Color button "+color.toString());
 		CalicoDataStore.PenColor = color;
+		CalicoDataStore.LastDrawingColor = color;
+		
+		CalicoDataStore.set_Mode(Calico.MODE_EXPERT);
 		CCanvasController.redrawMenuBars();
 	}
 	

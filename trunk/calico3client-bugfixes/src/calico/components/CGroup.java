@@ -440,12 +440,15 @@ public class CGroup extends PPath implements Serializable {
 	{
 		Polygon polygon = Geometry.getPolyFromPath(shape.getPathIterator(null));
 		GeneralPath containerGroup = getPathReference();
+		int totalNotContained = 0;
 		for(int i=0;i<polygon.npoints;i++)
 		{
 			if (!containerGroup.contains(new Point(polygon.xpoints[i], polygon.ypoints[i])))
 			{
-				return false;
+				totalNotContained++;
 			}
+			if (totalNotContained > polygon.npoints*.1)
+				return false;
 		}
 		return true;
 	}

@@ -58,7 +58,7 @@ public class CArrowController
 	{
 		outstandingAnchorPoint = p;
 
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).menuBar.redrawArrowIndicator();
+//		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).menuBar.redrawArrowIndicator();
 	}
 	
 	

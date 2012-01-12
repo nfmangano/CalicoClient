@@ -64,7 +64,7 @@ public class CalicoDataStore
 	public static float PenThickness = CalicoOptions.pen.stroke_size;
 	
 	public static Color LastDrawingColor = Color.BLACK;
-	public static Color LastPointingColor = Color.ORANGE;
+	public static Color PointingColor = Color.ORANGE;
 	
 	
 	// This is used to see when the last mouse/keyboard/finger/whatever was inputted
@@ -92,10 +92,10 @@ public class CalicoDataStore
 	
 	public static void set_Mode(int mode)
 	{
-		if (Mode == Calico.MODE_EXPERT)
-			LastDrawingColor = PenColor;
-		if (Mode == Calico.MODE_POINTER)
-			LastPointingColor = PenColor;
+//		if (Mode == Calico.MODE_EXPERT)
+//			LastDrawingColor = PenColor;
+//		if (Mode == Calico.MODE_POINTER)
+//			PointingColor = PenColor;
 		
 		if (mode == Calico.MODE_EXPERT)
 		{
@@ -104,7 +104,7 @@ public class CalicoDataStore
 		}
 		if (mode == Calico.MODE_POINTER)
 		{
-			PenColor = LastPointingColor;
+			PenColor = PointingColor;
 			PenThickness = 4.0f;
 		}
 		

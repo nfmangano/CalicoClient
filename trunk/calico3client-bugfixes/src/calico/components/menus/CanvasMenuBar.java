@@ -49,9 +49,9 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 	private static ObjectArrayList<Class<?>> externalButtons = new ObjectArrayList<Class<?>>();
 	private static ObjectArrayList<Class<?>> externalButtons_rightAligned = new ObjectArrayList<Class<?>>();
 	
-	public CanvasMenuBar(long c)
+	public CanvasMenuBar(long c, int screenPos)
 	{		
-		super(CanvasGenericMenuBar.POSITION_LEFT, CCanvasController.canvasdb.get(c).getBounds());		
+		super(screenPos, CCanvasController.canvasdb.get(c).getBounds());		
 		
 		cuid = c;
 		
@@ -62,11 +62,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		addIcon(new ReturnToGrid());
 		
 		
-		String coordtxt = CCanvasController.canvasdb.get(cuid).getGridCoordTxt();
-		
-		addSpacer();
-		
-		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
+
 		
 		addSpacer();
 		
@@ -99,13 +95,14 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 
 		//addCap();
 		addSpacer();
-				
+		addIcon(new DoNotEraseButton(cuid));
+		addIcon(new CanEraseButton(cuid));
 		addIcon(new ClearButton(cuid));
 		addSpacer();
 		
-		setLock_button_array_index = text_button_array_index++;
-		setLock();
-		addSpacer();
+//		setLock_button_array_index = text_button_array_index++;
+//		setLock();
+//		addSpacer();
 		
 		addIcon(new UndoButton(cuid));
 		addIcon(new RedoButton(cuid));
@@ -113,20 +110,19 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 		for(int i=0;i<CalicoOptions.menu.colorlist.length;i++)
 		{
-			addIcon(new MBColorButton(cuid, CalicoOptions.menu.colorlist[i], rect_default));
+			addIcon(new MBColorButton(cuid, CalicoOptions.menu.colorlist[i], CalicoOptions.menu.colorlist_icons[i], rect_default));
 		}
-		addSpacer();
+//		addSpacer();
 		
 		// Mode buttons
 		addIcon(new MBModeChangeButton(cuid, Calico.MODE_DELETE));
 		addIcon(new MBModeChangeButton(cuid, Calico.MODE_ARROW));
 
-		addIcon(new MBModeChangeButton(cuid, Calico.MODE_EXPERT));
+//		addIcon(new MBModeChangeButton(cuid, Calico.MODE_EXPERT));
 		addIcon(new MBModeChangeButton(cuid, Calico.MODE_POINTER));
 		
 		//Begin align right
-		addSpacer(ALIGN_END);
-		addIconRightAligned(new EmailButton(cuid));
+
 		
 	//	addSpacer();addSpacer();
 		//addIcon(new MBDeveloperButton(cuid, "canvas_clear"));

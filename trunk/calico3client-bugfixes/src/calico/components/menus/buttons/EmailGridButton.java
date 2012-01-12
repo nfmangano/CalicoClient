@@ -61,7 +61,7 @@ public class EmailGridButton extends CanvasMenuButton
 		super();
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("email"));
+			setImage(CalicoIconManager.getIconImage("email.grid"));
 		}
 		catch(Exception e)
 		{

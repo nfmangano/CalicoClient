@@ -358,7 +358,7 @@ public class CViewportCanvas extends PCanvas{
 			this.menuBar = null;
 		}
 		CCanvasController.canvasdb.get(cuidWorkingCanvas).drawMenuBars();
-		this.menuBar = CCanvasController.canvasdb.get(cuidWorkingCanvas).menuBar;
+		this.menuBar = CCanvasController.canvasdb.get(cuidWorkingCanvas).menuBarLeft;
 		
 		getCamera().addChild(this.menuBar);
 	}

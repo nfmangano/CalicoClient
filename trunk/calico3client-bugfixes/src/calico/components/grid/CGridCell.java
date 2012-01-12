@@ -210,15 +210,9 @@ public class CGridCell extends PImage//PComposite
 	private Image getCanvasImage(long cuid)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(cuid);
-		PCamera canvasCam =canvas.getCamera();		
-		canvasCam.removeChild(canvas.menuBar);
-		canvasCam.removeChild(canvas.topMenuBar);
+		PCamera canvasCam =canvas.getCamera();
 					
-		Image img = canvasCam.toImage();
-		if (canvas.menuBar != null)
-			canvasCam.addChild(canvas.menuBar);
-		if (canvas.topMenuBar != null)
-			canvasCam.addChild(canvas.topMenuBar);			
+		Image img = canvasCam.toImage();	
 		
 		return img;
 	}

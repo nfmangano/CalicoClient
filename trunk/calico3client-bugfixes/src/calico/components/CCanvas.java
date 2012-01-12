@@ -68,7 +68,8 @@ public class CCanvas extends PCanvas
 
 	private Rectangle grid_thumb_coords = new Rectangle();
 	
-	public CanvasMenuBar menuBar = null;
+	public CanvasMenuBar menuBarLeft = null;
+	public CanvasMenuBar menuBarRight = null;
 	public CanvasStatusBar statusBar = null;
 	public CanvasTopMenuBar topMenuBar = null;
 
@@ -215,9 +216,13 @@ public class CCanvas extends PCanvas
 	
 	public void clickMenuBar(Point point)
 	{
-		if(this.menuBar.isPointInside(point))
+		if(this.menuBarLeft.isPointInside(point))
 		{
-			this.menuBar.clickMenu(point);
+			this.menuBarLeft.clickMenu(point);
+		}
+		if(this.menuBarRight != null && this.menuBarRight.isPointInside(point))
+		{
+			this.menuBarRight.clickMenu(point);
 		}
 		if(this.statusBar.isPointInside(point))
 		{
@@ -231,9 +236,13 @@ public class CCanvas extends PCanvas
 	
 	public boolean isPointOnMenuBar(Point point)
 	{
-		if (this.menuBar != null
-			&& this.menuBar.isPointInside(point))
+		if (this.menuBarLeft != null
+			&& this.menuBarLeft.isPointInside(point))
 			return true;
+		
+		if (this.menuBarRight != null
+				&& this.menuBarRight.isPointInside(point))
+				return true;
 		
 		if (this.statusBar != null
 				&& this.statusBar.isPointInside(point))
@@ -405,17 +414,29 @@ public class CCanvas extends PCanvas
 	
 	private void drawMenuBar()
 	{
-		CanvasMenuBar temp = new CanvasMenuBar(this.uuid);
-		getCamera().addChild(temp);
+		CanvasMenuBar tempLeft = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_LEFT);
+		getCamera().addChild(tempLeft);
 		
-		if(this.menuBar!=null)
+		CanvasMenuBar tempRight = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_RIGHT);
+		getCamera().addChild(tempRight);
+		
+		if(this.menuBarLeft!=null)
 		{
-			getCamera().removeChild(this.menuBar);
-			this.menuBar = null;
+			getCamera().removeChild(this.menuBarLeft);
+			this.menuBarLeft = null;
+		}
+		if(this.menuBarRight!=null)
+		{
+			getCamera().removeChild(this.menuBarRight);
+			this.menuBarRight = null;
 		}
 		
-		this.menuBar = temp;
-		this.menuBar.repaint();
+		this.menuBarLeft = tempLeft;
+		this.menuBarRight = tempRight;
+		if (this.menuBarLeft != null)
+			this.menuBarLeft.repaint();
+		if (this.menuBarRight != null)
+			this.menuBarRight.repaint();
 	}
 	
 	private void drawStatusBar()
@@ -450,8 +471,8 @@ public class CCanvas extends PCanvas
 	
 	public void redrawToolbar_clients()
 	{
-		if (this.menuBar != null)
-			this.menuBar.redrawClients();
+//		if (this.menuBar != null)
+//			this.menuBar.redrawClients();
 	}
 
 	public void setAsCurrent()
@@ -464,12 +485,15 @@ public class CCanvas extends PCanvas
 		if( strokes.size()>0 || groups.size()>0 || lists.size()>0 || checkBoxes.size()>0 || arrows.size()>0 )
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
-			getCamera().removeChild(menuBar);
+			getCamera().removeChild(menuBarLeft);
+			getCamera().removeChild(menuBarRight);
 			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
 			Image img = getCamera().toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
 
-			getCamera().addChild(menuBar);
+			getCamera().addChild(menuBarLeft);
+			if (menuBarRight != null)
+				getCamera().addChild(menuBarRight);
 			getCamera().addChild(statusBar);
 			//getCamera().addChild(topMenuBar);
 			
@@ -494,12 +518,15 @@ public class CCanvas extends PCanvas
 	
 	public void getBlobs()
 	{
-		getCamera().removeChild(menuBar);
+		getCamera().removeChild(menuBarLeft);
+		getCamera().removeChild(menuBarRight);
 		getCamera().removeChild(statusBar);
 		//getCamera().removeChild(topMenuBar);
 		
 		Image img = getCamera().toImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, CCanvasController.getActiveCanvasBackgroundColor());
-		getCamera().addChild(menuBar);
+		getCamera().addChild(menuBarLeft);
+		if (menuBarRight != null)
+			getCamera().addChild(menuBarRight);
 		getCamera().addChild(statusBar);
 		//getCamera().addChild(topMenuBar);
 		
@@ -1001,7 +1028,9 @@ public class CCanvas extends PCanvas
 
 		
 		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
-		this.repaint(menuBar.getBounds());
+		this.repaint(menuBarLeft.getBounds());
+		if (menuBarRight != null)
+			this.repaint(menuBarRight.getBounds());
 		CalicoDataStore.calicoObj.getContentPane().getComponent(0).validate();
 		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().validateFullPaint();
 		

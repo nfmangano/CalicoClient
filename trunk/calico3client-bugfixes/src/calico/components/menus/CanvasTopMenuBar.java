@@ -54,7 +54,7 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 		
 		addSpacer();
 		
-		addIcon(new MBColorButton(0L, CalicoDataStore.PenColor, rect_default));
+//		addIcon(new MBColorButton(0L, CalicoDataStore.PenColor, rect_default));
 
 		addSpacer();
 		
