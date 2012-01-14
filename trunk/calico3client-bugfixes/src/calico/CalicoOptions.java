@@ -1,22 +1,24 @@
 package calico;
 
-import java.util.regex.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.lang.reflect.*;
+import org.apache.log4j.Logger;
 
-import java.io.*;
-import java.awt.*;
-import java.awt.image.*;
-import java.util.*;
-
-import org.json.me.*;
-
-import calico.components.CGroup;
-import calico.modules.ErrorMessage;
-
-import java.awt.font.*;
-
-import org.apache.log4j.*;
+import calico.input.CInputMode;
 
 
 
@@ -106,7 +108,7 @@ public class CalicoOptions
 		public static Color readonly_background_color = new Color(0xF4F4FF);
 		public static class input
 		{
-			public static int default_mode = Calico.MODE_EXPERT;
+			public static CInputMode default_mode = CInputMode.EXPERT;
 		}
 	}
 	

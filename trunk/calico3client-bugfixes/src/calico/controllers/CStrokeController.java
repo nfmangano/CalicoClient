@@ -7,6 +7,7 @@ import calico.networking.*;
 import calico.networking.netstuff.*;
 import calico.components.CGroup;
 import calico.components.CStroke;
+import calico.input.CInputMode;
 import calico.modules.*;
 
 
@@ -139,7 +140,7 @@ public class CStrokeController
 			Networking.send(packets[i]);
 		}
 		
-		if (CalicoDataStore.Mode == Calico.MODE_POINTER)
+		if (CalicoDataStore.Mode == CInputMode.POINTER)
 			setStrokeAsPointer(suuid);
 	}
 	

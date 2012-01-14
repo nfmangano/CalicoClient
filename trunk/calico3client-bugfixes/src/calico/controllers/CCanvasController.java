@@ -26,6 +26,7 @@ import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
+import calico.input.CInputMode;
 import calico.modules.MessageObject;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -77,14 +78,14 @@ public class CCanvasController {
 	}
 	
 	public static Color getActiveCanvasBackgroundColor() {
-		if (CalicoDataStore.Mode == Calico.MODE_EXPERT) {
+		if (CalicoDataStore.Mode == CInputMode.EXPERT) {
 			return CalicoOptions.canvas.writable_background_color;
 		} else {
 			return CalicoOptions.canvas.readonly_background_color;
 		}
 	}
 	
-	public static void canvasWritabilityChanged() {
+	public static void canvasModeChanged() {
 		Color canvasBackground = getActiveCanvasBackgroundColor();
 		for (CCanvas canvas : CCanvasController.canvasdb.values())
 		{

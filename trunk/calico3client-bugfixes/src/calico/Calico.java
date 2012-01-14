@@ -55,12 +55,12 @@ public class Calico extends JFrame
 	private static Ticker ticker = null;
 	
 	// MODES
-	public static final int MODE_EXPERT		= 1 << 0;
-	public static final int MODE_SCRAP		= 1 << 1;
-	public static final int MODE_STROKE		= 1 << 2;
-	public static final int MODE_ARROW		= 1 << 3;
-	public static final int MODE_DELETE		= 1 << 4;
-	public static final int MODE_POINTER	= 1 << 5;
+//	public static final int MODE_EXPERT		= 1 << 0;
+//	public static final int MODE_SCRAP		= 1 << 1;
+//	public static final int MODE_STROKE		= 1 << 2;
+//	public static final int MODE_ARROW		= 1 << 3;
+//	public static final int MODE_DELETE		= 1 << 4;
+//	public static final int MODE_POINTER	= 1 << 5;
 
 	
 

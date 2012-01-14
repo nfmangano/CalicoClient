@@ -35,6 +35,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.utils.blobdetection.*;
 import edu.umd.cs.piccolo.PCanvas;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.*;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -50,6 +51,9 @@ public class CCanvas extends PCanvas
 	
 	private static final long serialVersionUID = 1L;
 	
+	private static final int WATERMARK_LAYER_INDEX = 1;
+	
+	PLayer watermarkLayer = null;
 
 	// All the BGelements, arrows, groups, objects that are on the canvas
 	private LongArraySet strokes = new LongArraySet();
@@ -120,8 +124,6 @@ public class CCanvas extends PCanvas
 
 		CalicoInputManager.addCanvasInputHandler(this.uuid);
 		
-
-
 		// This makes a border, so that we see the ENTIRE canvas
 		if(!CalicoOptions.grid.render_zoom_canvas)
 		{
@@ -131,6 +133,39 @@ public class CCanvas extends PCanvas
 			getLayer().addChild(drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
 		}
 		repaint();
+	}
+	
+	public boolean hasWatermarkLayer()
+	{
+		return watermarkLayer != null;
+	}
+	
+	public PLayer getWatermarkLayer()
+	{
+		return watermarkLayer;
+	}
+	
+	public void setWatermarkLayer(PLayer watermarkLayer)
+	{
+		removeWatermarkLayer();
+		installWatermarkLayer(watermarkLayer);
+	}
+	
+	private void installWatermarkLayer(PLayer watermarkLayer)
+	{
+		this.watermarkLayer = watermarkLayer;
+		if (this.watermarkLayer != null)
+		{
+			getCamera().addLayer(WATERMARK_LAYER_INDEX, this.watermarkLayer);
+		}
+	}
+	
+	public void removeWatermarkLayer()
+	{
+		if (this.watermarkLayer != null)
+		{
+			getCamera().removeLayer(WATERMARK_LAYER_INDEX);
+		}
 	}
 
 	private PLine drawBorderLine(int x,int y, int x2, int y2)

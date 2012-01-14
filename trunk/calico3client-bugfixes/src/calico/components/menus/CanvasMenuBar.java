@@ -14,6 +14,7 @@ import calico.components.menus.buttons.*;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.*;
@@ -118,11 +119,11 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		addSpacer();
 		
 		// Mode buttons
-		addIcon(new MBModeChangeButton(cuid, Calico.MODE_DELETE));
-		addIcon(new MBModeChangeButton(cuid, Calico.MODE_ARROW));
+		addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
+		addIcon(new MBModeChangeButton(cuid, CInputMode.ARROW));
 
-		addIcon(new MBModeChangeButton(cuid, Calico.MODE_EXPERT));
-		addIcon(new MBModeChangeButton(cuid, Calico.MODE_POINTER));
+		addIcon(new MBModeChangeButton(cuid, CInputMode.EXPERT));
+		addIcon(new MBModeChangeButton(cuid, CInputMode.POINTER));
 		
 		//Begin align right
 		addSpacer(ALIGN_END);
