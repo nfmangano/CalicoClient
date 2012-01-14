@@ -10,6 +10,7 @@ import java.awt.geom.Point2D;
 import calico.CalicoDataStore;
 import calico.components.CGroup;
 import calico.components.CViewportCanvas;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
@@ -109,15 +110,21 @@ public class GroupMoveButton extends PieMenuButton
 				CGroupController.move_start(guuid);
 			}
 			
-			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
 			if (PieMenu.highlightedGroup != 0l)
+			{
 				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
+				
+			}
+			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
+			
+			BubbleMenu.moveIconPositions((scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
+			
 			long smallest = 0;
 			if ((smallest = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
 			{
 				CGroupController.groupdb.get(smallest).highlight_on();
 			}
-			
+			CGroupController.groupdb.get(guuid).highlight_on();
 			prevPoint.x = scaledPoint.x;
 			prevPoint.y = scaledPoint.y;
 			e.consume();
@@ -149,8 +156,8 @@ public class GroupMoveButton extends PieMenuButton
 			double viewportScale = 1/CalicoDataStore.gridObject.getViewportScale();
 			Point scaledPoint = new Point((int)(e.getPoint().x * viewportScale), (int)(e.getPoint().y * viewportScale));
 			
-			if (PieMenu.highlightedGroup != 0l)
-				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
+			//if (PieMenu.highlightedGroup != 0l)
+				//CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
 			
 			if (CalicoDataStore.isInViewPort)
 			{
@@ -171,7 +178,8 @@ public class GroupMoveButton extends PieMenuButton
 //				scaledPoint.x - mouseDownPoint.x, 
 //				scaledPoint.y - mouseDownPoint.y
 //			));
-			
+			//CGroupController.groupdb.get(guuid).highlight_on();
+			//System.out.println(guuid + " on");
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
 			

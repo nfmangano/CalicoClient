@@ -29,6 +29,7 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.PieMenu;
@@ -966,7 +967,8 @@ public class CGroupController
 //				}
 //			}
 
-			PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
+			//PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
+			BubbleMenu.displayBubbleMenu(point, CGroupController.groupdb.get(uuid).getBounds(),buttons.toArray(new PieMenuButton[buttons.size()]));
 			CGroupController.groupdb.get(uuid).highlight_on();
 			
 		}
