@@ -161,7 +161,7 @@ public class ListenServer implements Runnable
 					}
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						logger.warn("Failed to process packet " + tpack.toString());
 					}
 					Networking.receivingPacketsFromServer = false;
 					

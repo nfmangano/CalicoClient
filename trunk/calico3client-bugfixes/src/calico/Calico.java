@@ -29,12 +29,14 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
+import calico.components.CCanvasWatermark;
 import calico.components.CSession;
 import calico.components.CViewportCanvas;
 import calico.components.grid.CGrid;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.input.CalicoKeyListener;
 import calico.inputhandlers.InputQueue;
 import calico.networking.Networking;
@@ -245,6 +247,8 @@ public class Calico extends JFrame
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme( CalicoOptions.core.icontheme );
+		CInputMode.setup();
+		CCanvasWatermark.InputModeWatermarks.setup();
 		
 		CalicoPluginManager.setup();
 
