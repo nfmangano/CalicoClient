@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +26,7 @@ public class BubbleMenu {
 	public static Logger logger = Logger.getLogger(BubbleMenu.class.getName());
 	//Uses PieMenuButton for compatibility
 	static ObjectArrayList<PieMenuButton> buttonList = new ObjectArrayList<PieMenuButton>();
+	static int[] buttonPosition;
 	
 	private static BubbleMenuContainer bubbleContainer = null;
 	
@@ -38,17 +40,17 @@ public class BubbleMenu {
 	public static long highlightedGroup = 0l;
 	public static Point lastOpenedPosition = null;
 	
-	public static double menuWidth = 0;
-	public static double menuHeight = 0;
+	//public static double menuWidth = 0;
+	//public static double menuHeight = 0;
 	public static PBounds activeGroupBounds;
 	
 	public static void displayBubbleMenu(Point location, PBounds bounds, PieMenuButton... buttons)
 	{
 		lastOpenedPosition = location;
 		activeGroupBounds = bounds;
-		menuWidth = activeGroupBounds.getWidth() / Math.cos(Math.atan(1));
-		menuHeight = activeGroupBounds.getHeight() / Math.sin(Math.atan(1));
-		System.out.println(activeGroupBounds.getMaxX() + " " + activeGroupBounds.getMaxY());
+		//menuWidth = activeGroupBounds.getWidth() / Math.cos(Math.atan(1));
+		//menuHeight = activeGroupBounds.getHeight() / Math.sin(Math.atan(1));
+		//System.out.println(activeGroupBounds.getMaxX() + " " + activeGroupBounds.getMaxY());
 		displayBubbleMenuArray(location, buttons);
 	}
 	public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
@@ -61,6 +63,8 @@ public class BubbleMenu {
 		}
 		
 		buttonList.addElements(0, buttons, 0, buttons.length);
+		buttonPosition = new int[buttonList.size()];
+		
 		getIconPositions(new Point((int)activeGroupBounds.getCenterX(), (int)activeGroupBounds.getCenterY()));
 		
 		//adjust the location of the pie menu if it's off the screen
@@ -99,6 +103,11 @@ public class BubbleMenu {
 
 	}
 	
+	private static void setButtonPositions()
+	{
+		
+	}
+	
 	public static void moveIconPositions(int shiftX, int shiftY)
 	{
 		for(int i=0;i<buttonList.size();i++)
@@ -130,10 +139,10 @@ public class BubbleMenu {
 		
 		for(int i=0;i<numOfPositions;i++)
 		{
-			Point pos = getButtonPoint(curDegree,degIncrement);
+			Point pos = getButtonPoint(i, curDegree,degIncrement);
 //			pos.translate(center.x-(CalicoOptions.menu.icon_size/2), center.y-(CalicoOptions.menu.icon_size/2));
 
-			pos.translate(center.x, center.y);
+			//pos.translate(center.x, center.y);
 			//pos.x += 30;
 			buttonList.get(i).setPosition(pos);
 			
@@ -142,9 +151,103 @@ public class BubbleMenu {
 		
 	}//
 	
-	private static Point getButtonPoint(double curDegree, double degIncrement)
+	private static Point getButtonPoint(int index, double curDegree, double degIncrement)
 	{
-		double theta = (curDegree) * DEG2RAD;
+		int x = 13;
+		int y = 13;
+		int small = 10;
+		int large = 35;
+		
+		//1
+		if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupSetPermanentButton") == 0)
+		{
+			buttonPosition[index] = 1;
+			x = (int)activeGroupBounds.getMinX() - x - small;
+			y = (int)activeGroupBounds.getMinY() - y + large;
+		}
+		//2
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
+		{
+			buttonPosition[index] = 2;
+			x = (int)activeGroupBounds.getMinX() - x;
+			y = (int)activeGroupBounds.getMinY() - y;
+		}
+		//3
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
+		{
+			buttonPosition[index] = 3;
+			x = (int)activeGroupBounds.getMinX() - x + large;
+			y = (int)activeGroupBounds.getMinY() - y - small;
+		}
+		//4
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
+		{
+			buttonPosition[index] = 4;
+			x = (int)activeGroupBounds.getMaxX() + x - large;
+			y = (int)activeGroupBounds.getMinY() - y - small;
+		}
+		//5
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
+		{
+			buttonPosition[index] = 5;
+			x = (int)activeGroupBounds.getMaxX() + x;
+			y = (int)activeGroupBounds.getMinY() - y;
+		}
+		//6
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
+		{
+			buttonPosition[index] = 6;
+			x = (int)activeGroupBounds.getMaxX() + x + small;
+			y = (int)activeGroupBounds.getMinY() - y + large;
+		}
+		//7
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0)
+		{
+			buttonPosition[index] = 7;
+			x = (int)activeGroupBounds.getMaxX() + x + small;
+			y = (int)activeGroupBounds.getMaxY() + y - large;
+		}
+		//8
+		/*else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.") == 0)
+		{
+			buttonPosition[index] = 8;
+			x = (int)activeGroupBounds.getMaxX() + x;
+			y = (int)activeGroupBounds.getMaxY() + y;
+		}*/
+		//9
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
+		{
+			buttonPosition[index] = 9;
+			x = (int)activeGroupBounds.getMaxX() + x - large;
+			y = (int)activeGroupBounds.getMaxY() + y + small;
+		}
+		//10
+		//else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
+		/*{
+		 *  buttonPosition[index] = 10;
+			x = (int)activeGroupBounds.getMinX() - x + large;
+			y = (int)activeGroupBounds.getMaxY() + y + small;
+		}*/
+		//11
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
+		{
+			buttonPosition[index] = 11;
+			x = (int)activeGroupBounds.getMinX() - x;
+			y = (int)activeGroupBounds.getMaxY() + y;
+		}
+		//12
+		else if (buttonList.get(index).getClass().getName().compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+		{
+			buttonPosition[index] = 12;
+			x = (int)activeGroupBounds.getMinX() - x - small;
+			y = (int)activeGroupBounds.getMaxY() + y - large;
+		}
+		
+		//System.out.println(buttonList.get(index).getClass().getName());
+		
+		
+		
+		/*double theta = (curDegree) * DEG2RAD;
 		
 		
 		double a = menuWidth/2;
@@ -156,6 +259,9 @@ public class BubbleMenu {
 		return new Point(
 				(int) (Math.cos(theta) * hypotenuse) - 12,
 				(int) (Math.sin(theta) * hypotenuse) - 12
+		);*/
+		return new Point(
+				x - 12,y - 12
 		);
 	}
 	
@@ -181,7 +287,7 @@ public class BubbleMenu {
 		
 		for(int i=0;i<numButtons;i++)
 		{
-			Point pos = getButtonPoint(curDegree,degIncrement);
+			Point pos = getButtonPoint(i,curDegree,degIncrement);
 			buttonBounds[i] = new Rectangle(pos.x,pos.y,CalicoOptions.menu.icon_size,CalicoOptions.menu.icon_size);
 			
 			curDegree = curDegree + degIncrement;

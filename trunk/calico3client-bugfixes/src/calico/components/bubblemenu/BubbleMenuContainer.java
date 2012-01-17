@@ -72,7 +72,7 @@ public class BubbleMenuContainer extends PComposite {
 		
 		
 		
-		Ellipse2D.Double oval = new Ellipse2D.Double(buttonBounds.getCenterX() - (BubbleMenu.menuWidth / 2), buttonBounds.getCenterY() - (BubbleMenu.menuHeight / 2), BubbleMenu.menuWidth, BubbleMenu.menuHeight);
+		//Ellipse2D.Double oval = new Ellipse2D.Double(buttonBounds.getCenterX() - (BubbleMenu.menuWidth / 2), buttonBounds.getCenterY() - (BubbleMenu.menuHeight / 2), BubbleMenu.menuWidth, BubbleMenu.menuHeight);
 		//oval.setFrameFromDiagonal(buttonBounds.getCenterX() - (ovalWidth / 2), buttonBounds.getCenterY() - (ovalHeight / 2), buttonBounds.getCenterX() + (ovalWidth / 2), buttonBounds.getCenterY() + (ovalHeight / 2));
 		//System.out.println(ovalWidth + " " + ovalHeight);
 		//System.out.println(2 / Math.sin(Math.atan(.5)));
@@ -83,7 +83,7 @@ public class BubbleMenuContainer extends PComposite {
 		
 		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f));
 		//graphics.setPaint(rgp);
-		Area boxArea = new Area(oval);
+		//Area boxArea = new Area(oval);
 		//graphics.fill(boxArea);
 		
 		//System.out.println(circleBounds.x + " " + circleBounds.y + " " + circleBounds.height + " " + circleBounds.width);

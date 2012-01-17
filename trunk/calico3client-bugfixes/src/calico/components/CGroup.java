@@ -204,6 +204,30 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
 		return pieMenuButtons;
 	}
+	
+	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
+		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
+		pieMenuButtons.addAll(CGroup.pieMenuButtons); //5
+		return pieMenuButtons;
+	}
+	
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>(); 
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDropButton.class); //12
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupSetPermanentButton.class); //1
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupShrinkToContentsButton.class); //2
+		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class); //3
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
+		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
+		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
+		return pieMenuButtons;
+	}
 
 	public long getUUID() {
 		return this.uuid;
