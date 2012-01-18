@@ -34,7 +34,6 @@ public class BubbleMenuContainer extends PComposite {
 	@Override
 	public boolean setBounds(Rectangle2D rect)
 	{
-		System.out.println(rect.getMaxX() + " " + rect.getMaxY());
 		//return super.setBounds(getComputedBounds());
 		return super.setBounds(rect);
 	}
@@ -76,7 +75,6 @@ public class BubbleMenuContainer extends PComposite {
 		//oval.setFrameFromDiagonal(buttonBounds.getCenterX() - (ovalWidth / 2), buttonBounds.getCenterY() - (ovalHeight / 2), buttonBounds.getCenterX() + (ovalWidth / 2), buttonBounds.getCenterY() + (ovalHeight / 2));
 		//System.out.println(ovalWidth + " " + ovalHeight);
 		//System.out.println(2 / Math.sin(Math.atan(.5)));
-		System.out.println(buttonBounds.getHeight() + " " + buttonBounds.getWidth());
 		//RadialGradientPaint rgp = new RadialGradientPaint((float)circleBounds.getCenterX(), (float)circleBounds.getCenterY(), (float)circleBounds.width/2, new float[] { 0.0f, 0.8f, 0.95f, 1.0f }, new Color[] {Color.white, new Color(205, 201, 201), new Color(205, 201, 201), Color.gray});
 		
 		

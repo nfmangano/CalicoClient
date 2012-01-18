@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.CViewportCanvas;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
@@ -16,6 +17,7 @@ import calico.controllers.CGroupController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
+import edu.umd.cs.piccolo.util.PBounds;
 
 public class GroupRotateButton extends PieMenuButton
 {
@@ -91,6 +93,9 @@ public class GroupRotateButton extends PieMenuButton
 			ghost.scaleAboutPoint(scale, centerPoint);
 
 			ghost.repaintFrom(ghost.getBounds(), ghost);
+
+			BubbleMenu.moveIconPositions(ghost.getFullBounds());
+			
 			
 			prevPoint.x = scaledPoint.getX();
 			prevPoint.y = scaledPoint.getY();
@@ -143,7 +148,7 @@ public class GroupRotateButton extends PieMenuButton
 			
 			double scale = getScaleMP(mouseUpPoint);
 			CGroupController.scale(guuid, scale, scale);
-			
+			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
 			

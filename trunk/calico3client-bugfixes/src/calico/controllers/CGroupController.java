@@ -986,9 +986,8 @@ public class CGroupController
 		//Class<?> pieMenuClass = calico.components.piemenu.PieMenu.class;
 		if (!exists(uuid))
 			return;
-		
+
 		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getPieMenuButtons();
-		
 		
 		int curPos = 0;
 		int totalButtons = 0;
@@ -1073,6 +1072,7 @@ public class CGroupController
 //			}
 
 			//PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
+			
 			BubbleMenu.displayBubbleMenu(point, CGroupController.groupdb.get(uuid).getBounds(),buttons.toArray(new PieMenuButton[buttons.size()]));
 			CGroupController.groupdb.get(uuid).highlight_on();
 			

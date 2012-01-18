@@ -110,9 +110,9 @@ public class GroupMoveButton extends PieMenuButton
 				CGroupController.move_start(guuid);
 			}
 			
-			if (PieMenu.highlightedGroup != 0l)
+			if (BubbleMenu.highlightedGroup != 0l)
 			{
-				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
+				CGroupController.groupdb.get(BubbleMenu.highlightedGroup).highlight_off();
 				
 			}
 			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
@@ -156,8 +156,8 @@ public class GroupMoveButton extends PieMenuButton
 			double viewportScale = 1/CalicoDataStore.gridObject.getViewportScale();
 			Point scaledPoint = new Point((int)(e.getPoint().x * viewportScale), (int)(e.getPoint().y * viewportScale));
 			
-			//if (PieMenu.highlightedGroup != 0l)
-				//CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
+			//if (BubbleMenu.highlightedGroup != 0l)
+				//CGroupController.groupdb.get(BubbleMenu.highlightedGroup).highlight_off();
 			
 			if (CalicoDataStore.isInViewPort)
 			{

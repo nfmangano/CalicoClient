@@ -112,11 +112,6 @@ public class BubbleMenu {
 	{
 		for(int i=0;i<buttonList.size();i++)
 		{
-			if (buttonPosition[i] == 2)
-			{
-				System.out.println(buttonList.get(i).getBounds().getX() + " " + buttonList.get(i).getBounds().getY() + ":::" + bubbleContainer.getChild(i).getX() + " " + bubbleContainer.getChild(i).getY());
-				System.out.println(CalicoDataStore.ScreenHeight);
-			}
 			//int newX = (int)(buttonList.get(i).getBounds().getX() + shiftX);
 			//int newY = (int)(buttonList.get(i).getBounds().getY() + shiftY);
 
@@ -227,6 +222,16 @@ public class BubbleMenu {
 		int startX = 13;
 		int startY = 13;
 		
+		
+		if (groupBounds.getWidth() < 80)
+		{
+			startX += (80 - groupBounds.getWidth()) / 2;
+		}
+		if (groupBounds.getHeight() < 80)
+		{
+			startY += (80 - groupBounds.getHeight()) / 2;
+		}
+		
 		//Determines position of left and right buttons in each quadrant
 		int small = 10;
 		int large = 35;
@@ -239,7 +244,6 @@ public class BubbleMenu {
 		int x = 0;
 		int y = 0;
 		
-		System.out.println(groupBounds.getMinX() + " " + groupBounds.getMinY());
 		
 		switch(position)
 		{
@@ -355,6 +359,7 @@ public class BubbleMenu {
 		bubbleContainer.removeAllChildren();
 		bubbleContainer.removeFromParent();
 		buttonList.clear();
+		buttonPosition = null;
 		bubbleContainer = null;
 		if (highlightedGroup != 0l)
 		{
