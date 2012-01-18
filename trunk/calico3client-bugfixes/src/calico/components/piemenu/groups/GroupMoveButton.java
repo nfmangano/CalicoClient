@@ -117,7 +117,7 @@ public class GroupMoveButton extends PieMenuButton
 			}
 			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
 			
-			BubbleMenu.moveIconPositions((scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
+			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			
 			long smallest = 0;
 			if ((smallest = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
