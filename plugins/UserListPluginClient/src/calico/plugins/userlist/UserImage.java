@@ -14,6 +14,7 @@ import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.controllers.CImageController;
+import calico.input.CInputMode;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.userlist.iconsets.CalicoIconManager;
@@ -29,7 +30,7 @@ public class UserImage extends CGroupImage
 	private String truncatedUserName;
 	private boolean drawAudioIcon = false;
 	private boolean drawPenIcon = false;
-	private int mode = 0;
+	private CInputMode mode = null;
 	private long group = 0l;
 	private static Color penColor = Color.black;
 	private static final int defaultSize = 64;
@@ -148,7 +149,7 @@ public class UserImage extends CGroupImage
 		int strokeH = 16;//audioIcon.getHeight(null);
 		int strokeX = bounds.x + innerBuffer + innerBuffer;
 		int strokeY = bounds.y + bounds.height - strokeH - innerBuffer;
-		if (mode != Calico.MODE_DELETE)
+		if (mode != CInputMode.DELETE)
 			drawBG(paintContext, penColor, 1.0F, strokeX-2, strokeY-2, strokeW+2, strokeH+2);
 			
 //		// draw pen icon
@@ -157,16 +158,16 @@ public class UserImage extends CGroupImage
 //			g2.setColor(Color.white);
 		String iconImage;
 		
-		if (mode == Calico.MODE_ARROW) iconImage = "mode.arrow";
-		else if (mode == Calico.MODE_DELETE) iconImage = "mode.delete";
-		else if (mode == Calico.MODE_EXPERT) 
+		if (mode == CInputMode.ARROW) iconImage = "mode.arrow";
+		else if (mode == CInputMode.DELETE) iconImage = "mode.delete";
+		else if (mode == CInputMode.EXPERT) 
 			if (PieMenu.isPieMenuActive() || PieMenu.isPieMenuActive() 
 					|| CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), CalicoInputManager.mostRecentPoint) != 0l)
 				iconImage = "group.perm";
 			else iconImage = "mode.stroke";
-		else if (mode == Calico.MODE_POINTER) iconImage = "mode.pointer";
-		else if (mode == Calico.MODE_SCRAP) iconImage = "mode.scrap";
-		else if (mode == Calico.MODE_STROKE) iconImage = "mode.stroke";
+		else if (mode == CInputMode.POINTER) iconImage = "mode.pointer";
+		else if (mode == CInputMode.SCRAP) iconImage = "mode.scrap";
+		else if (mode == CInputMode.STROKE) iconImage = "mode.stroke";
 		else iconImage = "mode.stroke";
 			
 		
@@ -244,7 +245,7 @@ public class UserImage extends CGroupImage
 		repaint();
 	}
 	
-	public void showPenIcon(int mode, long group, Color color)
+	public void showPenIcon(CInputMode mode, long group, Color color)
 	{
 		drawPenIcon = true;
 		this.mode = mode;
@@ -256,7 +257,7 @@ public class UserImage extends CGroupImage
 	public void hidePenIcon()
 	{
 		drawPenIcon = false;
-		mode = 0;
+		mode = null;
 		group = 0l;
 		repaint();
 	}

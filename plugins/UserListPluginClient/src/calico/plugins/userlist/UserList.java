@@ -7,6 +7,7 @@ import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
+import calico.input.CInputMode;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.StickyItem;
 import calico.networking.Networking;
@@ -200,7 +201,7 @@ public class UserList implements CalicoEventListener
 		}
 	}
 	
-	public void showPenIcon(long uuid, int mode, long group, Color color)
+	public void showPenIcon(long uuid, CInputMode mode, long group, Color color)
 	{
 		try
 		{
@@ -273,7 +274,7 @@ public class UserList implements CalicoEventListener
 				int y = p.getInt();
 				long g = p.getLong();
 				long t = p.getLong();
-				CalicoPacket packet_pressed = CalicoPacket.getPacket(UserListNetworkCommands.PEN_START, UserListPlugin.getUUID(), CalicoDataStore.PenColor, CalicoDataStore.Mode, g);
+				CalicoPacket packet_pressed = CalicoPacket.getPacket(UserListNetworkCommands.PEN_START, UserListPlugin.getUUID(), CalicoDataStore.PenColor, CalicoDataStore.Mode.ordinal(), g);
 				CalicoEventHandler.getInstance().fireEvent(UserListNetworkCommands.PEN_START, packet_pressed);
 				Networking.send(packet_pressed);
 				break;
@@ -292,7 +293,7 @@ public class UserList implements CalicoEventListener
 				p.getInt(); // event
 				long uuid_pen_start = p.getLong();
 				Color color = p.getColor();
-				int mode = p.getInt();
+				CInputMode mode = CInputMode.values()[p.getInt()];
 				long group = p.getLong();
 				showPenIcon(uuid_pen_start, mode, group, color);
 //				System.out.println("Pen start   (uuid: " + uuid_pen_start + ")");
