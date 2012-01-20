@@ -9,6 +9,7 @@ import calico.components.CCanvas;
 import calico.components.CSession;
 import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
+import calico.input.CInputMode;
 
 
 
@@ -54,8 +55,7 @@ public class CalicoDataStore
 	/**
 	 * This is the current operating mode we are in
 	 */
-	public static int Mode = Calico.MODE_EXPERT;
-	public static int Mode_Reverse = 0;
+	public static CInputMode Mode = CInputMode.EXPERT;
 	
 	/**
 	 * This is the current pen color
@@ -90,27 +90,27 @@ public class CalicoDataStore
 		LastUserActionTime = System.currentTimeMillis();
 	}
 	
-	public static void set_Mode(int mode)
+	public static void set_Mode(CInputMode mode)
 	{
+
 //		if (Mode == Calico.MODE_EXPERT)
 //			LastDrawingColor = PenColor;
 //		if (Mode == Calico.MODE_POINTER)
 //			PointingColor = PenColor;
-		
-		if (mode == Calico.MODE_EXPERT)
+
+		if (mode == CInputMode.EXPERT)
 		{
 			PenColor = LastDrawingColor;
 			PenThickness = 1.0f;
 		}
-		if (mode == Calico.MODE_POINTER)
+		if (mode == CInputMode.POINTER)
 		{
 			PenColor = PointingColor;
 			PenThickness = 4.0f;
 		}
 		
 		Mode = mode;
-		Mode_Reverse = (int) (Math.log(Mode)/Math.log(2.0));
-		CCanvasController.canvasWritabilityChanged();
+		CCanvasController.canvasModeChanged();
 		
 		//Calico.logger.debug("Switching to mode "+Mode+" ("+Mode_Reverse+")");
 	}

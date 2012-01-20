@@ -12,6 +12,7 @@ import calico.components.piemenu.groups.GroupSetPermanentButton;
 import calico.components.piemenu.groups.GroupShrinkToContentsButton;
 import calico.controllers.*;
 import calico.iconsets.*;
+import calico.input.CInputMode;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.*;
@@ -147,11 +148,11 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			
 			if(this.pressPoint!=null)
 			{
-				this.parentHandler.routeToHandler_actionPressed(Calico.MODE_SCRAP, this.pressPoint);
+				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 				this.pressPoint = null;
 			}
 			
-			this.parentHandler.routeToHandler_actionDragged(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		else if(e.isRightButtonPressed() && this.isWaitingRightHold)/////////////////////////////////////////////
 		{
@@ -161,14 +162,14 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				logger.debug("NOT GOING TO ENTER RIGHTCLICK MODE - MOVED TOO FAR");
 
 				this.pressPoint.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-				this.parentHandler.routeToHandler_actionPressed(Calico.MODE_SCRAP, this.pressPoint);
+				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 			}
 		}
 		else if(e.isRightButtonPressed())/////////////////////////////////////////////
 		{
 			// Reroute to canvas handler
 			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionDragged(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////
 		{
@@ -193,7 +194,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		{
 			this.isInRightClickMode = false;
 
-			this.parentHandler.routeToHandler_actionReleased(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
 		}
 		else if(e.isRightButton() && this.isWaitingRightHold)
 		{
@@ -212,7 +213,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		else if(e.isRightButton() && !this.isInRightClickMode)
 		{
 			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionReleased(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
 		}
 		
 

@@ -34,7 +34,9 @@ import calico.modules.MessageObject;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.utils.blobdetection.*;
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.*;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -50,6 +52,25 @@ public class CCanvas extends PCanvas
 	
 	private static final long serialVersionUID = 1L;
 	
+	public enum Layer
+	{
+		CONTENT(1),
+		WATERMARK(0),
+		TOOLS(2);
+		
+		final int id;
+
+		private Layer(int id)
+		{
+			this.id = id;
+		}
+	}
+	
+	private static final PLayer WATERMARK_PLACEHOLDER = new PLayer();
+	private PLayer watermarkLayer = null;
+	private final PLayer toolLayer = new PLayer();
+	
+	private final PCamera contentCamera = new PCamera();
 
 	// All the BGelements, arrows, groups, objects that are on the canvas
 	private LongArraySet strokes = new LongArraySet();
@@ -88,6 +109,12 @@ public class CCanvas extends PCanvas
 
 	public CCanvas(long uuid, String crs, int gr, int gc)
 	{
+		PLayer contentLayer = getCamera().removeLayer(0);
+		getCamera().addLayer(Layer.WATERMARK.id, WATERMARK_PLACEHOLDER);
+		getCamera().addLayer(Layer.CONTENT.id, contentLayer);
+		getCamera().addLayer(Layer.TOOLS.id, toolLayer);
+		contentCamera.addLayer(contentLayer);
+		
 		this.uuid = uuid;
 		setGridInfo(crs,gr,gc);
 
@@ -121,8 +148,6 @@ public class CCanvas extends PCanvas
 
 		CalicoInputManager.addCanvasInputHandler(this.uuid);
 		
-
-
 		// This makes a border, so that we see the ENTIRE canvas
 		if(!CalicoOptions.grid.render_zoom_canvas)
 		{
@@ -132,6 +157,55 @@ public class CCanvas extends PCanvas
 			getLayer().addChild(drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
 		}
 		repaint();
+	}
+	
+	@Override
+	public PLayer getLayer()
+	{
+		return getCamera().getLayer(Layer.CONTENT.id);
+	}
+	
+	public PCamera getContentCamera()
+	{
+		return contentCamera;
+	}
+	
+	public boolean hasWatermarkLayer()
+	{
+		return watermarkLayer != null;
+	}
+	
+	public PLayer getWatermarkLayer()
+	{
+		return watermarkLayer;
+	}
+	
+	public void setWatermarkLayer(PLayer watermarkLayer)
+	{
+		removeWatermarkLayer();
+		installWatermarkLayer(watermarkLayer);
+	}
+	
+	private void installWatermarkLayer(PLayer watermarkLayer)
+	{
+		this.watermarkLayer = watermarkLayer;
+		if (this.watermarkLayer != null)
+		{
+			getCamera().removeLayer(Layer.WATERMARK.id);
+			getCamera().addLayer(Layer.WATERMARK.id, this.watermarkLayer);
+			this.watermarkLayer.setBounds(getLayer().computeFullBounds(null)); 
+			repaint();
+		}
+	}
+	
+	public void removeWatermarkLayer()
+	{
+		if (this.watermarkLayer != null)
+		{
+			getCamera().removeLayer(Layer.WATERMARK.id);
+			getCamera().addLayer(Layer.WATERMARK.id, WATERMARK_PLACEHOLDER);
+			repaint();
+		}
 	}
 
 	private PLine drawBorderLine(int x,int y, int x2, int y2)
@@ -399,26 +473,33 @@ public class CCanvas extends PCanvas
 		CalicoDataStore.ScreenHeight = h;
 		setPreferredSize(new Dimension(w,h));
 		super.setBounds(x,y,w,h);
+		
+		toolLayer.setBounds(x, y, w , h);
+		contentCamera.setBounds(x, y, w, h);
+		if (this.watermarkLayer != null)
+		{
+			this.watermarkLayer.setBounds(x, y, w, h);
+		}
 	}
 
 	private void drawTopMenuBar()
 	{
 		if(topMenuBar!=null)
 		{
-			getCamera().removeChild(topMenuBar);
+			toolLayer.removeChild(topMenuBar);
 			topMenuBar = null;
 		}
 		topMenuBar = new CanvasTopMenuBar(uuid);
-		getCamera().addChild(topMenuBar);
+		toolLayer.addChild(topMenuBar);
 	}
 	
 	private void drawMenuBar()
 	{
 		CanvasMenuBar tempLeft = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_LEFT);
-		getCamera().addChild(tempLeft);
+		toolLayer.addChild(tempLeft);
 		
 		CanvasMenuBar tempRight = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_RIGHT);
-		getCamera().addChild(tempRight);
+		toolLayer.addChild(tempRight);
 		
 		if(this.menuBarLeft!=null)
 		{
@@ -427,7 +508,7 @@ public class CCanvas extends PCanvas
 		}
 		if(this.menuBarRight!=null)
 		{
-			getCamera().removeChild(this.menuBarRight);
+			toolLayer.removeChild(this.menuBarRight);
 			this.menuBarRight = null;
 		}
 		
@@ -442,11 +523,11 @@ public class CCanvas extends PCanvas
 	private void drawStatusBar()
 	{
 		CanvasStatusBar temp = new CanvasStatusBar(this.uuid);
-		getCamera().addChild(temp);
+		toolLayer.addChild(temp);
 		
 		if(this.statusBar!=null)
 		{
-			getCamera().removeChild(this.statusBar);
+			toolLayer.removeChild(this.statusBar);
 			this.statusBar = null;
 		}
 		
@@ -464,7 +545,7 @@ public class CCanvas extends PCanvas
 	public void removeTopMenuBar(){
 		if(topMenuBar!=null)
 		{
-			getCamera().removeChild(topMenuBar);
+			toolLayer.removeChild(topMenuBar);
 			topMenuBar = null;
 		}
 	}
@@ -485,16 +566,16 @@ public class CCanvas extends PCanvas
 		if( strokes.size()>0 || groups.size()>0 || lists.size()>0 || checkBoxes.size()>0 || arrows.size()>0 )
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
-			getCamera().removeChild(menuBarLeft);
-			getCamera().removeChild(menuBarRight);
-			getCamera().removeChild(statusBar);
+//			getCamera().removeChild(menuBarLeft);
+//			getCamera().removeChild(menuBarRight);
+//			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
-			Image img = getCamera().toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
+			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
 
-			getCamera().addChild(menuBarLeft);
-			if (menuBarRight != null)
-				getCamera().addChild(menuBarRight);
-			getCamera().addChild(statusBar);
+//			getCamera().addChild(menuBarLeft);
+//			if (menuBarRight != null)
+//				getCamera().addChild(menuBarRight);
+//			getCamera().addChild(statusBar);
 			//getCamera().addChild(topMenuBar);
 			
 			return img;
@@ -518,16 +599,16 @@ public class CCanvas extends PCanvas
 	
 	public void getBlobs()
 	{
-		getCamera().removeChild(menuBarLeft);
-		getCamera().removeChild(menuBarRight);
-		getCamera().removeChild(statusBar);
+//		getCamera().removeChild(menuBarLeft);
+//		getCamera().removeChild(menuBarRight);
+//		getCamera().removeChild(statusBar);
 		//getCamera().removeChild(topMenuBar);
 		
 		Image img = getCamera().toImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, CCanvasController.getActiveCanvasBackgroundColor());
-		getCamera().addChild(menuBarLeft);
-		if (menuBarRight != null)
-			getCamera().addChild(menuBarRight);
-		getCamera().addChild(statusBar);
+//		getCamera().addChild(menuBarLeft);
+//		if (menuBarRight != null)
+//			getCamera().addChild(menuBarRight);
+//		getCamera().addChild(statusBar);
 		//getCamera().addChild(topMenuBar);
 		
 		int imgwidth = img.getWidth(null);

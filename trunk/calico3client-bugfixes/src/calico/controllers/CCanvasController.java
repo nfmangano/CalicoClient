@@ -20,12 +20,14 @@ import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.components.CArrow;
 import calico.components.CCanvas;
+import calico.components.CCanvasWatermark;
 import calico.components.CGroup;
 import calico.components.CStroke;
 import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
+import calico.input.CInputMode;
 import calico.modules.MessageObject;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -77,18 +79,14 @@ public class CCanvasController {
 	}
 	
 	public static Color getActiveCanvasBackgroundColor() {
-		if (CalicoDataStore.Mode == Calico.MODE_EXPERT) {
-			return CalicoOptions.canvas.writable_background_color;
-		} else {
-			return CalicoOptions.canvas.readonly_background_color;
-		}
+		return CalicoOptions.canvas.background_color;
 	}
 	
-	public static void canvasWritabilityChanged() {
-		Color canvasBackground = getActiveCanvasBackgroundColor();
+	public static void canvasModeChanged() {
+		CCanvasWatermark watermark = CCanvasWatermark.InputModeWatermarks.get(CalicoDataStore.Mode);
 		for (CCanvas canvas : CCanvasController.canvasdb.values())
 		{
-			canvas.setBackground(canvasBackground);
+			canvas.setWatermarkLayer(watermark);
 		}
 	}
 

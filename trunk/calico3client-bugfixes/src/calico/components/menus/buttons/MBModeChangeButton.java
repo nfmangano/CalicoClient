@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -33,9 +34,9 @@ public class MBModeChangeButton extends CanvasMenuButton
 		
 	private long cuid = 0L;
 	
-	private int type = 0;
+	private CInputMode type = null;
 		
-	public MBModeChangeButton(long c, int t)
+	public MBModeChangeButton(long c, CInputMode t)
 	{
 		super();
 		cuid = c;
@@ -52,28 +53,28 @@ public class MBModeChangeButton extends CanvasMenuButton
 			
 			switch(type)
 			{
-				case Calico.MODE_ARROW:
+				case ARROW:
 					setImage(CalicoIconManager.getIconImage("mode.arrow"));
 					break;
 					
-				case Calico.MODE_DELETE:
+				case DELETE:
 					setImage(CalicoIconManager.getIconImage("mode.delete"));
 					
 					break;
 					
-				case Calico.MODE_EXPERT:
+				case EXPERT:
 					setImage(CalicoIconManager.getIconImage("mode.expert"));
 					break;
 					
-				case Calico.MODE_SCRAP:
+				case SCRAP:
 					setImage(CalicoIconManager.getIconImage("mode.scrap"));
 					break;
 					
-				case Calico.MODE_STROKE:
+				case STROKE:
 					setImage(CalicoIconManager.getIconImage("mode.stroke"));
 					break;
 					
-				case Calico.MODE_POINTER:
+				case POINTER:
 					setImage(CalicoIconManager.getIconImage("mode.pointer"));
 					break;
 			}
@@ -91,7 +92,7 @@ public class MBModeChangeButton extends CanvasMenuButton
 	{
 		Calico.logger.debug("Changing Mode to "+type);
 		
-		if(type==Calico.MODE_DELETE)
+		if(type==CInputMode.DELETE)
 		{
 			//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getBlobs();
 			//return;
@@ -101,12 +102,12 @@ public class MBModeChangeButton extends CanvasMenuButton
 		{
 			switch(type)
 			{
-				case Calico.MODE_ARROW:MessageObject.showError("Already in Arrow Mode");break;
-				case Calico.MODE_DELETE:MessageObject.showError("Already in Eraser Mode");break;
-				case Calico.MODE_EXPERT:MessageObject.showError("Already in Expert Mode");break;
-				case Calico.MODE_SCRAP:MessageObject.showError("Already in Scrap Mode");break;
-				case Calico.MODE_STROKE:MessageObject.showError("Already in Stroke Mode");break;
-				case Calico.MODE_POINTER:MessageObject.showError("Already in Pointer Mode");break;
+				case ARROW:MessageObject.showError("Already in Arrow Mode");break;
+				case DELETE:MessageObject.showError("Already in Eraser Mode");break;
+				case EXPERT:MessageObject.showError("Already in Expert Mode");break;
+				case SCRAP:MessageObject.showError("Already in Scrap Mode");break;
+				case STROKE:MessageObject.showError("Already in Stroke Mode");break;
+				case POINTER:MessageObject.showError("Already in Pointer Mode");break;
 			}
 		}
 		else
@@ -119,12 +120,12 @@ public class MBModeChangeButton extends CanvasMenuButton
 			
 			switch(type)
 			{
-				case Calico.MODE_ARROW:MessageObject.showNotice("Switching to Arrow Mode");break;
-				case Calico.MODE_DELETE:MessageObject.showNotice("Switching to Eraser Mode");break;
-				case Calico.MODE_EXPERT:MessageObject.showNotice("Switching to Expert Mode");/*StatusMessage.popup("You are entering expert mode. Be advised.");*/break;
-				case Calico.MODE_SCRAP:MessageObject.showNotice("Switching to Scrap Mode");break;
-				case Calico.MODE_STROKE:MessageObject.showNotice("Switching to Stroke Mode");break;
-				case Calico.MODE_POINTER:MessageObject.showNotice("Switching to Pointer Mode");break;
+				case ARROW:MessageObject.showNotice("Switching to Arrow Mode");break;
+				case DELETE:MessageObject.showNotice("Switching to Eraser Mode");break;
+				case EXPERT:MessageObject.showNotice("Switching to Expert Mode");/*StatusMessage.popup("You are entering expert mode. Be advised.");*/break;
+				case SCRAP:MessageObject.showNotice("Switching to Scrap Mode");break;
+				case STROKE:MessageObject.showNotice("Switching to Stroke Mode");break;
+				case POINTER:MessageObject.showNotice("Switching to Pointer Mode");break;
 			}
 			
 		}

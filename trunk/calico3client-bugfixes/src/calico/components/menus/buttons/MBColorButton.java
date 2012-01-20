@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -45,7 +46,7 @@ public class MBColorButton extends CanvasMenuButton
 			//Color curColor = CalicoOptions.getColor("pen.default_color");
 			//setImage(CalicoOptions.getColorImage(color));
 			
-			if(CalicoDataStore.PenColor.equals(color) && CalicoDataStore.Mode == Calico.MODE_EXPERT)
+			if(CalicoDataStore.PenColor.equals(color) && CalicoDataStore.Mode == CInputMode.EXPERT)
 			{
 				setSelected(true);
 			}
@@ -69,7 +70,7 @@ public class MBColorButton extends CanvasMenuButton
 		CalicoDataStore.PenColor = color;
 		CalicoDataStore.LastDrawingColor = color;
 		
-		CalicoDataStore.set_Mode(Calico.MODE_EXPERT);
+		CalicoDataStore.set_Mode(CInputMode.EXPERT);
 		CCanvasController.redrawMenuBars();
 	}
 	

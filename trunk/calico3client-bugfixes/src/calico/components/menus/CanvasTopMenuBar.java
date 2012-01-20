@@ -61,11 +61,11 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 				
 		switch(CalicoDataStore.Mode)
 		{
-			case Calico.MODE_ARROW:coordtxt="Arrow Mode";break;
-			case Calico.MODE_DELETE:coordtxt="Eraser Mode";break;
-			case Calico.MODE_EXPERT:coordtxt="Expert Mode";break;
-			case Calico.MODE_SCRAP:coordtxt="Scrap Mode";break;
-			case Calico.MODE_STROKE:coordtxt="Stroke Mode";break;
+			case ARROW:coordtxt="Arrow Mode";break;
+			case DELETE:coordtxt="Eraser Mode";break;
+			case EXPERT:coordtxt="Expert Mode";break;
+			case SCRAP:coordtxt="Scrap Mode";break;
+			case STROKE:coordtxt="Stroke Mode";break;
 		}
 		
 		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
