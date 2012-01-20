@@ -7,6 +7,7 @@ import calico.components.*;
 import calico.components.piemenu.*;
 import calico.controllers.CGroupController;
 import calico.input.CInputManager;
+import calico.input.CInputMode;
 import calico.inputhandlers.groups.*;
 import calico.modules.*;
 import calico.networking.*;
@@ -120,12 +121,12 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 		
 		switch(CalicoDataStore.Mode)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionPressed(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionPressed(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionPressed(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionPressed(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionPressed(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionPressed(e);break;
+			case EXPERT:modehandler_expert.actionPressed(e);break;
+			case ARROW:modehandler_arrow.actionPressed(e);break;
+			case SCRAP:modehandler_scrap.actionPressed(e);break;
+			case DELETE:modehandler_delete.actionPressed(e);break;
+			case STROKE:modehandler_stroke.actionPressed(e);break;
+			case POINTER:modehandler_pointer.actionPressed(e);break;
 		}
 	}//actionPressed
 
@@ -135,12 +136,12 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 		CalicoInputManager.group = uuid;
 		switch(CalicoDataStore.Mode)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionDragged(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionDragged(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionDragged(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionDragged(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionDragged(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionDragged(e);break;
+			case EXPERT:modehandler_expert.actionDragged(e);break;
+			case ARROW:modehandler_arrow.actionDragged(e);break;
+			case SCRAP:modehandler_scrap.actionDragged(e);break;
+			case DELETE:modehandler_delete.actionDragged(e);break;
+			case STROKE:modehandler_stroke.actionDragged(e);break;
+			case POINTER:modehandler_pointer.actionDragged(e);break;
 		}
 	}//actionDragged
 	
@@ -150,12 +151,12 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 		CalicoInputManager.group = uuid;
 		switch(CalicoDataStore.Mode)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionScroll(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionScroll(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionScroll(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionScroll(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionScroll(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionScroll(e);break;
+			case EXPERT:modehandler_expert.actionScroll(e);break;
+			case ARROW:modehandler_arrow.actionScroll(e);break;
+			case SCRAP:modehandler_scrap.actionScroll(e);break;
+			case DELETE:modehandler_delete.actionScroll(e);break;
+			case STROKE:modehandler_stroke.actionScroll(e);break;
+			case POINTER:modehandler_pointer.actionScroll(e);break;
 		}
 	}//actionScroll
 	
@@ -175,42 +176,42 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 	}//actionReleased
 	
 	
-	public void routeToHandler_actionDragged(int modeFlag, InputEventInfo e)
+	public void routeToHandler_actionDragged(CInputMode modeFlag, InputEventInfo e)
 	{
 		switch(modeFlag)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionDragged(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionDragged(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionDragged(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionDragged(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionDragged(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionDragged(e);break;
+			case EXPERT:modehandler_expert.actionDragged(e);break;
+			case ARROW:modehandler_arrow.actionDragged(e);break;
+			case SCRAP:modehandler_scrap.actionDragged(e);break;
+			case DELETE:modehandler_delete.actionDragged(e);break;
+			case STROKE:modehandler_stroke.actionDragged(e);break;
+			case POINTER:modehandler_pointer.actionDragged(e);break;
 		}
 	}
 	
-	public void routeToHandler_actionPressed(int modeFlag, InputEventInfo e)
+	public void routeToHandler_actionPressed(CInputMode modeFlag, InputEventInfo e)
 	{
 		switch(modeFlag)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionPressed(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionPressed(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionPressed(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionPressed(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionPressed(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionPressed(e);break;
+			case EXPERT:modehandler_expert.actionPressed(e);break;
+			case ARROW:modehandler_arrow.actionPressed(e);break;
+			case SCRAP:modehandler_scrap.actionPressed(e);break;
+			case DELETE:modehandler_delete.actionPressed(e);break;
+			case STROKE:modehandler_stroke.actionPressed(e);break;
+			case POINTER:modehandler_pointer.actionPressed(e);break;
 		}
 	}
 	
-	public void routeToHandler_actionReleased(int modeFlag, InputEventInfo e)
+	public void routeToHandler_actionReleased(CInputMode modeFlag, InputEventInfo e)
 	{
 		switch(modeFlag)
 		{
-			case Calico.MODE_EXPERT:modehandler_expert.actionReleased(e);break;
-			case Calico.MODE_ARROW:modehandler_arrow.actionReleased(e);break;
-			case Calico.MODE_SCRAP:modehandler_scrap.actionReleased(e);break;
-			case Calico.MODE_DELETE:modehandler_delete.actionReleased(e);break;
-			case Calico.MODE_STROKE:modehandler_stroke.actionReleased(e);break;
-			case Calico.MODE_POINTER:modehandler_pointer.actionReleased(e);break;
+			case EXPERT:modehandler_expert.actionReleased(e);break;
+			case ARROW:modehandler_arrow.actionReleased(e);break;
+			case SCRAP:modehandler_scrap.actionReleased(e);break;
+			case DELETE:modehandler_delete.actionReleased(e);break;
+			case STROKE:modehandler_stroke.actionReleased(e);break;
+			case POINTER:modehandler_pointer.actionReleased(e);break;
 		}
 	}
 	
