@@ -113,7 +113,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			addIcon(new MBColorButton(cuid, CalicoOptions.menu.colorlist[i], CalicoOptions.menu.colorlist_icons[i], rect_default));
 		}
-//		addSpacer();
+		addSpacer();
 		
 		// Mode buttons
 		addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
