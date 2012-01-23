@@ -14,6 +14,7 @@ import java.awt.geom.Rectangle2D;
 import java.net.URL;
 import java.util.Date;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import calico.Calico;
@@ -49,13 +50,15 @@ import edu.umd.cs.piccolox.nodes.PLine;
  *
  * @author Mitch Dempsey
  */
-public class CGrid extends PCanvas
+public class CGrid 
 {
 
 	private static final long serialVersionUID = 1L;
 	
 	//public static final int MODE_NONE = 0;
 	//public static final int MODE_VIEWPORT = 1;
+	
+	private final ContainedCanvas canvas = new ContainedCanvas();
 
 	private Long2ReferenceOpenHashMap<CGridCell> cells = new Long2ReferenceOpenHashMap<CGridCell>();
 	private PLayer cellLayer;
@@ -104,7 +107,30 @@ public class CGrid extends PCanvas
 		return instance;
 	}
 	
+	public PCamera getCamera()
+	{
+		return canvas.getCamera();
+	}
 	
+	public PLayer getLayer()
+	{
+		return canvas.getLayer();
+	}
+	
+	public JComponent getComponent()
+	{
+		return canvas;
+	}
+	
+	public void repaint()
+	{
+		canvas.repaint();
+	}
+	
+	public void setBounds(int x, int y, int w, int h)
+	{
+		canvas.setBounds(x, y, w, h);
+	}
 	
 	/**
 	 * Creates a new isntance of the grid
@@ -115,18 +141,18 @@ public class CGrid extends PCanvas
 
 		CalicoDataStore.gridObject = this;
 		
-		setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
+		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
 
 		CalicoInputManager.addGridInputHandler();
 
-		removeInputSources();
+		canvas.removeInputSources();
 
-		addMouseListener(new CalicoMouseListener());
-		addMouseMotionListener(new CalicoMouseListener());
+		canvas.addMouseListener(new CalicoMouseListener());
+		canvas.addMouseMotionListener(new CalicoMouseListener());
 
-		removeInputEventListener(getPanEventHandler());
-		removeInputEventListener(getZoomEventHandler());
+		canvas.removeInputEventListener(canvas.getPanEventHandler());
+		canvas.removeInputEventListener(canvas.getZoomEventHandler());
 
 
 //		PText pt = new PText(" Calico Grid ("+CalicoDataStore.Username+") ");
@@ -832,7 +858,7 @@ public class CGrid extends PCanvas
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
 		
 		CalicoDataStore.gridObject.drawBottomToolbar();
-		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject );
+		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
 		
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
@@ -843,5 +869,12 @@ public class CGrid extends PCanvas
 		CalicoDataStore.isViewingGrid = true;
 	}
 
-	
+	private class ContainedCanvas extends PCanvas
+	{
+		@Override
+		protected void removeInputSources()
+		{
+			super.removeInputSources();
+		}
+	}
 }//CGrid

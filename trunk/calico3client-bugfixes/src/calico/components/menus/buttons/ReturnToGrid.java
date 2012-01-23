@@ -62,7 +62,7 @@ public class ReturnToGrid extends CanvasMenuButton
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
 		
 		CalicoDataStore.gridObject.drawBottomToolbar();
-		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject );
+		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
 		
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);

@@ -73,7 +73,7 @@ public class EmailGridButton extends CanvasMenuButton
 	public void actionMouseClicked()
 	{
 		
-		String response = JOptionPane.showInputDialog(CalicoDataStore.gridObject,
+		String response = JOptionPane.showInputDialog(CalicoDataStore.gridObject.getComponent(),
 				  "Please enter the email address(es) you wish to the canvases to",
 				  "Email All Canvas",
 				  JOptionPane.QUESTION_MESSAGE);
@@ -146,7 +146,7 @@ public class EmailGridButton extends CanvasMenuButton
 			t.sendMessage(msg, msg.getAllRecipients());
 	    } finally {
 	    	t.close();
-	    	JOptionPane.showMessageDialog(CalicoDataStore.gridObject, "Email sent successfully");
+	    	JOptionPane.showMessageDialog(CalicoDataStore.gridObject.getComponent(), "Email sent successfully");
 	    }
 
 	}

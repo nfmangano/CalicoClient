@@ -84,7 +84,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 					CalicoDataStore.gridObject = CGrid.getInstance();
 					CalicoDataStore.gridObject.refreshCells();
 					CalicoDataStore.calicoObj.getContentPane().removeAll();
-					CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject );
+					CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
 					CalicoDataStore.calicoObj.pack();
 					CalicoDataStore.calicoObj.setVisible(true);
 					CalicoDataStore.calicoObj.repaint();
@@ -141,7 +141,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 				//CalicoDataStore.gridObject = CGrid.getInstance();
 				
 				CalicoDataStore.calicoObj.getContentPane().removeAll();
-				CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject );
+				CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
 				CalicoDataStore.calicoObj.pack();
 				CalicoDataStore.calicoObj.setVisible(true);
 				CalicoDataStore.calicoObj.repaint();
