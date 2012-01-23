@@ -58,7 +58,7 @@ public class UndoButton extends CanvasMenuButton
 	{
 		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0d, 1d, undoMessage));
 		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, 0.1d, 1d, undoMessage));
-		progressMonitor = new ProgressMonitor(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()),
+		progressMonitor = new ProgressMonitor(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
 				undoMessage,
                 "something", 0, 100);
 		progressMonitor.setProgress(0);

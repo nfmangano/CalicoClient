@@ -294,7 +294,7 @@ public class CCanvasController {
 			canvas.setCamera(CCanvasController.canvasCameras.get(uuid));
 		}
 		// end of bug fix
-		cal.getContentPane().add(canvas);
+		cal.getContentPane().add(canvas.getComponent());
 		
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
