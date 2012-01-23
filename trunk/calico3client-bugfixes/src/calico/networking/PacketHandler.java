@@ -676,7 +676,7 @@ public class PacketHandler
 			Calico cal = CalicoDataStore.calicoObj;
 			
 			cal.getContentPane().removeAll();
-			cal.getContentPane().add( CGrid.getInstance() );
+			cal.getContentPane().add( CGrid.getInstance().getComponent() );
 			CGrid.getInstance().refreshCells();
 	        cal.pack();
 	        cal.setVisible(true);
@@ -773,7 +773,7 @@ public class PacketHandler
 			Calico cal = CalicoDataStore.calicoObj;
 
 			cal.getContentPane().removeAll();
-			cal.getContentPane().add( CGrid.getInstance() );
+			cal.getContentPane().add( CGrid.getInstance().getComponent() );
 			CGrid.getInstance().refreshCells();
 	        cal.pack();
 	        cal.setVisible(true);
