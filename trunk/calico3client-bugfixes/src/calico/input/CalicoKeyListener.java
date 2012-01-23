@@ -178,7 +178,7 @@ public class CalicoKeyListener extends KeyAdapter {
 		}
 		
 		
-		String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()),
+		String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
 				  "Create Scrap with Text",
 				  "Please enter text",
 				  JOptionPane.QUESTION_MESSAGE);
