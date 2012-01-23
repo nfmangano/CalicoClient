@@ -118,8 +118,6 @@ public class CCanvas
 		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 		contentCamera.addLayer(contentLayer);
 		
-		contentCamera.setViewScale(0.0);
-		
 		this.uuid = uuid;
 		setGridInfo(crs,gr,gc);
 
