@@ -154,10 +154,10 @@ public class CCanvas
 		// This makes a border, so that we see the ENTIRE canvas
 		if(!CalicoOptions.grid.render_zoom_canvas)
 		{
-			getLayer().addChild(drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
-			getLayer().addChild(drawBorderLine(CalicoDataStore.ScreenWidth,0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));//right
-			getLayer().addChild(drawBorderLine(0,0, 0, CalicoDataStore.ScreenHeight));//left
-			getLayer().addChild(drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
+			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
+			getLayer(Layer.CONTENT).addChild(drawBorderLine(CalicoDataStore.ScreenWidth,0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));//right
+			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, 0, CalicoDataStore.ScreenHeight));//left
+			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
 		}
 		canvas.repaint();
 	}
@@ -165,6 +165,11 @@ public class CCanvas
 	public JComponent getComponent()
 	{
 		return canvas;
+	}
+	
+	public PLayer getLayer(Layer layer)
+	{
+		return canvas.getCamera().getLayer(layer.id);
 	}
 	
 	public PLayer getLayer()
@@ -210,7 +215,7 @@ public class CCanvas
 		{
 			canvas.getCamera().removeLayer(Layer.WATERMARK.id);
 			canvas.getCamera().addLayer(Layer.WATERMARK.id, this.watermarkLayer);
-			this.watermarkLayer.setBounds(getLayer().computeFullBounds(null)); 
+			this.watermarkLayer.setBounds(getLayer(Layer.CONTENT).computeFullBounds(null)); 
 			canvas.repaint();
 		}
 	}
@@ -758,7 +763,7 @@ public class CCanvas
 						}
 							
 					}
-					this.getLayer().addChild(linetemp);
+					this.getLayer(Layer.CONTENT).addChild(linetemp);
 					linetemp.repaint();
 				}
 
@@ -977,19 +982,19 @@ public class CCanvas
 //		this.getLayer().removeAllChildren();
 		clearEverythingExceptMenu();
 		drawMenuBars();
-		this.getLayer().repaint();
+		this.getLayer(Layer.CONTENT).repaint();
 		
 		
 	}
 	
 	public void clearEverythingExceptMenu()
 	{
-		for (int i = getLayer().getChildrenCount() - 1; i >= 0; i--)
+		for (int i = getLayer(Layer.CONTENT).getChildrenCount() - 1; i >= 0; i--)
 		{
-			if (getLayer().getChild(i) instanceof CanvasGenericMenuBar)
+			if (getLayer(Layer.CONTENT).getChild(i) instanceof CanvasGenericMenuBar)
 				continue;
 			else
-				getLayer().removeChild(i);
+				getLayer(Layer.CONTENT).removeChild(i);
 		}
 	}
 	
@@ -1200,7 +1205,7 @@ public class CCanvas
 	
 	public Point getScaledPoint(Point location)
 	{
-		double scale = getLayer().getScale();
+		double scale = getLayer(Layer.CONTENT).getScale();
 		
 		int xpos = (int)(location.getX() * scale);
 		int ypos = (int)(location.getY() * scale);
