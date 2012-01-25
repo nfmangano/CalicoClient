@@ -35,7 +35,7 @@ public class GroupMoveButton extends PieMenuButton
 		guuid = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
 //		ev.stop();
 //
@@ -81,7 +81,7 @@ public class GroupMoveButton extends PieMenuButton
 		resizeDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		System.out.println("CLICKED GROUP MOVE BUTTON");
 		//CGroupController.drop(group_uuid);
@@ -143,16 +143,17 @@ public class GroupMoveButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 		
 		public void mousePressed(Point p) {
+			//BubbleMenu.setSelectedButton(GroupMoveButton.class.getName());
 			Point scaledPoint = p;
 			
 			prevPoint.x = 0;
 			prevPoint.y = 0;
 			mouseDownPoint = null;
-			
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			//BubbleMenu.setSelectedButton(null);
 			double viewportScale = 1/CalicoDataStore.gridObject.getViewportScale();
 			Point scaledPoint = new Point((int)(e.getPoint().x * viewportScale), (int)(e.getPoint().y * viewportScale));
 			
@@ -185,7 +186,7 @@ public class GroupMoveButton extends PieMenuButton
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				CGroupController.drop(guuid);
+				//CGroupController.drop(guuid);
 			}
 		}
 	}

@@ -68,7 +68,7 @@ public class BubbleMenuButton {
 	{
 		// This should be implemented
 		onClick();
-		PieMenu.isPerformingPieMenuAction =true;
+		BubbleMenu.isPerformingBubbleMenuAction =true;
 		
 		MouseListener mouseListener = new MouseListener()
 		{

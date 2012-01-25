@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
@@ -43,7 +44,7 @@ public class GroupIncreaseSizeButton extends PieMenuButton
 		resizeDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		
 		Calico.logger.debug("CLICKED GROUP SCALE BUTTON");

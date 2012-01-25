@@ -131,7 +131,6 @@ public class CCanvasInputHandler extends CalicoAbstractInputHandler
 	public void actionReleased(InputEventInfo e)
 	{
 		CalicoInputManager.unlockHandlerIfMatch(this.canvas_uid);
-		
 		// do they want lower quality for rendering?
 		if(CalicoOptions.canvas.lowquality_on_interaction)
 		{

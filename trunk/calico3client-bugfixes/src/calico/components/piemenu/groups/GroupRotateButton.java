@@ -31,7 +31,7 @@ public class GroupRotateButton extends PieMenuButton
 		uuid = u;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{	
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
@@ -58,7 +58,7 @@ public class GroupRotateButton extends PieMenuButton
 		rotateDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		
 		Calico.logger.debug("CLICKED GROUP ROTATE BUTTON");
@@ -115,16 +115,17 @@ public class GroupRotateButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 			
 		public void mousePressed(Point p) {	
+			//BubbleMenu.setSelectedButton(GroupRotateButton.class.getName());
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(p);
 			
 			prevPoint.x = scaledPoint.getX();
 			prevPoint.y = scaledPoint.getY();
 			mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
-			
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			//BubbleMenu.setSelectedButton(null);
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
 			if (CalicoDataStore.isInViewPort)
@@ -154,7 +155,7 @@ public class GroupRotateButton extends PieMenuButton
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				CGroupController.drop(guuid);
+				//CGroupController.drop(guuid);
 			}
 		}
 		

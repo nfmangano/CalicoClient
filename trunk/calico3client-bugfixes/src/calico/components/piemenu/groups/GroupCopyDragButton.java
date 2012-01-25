@@ -13,12 +13,14 @@ import java.awt.geom.Rectangle2D.Double;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.CGroup;
+import calico.components.CStroke;
 import calico.components.CViewportCanvas;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.controllers.CViewportController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.CalicoAbstractInputHandler;
@@ -43,7 +45,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		guuid = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
 //		ev.stop();
 //
@@ -90,7 +92,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		ev.stop();
 //		ev.getMouseEvent().consume();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		System.out.println("CLICKED GROUP COPY_DRAG BUTTON");
 		//CGroupController.drop(group_uuid);
@@ -209,6 +211,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 		
 		public void mousePressed(Point p) {
+			//BubbleMenu.setSelectedButton(GroupCopyDragButton.class.getName());
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(p);
 			
 			prevPoint.x = scaledPoint.getX();
@@ -219,6 +222,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			//BubbleMenu.setSelectedButton(null);
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
 			mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
@@ -236,6 +240,7 @@ public class GroupCopyDragButton extends PieMenuButton
 			
 			
 			long new_guuid = Calico.uuid();
+			//System.out.println(guuid + " : " + new_guuid);
 			paste(guuid,  scaledPoint, mouseDownPoint, cuuid, new_guuid);
 			
 			e.consume();
@@ -243,27 +248,51 @@ public class GroupCopyDragButton extends PieMenuButton
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				CGroupController.drop(guuid);
+				//CGroupController.drop(guuid);
+				//Point newPoint = BubbleMenu.lastOpenedPosition;
+				
+				//newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
+				//newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
+	
+				//BubbleMenu.clearMenu();
+
+				//temporary solution
+				/*try {
+					//while(!CGroupController.exists(new_guuid))
+					//{
+					Thread.sleep(1000);
+					//}
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+				
+				//CStroke stroke = CStrokeController.strokes.get(new_guuid);
+				//long previewScrap = stroke.createTemporaryScrapPreview(false);
+				//CGroupController.show_group_bubblemenu(previewScrap, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE);
 			}
+			else
+			{
 			
-			Point newPoint = BubbleMenu.lastOpenedPosition;
-
-			newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
-			newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
-
-			BubbleMenu.clearMenu();
-			//CalicoAbstractInputHandler.clickMenu(0l, new_guuid, newPoint);
-			//System.out.println(CGroupController.exists(new_guuid));
-			try {
-				while(!CGroupController.exists(new_guuid))
-				{
-				Thread.sleep(100);
+				Point newPoint = BubbleMenu.lastOpenedPosition;
+	
+				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
+				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
+	
+				BubbleMenu.clearMenu();
+				
+				//temporary solution
+				try {
+					while(!CGroupController.exists(new_guuid))
+					{
+					Thread.sleep(100);
+					}
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				CGroupController.show_group_bubblemenu(new_guuid, newPoint);
 			}
-			CGroupController.show_group_bubblemenu(new_guuid, newPoint);
 		}
 	}
 	

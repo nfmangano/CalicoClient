@@ -8,6 +8,7 @@ import java.net.URL;
 import edu.umd.cs.piccolo.nodes.*;
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.*;
@@ -24,7 +25,7 @@ public class PieMenuButton
 	
 	protected String iconPath = "";
 	protected Image iconImage = null;
-	protected Rectangle bounds = new Rectangle();
+	public Rectangle bounds = new Rectangle();
 	
 	protected Point buttonPosition = new Point(0,0);
 		
@@ -67,7 +68,7 @@ public class PieMenuButton
 	{
 		// This should be implemented
 		onClick();
-		PieMenu.isPerformingPieMenuAction =true;
+		BubbleMenu.isPerformingBubbleMenuAction =true;
 		
 		MouseListener mouseListener = new MouseListener()
 		{
@@ -102,6 +103,54 @@ public class PieMenuButton
 			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
 //			System.out.println("//////////// Removing pie menu event handler");
 		}
+	}
+	
+	public void onPressed(InputEventInfo event)
+	{
+
+		BubbleMenu.isPerformingBubbleMenuAction =true;
+		
+		MouseListener mouseListener = new MouseListener()
+		{
+
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (CalicoDataStore.isInViewPort)
+					CViewportCanvas.getInstance().removeMouseListener(this);
+				else
+					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				
+				e.consume();
+//				PieMenu.isPerformingPieMenuAction = false;
+//				System.out.println("//////////// Removing pie menu event handler");
+			}
+			
+		};
+		if (CalicoDataStore.isInViewPort)
+		{
+			CViewportCanvas.getInstance().addMouseListener(mouseListener);
+		}
+		else
+		{
+			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+//			System.out.println("//////////// Removing pie menu event handler");
+		}
+	}
+	
+	public void onReleased(InputEventInfo event)
+	{
+
+		//BubbleMenu.isPerformingBubbleMenuAction =false;
+		
+		
 	}
 	
 	public final void setPosition(Point point)

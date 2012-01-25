@@ -406,12 +406,12 @@ public class CalicoInputManager
 			PieMenu.isPerformingPieMenuAction = false;
 			lockInputHandler = 0l;
 		}
-		if (BubbleMenu.performingPieMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
+		if (BubbleMenu.performingBubbleMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
 		{
 			BubbleMenu.isPerformingBubbleMenuAction = false;
 			lockInputHandler = 0l;
 		}
-		
+
 		// This means we have a menu open, so we give that priority!
 		if(PieMenu.isPieMenuActive())
 		{			
@@ -449,6 +449,7 @@ public class CalicoInputManager
 			lockInputHandler = 0;
 			return;
 		}
+
 		else if (BubbleMenu.isBubbleMenuActive())
 		{
 			// We are from a pie menu. PIGGYBACK FROM PIEMENU FLAG FOR NOW
@@ -458,7 +459,7 @@ public class CalicoInputManager
 			if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
 			{				
 				// Did we press the button?
-				if(ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
 				{
 					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
 				}
@@ -474,14 +475,26 @@ public class CalicoInputManager
 				}
 				return;
 			}
+			else if (BubbleMenu.performingBubbleMenuAction())
+			{
+				if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
+				{
+					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+				}
+				lockInputHandler = 0;
+				return;
+			}
 			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
 			{				
 				// Now just kill it.
-				BubbleMenu.clearMenu();
+				if (!CGroupController.exists(BubbleMenu.guuid))
+					BubbleMenu.clearMenu();
+				else if (!CGroupController.groupdb.get(BubbleMenu.guuid).containsPoint(ev.getPoint().x, ev.getPoint().y))
+					BubbleMenu.clearMenu();
 				//return;// Dont return, we should let this one thru!
 			}
 		}
-		else if (BubbleMenu.performingPieMenuAction())
+		else if (BubbleMenu.performingBubbleMenuAction())
 		{
 			lockInputHandler = 0;
 			return;
@@ -497,7 +510,6 @@ public class CalicoInputManager
 				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(ev.getGlobalPoint());
 			return;
 		}		
-
 		
 		// 0L is the grid
 		if(CalicoDataStore.isViewingGrid )
