@@ -298,7 +298,6 @@ public abstract class CalicoAbstractInputHandler
 				CStroke stroke = CStrokeController.strokes.get(potentialScrap);
 //				if (!CGroupController.checkIfLastTempGroupExists())
 //				{
-					System.out.println(potentialScrap);
 					long previewScrap = stroke.createTemporaryScrapPreview(deleteStroke);
 					CGroupController.show_group_bubblemenu(previewScrap, point, PieMenuButton.SHOWON_SCRAP_CREATE);
 //				}

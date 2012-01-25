@@ -85,7 +85,7 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
-			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(PieMenu.lastOpenedPosition);
+			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(BubbleMenu.lastOpenedPosition);
 			
 			if(tempArrow==null)
 			{

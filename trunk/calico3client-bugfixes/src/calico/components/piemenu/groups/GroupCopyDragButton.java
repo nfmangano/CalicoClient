@@ -248,28 +248,29 @@ public class GroupCopyDragButton extends PieMenuButton
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				//CGroupController.drop(guuid);
-				//Point newPoint = BubbleMenu.lastOpenedPosition;
+				CGroupController.drop(guuid);
+				Point newPoint = BubbleMenu.lastOpenedPosition;
 				
-				//newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
-				//newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
+				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
+				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
 	
-				//BubbleMenu.clearMenu();
+				BubbleMenu.clearMenu();
 
 				//temporary solution
-				/*try {
-					//while(!CGroupController.exists(new_guuid))
-					//{
-					Thread.sleep(1000);
-					//}
+				try {
+					while(!CGroupController.exists(new_guuid))
+					{
+					Thread.sleep(100);
+					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}*/
+				}
 				
-				//CStroke stroke = CStrokeController.strokes.get(new_guuid);
-				//long previewScrap = stroke.createTemporaryScrapPreview(false);
-				//CGroupController.show_group_bubblemenu(previewScrap, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE);
+				CGroupController.setCurrentUUID(new_guuid);
+				CGroupController.setLastCreatedGroupUUID(new_guuid);
+				CGroupController.show_group_bubblemenu(new_guuid, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE);
+
 			}
 			else
 			{

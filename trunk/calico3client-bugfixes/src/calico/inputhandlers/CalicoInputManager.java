@@ -489,7 +489,8 @@ public class CalicoInputManager
 				// Now just kill it.
 				if (!CGroupController.exists(BubbleMenu.guuid))
 					BubbleMenu.clearMenu();
-				else if (!CGroupController.groupdb.get(BubbleMenu.guuid).containsPoint(ev.getPoint().x, ev.getPoint().y))
+				else if (!CGroupController.groupdb.get(BubbleMenu.guuid).containsPoint(ev.getPoint().x, ev.getPoint().y)
+						|| !CGroupController.groupdb.get(BubbleMenu.guuid).isPermanent())
 					BubbleMenu.clearMenu();
 				//return;// Dont return, we should let this one thru!
 			}

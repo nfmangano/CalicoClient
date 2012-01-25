@@ -10,6 +10,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import calico.Calico;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
@@ -48,7 +49,7 @@ public class ImageCreate extends PieMenuButton {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             Networking.send(CImageController.getImageTransferPacket(Calico.uuid(), CCanvasController.getCurrentUUID(), 
-            		PieMenu.lastOpenedPosition.x, PieMenu.lastOpenedPosition.y, file));
+            		BubbleMenu.lastOpenedPosition.x, BubbleMenu.lastOpenedPosition.y, file));
 		}
 //		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)
 //		{
