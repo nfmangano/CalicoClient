@@ -29,12 +29,14 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
+import calico.components.CCanvasWatermark;
 import calico.components.CSession;
 import calico.components.CViewportCanvas;
 import calico.components.grid.CGrid;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.input.CalicoKeyListener;
 import calico.inputhandlers.InputQueue;
 import calico.networking.Networking;
@@ -55,12 +57,12 @@ public class Calico extends JFrame
 	private static Ticker ticker = null;
 	
 	// MODES
-	public static final int MODE_EXPERT		= 1 << 0;
-	public static final int MODE_SCRAP		= 1 << 1;
-	public static final int MODE_STROKE		= 1 << 2;
-	public static final int MODE_ARROW		= 1 << 3;
-	public static final int MODE_DELETE		= 1 << 4;
-	public static final int MODE_POINTER	= 1 << 5;
+//	public static final int MODE_EXPERT		= 1 << 0;
+//	public static final int MODE_SCRAP		= 1 << 1;
+//	public static final int MODE_STROKE		= 1 << 2;
+//	public static final int MODE_ARROW		= 1 << 3;
+//	public static final int MODE_DELETE		= 1 << 4;
+//	public static final int MODE_POINTER	= 1 << 5;
 
 	
 
@@ -245,6 +247,8 @@ public class Calico extends JFrame
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme( CalicoOptions.core.icontheme );
+		CInputMode.setup();
+		CCanvasWatermark.InputModeWatermarks.setup();
 		
 		CalicoPluginManager.setup();
 

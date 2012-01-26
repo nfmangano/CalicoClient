@@ -12,6 +12,7 @@ import calico.components.piemenu.groups.GroupSetPermanentButton;
 import calico.components.piemenu.groups.GroupShrinkToContentsButton;
 import calico.controllers.*;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.*;
@@ -92,7 +93,7 @@ public class CCanvasExpertModeInputHandler extends CalicoAbstractInputHandler
 		this.hasSentGroupPress = false;
 		if(e.isLeftButtonPressed())
 		{
-			this.parentHandler.routeToHandler_actionPressed(Calico.MODE_STROKE, this.pressPoint);
+			this.parentHandler.routeToHandler_actionPressed(CInputMode.STROKE, this.pressPoint);
 		}
 		lastEvent = e;
 		mouseDown = e.getPoint();
@@ -109,19 +110,19 @@ public class CCanvasExpertModeInputHandler extends CalicoAbstractInputHandler
 		
 		if(e.isLeftButton()) // we are waiting for arrow mode
 		{
-			this.parentHandler.routeToHandler_actionDragged(Calico.MODE_STROKE, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.STROKE, e);
 //			if(this.pressedMouseLocation.distance(this.currentMouseLocation)>=CalicoOptions.core.max_hold_distance) // WE EXCEEDED THE THRESHOLD
 //			{	
 //				logger.debug("NOT GOING TO ENTER ARROW MODE - MOVED TOO FAR");
 				
 				// resend the event
-				//this.parentHandler.routeToHandler_actionPressed(Calico.MODE_STROKE, this.pressPoint);
+				//this.parentHandler.routeToHandler_actionPressed(CInputMode.STROKE, this.pressPoint);
 //			}
 		}
 		else if(e.isLeftButton()) // not ArrowMode
 		{
 			// draw stroke
-			this.parentHandler.routeToHandler_actionDragged(Calico.MODE_STROKE, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.STROKE, e);
 		}
 		else if(e.isRightButtonPressed())
 		{
@@ -129,11 +130,11 @@ public class CCanvasExpertModeInputHandler extends CalicoAbstractInputHandler
 			{
 				this.hasSentGroupPress = true;
 				lastEvent.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-				this.parentHandler.routeToHandler_actionPressed(Calico.MODE_SCRAP, lastEvent);
+				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, lastEvent);
 			}
 			
 			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionDragged(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		
 		
@@ -156,14 +157,14 @@ public class CCanvasExpertModeInputHandler extends CalicoAbstractInputHandler
 		if(e.isLeftButton())
 		{
 			//logger.debug("LEFT BUTTON ELSE RELEASE");
-			this.parentHandler.routeToHandler_actionReleased(Calico.MODE_STROKE, e);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.STROKE, e);
 		}
 		else if(e.isRightButton())
 		{
 			// finish scrap
 			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
 			logger.debug("RELEASE EXPERT RIGHT BUTTON: "+e.isLeftButtonPressed());
-			this.parentHandler.routeToHandler_actionReleased(Calico.MODE_SCRAP, e);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
 			if (e.menuShown == false 
 				&& mouseDown.distance(mouseUp) < CalicoOptions.pen.doubleClickTolerance)
 			{

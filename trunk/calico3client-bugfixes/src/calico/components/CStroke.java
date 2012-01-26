@@ -3,6 +3,7 @@ package calico.components;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.input.CInputMode;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.*;
 import calico.networking.netstuff.*;
@@ -354,7 +355,7 @@ public class CStroke extends PPath
 		line.repaintFrom(line.getBounds(), line);
 		
 		if (!drawTailTarget && Geometry.getPolygonLength(mousePoints) >= CalicoOptions.stroke.min_create_scrap_length
-				&& CalicoDataStore.Mode == Calico.MODE_EXPERT)
+				&& CalicoDataStore.Mode == CInputMode.EXPERT)
 		{
 			drawHitCircle();
 

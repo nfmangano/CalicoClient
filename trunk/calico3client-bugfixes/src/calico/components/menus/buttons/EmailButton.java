@@ -68,7 +68,7 @@ public class EmailButton extends CanvasMenuButton
 	public void actionMouseClicked()
 	{
 		
-		String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()),
+		String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
 				  "Please enter the email address(es) you wish to send this canvas to",
 				  "Email Canvas",
 				  JOptionPane.QUESTION_MESSAGE);
@@ -141,7 +141,7 @@ public class EmailButton extends CanvasMenuButton
 			t.sendMessage(msg, msg.getAllRecipients());
 	    } finally {
 	    	t.close();
-	    	JOptionPane.showMessageDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()), "Email sent successfully");
+	    	JOptionPane.showMessageDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(), "Email sent successfully");
 	    }
 
 	}
