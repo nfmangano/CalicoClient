@@ -160,7 +160,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		
 		if (e.isLeftButton())
 		{
-			long bguid;
+			long bguid;  
 			boolean isPotentialScrap = false;
 			if(hasStartedBge)
 //			{

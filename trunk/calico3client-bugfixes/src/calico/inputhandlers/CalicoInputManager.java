@@ -277,6 +277,7 @@ public class CalicoInputManager
 	 * @param y
 	 * @return
 	 */
+	@Deprecated
 	public static long getArrowAtPoint(int x, int y)
 	{
 		long[] arrowlist = CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getChildArrows();
@@ -293,6 +294,8 @@ public class CalicoInputManager
 		}//if grplist>0
 		return 0L;
 	}
+	
+	@Deprecated
 	public static long getArrowAtPoint(InputEventInfo ev)
 	{
 		return getArrowAtPoint(ev.getX(), ev.getY());

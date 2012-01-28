@@ -575,10 +575,15 @@ public class CCanvas
 	{
 		CCanvasController.setCurrentUUID(this.uuid);
 	}
+	
+	public boolean isEmpty()
+	{
+		return (strokes.isEmpty() && groups.isEmpty() && lists.isEmpty() && checkBoxes.isEmpty() && arrows.isEmpty());
+	}
 
 	public Image toImage()
 	{
-		if( strokes.size()>0 || groups.size()>0 || lists.size()>0 || checkBoxes.size()>0 || arrows.size()>0 )
+		if (!isEmpty())
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
 //			getCamera().removeChild(menuBarLeft);
@@ -978,6 +983,8 @@ public class CCanvas
 		this.groups = new LongArraySet();
 		this.strokes = new LongArraySet();
 		this.arrows = new LongArraySet();
+		this.lists = new LongArraySet();
+		this.checkBoxes = new LongArraySet();
 		
 //		this.getLayer().removeAllChildren();
 		clearEverythingExceptMenu();

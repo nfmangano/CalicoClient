@@ -9,6 +9,7 @@ import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 
+@Deprecated
 public class ChangeArrowColorButton extends PieMenuButton
 {
 	private Timer menuTimer = null;

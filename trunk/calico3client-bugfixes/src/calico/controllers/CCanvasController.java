@@ -240,6 +240,15 @@ public class CCanvasController {
 		}
 		return 0L;
 	}
+	
+	public static long getNextEmptyCanvas() {
+		for (long cuid : getCanvasIDList()) {
+			if (canvasdb.get(cuid).isEmpty()) {
+				return cuid;
+			}
+		}
+		return 0L;
+	}
 
 	public static long getCanvasAtPoint(Point point) {
 		// This will give the UUID for the canvas at the specific X/Y pos
