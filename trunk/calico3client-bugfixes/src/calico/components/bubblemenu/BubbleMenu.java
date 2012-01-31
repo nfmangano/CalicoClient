@@ -101,7 +101,7 @@ public class BubbleMenu {
 			};
 			// Must schedule the activity with the root for it to run.
 			bubbleContainer.getRoot().addActivity(flash);
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
+			//CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
 		}
 
 	}
@@ -170,11 +170,11 @@ public class BubbleMenu {
 		{
 			return 3;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
+		else if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
 		{
 			return 4;
 		}
-		else if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
+		else if (className.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
 		{
 			return 5;
 		}
@@ -186,10 +186,10 @@ public class BubbleMenu {
 		{
 			return 7;
 		}
-		/*else if (className.compareTo("calico.components.piemenu.groups.") == 0)
+		else if (className.compareTo("calico.components.piemenu.groups.GroupResizeButton") == 0)
 		{
 			return 8;
-		}*/
+		}
 		else if (className.compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
 		{
 			return 9;
@@ -302,8 +302,8 @@ public class BubbleMenu {
 				maxX = screenWidth - screenX - iconSize;
 				maxY = screenHeight - screenYBottom - iconSize - small - large;
 			break;
-		case 8: //x = (int)groupBounds.getMaxX() + startX - large;
-				//y = (int)groupBounds.getMaxY() + startY + small;
+		case 8: x = (int)groupBounds.getMaxX() + startX - centerOffset;
+				y = (int)groupBounds.getMaxY() + startY - centerOffset;
 				minX = screenX + farSideDistance + large;
 				minY = screenYTop + farSideDistance + large;
 				maxX = screenWidth - screenX - iconSize - small;

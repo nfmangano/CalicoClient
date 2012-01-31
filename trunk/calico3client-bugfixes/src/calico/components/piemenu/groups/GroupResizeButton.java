@@ -19,15 +19,15 @@ import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PBounds;
 
-public class GroupRotateButton extends PieMenuButton
+public class GroupResizeButton extends PieMenuButton
 {
 	
 	long uuid;
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	
-	public GroupRotateButton(long u)
+	public GroupResizeButton(long u)
 	{
-		super("group.rotate");
+		super("group.resize");
 		uuid = u;
 	}
 	
@@ -84,13 +84,13 @@ public class GroupRotateButton extends PieMenuButton
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
 			Point2D.Double p = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
-			double angle = getAngle(prevPoint, p, centerPoint);
-			ghost.rotateAboutPoint(angle, centerPoint);
+			/*double angle = getAngle(prevPoint, p, centerPoint);
+			ghost.rotateAboutPoint(angle, centerPoint);*/
 			
-			/*double oldScale = getScaleMP(prevPoint);
+			double oldScale = getScaleMP(prevPoint);
 			double newScale = getScaleMP(p);
 			double scale = newScale/oldScale;
-			ghost.scaleAboutPoint(scale, centerPoint);*/
+			ghost.scaleAboutPoint(scale, centerPoint);
 
 			ghost.repaintFrom(ghost.getBounds(), ghost);
 
@@ -144,11 +144,11 @@ public class GroupRotateButton extends PieMenuButton
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
 			
-			double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
-			CGroupController.rotate(guuid, angle);
+			/*double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
+			CGroupController.rotate(guuid, angle);*/
 			
-			/*double scale = getScaleMP(mouseUpPoint);
-			CGroupController.scale(guuid, scale, scale);*/
+			double scale = getScaleMP(mouseUpPoint);
+			CGroupController.scale(guuid, scale, scale);
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
