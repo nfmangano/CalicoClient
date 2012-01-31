@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
@@ -405,7 +406,12 @@ public class CalicoInputManager
 			PieMenu.isPerformingPieMenuAction = false;
 			lockInputHandler = 0l;
 		}
-		
+		if (BubbleMenu.performingBubbleMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
+		{
+			BubbleMenu.isPerformingBubbleMenuAction = false;
+			lockInputHandler = 0l;
+		}
+
 		// This means we have a menu open, so we give that priority!
 		if(PieMenu.isPieMenuActive())
 		{			
@@ -443,6 +449,57 @@ public class CalicoInputManager
 			lockInputHandler = 0;
 			return;
 		}
+
+		else if (BubbleMenu.isBubbleMenuActive())
+		{
+			// We are from a pie menu. PIGGYBACK FROM PIEMENU FLAG FOR NOW
+			ev.setFlag(InputEventInfo.FLAG_IS_FROM_PIEMENU);
+			
+			// Was it actually on the thing?
+			if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
+			{				
+				// Did we press the button?
+				if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
+				{
+					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+				}
+				//No bubblemenu on grid currently
+				/*if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				{
+					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
+				}*/
+				if (!CalicoDataStore.isViewingGrid)
+				{
+					lockInputHandler = 0l;
+					BubbleMenu.isPerformingBubbleMenuAction = true;
+				}
+				return;
+			}
+			else if (BubbleMenu.performingBubbleMenuAction())
+			{
+				if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
+				{
+					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+				}
+				lockInputHandler = 0;
+				return;
+			}
+			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
+			{				
+				// Now just kill it.
+				if (!CGroupController.exists(BubbleMenu.guuid))
+					BubbleMenu.clearMenu();
+				else if (!CGroupController.groupdb.get(BubbleMenu.guuid).containsPoint(ev.getPoint().x, ev.getPoint().y)
+						|| !CGroupController.groupdb.get(BubbleMenu.guuid).isPermanent())
+					BubbleMenu.clearMenu();
+				//return;// Dont return, we should let this one thru!
+			}
+		}
+		else if (BubbleMenu.performingBubbleMenuAction())
+		{
+			lockInputHandler = 0;
+			return;
+		}
 		else if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getPoint()) != 0)
 		{
 			lockInputHandler = getStickyItem(ev.getPoint());
@@ -454,7 +511,6 @@ public class CalicoInputManager
 				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(ev.getGlobalPoint());
 			return;
 		}		
-
 		
 		// 0L is the grid
 		if(CalicoDataStore.isViewingGrid )

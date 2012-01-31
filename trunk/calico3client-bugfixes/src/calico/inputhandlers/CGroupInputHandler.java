@@ -4,6 +4,7 @@ import java.awt.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.controllers.CGroupController;
 import calico.input.CInputManager;
@@ -111,6 +112,13 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 	{
 		CalicoInputManager.lockInputHandler(uuid);
 		e.group = uuid;
+		
+		if (BubbleMenu.guuid != e.group && CGroupController.groupdb.get(e.group).isPermanent())
+		{
+			System.out.println("works with: " + uuid);
+			CGroupController.show_group_bubblemenu(uuid, e.getPoint());
+		}
+		
 		if(CalicoOptions.canvas.lowquality_on_interaction)
 		{
 			//CCanvasController.canvasdb.get(canvas_uid).setInteracting(true);

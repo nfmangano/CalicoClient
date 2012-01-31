@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 import calico.Calico;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
@@ -48,12 +49,12 @@ public class TextCreate extends PieMenuButton {
 			if (isImageURL(response))
 			{
 				new_uuid = Calico.uuid();
-				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, PieMenu.lastOpenedPosition.x, PieMenu.lastOpenedPosition.y));
+				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, BubbleMenu.lastOpenedPosition.x, BubbleMenu.lastOpenedPosition.y));
 			}
 			else
 			{
 				new_uuid = Calico.uuid();
-				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, PieMenu.lastOpenedPosition.x, PieMenu.lastOpenedPosition.y);
+				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, BubbleMenu.lastOpenedPosition.x, BubbleMenu.lastOpenedPosition.y);
 			}
 		}
 //		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)

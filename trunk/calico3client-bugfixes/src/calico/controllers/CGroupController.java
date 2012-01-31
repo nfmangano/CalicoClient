@@ -29,6 +29,7 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.PieMenu;
@@ -650,7 +651,6 @@ public class CGroupController
 	public static void drop(long uuid)
 	{
 
-		System.out.println("Dropping group: " +  uuid);
 		no_notify_drop(uuid);
 		Networking.send(NetworkCommand.GROUP_DROP, uuid);
 	}
@@ -967,6 +967,112 @@ public class CGroupController
 //			}
 
 			PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
+			//BubbleMenu.displayBubbleMenu(point, CGroupController.groupdb.get(uuid).getBounds(),buttons.toArray(new PieMenuButton[buttons.size()]));
+			CGroupController.groupdb.get(uuid).highlight_on();
+			
+		}
+		
+		
+	}
+	
+	public static void show_group_bubblemenu(long uuid, Point point)
+	{
+		show_group_bubblemenu(uuid, point, PieMenuButton.SHOWON_SCRAP_MENU);
+	}
+	
+	public static void show_group_bubblemenu(long uuid, Point point, int showfilter)
+	{
+		//Class<?> pieMenuClass = calico.components.piemenu.PieMenu.class;
+		if (!exists(uuid))
+			return;
+
+		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getPieMenuButtons();
+		
+		int curPos = 0;
+		int totalButtons = 0;
+		int[] bitmasks = new int[pieMenuButtons.size()];
+		
+		
+		
+		if(pieMenuButtons.size()>0)
+		{
+			ArrayList<PieMenuButton> buttons = new ArrayList<PieMenuButton>();
+			
+			for(int i=0;i<pieMenuButtons.size();i++)
+			{
+				try
+				{
+//					if (pieMenuButtons.get(i).getName().compareTo("GroupRotateButton") == 0
+//							&& CGroupController.groupdb.get(i).getText().length() > 0)
+//						continue;
+					bitmasks[i] = pieMenuButtons.get(i).getField("SHOWON").getInt(null);
+					if( ( bitmasks[i] & showfilter) == showfilter)
+					{
+						if (pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0
+								&& groupdb.get(uuid).getBoundsOfContents().isEmpty()
+								
+							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
+								&& groupdb.get(uuid).getChildGroups().length == 0)
+						{
+							buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
+							continue;
+						}
+						
+						buttons.add((PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid));
+//						buttons[curPos++] = (PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid);
+					}
+					else
+						buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
+//			for(int i=0;i<pieMenuButtons.size();i++)
+//			{
+//				try
+//				{
+////					if (pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0
+////							&& CGroupController.groupdb.get(uuid).getText().length() > 0)
+////						continue;
+//					bitmasks[i] = pieMenuButtons.get(i).getField("SHOWON").getInt(null);
+//					if( (bitmasks[i] & showfilter) == showfilter)
+//					{
+//						totalButtons++;
+//						//buttons[curPos++] = (PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid);
+//					}
+//				}
+//				catch (Exception e)
+//				{
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//			PieMenuButton[] buttons = new PieMenuButton[totalButtons];
+//			
+//			for(int i=0;i<pieMenuButtons.size();i++)
+//			{
+//				try
+//				{
+////					if (pieMenuButtons.get(i).getName().compareTo("GroupRotateButton") == 0
+////							&& CGroupController.groupdb.get(i).getText().length() > 0)
+////						continue;
+//					if( ( bitmasks[i] & showfilter) == showfilter)
+//					{
+//						buttons[curPos++] = (PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid);
+//					}
+//				}
+//				catch (Exception e)
+//				{
+//					e.printStackTrace();
+//				}
+//			}
+
+			//PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
+			
+			BubbleMenu.displayBubbleMenu(point,uuid,buttons.toArray(new PieMenuButton[buttons.size()]));
 			CGroupController.groupdb.get(uuid).highlight_on();
 			
 		}

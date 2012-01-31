@@ -96,8 +96,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 
 		//addCap();
 		addSpacer();
-		addIcon(new DoNotEraseButton(cuid));
-		addIcon(new CanEraseButton(cuid));
+		//addIcon(new DoNotEraseButton(cuid));
+		//addIcon(new CanEraseButton(cuid));
 		addIcon(new ClearButton(cuid));
 		addSpacer();
 		

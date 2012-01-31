@@ -55,6 +55,7 @@ import org.shodor.util11.PolygonUtils;
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.CalicoUtils;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
@@ -201,6 +202,30 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class);
 		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class);
+		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
+		return pieMenuButtons;
+	}
+	
+	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
+		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
+		pieMenuButtons.addAll(CGroup.pieMenuButtons); //5
+		return pieMenuButtons;
+	}
+	
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>(); 
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDropButton.class); //12
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupSetPermanentButton.class); //1
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupShrinkToContentsButton.class); //2
+		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class); //3
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
+		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
 		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
 		return pieMenuButtons;
 	}
@@ -696,7 +721,7 @@ public class CGroup extends PPath implements Serializable {
 		
 		//This draws the highlight
 		Composite temp = g2.getComposite();
-		if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() || PieMenu.highlightedGroup == this.uuid)
+		if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() || BubbleMenu.highlightedGroup == this.uuid)
 		{
 			if (CGroupController.exists(getParentUUID()))
 				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CGroupController.groupdb.get(getParentUUID()).getTransparency()));
@@ -2149,7 +2174,7 @@ public class CGroup extends PPath implements Serializable {
 	}
 
 	public void highlight_off() {
-		PieMenu.highlightedGroup = 0l;
+		BubbleMenu.highlightedGroup = 0l;
 		this.drawPermTemp(true);
 		
 		Rectangle bounds = getBounds().getBounds();
@@ -2160,7 +2185,7 @@ public class CGroup extends PPath implements Serializable {
 	}
 	
 	public void highlight_on() {
-		PieMenu.highlightedGroup = this.uuid;
+		BubbleMenu.highlightedGroup = this.uuid;
 		
 //		if (isPermanent)
 //		{

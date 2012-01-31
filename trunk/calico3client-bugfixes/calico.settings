@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #calico.settings
 #Mon Jan 30 23:06:48 PST 2012
 resw=600
@@ -6,3 +7,13 @@ password=
 resh=600
 host=localhost
 username=calvmari
+=======
+#calico.settings
+#Mon Jan 30 22:54:02 PST 2012
+resw=600
+port=27000
+password=
+resh=600
+host=localhost
+username=calvmari
+>>>>>>> current

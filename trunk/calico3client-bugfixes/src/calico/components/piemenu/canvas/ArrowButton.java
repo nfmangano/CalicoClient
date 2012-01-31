@@ -13,6 +13,7 @@ import calico.components.AnchorPoint;
 import calico.components.CArrow;
 import calico.components.CGroup;
 import calico.components.CViewportCanvas;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;
@@ -28,8 +29,9 @@ import edu.umd.cs.piccolo.nodes.PImage;
 
 public class ArrowButton extends PieMenuButton
 {
+	//Remove from BubbleMenu
+	//public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
 	
-	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
 	private long guuid = 0L;
 	
 	public ArrowButton(long uuid)
@@ -64,7 +66,7 @@ public class ArrowButton extends PieMenuButton
 		
 		ev.stop();
 //		ev.getMouseEvent().consume();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		//CGroupController.drop(group_uuid);
 	}
@@ -83,7 +85,7 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
-			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(PieMenu.lastOpenedPosition);
+			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(BubbleMenu.lastOpenedPosition);
 			
 			if(tempArrow==null)
 			{
