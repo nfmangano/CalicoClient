@@ -1,8 +1,8 @@
 #calico.settings
-#Thu Sep 08 14:02:16 PDT 2011
-resw=0
+#Mon Jan 30 23:06:48 PST 2012
+resw=600
 port=27000
 password=
-resh=0
+resh=600
 host=localhost
 username=calvmari
