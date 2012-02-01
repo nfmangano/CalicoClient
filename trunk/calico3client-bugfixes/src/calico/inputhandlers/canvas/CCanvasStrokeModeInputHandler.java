@@ -2,6 +2,7 @@ package calico.inputhandlers.canvas;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.components.piemenu.canvas.DeleteAreaButton;
 import calico.components.piemenu.groups.GroupCreateTempButton;
@@ -87,9 +88,12 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			hasStartedBge = true;
 			mouseDown = e.getPoint();
 			
-			PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
-			menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
-			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			if (CStrokeController.getPotentialScrap(e.getPoint()) > 0l && !BubbleMenu.isBubbleMenuActive())
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
+				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			}
 //			menuThread = new DisplayMenuThread(this, e.getGlobalPoint(), e.group);		
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuThread);
 		}

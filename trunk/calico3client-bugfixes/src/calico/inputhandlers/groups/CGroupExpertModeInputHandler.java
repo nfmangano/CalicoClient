@@ -4,6 +4,7 @@ import java.awt.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.*;
 import calico.components.piemenu.canvas.DeleteAreaButton;
@@ -113,10 +114,10 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		
 		if(e.isRightButtonPressed())
 		{
-			this.isWaitingRightHold = true;
+			/*this.isWaitingRightHold = true;
 			
 			this.currentRightClickTimer = new RightClickTimerTicker(this);
-			Ticker.scheduleIn(CalicoOptions.core.hold_time, this.currentRightClickTimer );
+			Ticker.scheduleIn(CalicoOptions.core.hold_time, this.currentRightClickTimer );*/
 		}
 		else if(e.isLeftButtonPressed())
 		{
@@ -129,8 +130,14 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				CGroupDecoratorController.list_set_check(uuid, CCanvasController.getCurrentUUID(), list.getParentUUID(), grp, !list.isChecked(grp));
 				onePressActionPerformed = true;
 			}
+			else if (BubbleMenu.activeGroup != uuid && CGroupController.groupdb.get(uuid).isPermanent())
+			{
+				CGroupController.show_group_bubblemenu(uuid, e.getPoint());
+			}
 			else
+			{
 				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+			}
 		}
 	}
 
@@ -145,31 +152,31 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		if(e.isRightButton() && this.isInRightClickMode)/////////////////////////////////////////////
 		{
 //			this.drawRightClickIcon(this.currentMouseLocation);
-			
+			/*
 			if(this.pressPoint!=null)
 			{
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 				this.pressPoint = null;
 			}
 			
-			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);*/
 		}
 		else if(e.isRightButtonPressed() && this.isWaitingRightHold)/////////////////////////////////////////////
 		{
-			if(this.pressedMouseLocation.distance(this.currentMouseLocation)>=CalicoOptions.core.max_hold_distance) // WE EXCEEDED THE THRESHOLD
+			/*if(this.pressedMouseLocation.distance(this.currentMouseLocation)>=CalicoOptions.core.max_hold_distance) // WE EXCEEDED THE THRESHOLD
 			{
 				this.isWaitingRightHold = false;
 				logger.debug("NOT GOING TO ENTER RIGHTCLICK MODE - MOVED TOO FAR");
 
 				this.pressPoint.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
-			}
+			}*/
 		}
 		else if(e.isRightButtonPressed())/////////////////////////////////////////////
 		{
 			// Reroute to canvas handler
-			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
+			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);*/
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////
 		{
@@ -192,13 +199,13 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 
 		if(e.isRightButton() && this.isInRightClickMode)
 		{
-			this.isInRightClickMode = false;
+			/*this.isInRightClickMode = false;
 
-			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);*/
 		}
 		else if(e.isRightButton() && this.isWaitingRightHold)
 		{
-			logger.debug("WOULD SHOW MENU");
+			/*logger.debug("WOULD SHOW MENU");
 			
 			long stroke = CStrokeController.getPotentialScrap(e.getPoint());
 			if (!CGroupController.groupdb.get(uuid).isPermanent())
@@ -207,13 +214,13 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			if (stroke != 0l)
 				CalicoAbstractInputHandler.clickMenu(0l, 0l, e.getPoint());
 			else
-				CGroupController.show_group_piemenu(uuid, e.getGlobalPoint());
+				CGroupController.show_group_piemenu(uuid, e.getGlobalPoint());*/
 
 		}
 		else if(e.isRightButton() && !this.isInRightClickMode)
 		{
-			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
+			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
+			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);*/
 		}
 		
 

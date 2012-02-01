@@ -162,14 +162,14 @@ public class CCanvasExpertModeInputHandler extends CalicoAbstractInputHandler
 		else if(e.isRightButton())
 		{
 			// finish scrap
-			e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
+			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
 			logger.debug("RELEASE EXPERT RIGHT BUTTON: "+e.isLeftButtonPressed());
 			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
 			if (e.menuShown == false 
 				&& mouseDown.distance(mouseUp) < CalicoOptions.pen.doubleClickTolerance)
 			{
 				CalicoAbstractInputHandler.clickMenu(0l, 0l, mouseDown);
-			}
+			}*/
 		}
 		else
 		{
