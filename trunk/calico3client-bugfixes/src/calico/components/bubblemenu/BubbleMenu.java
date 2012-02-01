@@ -84,7 +84,7 @@ public class BubbleMenu {
 			
 		}
 		else{
-			//CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleHighlighter);
+			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleHighlighter);
 			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleContainer);
 			
 			fade = new PActivity(500,70, System.currentTimeMillis()) {
@@ -376,7 +376,7 @@ public class BubbleMenu {
 		}
 		bubbleContainer.removeAllChildren();
 		bubbleContainer.removeFromParent();
-		//bubbleHighlighter.removeFromParent();
+		bubbleHighlighter.removeFromParent();
 		buttonList.clear();
 		buttonPosition = null;
 		bubbleContainer = null;
