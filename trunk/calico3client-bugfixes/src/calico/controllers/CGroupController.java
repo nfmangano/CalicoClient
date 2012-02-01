@@ -650,7 +650,6 @@ public class CGroupController
 	
 	public static void drop(long uuid)
 	{
-
 		no_notify_drop(uuid);
 		Networking.send(NetworkCommand.GROUP_DROP, uuid);
 	}
@@ -1071,9 +1070,9 @@ public class CGroupController
 //			}
 
 			//PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
-			
-			BubbleMenu.displayBubbleMenu(point,uuid,buttons.toArray(new PieMenuButton[buttons.size()]));
 			CGroupController.groupdb.get(uuid).highlight_on();
+			BubbleMenu.displayBubbleMenu(point,uuid,buttons.toArray(new PieMenuButton[buttons.size()]));
+			
 			
 		}
 		

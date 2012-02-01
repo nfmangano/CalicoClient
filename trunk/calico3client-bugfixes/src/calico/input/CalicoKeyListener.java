@@ -13,6 +13,7 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.components.CViewportCanvas;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
 import calico.components.grid.CGrid;
 import calico.components.menus.buttons.CanvasNavButton;
@@ -165,11 +166,11 @@ public class CalicoKeyListener extends KeyAdapter {
 	{
 		int xPos = CalicoDataStore.ScreenWidth/3, yPos = CalicoDataStore.ScreenHeight/3;
 		
-		if (PieMenu.highlightedGroup != 0l && CGroupController.groupdb.get(PieMenu.highlightedGroup) instanceof CListDecorator)
+		if (BubbleMenu.activeGroup != 0l && CGroupController.groupdb.get(BubbleMenu.activeGroup) instanceof CListDecorator)
 		{
-			xPos = CGroupController.groupdb.get(PieMenu.highlightedGroup).getPathReference().getBounds().x + 50;
-			yPos = CGroupController.groupdb.get(PieMenu.highlightedGroup).getPathReference().getBounds().y
-					+ CGroupController.groupdb.get(PieMenu.highlightedGroup).getPathReference().getBounds().height - 10;
+			xPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().x + 50;
+			yPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().y
+					+ CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().height - 10;
 		}
 		else
 		{

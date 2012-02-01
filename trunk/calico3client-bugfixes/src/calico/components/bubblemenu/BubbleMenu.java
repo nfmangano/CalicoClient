@@ -34,30 +34,30 @@ public class BubbleMenu {
 	
 	//worst piece of programming right here --v 
 	public static boolean isPerformingBubbleMenuAction = false;
-	public static long highlightedGroup = 0l;
+	public static long activeGroup = 0l;
 	public static Point lastOpenedPosition = null;
 	
 	//bounds of the active group
+	public static long highlightedParentGroup = 0l;
 	public static PBounds activeGroupBounds;
-	public static long guuid = 0l;
 	
 	public static int selectedButtonIndex = -1;
 	
+	private static PActivity fade;
+	
 	public static void displayBubbleMenu(Point location, Long uuid, PieMenuButton... buttons)
 	{
-		guuid = uuid;
-		activeGroupBounds =  CGroupController.groupdb.get(guuid).getBounds();
-		
-		displayBubbleMenuArray(location, buttons);
-	}
-	public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
-	{
-		lastOpenedPosition = location;
 		if(bubbleContainer!=null)
 		{
 			// Clear out the old one, then try this again
 			clearMenu();
 		}
+		activeGroup = uuid;
+		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+		
+		//displayBubbleMenuArray(location, buttons);
+		
+		lastOpenedPosition = location;
 		
 		buttonList.addElements(0, buttons, 0, buttons.length);
 		buttonPosition = new int[buttonList.size()];
@@ -65,8 +65,13 @@ public class BubbleMenu {
 		getIconPositions();
 		
 		drawBubbleMenu( );
-		
 	}
+	
+	/*public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
+	{
+		
+		
+	}*/
 	
 	private static void drawBubbleMenu()//, PieMenuButton[] buttons)
 	{
@@ -79,15 +84,17 @@ public class BubbleMenu {
 			
 		}
 		else{
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleHighlighter);
+			//CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleHighlighter);
 			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleContainer);
 			
-			PActivity flash = new PActivity(500,70, System.currentTimeMillis()) {
+			fade = new PActivity(500,70, System.currentTimeMillis()) {
 				long step = 0;
 	      
 			    protected void activityStep(long time) {
 			            super.activityStep(time);
+
 			            bubbleContainer.setTransparency(1.0f * step/5);
+			            
 	//		            repaint();
 			            step++;
 			            
@@ -100,7 +107,8 @@ public class BubbleMenu {
 			    }
 			};
 			// Must schedule the activity with the root for it to run.
-			bubbleContainer.getRoot().addActivity(flash);
+			bubbleContainer.getRoot().addActivity(fade);
+			
 			//CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
 		}
 
@@ -152,7 +160,7 @@ public class BubbleMenu {
 				updateHighlighterPosition(selectedButtonIndex);
 				
 			}
-			bubbleHighlighter.repaint();
+			bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), null);
 		}
 	}
 	
@@ -362,20 +370,25 @@ public class BubbleMenu {
 	
 	public static void clearMenu()
 	{
+		if (fade.isStepping())
+		{
+			fade.terminate();
+		}
 		bubbleContainer.removeAllChildren();
 		bubbleContainer.removeFromParent();
-		bubbleHighlighter.removeFromParent();
+		//bubbleHighlighter.removeFromParent();
 		buttonList.clear();
 		buttonPosition = null;
 		bubbleContainer = null;
 		bubbleHighlighter = null;
 		selectedButtonIndex = -1;
-		guuid = 0l;
-		if (highlightedGroup != 0l)
+		if (activeGroup != 0l)
 		{
-			if (CGroupController.exists(highlightedGroup))
-				CGroupController.groupdb.get(highlightedGroup).highlight_off();
-			highlightedGroup = 0l;
+			if (CGroupController.exists(activeGroup))
+			{
+				CGroupController.groupdb.get(activeGroup).highlight_off();
+			}
+			activeGroup = 0l;
 		}
 	}
 	

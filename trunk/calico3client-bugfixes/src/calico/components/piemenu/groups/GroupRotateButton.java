@@ -14,6 +14,7 @@ import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
@@ -33,6 +34,14 @@ public class GroupRotateButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{	
+		//Preemptively delete the original stroke or else bad things will happen.
+		//Race condition?
+		if (CGroupController.originalStroke != 0)
+		{
+			CStrokeController.delete(CGroupController.originalStroke);
+			CGroupController.originalStroke = 0l;
+		}
+		
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
 		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
@@ -193,7 +202,7 @@ public class GroupRotateButton extends PieMenuButton
 			return theta;
 		}
 		
-		private double getScaleMP(Point2D.Double p)
+		/*private double getScaleMP(Point2D.Double p)
 		{
 			double originalDistance = Math.sqrt(Math.pow(mouseDownPoint.getY() - centerPoint.getY(), 2) 
 											+ Math.pow(mouseDownPoint.getX() - centerPoint.getX(), 2));
@@ -201,7 +210,7 @@ public class GroupRotateButton extends PieMenuButton
 					+ Math.pow(p.getX() - centerPoint.getX(), 2));
 			
 			return newDistance / originalDistance;
-		}
+		}*/
 
 	}
 }

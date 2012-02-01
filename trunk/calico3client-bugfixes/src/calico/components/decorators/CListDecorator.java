@@ -79,7 +79,7 @@ public class CListDecorator extends CGroupDecorator {
 		
 		super.paint(paintContext);
 		
-		if (BubbleMenu.highlightedGroup == this.uuid)
+		if (BubbleMenu.activeGroup == this.uuid)
 		{
 			if (CGroupController.exists(CalicoInputManager.group) && CalicoInputManager.group != this.uuid)
 			{

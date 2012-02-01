@@ -113,18 +113,11 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 		CalicoInputManager.lockInputHandler(uuid);
 		e.group = uuid;
 		
-		if (BubbleMenu.guuid != e.group && CGroupController.groupdb.get(e.group).isPermanent())
-		{
-			System.out.println("works with: " + uuid);
-			CGroupController.show_group_bubblemenu(uuid, e.getPoint());
-		}
-		
 		if(CalicoOptions.canvas.lowquality_on_interaction)
 		{
 			//CCanvasController.canvasdb.get(canvas_uid).setInteracting(true);
 		}
 		
-
 		CGroupController.checkToRemoveLastTempGroup(this.uuid);
 		
 		switch(CalicoDataStore.Mode)

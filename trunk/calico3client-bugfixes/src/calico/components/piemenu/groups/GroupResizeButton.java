@@ -14,6 +14,7 @@ import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
@@ -33,6 +34,14 @@ public class GroupResizeButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{	
+		//Preemptively delete the original stroke or else bad things will happen.
+		//Race condition?
+		if (CGroupController.originalStroke != 0)
+		{
+			CStrokeController.delete(CGroupController.originalStroke);
+			CGroupController.originalStroke = 0l;
+		}
+		
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
 		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
@@ -160,7 +169,7 @@ public class GroupResizeButton extends PieMenuButton
 		}
 		
 		//gets angle between two points with respect to the third point
-		double getAngle(Point2D point1, Point2D point2, Point2D midPoint)
+		/*double getAngle(Point2D point1, Point2D point2, Point2D midPoint)
 		{
 			Point2D adjustedPoint1 = new Point2D.Double(point1.getX() - midPoint.getX(), point1.getY() - midPoint.getY());
 			double point1Angle = getAngle(adjustedPoint1, new Point(0,0));
@@ -171,10 +180,10 @@ public class GroupResizeButton extends PieMenuButton
 			double angle = point1Angle - point2Angle;
 			
 			return angle;			
-		}
+		}*/
 		
 		//taken from: http://bytes.com/topic/c/answers/452165-finding-angle-between-two-points#post1728631
-		double getAngle(Point2D point1, Point2D point2 )
+		/*double getAngle(Point2D point1, Point2D point2 )
 		{
 			double theta;
 			if ( point2.getX() - point1.getX() == 0 )
@@ -191,7 +200,7 @@ public class GroupResizeButton extends PieMenuButton
 					theta = Math.PI * 1.5f - theta;
 			};
 			return theta;
-		}
+		}*/
 		
 		private double getScaleMP(Point2D.Double p)
 		{

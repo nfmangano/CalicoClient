@@ -129,6 +129,9 @@ public class CGroup extends PPath implements Serializable {
 	protected boolean rightClickToggled = false;
 
 	protected boolean isPermanent = false;
+	
+	//This allows multiple groups to be highlighted at the same time
+	protected boolean isHighlighted = false;
 
 	// used by convex hull algorithm
 	ArrayList<Line2D> chkLns = new ArrayList<Line2D>();
@@ -200,6 +203,7 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class);
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class);
 		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
@@ -224,6 +228,7 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
 		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
@@ -721,7 +726,7 @@ public class CGroup extends PPath implements Serializable {
 		
 		//This draws the highlight
 		Composite temp = g2.getComposite();
-		if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() || BubbleMenu.highlightedGroup == this.uuid)
+		if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() || isHighlighted /*BubbleMenu.highlightedGroup == this.uuid*/)
 		{
 			if (CGroupController.exists(getParentUUID()))
 				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CGroupController.groupdb.get(getParentUUID()).getTransparency()));
@@ -2174,18 +2179,29 @@ public class CGroup extends PPath implements Serializable {
 	}
 
 	public void highlight_off() {
-		BubbleMenu.highlightedGroup = 0l;
+		//BubbleMenu.highlightedGroup = 0l;
+		isHighlighted = false;
 		this.drawPermTemp(true);
 		
 		Rectangle bounds = getBounds().getBounds();
 		double buffer = 10;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
-		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, null);
+		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
 		
 	}
 	
+	public void highlight_repaint()
+	{
+		Rectangle bounds = getBounds().getBounds();
+		double buffer = 10;
+		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
+		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+	}
+	
 	public void highlight_on() {
-		BubbleMenu.highlightedGroup = this.uuid;
+		isHighlighted = true;
+		
+		//BubbleMenu.activeGroup = this.uuid;
 		
 //		if (isPermanent)
 //		{

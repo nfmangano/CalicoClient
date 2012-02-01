@@ -487,10 +487,10 @@ public class CalicoInputManager
 			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
 			{				
 				// Now just kill it.
-				if (!CGroupController.exists(BubbleMenu.guuid))
+				if (!CGroupController.exists(BubbleMenu.activeGroup))
 					BubbleMenu.clearMenu();
-				else if (!CGroupController.groupdb.get(BubbleMenu.guuid).containsPoint(ev.getPoint().x, ev.getPoint().y)
-						|| !CGroupController.groupdb.get(BubbleMenu.guuid).isPermanent())
+				else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
+						|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
 					BubbleMenu.clearMenu();
 				//return;// Dont return, we should let this one thru!
 			}
