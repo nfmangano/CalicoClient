@@ -76,6 +76,7 @@ public class BubbleMenu {
 	private static void drawBubbleMenu()//, PieMenuButton[] buttons)
 	{
 		bubbleContainer = new BubbleMenuContainer();
+		bubbleContainer.setTransparency(0);
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
@@ -103,7 +104,7 @@ public class BubbleMenu {
 			    }
 			    
 			    protected void activityFinished() {
-			    		bubbleContainer.setTransparency(1);
+			    		bubbleContainer.setTransparency(1.0f);
 			    }
 			};
 			// Must schedule the activity with the root for it to run.
@@ -387,6 +388,7 @@ public class BubbleMenu {
 			if (CGroupController.exists(activeGroup))
 			{
 				CGroupController.groupdb.get(activeGroup).highlight_off();
+				CGroupController.groupdb.get(activeGroup).highlight_repaint();
 			}
 			activeGroup = 0l;
 		}
