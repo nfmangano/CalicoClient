@@ -14,6 +14,7 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.PressAndHoldAction;
+import calico.inputhandlers.groups.CGroupExpertModeInputHandler;
 import calico.utils.Geometry;
 import calico.utils.Ticker;
 
@@ -44,6 +45,8 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	
 	CalicoAbstractInputHandler.MenuTimer menuTimer;
 	private CCanvasInputHandler parentHandler = null;
+	
+	public static boolean deleteSmudge = false;
 	
 	public void openMenu(long potScrap, long group, Point point)
 	{
@@ -187,8 +190,18 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			
 
 			hasStartedBge = false;
+			boolean isSmudge = false;
+			if (deleteSmudge &&
+					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
+					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+			{
+				isSmudge = true;
+				CStrokeController.delete(CStrokeController.getCurrentUUID());
+				deleteSmudge = false;
+			}
 			
-			if (isPotentialScrap)
+			
+			if (isPotentialScrap && !isSmudge)
 			{
 				long strokeUID = 0l;
 				if (CStrokeController.isPotentialScrap(CStrokeController.getCurrentUUID()))

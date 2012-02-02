@@ -15,6 +15,7 @@ import calico.controllers.*;
 import calico.iconsets.*;
 import calico.input.CInputMode;
 import calico.inputhandlers.*;
+import calico.inputhandlers.canvas.CCanvasStrokeModeInputHandler;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.*;
@@ -51,7 +52,6 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 	private RightClickTimerTicker currentRightClickTimer = null;
 	
 	private InputEventInfo pressPoint = null;
-	
 	
 	public static class RightClickTimerTicker extends TickerTask
 	{
@@ -130,12 +130,13 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				CGroupDecoratorController.list_set_check(uuid, CCanvasController.getCurrentUUID(), list.getParentUUID(), grp, !list.isChecked(grp));
 				onePressActionPerformed = true;
 			}
-			else if (BubbleMenu.activeGroup != uuid && CGroupController.groupdb.get(uuid).isPermanent())
-			{
-				CGroupController.show_group_bubblemenu(uuid, e.getPoint());
-			}
 			else
 			{
+				if (BubbleMenu.activeGroup != uuid && CGroupController.groupdb.get(uuid).isPermanent())
+				{
+					CGroupController.show_group_bubblemenu(uuid, e.getPoint());
+					CCanvasStrokeModeInputHandler.deleteSmudge = true;
+				}
 				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 			}
 		}
@@ -180,7 +181,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////
 		{
-				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+			CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 		}
 	}
 
