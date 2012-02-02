@@ -685,7 +685,6 @@ public class CGroup extends PPath implements Serializable {
 
 		
 		applyAffineTransform();
-		
 		if (fade)
 		{
 			PActivity flash = new PActivity(500,70, System.currentTimeMillis()) {
@@ -2183,13 +2182,16 @@ public class CGroup extends PPath implements Serializable {
 		isHighlighted = false;
 		this.drawPermTemp(true);
 		
-		Rectangle bounds = getBounds().getBounds();
+		/*Rectangle bounds = getBounds().getBounds();
 		double buffer = 10;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
-		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);*/
 		
 	}
 	
+	//highlight_on does not require repaint because it is sometimes faster when the area will be repainted anyway
+	//highlight_off does not auto repaint to keep consistency with highlight_on
+	//Therefore you must call highlight_repaint manually when needed for both off and on
 	public void highlight_repaint()
 	{
 		Rectangle bounds = getBounds().getBounds();
