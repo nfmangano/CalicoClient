@@ -156,8 +156,16 @@ public class GroupResizeButton extends PieMenuButton
 			/*double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
 			CGroupController.rotate(guuid, angle);*/
 			
+			//Turn off highlighter before resize to make sure it does not leave artifacts. 
+			CGroupController.groupdb.get(guuid).highlight_off();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
+			
 			double scale = getScaleMP(mouseUpPoint);
 			CGroupController.scale(guuid, scale, scale);
+			
+			//Turn highlighter back on for resized version
+			CGroupController.groupdb.get(guuid).highlight_on();
+			
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;

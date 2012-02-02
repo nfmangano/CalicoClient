@@ -153,8 +153,15 @@ public class GroupRotateButton extends PieMenuButton
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
 			
+			//Turn off highlighter before rotate to make sure it does not leave artifacts. 
+			CGroupController.groupdb.get(guuid).highlight_off();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
+			
 			double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
 			CGroupController.rotate(guuid, angle);
+			
+			//Turn highlighter back on for rotated version
+			CGroupController.groupdb.get(guuid).highlight_on();
 			
 			/*double scale = getScaleMP(mouseUpPoint);
 			CGroupController.scale(guuid, scale, scale);*/

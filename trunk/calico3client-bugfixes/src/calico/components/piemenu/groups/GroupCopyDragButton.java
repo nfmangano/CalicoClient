@@ -138,7 +138,6 @@ public class GroupCopyDragButton extends PieMenuButton
 						(int)mouseUp.getX(),
 						(int)mouseUp.getY()
 					));
-				System.out.println("package sent");
 			}
 			else{
 				
@@ -266,7 +265,6 @@ public class GroupCopyDragButton extends PieMenuButton
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 				CGroupController.setCurrentUUID(new_guuid);
 				CGroupController.setLastCreatedGroupUUID(new_guuid);
 				CGroupController.show_group_bubblemenu(new_guuid, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE);
@@ -292,6 +290,7 @@ public class GroupCopyDragButton extends PieMenuButton
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+
 				CGroupController.show_group_bubblemenu(new_guuid, newPoint);
 			}
 		}

@@ -125,19 +125,19 @@ public class GroupMoveButton extends PieMenuButton
 			if (BubbleMenu.activeGroup != 0l)
 			{
 				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_off();
-				
+				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_repaint();
 			}
 			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
 			
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			
-			PBounds updateHighlightBounds;
 			long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
 			if (smallestParent != prevParent)
 			{
 				if (prevParent != 0l)
 				{
 					CGroupController.groupdb.get(prevParent).highlight_off();
+					CGroupController.groupdb.get(prevParent).highlight_repaint();
 				}
 				if (smallestParent != 0l)
 				{
@@ -152,6 +152,7 @@ public class GroupMoveButton extends PieMenuButton
 				CGroupController.groupdb.get(smallestParent).highlight_on();
 			}*/
 			CGroupController.groupdb.get(guuid).highlight_on();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
 			prevPoint.x = scaledPoint.x;
 			prevPoint.y = scaledPoint.y;
 			e.consume();
