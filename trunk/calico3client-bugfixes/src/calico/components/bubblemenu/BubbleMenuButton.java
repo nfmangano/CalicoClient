@@ -12,6 +12,7 @@ import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.perspectives.CalicoPerspective;
 import edu.umd.cs.piccolo.nodes.PImage;
 
 public class BubbleMenuButton {
@@ -80,7 +81,7 @@ public class BubbleMenuButton {
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CalicoPerspective.Active.removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -88,7 +89,7 @@ public class BubbleMenuButton {
 			}
 			
 		};
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+		CalicoPerspective.Active.addMouseListener(mouseListener);
 //		System.out.println("//////////// Removing pie menu event handler");
 	}
 	

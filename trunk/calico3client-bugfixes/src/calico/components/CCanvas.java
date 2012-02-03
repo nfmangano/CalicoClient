@@ -36,7 +36,6 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.modules.MessageObject;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
-import calico.perspectives.CalicoPerspective;
 import calico.utils.blobdetection.*;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
@@ -55,7 +54,7 @@ public class CCanvas
 	private static Logger logger = Logger.getLogger(CCanvas.class.getName());
 	
 	private static final long serialVersionUID = 1L;
-
+	
 	public enum Layer
 	{
 		CONTENT(1),

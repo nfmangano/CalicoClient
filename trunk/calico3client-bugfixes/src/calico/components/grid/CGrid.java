@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
 import java.util.Date;
 
 import javax.swing.JComponent;
@@ -294,6 +295,16 @@ public class CGrid
 
 	public int getImgh() {
 		return imgh;
+	}
+	
+	public void addMouseListener(MouseListener listener)
+	{
+		canvas.addMouseListener(listener);
+	}
+	
+	public void removeMouseListener(MouseListener listener)
+	{
+		canvas.removeMouseListener(listener);
 	}
 	
 	/**

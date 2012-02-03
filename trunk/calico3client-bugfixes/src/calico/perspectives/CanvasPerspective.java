@@ -1,6 +1,7 @@
 package calico.perspectives;
 
 import java.awt.Point;
+import java.awt.event.MouseListener;
 
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
@@ -94,5 +95,15 @@ public class CanvasPerspective extends CalicoPerspective
 
 		// Set a default, if all else fails, we go to the canvas
 		return CCanvasController.getCurrentUUID();
+	}
+
+	protected void addMouseListener(MouseListener listener)
+	{
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(listener);
+	}
+
+	protected void removeMouseListener(MouseListener listener)
+	{
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(listener);
 	}
 }

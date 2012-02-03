@@ -12,6 +12,7 @@ import calico.components.bubblemenu.BubbleMenu;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.*;
+import calico.perspectives.CalicoPerspective;
 
 //addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(WindowEvent winEvt) {Calico.exit();}});
 
@@ -83,7 +84,7 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CalicoPerspective.Active.removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -91,7 +92,7 @@ public class PieMenuButton
 			}
 			
 		};
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+		CalicoPerspective.Active.addMouseListener(mouseListener);
 //		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
@@ -113,7 +114,7 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CalicoPerspective.Active.removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -121,7 +122,7 @@ public class PieMenuButton
 			}
 			
 		};
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+		CalicoPerspective.Active.addMouseListener(mouseListener);
 //		System.out.println("//////////// Removing pie menu event handler");
 	}
 	

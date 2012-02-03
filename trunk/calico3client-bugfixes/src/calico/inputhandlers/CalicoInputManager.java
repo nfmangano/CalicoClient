@@ -477,7 +477,6 @@ public class CalicoInputManager
 		{
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
-		// CP boolean CalicoPerspective.processToolEvent() 
 		// Are they clicking the menu bar?
 		else if(CalicoPerspective.Active.processToolEvent(ev)) 
 		{
