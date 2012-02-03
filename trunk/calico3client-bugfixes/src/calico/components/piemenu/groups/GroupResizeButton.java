@@ -20,15 +20,15 @@ import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PBounds;
 
-public class GroupRotateButton extends PieMenuButton
+public class GroupResizeButton extends PieMenuButton
 {
 	
 	long uuid;
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	
-	public GroupRotateButton(long u)
+	public GroupResizeButton(long u)
 	{
-		super("group.rotate");
+		super("group.resize");
 		uuid = u;
 	}
 	
@@ -93,13 +93,13 @@ public class GroupRotateButton extends PieMenuButton
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
 			Point2D.Double p = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
-			double angle = getAngle(prevPoint, p, centerPoint);
-			ghost.rotateAboutPoint(angle, centerPoint);
+			/*double angle = getAngle(prevPoint, p, centerPoint);
+			ghost.rotateAboutPoint(angle, centerPoint);*/
 			
-			/*double oldScale = getScaleMP(prevPoint);
+			double oldScale = getScaleMP(prevPoint);
 			double newScale = getScaleMP(p);
 			double scale = newScale/oldScale;
-			ghost.scaleAboutPoint(scale, centerPoint);*/
+			ghost.scaleAboutPoint(scale, centerPoint);
 
 			ghost.repaintFrom(ghost.getBounds(), ghost);
 
@@ -153,18 +153,19 @@ public class GroupRotateButton extends PieMenuButton
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
 			
-			//Turn off highlighter before rotate to make sure it does not leave artifacts. 
+			/*double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
+			CGroupController.rotate(guuid, angle);*/
+			
+			//Turn off highlighter before resize to make sure it does not leave artifacts. 
 			CGroupController.groupdb.get(guuid).highlight_off();
 			CGroupController.groupdb.get(guuid).highlight_repaint();
 			
-			double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
-			CGroupController.rotate(guuid, angle);
+			double scale = getScaleMP(mouseUpPoint);
+			CGroupController.scale(guuid, scale, scale);
 			
-			//Turn highlighter back on for rotated version
+			//Turn highlighter back on for resized version
 			CGroupController.groupdb.get(guuid).highlight_on();
 			
-			/*double scale = getScaleMP(mouseUpPoint);
-			CGroupController.scale(guuid, scale, scale);*/
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
@@ -176,7 +177,7 @@ public class GroupRotateButton extends PieMenuButton
 		}
 		
 		//gets angle between two points with respect to the third point
-		double getAngle(Point2D point1, Point2D point2, Point2D midPoint)
+		/*double getAngle(Point2D point1, Point2D point2, Point2D midPoint)
 		{
 			Point2D adjustedPoint1 = new Point2D.Double(point1.getX() - midPoint.getX(), point1.getY() - midPoint.getY());
 			double point1Angle = getAngle(adjustedPoint1, new Point(0,0));
@@ -187,10 +188,10 @@ public class GroupRotateButton extends PieMenuButton
 			double angle = point1Angle - point2Angle;
 			
 			return angle;			
-		}
+		}*/
 		
 		//taken from: http://bytes.com/topic/c/answers/452165-finding-angle-between-two-points#post1728631
-		double getAngle(Point2D point1, Point2D point2 )
+		/*double getAngle(Point2D point1, Point2D point2 )
 		{
 			double theta;
 			if ( point2.getX() - point1.getX() == 0 )
@@ -207,9 +208,9 @@ public class GroupRotateButton extends PieMenuButton
 					theta = Math.PI * 1.5f - theta;
 			};
 			return theta;
-		}
+		}*/
 		
-		/*private double getScaleMP(Point2D.Double p)
+		private double getScaleMP(Point2D.Double p)
 		{
 			double originalDistance = Math.sqrt(Math.pow(mouseDownPoint.getY() - centerPoint.getY(), 2) 
 											+ Math.pow(mouseDownPoint.getX() - centerPoint.getX(), 2));
@@ -217,7 +218,7 @@ public class GroupRotateButton extends PieMenuButton
 					+ Math.pow(p.getX() - centerPoint.getX(), 2));
 			
 			return newDistance / originalDistance;
-		}*/
+		}
 
 	}
 }

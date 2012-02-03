@@ -2,6 +2,7 @@ package calico.inputhandlers.canvas;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.components.piemenu.canvas.DeleteAreaButton;
 import calico.components.piemenu.groups.GroupCreateTempButton;
@@ -13,6 +14,7 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.PressAndHoldAction;
+import calico.inputhandlers.groups.CGroupExpertModeInputHandler;
 import calico.utils.Geometry;
 import calico.utils.Ticker;
 
@@ -43,6 +45,8 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	
 	CalicoAbstractInputHandler.MenuTimer menuTimer;
 	private CCanvasInputHandler parentHandler = null;
+	
+	public static boolean deleteSmudge = false;
 	
 	public void openMenu(long potScrap, long group, Point point)
 	{
@@ -87,9 +91,12 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			hasStartedBge = true;
 			mouseDown = e.getPoint();
 			
-			PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
-			menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
-			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			if (CStrokeController.getPotentialScrap(e.getPoint()) > 0l && !BubbleMenu.isBubbleMenuActive())
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
+				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			}
 //			menuThread = new DisplayMenuThread(this, e.getGlobalPoint(), e.group);		
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuThread);
 		}
@@ -183,8 +190,18 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			
 
 			hasStartedBge = false;
+			boolean isSmudge = false;
+			if (deleteSmudge &&
+					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
+					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+			{
+				isSmudge = true;
+				CStrokeController.delete(CStrokeController.getCurrentUUID());
+				deleteSmudge = false;
+			}
 			
-			if (isPotentialScrap)
+			
+			if (isPotentialScrap && !isSmudge)
 			{
 				long strokeUID = 0l;
 				if (CStrokeController.isPotentialScrap(CStrokeController.getCurrentUUID()))
