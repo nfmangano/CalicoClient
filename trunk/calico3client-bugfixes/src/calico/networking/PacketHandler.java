@@ -1,3 +1,4 @@
+
 package calico.networking;
 
 import it.unimi.dsi.Util;
@@ -412,6 +413,7 @@ public class PacketHandler
 	private static void GROUP_DROP(CalicoPacket p)
 	{
 		long uuid = p.getLong();
+		System.out.println("packet");
 		CGroupController.no_notify_drop(uuid);
 	}
 	private static void GROUP_SET_PARENT(CalicoPacket p)

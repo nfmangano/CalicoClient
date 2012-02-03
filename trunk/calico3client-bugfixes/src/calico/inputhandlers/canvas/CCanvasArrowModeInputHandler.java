@@ -48,6 +48,8 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 	
 	
 	private CArrow tempArrow = null;
+	private long tempGuuidA = 0l;
+	private long tempGuuidB = 0l;
 
 	public CCanvasArrowModeInputHandler(long cuid, CCanvasInputHandler parent)
 	{
@@ -94,10 +96,43 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 						new AnchorPoint(CArrow.TYPE_CANVAS, canvas_uid, e.getPoint())
 					);
 					CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(tempArrow);
+					
+					//Highlight the groups that are associated with the points
+					tempGuuidA = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorA().getPoint());
+					tempGuuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorB().getPoint());
+					
+					if (tempGuuidA != 0l)
+					{
+						CGroupController.groupdb.get(tempGuuidA).highlight_on();
+						CGroupController.groupdb.get(tempGuuidA).highlight_repaint();
+					}
+					
+					if (tempGuuidA != tempGuuidB && tempGuuidB != 0l)
+					{
+						CGroupController.groupdb.get(tempGuuidB).highlight_on();
+						CGroupController.groupdb.get(tempGuuidB).highlight_repaint();
+					}
 				}
 				else
 				{
 					tempArrow.setAnchorB(new AnchorPoint(CArrow.TYPE_CANVAS, canvas_uid, e.getPoint()));
+					
+					//Change the highlight of the group associated with point B
+					long guuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorB().getPoint());
+					if (guuidB != tempGuuidB)
+					{
+						if (tempGuuidB != 0l && tempGuuidB != tempGuuidA)
+						{
+							CGroupController.groupdb.get(tempGuuidB).highlight_off();
+							CGroupController.groupdb.get(tempGuuidB).highlight_repaint();
+						}
+						if (guuidB != 0l && guuidB != tempGuuidA)
+						{
+							CGroupController.groupdb.get(guuidB).highlight_on();
+							CGroupController.groupdb.get(guuidB).highlight_repaint();
+						}
+						tempGuuidB = guuidB;
+					}
 				}
 				tempArrow.redraw(true);
 				
@@ -138,11 +173,15 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			if(guuidA!=0L)
 			{
 				tempArrow.setAnchorA(new AnchorPoint(CArrow.TYPE_GROUP, tempArrow.getAnchorA().getPoint(), guuidA));
+				CGroupController.groupdb.get(guuidA).highlight_off();
+				CGroupController.groupdb.get(guuidA).highlight_repaint();
 			}
 			
 			if(guuidB!=0L)
 			{
 				tempArrow.setAnchorB(new AnchorPoint(CArrow.TYPE_GROUP, tempArrow.getAnchorB().getPoint(), guuidB));
+				CGroupController.groupdb.get(guuidB).highlight_off();
+				CGroupController.groupdb.get(guuidB).highlight_repaint();
 			}
 			
 			
@@ -154,6 +193,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
 			
 			tempArrow = null;
+			tempGuuidB = 0;
 		}
 		
 		lastEvent = e;

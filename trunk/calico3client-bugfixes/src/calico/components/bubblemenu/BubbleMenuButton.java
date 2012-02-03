@@ -1,23 +1,23 @@
-package calico.components.piemenu;
+package calico.components.bubblemenu;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
 
-import edu.umd.cs.piccolo.nodes.*;
-import calico.*;
-import calico.components.*;
-import calico.components.bubblemenu.BubbleMenu;
+import calico.CalicoDataStore;
+import calico.CalicoOptions;
+import calico.components.CViewportCanvas;
+import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
-import calico.inputhandlers.*;
+import calico.inputhandlers.InputEventInfo;
+import edu.umd.cs.piccolo.nodes.PImage;
 
-//addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(WindowEvent winEvt) {Calico.exit();}});
-
-public class PieMenuButton
-{
-
+public class BubbleMenuButton {
 	public static int SHOWON = 0;
 	public static final int SHOWON_SCRAP_CREATE = 1 << 1;
 	public static final int SHOWON_SCRAP_MENU = 1 << 2;
@@ -25,12 +25,12 @@ public class PieMenuButton
 	
 	protected String iconPath = "";
 	protected Image iconImage = null;
-	public Rectangle bounds = new Rectangle();
+	protected Rectangle bounds = new Rectangle();
 	
 	protected Point buttonPosition = new Point(0,0);
 		
 	// Set the Icon
-	public PieMenuButton(String str)
+	public BubbleMenuButton(String str)
 	{
 		iconPath = str;
 		try
@@ -42,11 +42,11 @@ public class PieMenuButton
 			e.printStackTrace();
 		}
 	}
-	public PieMenuButton(URL url)
+	public BubbleMenuButton(URL url)
 	{
 		iconImage = Toolkit.getDefaultToolkit().getImage(url);
 	}
-	public PieMenuButton(Image img)
+	public BubbleMenuButton(Image img)
 	{
 		iconImage = img;
 	}
@@ -103,54 +103,6 @@ public class PieMenuButton
 			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
 //			System.out.println("//////////// Removing pie menu event handler");
 		}
-	}
-	
-	public void onPressed(InputEventInfo event)
-	{
-
-		BubbleMenu.isPerformingBubbleMenuAction =true;
-		
-		MouseListener mouseListener = new MouseListener()
-		{
-
-			@Override
-			public void mouseClicked(MouseEvent e) {}
-			@Override
-			public void mouseEntered(MouseEvent e) {}
-			@Override
-			public void mouseExited(MouseEvent e) {}
-			@Override
-			public void mousePressed(MouseEvent e) {}
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (CalicoDataStore.isInViewPort)
-					CViewportCanvas.getInstance().removeMouseListener(this);
-				else
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
-				
-				e.consume();
-//				PieMenu.isPerformingPieMenuAction = false;
-//				System.out.println("//////////// Removing pie menu event handler");
-			}
-			
-		};
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(mouseListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
-//			System.out.println("//////////// Removing pie menu event handler");
-		}
-	}
-	
-	public void onReleased(InputEventInfo event)
-	{
-
-		//BubbleMenu.isPerformingBubbleMenuAction =false;
-		
-		
 	}
 	
 	public final void setPosition(Point point)
@@ -215,5 +167,4 @@ public class PieMenuButton
 			return null;
 		}
 	}
-	
 }

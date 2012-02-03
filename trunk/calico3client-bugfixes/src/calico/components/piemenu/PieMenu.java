@@ -226,7 +226,11 @@ public class PieMenu
 		if (highlightedGroup != 0l)
 		{
 			if (CGroupController.exists(highlightedGroup))
+			{
 				CGroupController.groupdb.get(highlightedGroup).highlight_off();
+				CGroupController.groupdb.get(highlightedGroup).highlight_repaint();
+			}
+			
 			highlightedGroup = 0l;
 		}
 	}

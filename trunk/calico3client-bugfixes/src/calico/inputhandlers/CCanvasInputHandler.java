@@ -1,3 +1,4 @@
+
 package calico.inputhandlers;
 
 import calico.*;
@@ -72,6 +73,7 @@ public class CCanvasInputHandler extends CalicoAbstractInputHandler
 		
 		// remove the last temp group
 		//logger.debug("CCanvasInputHandler.actionPressed()");
+		
 		CGroupController.checkToRemoveLastTempGroup();
 		
 		if(CCanvasController.canvasdb.get(canvas_uid).isPointOnMenuBar(e.getGlobalPoint()))
@@ -93,6 +95,7 @@ public class CCanvasInputHandler extends CalicoAbstractInputHandler
 			case STROKE:modehandler_stroke.actionPressed(e);break;
 			case POINTER:modehandler_pointer.actionPressed(e);break;
 		}
+
 	}//actionPressed
 
 	public void actionDragged(InputEventInfo e)
@@ -191,3 +194,4 @@ public class CCanvasInputHandler extends CalicoAbstractInputHandler
 		}
 	}
 }
+
