@@ -1,6 +1,7 @@
 package calico.components.piemenu.groups;
 
 import calico.Calico;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -19,10 +20,15 @@ public class GroupDeleteButton extends PieMenuButton
 		uuidToBeDeleted = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
-		super.onClick(ev);
+		super.onPressed(ev);
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
 		CGroupController.delete(uuidToBeDeleted);
+		BubbleMenu.clearMenu();
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED GROUP DELETE BUTTON");

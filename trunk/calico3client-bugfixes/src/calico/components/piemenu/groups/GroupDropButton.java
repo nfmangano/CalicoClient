@@ -1,5 +1,6 @@
 package calico.components.piemenu.groups;
 
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
 import calico.iconsets.CalicoIconManager;
@@ -17,11 +18,17 @@ public class GroupDropButton extends PieMenuButton
 		group_uuid = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
-		super.onClick(ev);
+		super.onPressed(ev);
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
+		//super.onClick(ev);
 		ev.stop();
 		//System.out.println("CLICKED GROUP DROP BUTTON");
 		CGroupController.drop(group_uuid);
+		BubbleMenu.clearMenu();
 	}
 }

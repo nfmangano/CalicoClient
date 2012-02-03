@@ -20,6 +20,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import calico.Calico;
 import calico.CalicoOptions;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
@@ -78,7 +79,7 @@ public class CListDecorator extends CGroupDecorator {
 		
 		super.paint(paintContext);
 		
-		if (PieMenu.highlightedGroup == this.uuid)
+		if (BubbleMenu.activeGroup == this.uuid)
 		{
 			if (CGroupController.exists(CalicoInputManager.group) && CalicoInputManager.group != this.uuid)
 			{

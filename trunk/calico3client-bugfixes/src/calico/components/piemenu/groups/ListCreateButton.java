@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import calico.Calico;
 import calico.CalicoUtils;
 import calico.components.CGroup;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -35,13 +36,19 @@ public class ListCreateButton extends PieMenuButton
 		this(CCanvasController.getCurrentUUID(), uuid);
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
-		super.onClick(ev);
+		super.onPressed(ev);
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
+		//super.onClick(ev);
 		
 		if (CGroupController.exists(this.uuidToBeDecorated))
 		{
 			createList(this.uuidToBeDecorated);
+			BubbleMenu.clearMenu();
 		}
 		else if (CStrokeController.exists(this.uuidToBeDecorated))
 		{
@@ -49,6 +56,7 @@ public class ListCreateButton extends PieMenuButton
 			CStrokeController.makeScrap(this.uuidToBeDecorated, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
 			createList(new_uuid);
+			BubbleMenu.clearMenu();
 		}
 		ev.stop();
 	}
