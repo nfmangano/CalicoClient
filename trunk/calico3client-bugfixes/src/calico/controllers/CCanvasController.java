@@ -7,11 +7,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import javax.swing.RepaintManager;
 
 import org.apache.log4j.Logger;
 
@@ -27,7 +24,6 @@ import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
-import calico.input.CInputMode;
 import calico.modules.MessageObject;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -141,7 +137,7 @@ public class CCanvasController {
 	public static void no_notify_state_change_complete(long uuid) {
 		// just repaint it
 		canvasdb.get(uuid).validate();
-		if (CalicoDataStore.isInViewPort) {
+		if (CViewportCanvas.PERSPECTIVE.isActive()) {
 			CViewportCanvas.getInstance().repaint();
 		}
 		
@@ -190,7 +186,7 @@ public class CCanvasController {
 		}
 		
 		canvasdb.get(uuid).drawMenuBars();
-		if (CalicoDataStore.isInViewPort) {
+		if (CViewportCanvas.PERSPECTIVE.isActive()) {
 			CViewportCanvas.getInstance().drawToolbar();
 
 		}
@@ -241,15 +237,6 @@ public class CCanvasController {
 		return 0L;
 	}
 	
-	public static long getNextEmptyCanvas() {
-		for (long cuid : getCanvasIDList()) {
-			if (canvasdb.get(cuid).isEmpty()) {
-				return cuid;
-			}
-		}
-		return 0L;
-	}
-
 	public static long getCanvasAtPoint(Point point) {
 		// This will give the UUID for the canvas at the specific X/Y pos
 
@@ -273,7 +260,7 @@ public class CCanvasController {
 			CCanvasController.canvasdb.get(CCanvasController.currentCanvasUUID).getLayer().setScale(1.0d);
 		
 		Calico cal = CalicoDataStore.calicoObj;
-		CalicoDataStore.isViewingGrid = false;
+		CCanvas.PERSPECTIVE.activate();
 //		cal.getContentPane().removeAll();
 		
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();

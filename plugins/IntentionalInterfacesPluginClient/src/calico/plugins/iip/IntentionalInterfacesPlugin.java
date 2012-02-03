@@ -11,6 +11,7 @@ import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
+import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
@@ -31,6 +32,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		
 		// register for palette events
 		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
+		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		// CGroup.registerPieMenuButton(SaveToPaletteButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
@@ -118,7 +120,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		CCanvasLinkAnchor.Type type = CCanvasLinkAnchor.Type.values()[p.getInt()];
 		int x = p.getInt();
 		int y = p.getInt();
-		return new CCanvasLinkAnchor(canvas_uuid, group_uuid, type, x, y);
+		return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid, type, x, y);
 	}
 
 	private static void CLINK_CREATE(CalicoPacket p)

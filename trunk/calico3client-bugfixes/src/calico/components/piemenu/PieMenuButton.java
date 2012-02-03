@@ -82,9 +82,9 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (CalicoDataStore.isInViewPort)
+				if (CViewportCanvas.PERSPECTIVE.isActive())
 					CViewportCanvas.getInstance().removeMouseListener(this);
-				else
+				else if (CCanvas.PERSPECTIVE.isActive())
 					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
 				
 				e.consume();
@@ -93,11 +93,11 @@ public class PieMenuButton
 			}
 			
 		};
-		if (CalicoDataStore.isInViewPort)
+		if (CViewportCanvas.PERSPECTIVE.isActive())
 		{
 			CViewportCanvas.getInstance().addMouseListener(mouseListener);
 		}
-		else
+		else if (CCanvas.PERSPECTIVE.isActive())
 		{
 			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
 //			System.out.println("//////////// Removing pie menu event handler");

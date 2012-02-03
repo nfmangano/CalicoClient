@@ -1,12 +1,13 @@
 package calico.plugins.iip.components.graph;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 
 import calico.Calico;
 import calico.CalicoDataStore;
-import calico.CalicoOptions;
+import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
@@ -23,21 +24,21 @@ public class IntentionGraph
 		{
 			INSTANCE = new IntentionGraph();
 		}
-		INSTANCE.repaint();
+		INSTANCE.repaint(); 
 		return INSTANCE;
 	}
 
 	private static IntentionGraph INSTANCE;
 
 	private final ContainedCanvas canvas = new ContainedCanvas();
-	private  IntentionGraphMenuBar menuBar;
-	
+	private IntentionGraphMenuBar menuBar;
+
 	private final long uuid;
 
 	private IntentionGraph()
 	{
 		uuid = Calico.uuid();
-		
+
 		// IntentionGraph.exitButtonBounds = new Rectangle(CalicoDataStore.ScreenWidth-32,5,24,24);
 
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
@@ -62,35 +63,40 @@ public class IntentionGraph
 	{
 		return canvas.getCamera();
 	}
-	
+
 	public PLayer getLayer()
 	{
 		return canvas.getLayer();
 	}
-	
+
 	public JComponent getComponent()
 	{
 		return canvas;
 	}
-	
+
 	public void repaint()
 	{
 		canvas.repaint();
 	}
 	
+	public Rectangle getBounds()
+	{
+		return canvas.getBounds();
+	}
+
 	public void setBounds(int x, int y, int w, int h)
 	{
 		canvas.setBounds(x, y, w, h);
 	}
-	
+
 	private void drawMenuBar()
 	{
 		if (menuBar != null)
 		{
 			getCamera().removeChild(menuBar);
 		}
-		
-		menuBar = new IntentionGraphMenuBar();
+
+		menuBar = new IntentionGraphMenuBar(CanvasMenuBar.POSITION_BOTTOM);
 		getCamera().addChild(menuBar);
 	}
 

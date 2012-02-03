@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import calico.plugins.iip.components.CCanvasLinkArrow;
+import calico.plugins.iip.components.graph.IntentionGraph;
 
 public class IntentionPerspectiveController
 {
@@ -12,7 +13,7 @@ public class IntentionPerspectiveController
 
 	private static final IntentionPerspectiveController INSTANCE = new IntentionPerspectiveController();
 
-	private static Long2ReferenceArrayMap<CCanvasLinkArrow> arrows = new Long2ReferenceArrayMap<CCanvasLinkArrow>();
+	private final Long2ReferenceArrayMap<CCanvasLinkArrow> arrows = new Long2ReferenceArrayMap<CCanvasLinkArrow>();
 
 	public void addArrow(CCanvasLinkArrow arrow)
 	{

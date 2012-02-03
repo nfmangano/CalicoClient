@@ -1,13 +1,24 @@
 package calico.plugins.iip.components;
 
+import java.awt.Image;
+
+import calico.iconsets.CalicoIconManager;
+
 public class CCanvasLink
 {
 	public enum LinkType
 	{
-		NEW_IDEA,
-		NEW_PERSPECTIVE,
-		NEW_ALTERNATIVE,
-		DESIGN_INSIDE;
+		NEW_IDEA("intention.new-idea"),
+		NEW_PERSPECTIVE("intention.new-perspective"),
+		NEW_ALTERNATIVE("intention.new-alternative"),
+		DESIGN_INSIDE("intention.design-inside");
+		
+		public final Image image;
+		
+		private LinkType(String imageId)
+		{
+			image = CalicoIconManager.getIconImage(imageId);
+		}
 	}
 
 	private long uuid;
@@ -23,6 +34,9 @@ public class CCanvasLink
 		this.linkType = linkType;
 		this.anchorA = anchorA;
 		this.anchorB = anchorB;
+		
+		anchorA.setLink(this);
+		anchorB.setLink(this);
 	}
 	
 	public long getId()
@@ -38,6 +52,11 @@ public class CCanvasLink
 	public CCanvasLinkAnchor getAnchorB()
 	{
 		return anchorB;
+	}
+	
+	public LinkType getLinkType()
+	{
+		return linkType;
 	}
 	
 	public void setLinkType(LinkType linkType)

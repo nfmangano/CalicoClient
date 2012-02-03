@@ -46,14 +46,15 @@ public class ReturnToGrid extends CanvasMenuButton
 	
 	public void actionMouseClicked()
 	{
-		if(CalicoDataStore.isInViewPort==true){
+		if(!CGrid.PERSPECTIVE.isActive()){
 			CViewportCanvas viewport = CViewportCanvas.getInstance();
 			if(viewport!=null){
 				viewport.closeViewport();
 			}
-			CalicoDataStore.isInViewPort=false;
+			CGrid.PERSPECTIVE.activate();
 		}else{
 			CGrid.getInstance().centerViewportOnCanvas(CCanvasController.getCurrentUUID());
+			CViewportCanvas.PERSPECTIVE.activate();
 		}
 		CalicoDataStore.gridObject = CGrid.getInstance();
 		CalicoDataStore.gridObject.refreshCells();
@@ -70,7 +71,6 @@ public class ReturnToGrid extends CanvasMenuButton
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
-		CalicoDataStore.isViewingGrid = true;		
 		
 	}
 	public void actionMousePressed()

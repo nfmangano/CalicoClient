@@ -1,6 +1,8 @@
 package calico.plugins.iip.components.menus.buttons;
 
+import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarItem;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 
 public class NewIdeaButton extends CanvasIntentionToolBarItem
 {
@@ -12,6 +14,6 @@ public class NewIdeaButton extends CanvasIntentionToolBarItem
 	@Override
 	protected void onClick()
 	{
-		System.out.println("Let's create a new idea in a new canvas and link it from canvas #" + canvas_uuid);
+		CCanvasLinkController.getInstance().createLink(canvas_uuid, CCanvasLink.LinkType.NEW_IDEA);
 	}
 }

@@ -39,6 +39,16 @@ public class CGroupImage extends CGroup implements ImageObserver {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public CGroupImage(long uuid, long cuid, Image image)
+	{
+		super(uuid, cuid, 0L, true);
+		imgURL = null; // have an image already, no loading here.
+		this.image = image;
+
+		Rectangle bounds = new Rectangle(0, 0, image.getWidth(null), image.getHeight(null));
+		setShapeToRoundedRectangle(bounds, 0);
+	}
 
 	public CGroupImage(long uuid, long cuid, long puid, String img, int imgX,
 			int imgY, int imageWidth, int imageHeight) {

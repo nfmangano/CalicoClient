@@ -241,12 +241,11 @@ public class CViewportController {
 			CCanvasController.canvasdb.get(CCanvasController.currentCanvasUUID).getLayer().setScale(1.0d);
 		
 		Calico cal = CalicoDataStore.calicoObj;
-		if(CalicoDataStore.isViewingGrid){
-			CalicoDataStore.isViewingGrid = false;
-			CalicoDataStore.isInViewPort = true;
-		}else if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			if (CViewportCanvas.getInstance() != null)
 				CViewportCanvas.getInstance().closeViewport();
+		} else {
+			CViewportCanvas.PERSPECTIVE.activate();
 		}
 		cal.getContentPane().removeAll();
 		
@@ -436,7 +435,7 @@ public class CViewportController {
 	 * @param p the point that contains the new focused canvas
 	 */
 	public static void changeFocusedCanvas(Point p){
-		if (!CalicoDataStore.isInViewPort)
+		if (!CViewportCanvas.PERSPECTIVE.isActive())
 			return;
 		
 		if(p!=null){

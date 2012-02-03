@@ -3,11 +3,12 @@ package calico.plugins.iip.components.canvas;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.plugins.iip.controllers.CanvasPerspectiveController;
 
 public class CanvasIntentionToolBarButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
-
+	
 	private final long canvas_uuid;
 	
 	private final CanvasIntentionToolBar toolbar;
@@ -17,9 +18,8 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 	 */
 	public CanvasIntentionToolBarButton(long canvas_uuid)
 	{
-		super();
-
 		this.canvas_uuid = canvas_uuid;
+		
 		toolbar = new CanvasIntentionToolBar(canvas_uuid);
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(toolbar.toolbar);
 		
@@ -32,6 +32,8 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 		{
 			e.printStackTrace();
 		}
+		
+		CanvasPerspectiveController.getInstance().canvasIntentionToolBarCreated(toolbar);
 	}
 
 	public void actionMouseClicked()

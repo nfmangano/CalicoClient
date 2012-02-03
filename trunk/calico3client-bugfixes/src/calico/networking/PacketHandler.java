@@ -671,7 +671,7 @@ public class PacketHandler
 		}*/
 		
 
-		if( CalicoDataStore.isViewingGrid )
+		if( CGrid.PERSPECTIVE.isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 			
@@ -681,7 +681,6 @@ public class PacketHandler
 	        cal.pack();
 	        cal.setVisible(true);
 			cal.repaint();
-			CalicoDataStore.isViewingGrid = true;
 		}
 		
 
@@ -768,7 +767,7 @@ public class PacketHandler
 		
 		
 		//test
-		if( CalicoDataStore.isViewingGrid )
+		if( CGrid.PERSPECTIVE.isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 
@@ -778,7 +777,6 @@ public class PacketHandler
 	        cal.pack();
 	        cal.setVisible(true);
 			cal.repaint();
-			CalicoDataStore.isViewingGrid = true;
 		}
 		
 	}

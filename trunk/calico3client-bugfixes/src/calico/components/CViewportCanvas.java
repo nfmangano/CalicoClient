@@ -14,6 +14,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import calico.Calico;
+import calico.CalicoPerspective;
 
 import calico.CalicoOptions;
 import calico.components.grid.CGrid;
@@ -37,6 +38,7 @@ import edu.umd.cs.piccolox.nodes.PLine;
 
 public class CViewportCanvas extends PCanvas{
 
+	public static final CalicoPerspective PERSPECTIVE = new CalicoPerspective();
 	
 	private double width;
 	private double height;

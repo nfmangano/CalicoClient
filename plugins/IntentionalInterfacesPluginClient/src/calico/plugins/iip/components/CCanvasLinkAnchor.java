@@ -10,11 +10,13 @@ public class CCanvasLinkAnchor
 		INTENTION_CELL;
 	}
 
-	private long uuid;
+	private final long uuid;
 	private long canvas_uuid;
 	private long group_uuid;
 	private Type type;
 	private Point point;
+	
+	private CCanvasLink link;
 
 	public CCanvasLinkAnchor(long uuid, long canvas_uuid)
 	{
@@ -67,6 +69,16 @@ public class CCanvasLinkAnchor
 	public Point getPoint()
 	{
 		return point;
+	}
+	
+	public CCanvasLink getLink()
+	{
+		return link;
+	}
+	
+	void setLink(CCanvasLink link)
+	{
+		this.link = link;
 	}
 
 	public void move(long canvas_uuid, long group_uuid)

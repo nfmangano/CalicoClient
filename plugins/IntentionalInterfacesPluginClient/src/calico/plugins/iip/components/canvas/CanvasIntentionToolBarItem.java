@@ -20,6 +20,10 @@ public abstract class CanvasIntentionToolBarItem extends CanvasMenuButton
 	
 	protected abstract void onClick();
 	
+	protected void reset()
+	{
+	}
+	
 	@Override
 	public final void actionMouseClicked()
 	{

@@ -8,6 +8,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.CalicoDataStore;
+import calico.components.CCanvas;
 import calico.components.CGroup;
 import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
@@ -65,12 +66,12 @@ public class GroupMoveButton extends PieMenuButton
 //		CCanvasController.canvasdb.get(canvasUUID).getCamera().addChild(ghost);
 		
 		TranslateMouseListener resizeDragListener = new TranslateMouseListener(canvasUUID, guuid);
-		if (CalicoDataStore.isInViewPort)
+		if (CViewportCanvas.PERSPECTIVE.isActive())
 		{
 			CViewportCanvas.getInstance().addMouseListener(resizeDragListener);
 			CViewportCanvas.getInstance().addMouseMotionListener(resizeDragListener);
 		}
-		else
+		else if (CCanvas.PERSPECTIVE.isActive())
 		{
 			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
 			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
@@ -152,12 +153,12 @@ public class GroupMoveButton extends PieMenuButton
 			if (PieMenu.highlightedGroup != 0l)
 				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
 			
-			if (CalicoDataStore.isInViewPort)
+			if (CViewportCanvas.PERSPECTIVE.isActive())
 			{
 				CViewportCanvas.getInstance().removeMouseListener(this);
 				CViewportCanvas.getInstance().removeMouseMotionListener(this);
 			}
-			else
+			else if (CCanvas.PERSPECTIVE.isActive())
 			{
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);

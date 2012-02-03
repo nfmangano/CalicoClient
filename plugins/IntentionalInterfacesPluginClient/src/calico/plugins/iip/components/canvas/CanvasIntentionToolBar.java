@@ -63,6 +63,7 @@ public class CanvasIntentionToolBar implements StickyItem
 
 		for (Button button : Button.values())
 		{
+			button.item.reset();
 			addButton(button.item);
 		}
 		
@@ -73,6 +74,11 @@ public class CanvasIntentionToolBar implements StickyItem
 	public long getUUID()
 	{
 		return uuid;
+	}
+	
+	public long getCanvasId()
+	{
+		return canvas_uuid;
 	}
 
 	@Override

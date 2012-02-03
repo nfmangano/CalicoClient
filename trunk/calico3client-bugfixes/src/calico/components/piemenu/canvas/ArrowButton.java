@@ -11,6 +11,7 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.AnchorPoint;
 import calico.components.CArrow;
+import calico.components.CCanvas;
 import calico.components.CGroup;
 import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
@@ -48,12 +49,12 @@ public class ArrowButton extends PieMenuButton
 		
 		
 		ArrowCreateMouseListener arrowCreateMouseListener = new ArrowCreateMouseListener(canvasUUID, guuid);
-		if (CalicoDataStore.isInViewPort)
+		if (CViewportCanvas.PERSPECTIVE.isActive())
 		{
 			CViewportCanvas.getInstance().addMouseListener(arrowCreateMouseListener);
 			CViewportCanvas.getInstance().addMouseMotionListener(arrowCreateMouseListener);
 		}
-		else
+		else if (CCanvas.PERSPECTIVE.isActive())
 		{
 			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(arrowCreateMouseListener);
 			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(arrowCreateMouseListener);
@@ -134,12 +135,12 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseReleased(MouseEvent e) {
 
-			if (CalicoDataStore.isInViewPort)
+			if (CViewportCanvas.PERSPECTIVE.isActive())
 			{
 				CViewportCanvas.getInstance().removeMouseListener(this);
 				CViewportCanvas.getInstance().removeMouseMotionListener(this);
 			}
-			else
+			else if (CCanvas.PERSPECTIVE.isActive())
 			{
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);

@@ -50,15 +50,15 @@ public class CalicoKeyListener extends KeyAdapter {
         	moveToCell(buttonType);
         
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-        	if (!CalicoDataStore.isViewingGrid)
+        	if (!CGrid.PERSPECTIVE.isActive())
         		CGrid.loadGrid();
         }
         
-        if (!CalicoDataStore.isViewingGrid && evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (!CGrid.PERSPECTIVE.isActive() && evt.getKeyCode() == KeyEvent.VK_ENTER) {
         	createTextScrap();
         }
         
-        if (CalicoDataStore.isViewingGrid &&
+        if (CGrid.PERSPECTIVE.isActive() &&
         		(evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_SPACE))
         {
         	Point p = new Point((int)CViewportController.getViewportRectangle().getCenterX(), (int)CViewportController.getViewportRectangle().getCenterY());
@@ -72,7 +72,7 @@ public class CalicoKeyListener extends KeyAdapter {
     
     private void moveToCell(int button_type)
     {
-    	if (CalicoDataStore.isViewingGrid)
+    	if (CGrid.PERSPECTIVE.isActive())
     	{
     		CalicoDataStore.gridObject.moveViewPort(button_type);
     		CalicoDataStore.gridObject.drawViewport();
@@ -91,7 +91,7 @@ public class CalicoKeyListener extends KeyAdapter {
 
 
 		
-		if(CalicoDataStore.isInViewPort){			
+		if(CViewportCanvas.PERSPECTIVE.isActive()){			
 			CGrid.getInstance().moveViewPort(button_type);
 			CViewportCanvas.getInstance().rezoomCamera();
 			return;

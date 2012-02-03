@@ -7,6 +7,7 @@ import java.net.URL;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
+import calico.components.CCanvas;
 import calico.components.CViewportCanvas;
 import calico.components.grid.CGrid;
 import calico.components.menus.CanvasMenuButton;
@@ -50,7 +51,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 					break;
 				case BUT_ZOOMTOCANVAS:
 					setImage(CalicoIconManager.getIconImage("viewport.zoomtocanvas"));
-					if(!CalicoDataStore.isInViewPort){
+					if(!CViewportCanvas.PERSPECTIVE.isActive()){
 						setTransparency(CalicoOptions.menu.menubar.transparency_disabled);
 					}
 					break;
@@ -66,7 +67,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 	
 	public void actionMouseClicked()
 	{		
-		if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			//if size is already big enough for just one canvas go to that view
 			
 			//resize it in the grid
@@ -80,7 +81,6 @@ public class ViewportChangeButton extends CanvasMenuButton
 					if(viewport!=null){
 						viewport.closeViewport();
 					}
-					CalicoDataStore.isInViewPort=false;
 					CalicoDataStore.gridObject = CGrid.getInstance();
 					CalicoDataStore.gridObject.refreshCells();
 					CalicoDataStore.calicoObj.getContentPane().removeAll();
@@ -88,7 +88,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 					CalicoDataStore.calicoObj.pack();
 					CalicoDataStore.calicoObj.setVisible(true);
 					CalicoDataStore.calicoObj.repaint();
-					CalicoDataStore.isViewingGrid = true;
+					CGrid.PERSPECTIVE.activate();
 				}
 			}
 			else if(type==BUT_ZOOMIN){
@@ -100,7 +100,6 @@ public class ViewportChangeButton extends CanvasMenuButton
 					long cuid = CGrid.getInstance().getViewportCentralCanvas();
 					
 					CViewportCanvas.getInstance().closeViewport();
-					CalicoDataStore.isInViewPort=false;
 					
 					CCanvasController.loadCanvas(cuid);
 					CGrid.getInstance().centerViewportOnCanvas(cuid);
@@ -111,7 +110,6 @@ public class ViewportChangeButton extends CanvasMenuButton
 				long cuid = CGrid.getInstance().getViewportCentralCanvas();
 				
 				CViewportCanvas.getInstance().closeViewport();
-				CalicoDataStore.isInViewPort=false;
 				
 				CCanvasController.loadCanvas(cuid);
 				CGrid.getInstance().centerViewportOnCanvas(cuid);
@@ -125,7 +123,7 @@ public class ViewportChangeButton extends CanvasMenuButton
 			}
 						  
 		}//if we are in the full canvas view
-		else{
+		else if (CCanvas.PERSPECTIVE.isActive()) {
 			//zoom out means jump to viewport 
 			if(type==BUT_ZOOMOUT){				
 				//create viewport in the grid
@@ -145,7 +143,6 @@ public class ViewportChangeButton extends CanvasMenuButton
 				CalicoDataStore.calicoObj.pack();
 				CalicoDataStore.calicoObj.setVisible(true);
 				CalicoDataStore.calicoObj.repaint();
-				CalicoDataStore.isViewingGrid = true;
 				//CGrid.setMode(CGrid.MODE_VIEWPORT);
 				
 				CViewportController.loadViewport();				

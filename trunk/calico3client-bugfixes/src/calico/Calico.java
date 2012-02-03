@@ -334,7 +334,7 @@ public class Calico extends JFrame
 		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
 		
-
+		CGrid.loadGrid();
 	}
 
 	public static void exit()

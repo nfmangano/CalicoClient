@@ -85,7 +85,7 @@ public class CanvasGenericMenuBar extends PComposite
 		}
 		
 		this.screenBounds = new Rectangle(screenBounds);
-		if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			this.screenBounds = new Rectangle(CViewportCanvas.getInstance().getBounds());
 		}
 		icon_padding = CalicoOptions.menu.menubar.padding;

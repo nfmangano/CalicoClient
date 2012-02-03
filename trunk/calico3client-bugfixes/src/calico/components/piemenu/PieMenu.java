@@ -92,11 +92,11 @@ public class PieMenu
 		pieContainer = new PieMenuContainer();
 		pieContainer.setBounds(getBoundsOfButtons());
 		
-		if(CalicoDataStore.isViewingGrid){
+		if(CGrid.PERSPECTIVE.isActive()){
 			CGrid.getInstance().getCamera().addChild(pieContainer);
 			CGrid.getInstance().getCamera().repaintFrom(pieContainer.getBounds(), pieContainer);
 		}
-		else{
+		else if (CCanvas.PERSPECTIVE.isActive()){
 			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(pieContainer);
 			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
 		}
@@ -107,7 +107,7 @@ public class PieMenu
 	private static void getIconPositions(Point center)
 	{
 		//if we are in the viewport the position of the center must be scaled
-		if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			center = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(center);
 		}
 		int numOfPositions = buttonList.size();
@@ -237,7 +237,7 @@ public class PieMenu
 		{
 			return false;
 		}		
-		if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			Point p = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(point);						
 			return pieContainer.getFullBounds().contains(p);
 		}
@@ -250,7 +250,7 @@ public class PieMenu
 		{
 			return;
 		}
-		if(CalicoDataStore.isInViewPort){
+		if(CViewportCanvas.PERSPECTIVE.isActive()){
 			point = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(point);
 		}
 		

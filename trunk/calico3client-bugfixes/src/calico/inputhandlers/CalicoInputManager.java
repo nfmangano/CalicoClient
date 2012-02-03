@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 
 import calico.*;
 import calico.components.*;
+import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
@@ -395,7 +396,7 @@ public class CalicoInputManager
 		}
 		
 		// if we are in the ViewPort view we want to override the default behavior		
-		if(CalicoDataStore.isInViewPort){			
+		if(CViewportCanvas.PERSPECTIVE.isActive()){			
 			boolean processEvent =CalicoViewportInputHandler.transformInput(ev);
 			//Calico.logger.debug("CalicoViewportInputHandler returned:"+processEvent);
 			if(!processEvent){
@@ -423,11 +424,11 @@ public class CalicoInputManager
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				if(CGrid.PERSPECTIVE.isActive() && ev.getAction()==InputEventInfo.ACTION_PRESSED)
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if (!CalicoDataStore.isViewingGrid)
+				if (!CGrid.PERSPECTIVE.isActive())
 				{
 					lockInputHandler = 0l;
 					PieMenu.isPerformingPieMenuAction = true;
@@ -451,7 +452,7 @@ public class CalicoInputManager
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
 		// Are they clicking the menu bar?
-		else if(/*!CalicoDataStore.isInViewPort &&*/ !CalicoDataStore.isViewingGrid && CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).isPointOnMenuBar(ev.getGlobalPoint()))
+		else if(/*!CalicoDataStore.isInViewPort &&*/ !CGrid.PERSPECTIVE.isActive() && CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).isPointOnMenuBar(ev.getGlobalPoint()))
 		{
 			if (ev.getAction() == InputEventInfo.ACTION_RELEASED)
 				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(ev.getGlobalPoint());
@@ -460,7 +461,7 @@ public class CalicoInputManager
 
 		
 		// 0L is the grid
-		if(CalicoDataStore.isViewingGrid )
+		if(CGrid.PERSPECTIVE.isActive())
 		{			
 			sendEventOut(0L,ev);
 			return;
@@ -587,12 +588,12 @@ public class CalicoInputManager
 			
 			CalicoInputManager.RemoveCursorImageListener mouseListener = (new CalicoInputManager()).new RemoveCursorImageListener(cuuid, leftClickIcon);
 			
-			if (CalicoDataStore.isInViewPort)
+			if (CViewportCanvas.PERSPECTIVE.isActive())
 			{
 				CViewportCanvas.getInstance().addMouseListener(mouseListener);
 				CViewportCanvas.getInstance().addMouseMotionListener(mouseListener);
 			}
-			else
+			else if (CCanvas.PERSPECTIVE.isActive())
 			{
 				CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(mouseListener);
 				CCanvasController.canvasdb.get(cuuid).addMouseListener(mouseListener);
@@ -637,12 +638,12 @@ public class CalicoInputManager
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (CalicoDataStore.isInViewPort)
+			if (CViewportCanvas.PERSPECTIVE.isActive())
 			{
 				CViewportCanvas.getInstance().removeMouseMotionListener(this);
 				CViewportCanvas.getInstance().removeMouseListener(this);
 			}
-			else
+			else if (CCanvas.PERSPECTIVE.isActive())
 			{
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);

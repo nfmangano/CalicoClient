@@ -142,10 +142,10 @@ public class CGridCell extends PImage//PComposite
 	}
 
 	public void refreshImage() {
-		if(CalicoDataStore.isInViewPort){				
+		if(CViewportCanvas.PERSPECTIVE.isActive()){				
 			CViewportController.refreshImage(canvasUID);
 			this.last_signature = CCanvasController.get_signature(canvasUID);
-		}else{
+		}else if (CGrid.PERSPECTIVE.isActive()){
 			this.render();
 		}
 	}

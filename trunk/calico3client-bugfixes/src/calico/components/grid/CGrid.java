@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
+import calico.CalicoPerspective;
 import calico.components.CCanvas;
 import calico.components.CViewportCanvas;
 import calico.components.menus.CanvasMenuBar;
@@ -54,6 +55,14 @@ public class CGrid
 {
 
 	private static final long serialVersionUID = 1L;
+
+	public static final CalicoPerspective PERSPECTIVE = new CalicoPerspective() {
+		public boolean isActive()
+		{
+			// The viewport is a kind of grid perspective, so when the viewport is active, so is the grid
+			return super.isActive() || CViewportCanvas.PERSPECTIVE.isActive();
+		}
+	};
 	
 	//public static final int MODE_NONE = 0;
 	//public static final int MODE_VIEWPORT = 1;
@@ -452,13 +461,13 @@ public class CGrid
 		int finalX = (int)viewportNode.getBounds().getMinX();
 		int finalY = (int)viewportNode.getBounds().getMinY();
 		long workingCanvas;
-		if (CalicoDataStore.isViewingGrid)
+		if (CGrid.PERSPECTIVE.isActive())
 		{
 			workingCanvas = CCanvasController.getCanvasAtPoint(new Point((int)CViewportController.getViewportRectangle().getCenterX(),(int)CViewportController.getViewportRectangle().getCenterY()));
 		}
-		else if (CalicoDataStore.isInViewPort)
+		else if (CViewportCanvas.PERSPECTIVE.isActive())
 			workingCanvas = CViewportCanvas.getInstance().getCuidWorkingCanvas();
-		else
+		else 
 			workingCanvas = 1; //the default is the upper left canvas
 		PBounds workingBounds= getCellBounds(workingCanvas);		 
 		boolean ignoreMove=false;
@@ -842,14 +851,15 @@ public class CGrid
 	
 	public static void loadGrid()
 	{
-		if(CalicoDataStore.isInViewPort==true){
+		if(!CGrid.PERSPECTIVE.isActive()){
 			CViewportCanvas viewport = CViewportCanvas.getInstance();
 			if(viewport!=null){
 				viewport.closeViewport();
 			}
-			CalicoDataStore.isInViewPort=false;
+			CGrid.PERSPECTIVE.activate();
 		}else{
 			CGrid.getInstance().centerViewportOnCanvas(CCanvasController.getCurrentUUID());
+			CViewportCanvas.PERSPECTIVE.activate();
 		}
 		CalicoDataStore.gridObject = CGrid.getInstance();
 		CalicoDataStore.gridObject.refreshCells();
@@ -866,7 +876,6 @@ public class CGrid
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
-		CalicoDataStore.isViewingGrid = true;
 	}
 
 	private class ContainedCanvas extends PCanvas
