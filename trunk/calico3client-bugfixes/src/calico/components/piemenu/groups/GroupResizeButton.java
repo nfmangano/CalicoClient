@@ -7,18 +7,13 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
-import calico.CalicoDataStore;
-import calico.components.CViewportCanvas;
 import calico.components.bubblemenu.BubbleMenu;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
-import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
-import edu.umd.cs.piccolo.util.PBounds;
 
 public class GroupResizeButton extends PieMenuButton
 {
@@ -51,16 +46,8 @@ public class GroupResizeButton extends PieMenuButton
 		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
 		
 		RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, uuid);
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(rotateDragListener);
-			CViewportCanvas.getInstance().addMouseMotionListener(rotateDragListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
-			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
-		}
+		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
+		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
 
 		
 		//pass click event on to this listener since it will miss it
@@ -137,16 +124,8 @@ public class GroupResizeButton extends PieMenuButton
 			//BubbleMenu.setSelectedButton(null);
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
-			if (CalicoDataStore.isInViewPort)
-			{
-				CViewportCanvas.getInstance().removeMouseListener(this);
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-			}
-			else
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
 			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);

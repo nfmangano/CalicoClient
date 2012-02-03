@@ -8,10 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
 
-import calico.CalicoDataStore;
 import calico.CalicoOptions;
-import calico.components.CViewportCanvas;
-import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
@@ -83,10 +80,7 @@ public class BubbleMenuButton {
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (CalicoDataStore.isInViewPort)
-					CViewportCanvas.getInstance().removeMouseListener(this);
-				else
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -94,15 +88,8 @@ public class BubbleMenuButton {
 			}
 			
 		};
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(mouseListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
-//			System.out.println("//////////// Removing pie menu event handler");
-		}
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+//		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
 	public final void setPosition(Point point)

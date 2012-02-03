@@ -83,10 +83,7 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (CalicoDataStore.isInViewPort)
-					CViewportCanvas.getInstance().removeMouseListener(this);
-				else
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -94,15 +91,8 @@ public class PieMenuButton
 			}
 			
 		};
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(mouseListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
-//			System.out.println("//////////// Removing pie menu event handler");
-		}
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+//		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
 	public void onPressed(InputEventInfo event)
@@ -123,10 +113,7 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (CalicoDataStore.isInViewPort)
-					CViewportCanvas.getInstance().removeMouseListener(this);
-				else
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -134,15 +121,8 @@ public class PieMenuButton
 			}
 			
 		};
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(mouseListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
-//			System.out.println("//////////// Removing pie menu event handler");
-		}
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
+//		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
 	public void onReleased(InputEventInfo event)

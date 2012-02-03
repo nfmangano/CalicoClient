@@ -16,6 +16,7 @@ import calico.events.CalicoEventHandler;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.netstuff.*;
+import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.plugins.events.CalicoEvent;
 import calico.*;
@@ -673,7 +674,7 @@ public class PacketHandler
 		}*/
 		
 
-		if( CalicoDataStore.isViewingGrid )
+		if( GridPerspective.getInstance().isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 			
@@ -683,7 +684,6 @@ public class PacketHandler
 	        cal.pack();
 	        cal.setVisible(true);
 			cal.repaint();
-			CalicoDataStore.isViewingGrid = true;
 		}
 		
 
@@ -770,7 +770,7 @@ public class PacketHandler
 		
 		
 		//test
-		if( CalicoDataStore.isViewingGrid )
+		if( GridPerspective.getInstance().isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 
@@ -780,7 +780,6 @@ public class PacketHandler
 	        cal.pack();
 	        cal.setVisible(true);
 			cal.repaint();
-			CalicoDataStore.isViewingGrid = true;
 		}
 		
 	}

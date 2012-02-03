@@ -5,23 +5,16 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
-import calico.CalicoOptions;
-import calico.components.CViewportCanvas;
-import calico.components.grid.CGrid;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
-import calico.components.piemenu.PieMenuContainer;
-import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.InputEventInfo;
-import edu.umd.cs.piccolo.util.PBounds;
+import calico.perspectives.CalicoPerspective;
 import edu.umd.cs.piccolo.activities.PActivity;
-import edu.umd.cs.piccolo.nodes.PImage;
+import edu.umd.cs.piccolo.util.PBounds;
 
 public class BubbleMenu {
 	public static Logger logger = Logger.getLogger(BubbleMenu.class.getName());
@@ -80,14 +73,7 @@ public class BubbleMenu {
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
-		
-		if(CalicoDataStore.isViewingGrid){
-			
-		}
-		else{
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleHighlighter);
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(bubbleContainer);
-			
+		if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
 			fade = new PActivity(500,70, System.currentTimeMillis()) {
 				long step = 0;
 	      
@@ -443,9 +429,6 @@ public class BubbleMenu {
 		if(buttonList.size()==0)
 		{
 			return;
-		}
-		if(CalicoDataStore.isInViewPort){
-			//point = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(point);
 		}
 		
 		int numOfPositions = buttonList.size();

@@ -1,31 +1,27 @@
 package calico.components.grid;
 
-import calico.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 
-import calico.iconsets.CalicoIconManager;
-import calico.modules.*;
-import calico.utils.Geometry;
-import calico.components.*;
+import calico.CalicoDataStore;
+import calico.CalicoOptions;
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
-import calico.controllers.CViewportController;
-
-import java.net.URL;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.util.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
+import calico.iconsets.CalicoIconManager;
+import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PImage;
+import edu.umd.cs.piccolo.nodes.PText;
+import edu.umd.cs.piccolo.util.PPaintContext;
+import edu.umd.cs.piccolox.nodes.PLine;
 
 public class CGridCell extends PImage//PComposite
 {
@@ -142,12 +138,7 @@ public class CGridCell extends PImage//PComposite
 	}
 
 	public void refreshImage() {
-		if(CalicoDataStore.isInViewPort){				
-			CViewportController.refreshImage(canvasUID);
-			this.last_signature = CCanvasController.get_signature(canvasUID);
-		}else{
-			this.render();
-		}
+		this.render();
 	}
 	
 

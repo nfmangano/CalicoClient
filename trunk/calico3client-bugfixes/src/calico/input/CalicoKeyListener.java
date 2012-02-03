@@ -1,9 +1,8 @@
 package calico.input;
 
+import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
-import java.awt.Point;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +11,6 @@ import javax.swing.JOptionPane;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
-import calico.components.CViewportCanvas;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
 import calico.components.grid.CGrid;
@@ -20,10 +18,12 @@ import calico.components.menus.buttons.CanvasNavButton;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import calico.controllers.CViewportController;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
+import calico.perspectives.CanvasPerspective;
+import calico.perspectives.GridPerspective;
 
 public class CalicoKeyListener extends KeyAdapter {
 
@@ -51,35 +51,17 @@ public class CalicoKeyListener extends KeyAdapter {
         	moveToCell(buttonType);
         
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-        	if (!CalicoDataStore.isViewingGrid)
+        	if (!GridPerspective.getInstance().isActive())
         		CGrid.loadGrid();
         }
         
-        if (!CalicoDataStore.isViewingGrid && evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (CanvasPerspective.getInstance().isActive() && evt.getKeyCode() == KeyEvent.VK_ENTER) {
         	createTextScrap();
         }
-        
-        if (CalicoDataStore.isViewingGrid &&
-        		(evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_SPACE))
-        {
-        	Point p = new Point((int)CViewportController.getViewportRectangle().getCenterX(), (int)CViewportController.getViewportRectangle().getCenterY());
-        	long cuuid = CCanvasController.getCanvasAtPoint( p );
-    		int x = CCanvasController.canvasdb.get(cuuid).getGridCol();
-    		int y = CCanvasController.canvasdb.get(cuuid).getGridRow();
-        	loadCanvas(x, y);
-        }
-        
     }
     
     private void moveToCell(int button_type)
     {
-    	if (CalicoDataStore.isViewingGrid)
-    	{
-    		CalicoDataStore.gridObject.moveViewPort(button_type);
-    		CalicoDataStore.gridObject.drawViewport();
-    		return;
-    	}
-    	
 		// Grid Size
 		int gridx = CalicoDataStore.GridCols-1;
 		int gridy = CalicoDataStore.GridRows-1;
@@ -89,14 +71,6 @@ public class CalicoKeyListener extends KeyAdapter {
 		int xpos = CCanvasController.canvasdb.get(cuuid).getGridCol();
 		int ypos = CCanvasController.canvasdb.get(cuuid).getGridRow();
     	
-
-
-		
-		if(CalicoDataStore.isInViewPort){			
-			CGrid.getInstance().moveViewPort(button_type);
-			CViewportCanvas.getInstance().rezoomCamera();
-			return;
-		}
 		switch(button_type)
 		{
 			case CanvasNavButton.TYPE_DOWN:
