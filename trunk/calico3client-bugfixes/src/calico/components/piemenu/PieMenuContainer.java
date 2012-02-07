@@ -62,9 +62,6 @@ public class PieMenuContainer extends PComposite
 		
 		Point center = PieMenu.lastOpenedPosition;
 		
-		if (CalicoDataStore.isInViewPort)
-			center = CViewportCanvas.getInstance().scalePointFromCanvas(center, CCanvasController.getCurrentUUID());
-		
 		double newX = center.x - radius;
 		double newY = center.y - radius;
 		

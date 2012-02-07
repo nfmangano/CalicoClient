@@ -13,6 +13,7 @@ import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.modules.*;
 import calico.networking.*;
+import calico.perspectives.GridPerspective;
 
 import edu.umd.cs.piccolo.*;
 import edu.umd.cs.piccolo.util.*;
@@ -46,15 +47,6 @@ public class ReturnToGrid extends CanvasMenuButton
 	
 	public void actionMouseClicked()
 	{
-		if(CalicoDataStore.isInViewPort==true){
-			CViewportCanvas viewport = CViewportCanvas.getInstance();
-			if(viewport!=null){
-				viewport.closeViewport();
-			}
-			CalicoDataStore.isInViewPort=false;
-		}else{
-			CGrid.getInstance().centerViewportOnCanvas(CCanvasController.getCurrentUUID());
-		}
 		CalicoDataStore.gridObject = CGrid.getInstance();
 		CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
@@ -70,7 +62,7 @@ public class ReturnToGrid extends CanvasMenuButton
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
-		CalicoDataStore.isViewingGrid = true;		
+		GridPerspective.getInstance().activate();
 		
 	}
 	public void actionMousePressed()
