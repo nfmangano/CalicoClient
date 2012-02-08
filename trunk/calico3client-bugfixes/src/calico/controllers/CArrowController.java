@@ -13,6 +13,8 @@ import calico.modules.*;
 import java.awt.geom.*;
 import java.util.*;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 import edu.umd.cs.piccolo.*;
@@ -100,12 +102,17 @@ public class CArrowController
 	{
 		if(!exists(uuid)){return;}
 		
-		CArrow arrow = arrows.get(uuid);
+		final CArrow arrow = arrows.get(uuid);
 		
 		long cuid = arrow.getCanvasUUID();
 		
 		CCanvasController.canvasdb.get(cuid).removeChildArrow(uuid);
-		arrow.removeFromParent();
+		
+		//This line is not thread safe so must invokeLater to prevent eraser artifacts.
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { arrow.removeFromParent(); } }
+				);		
+		//arrow.removeFromParent();
 		
 		CCanvasController.canvasdb.get(cuid).getLayer().setPaintInvalid(true);
 	}
