@@ -79,7 +79,7 @@ public class CListDecorator extends CGroupDecorator {
 		
 		super.paint(paintContext);
 		
-		if (BubbleMenu.activeGroup == this.uuid)
+		if (BubbleMenu.highlightedParentGroup == this.uuid)
 		{
 			if (CGroupController.exists(CalicoInputManager.group) && CalicoInputManager.group != this.uuid)
 			{
@@ -87,6 +87,7 @@ public class CListDecorator extends CGroupDecorator {
 				{
 					g2.setColor(Color.blue);
 					g2.draw(getNearestLine());
+					this.repaintFrom(this.getBounds(), this);
 				}
 			}
 		}
@@ -141,6 +142,7 @@ public class CListDecorator extends CGroupDecorator {
 		
 		recomputeBounds();
 		recomputeValues();
+		
 		Calico.logger.debug("Group added to list: " + grpUUID);
 //		System.out.println("After add child:");
 //		printBounds();
