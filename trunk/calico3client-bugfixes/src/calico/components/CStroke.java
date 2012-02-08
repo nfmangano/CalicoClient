@@ -167,10 +167,13 @@ public class CStroke extends PPath
 		
 		if (tempSegments.size() > 0)
 		{
-			PLayer layer = CCanvasController.canvasdb.get(canvasUID).getLayer();
-			for (PNode path : tempSegments)
+			final PLayer layer = CCanvasController.canvasdb.get(canvasUID).getLayer();
+			for (final PNode path : tempSegments)
 			{
-				layer.removeChild(path);
+				//layer.removeChild(path);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { layer.removeChild(path); } }
+				);
 			}
 			tempSegments.clear();
 		}
@@ -189,7 +192,11 @@ public class CStroke extends PPath
 		
 		if(CCanvasController.canvas_has_child_stroke_node(this.canvasUID, uuid))
 		{
-			removeFromParent();
+			//This line is not thread safe so must invokeLater to prevent eraser artifacts.
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { removeFromParent(); } }
+			);
+			//removeFromParent();
 		}
 	}
 	
@@ -233,9 +240,12 @@ public class CStroke extends PPath
 		final PLayer layer = CCanvasController.canvasdb.get(canvasUID).getLayer();
 		for (final PNode path : tempSegments)
 		{
-			path.setTransparency(0f);
+			//path.setTransparency(0f);
 			SwingUtilities.invokeLater(
-					new Runnable() { public void run() { layer.removeChild(path); } }
+					new Runnable() { public void run() { 
+						path.setTransparency(0f);
+						layer.removeChild(path); 
+						} }
 			);
 			
 		}

@@ -96,11 +96,6 @@ public class CanvasNavButton extends CanvasMenuButton
 		int xpos = CCanvasController.canvasdb.get(canvasuid).getGridCol();
 		int ypos = CCanvasController.canvasdb.get(canvasuid).getGridRow();
 		
-		if(CalicoDataStore.isInViewPort){			
-			CGrid.getInstance().moveViewPort(button_type);
-			CViewportCanvas.getInstance().rezoomCamera();
-			return;
-		}		
 		switch(button_type)
 		{
 			case CanvasNavButton.TYPE_DOWN:

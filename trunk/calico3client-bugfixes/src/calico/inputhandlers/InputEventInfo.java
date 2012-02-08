@@ -9,6 +9,7 @@ import calico.*;
 import calico.components.CGroup;
 import calico.controllers.CCanvasController;
 import calico.input.*;
+import calico.perspectives.CanvasPerspective;
 import jpen.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -217,7 +218,7 @@ public class InputEventInfo
 
 		globalxpos = p.x;
 		globalypos = p.y;
-		if (CCanvasController.getCurrentUUID() != 0l && !CalicoDataStore.isViewingGrid && !CalicoDataStore.isInViewPort)
+		if (CCanvasController.getCurrentUUID() != 0l && CanvasPerspective.getInstance().isActive())
 		{
 //			Point2D local = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(e.getPoint());
 			double scale = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale();
@@ -396,13 +397,6 @@ public class InputEventInfo
 	
 	public Point getGlobalPoint()
 	{
-		if (CalicoDataStore.isInViewPort)
-		{
-			double scale = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale();
-			Point globalPoint = new Point((int)(xpos*scale), (int)(ypos*scale));
-			return globalPoint;
-		}
-		
 		return new Point(globalxpos,globalypos);
 	}
 	

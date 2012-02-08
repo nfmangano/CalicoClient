@@ -178,14 +178,14 @@ public class NetworkCommand
     public static final int CANVAS_LOAD				= 420;
 	
 	// Consistency
-	public static final int CONSISTENCY_CHECK		= 500; // Requests that the server send you a consistency check.
-	public static final int CONSISTENCY_FINISH		= 501; // The consistency check is done, redraw the screen (S->C)
-	public static final int CONSISTENCY_CHECK_CONTINUE = 503;
-	public static final int CONSISTENCY_FAILED		= 504;
-	public static final int CONSISTENCY_RESYNC_CANVAS  = 505;
-	public static final int CONSISTENCY_DEBUG		= 506;
+	public static final int CONSISTENCY_CHECK		= 510; // Requests that the server send you a consistency check.
+	public static final int CONSISTENCY_FINISH		= 511; // The consistency check is done, redraw the screen (S->C)
+	public static final int CONSISTENCY_CHECK_CONTINUE = 513;
+	public static final int CONSISTENCY_FAILED		= 514;
+	public static final int CONSISTENCY_RESYNC_CANVAS  = 515;
+	public static final int CONSISTENCY_DEBUG		= 516;
 	
-	public static final int GRID_SIZE				= 502; // <ROWS> <COLS> (this is server->client)
+	public static final int GRID_SIZE				= 512; // <ROWS> <COLS> (this is server->client)
 
 	// Server info
 	public static final int CLIENT_LIST				= 600;

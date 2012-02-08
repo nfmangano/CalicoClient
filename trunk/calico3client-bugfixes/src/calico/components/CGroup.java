@@ -1113,6 +1113,11 @@ public class CGroup extends PPath implements Serializable {
 		this.groupArea = PolygonUtils.PolygonArea(this.points);
 		GeneralPath bezieredPoly = Geometry.getBezieredPoly(points);
 		setPathTo(bezieredPoly);
+		
+		scaleX = 1.0d;
+		scaleY = 1.0d;
+		rotation = 0.0d;
+		
 		this.setPaintInvalid(true);
 	}
 

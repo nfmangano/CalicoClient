@@ -17,6 +17,7 @@ import calico.modules.MessageObject;
 import calico.networking.ListenServer;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -267,43 +268,6 @@ public class CalicoInputManager
 //		return chosenGUID;
 //	}
 
-	public static long getSmallestGroupAtPoint(InputEventInfo ev)
-	{
-		return CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), ev.getPoint());
-//		return getSmallestGroupAtPoint(ev.getX(), ev.getY());
-	}
-	
-	/**
-	 * What UUID arrow is located at the requested X,Y coordinate
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public static long getArrowAtPoint(int x, int y)
-	{
-		long[] arrowlist = CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getChildArrows();
-		if(arrowlist.length>0)
-		{
-			for(int i=0;i<arrowlist.length;i++)
-			{
-				if(CArrowController.arrows.get(arrowlist[i]).containsMousePoint(new Point(x,y)) )
-				{
-					return arrowlist[i];
-				}//if contained
-			}//for groups
-			
-		}//if grplist>0
-		return 0L;
-	}
-	public static long getArrowAtPoint(InputEventInfo ev)
-	{
-		return getArrowAtPoint(ev.getX(), ev.getY());
-	}
-
-
-
-
-
 	/**
 	 * Input comes in sets of 3 - (Xpos, Ypos, ButtonID)
 	 * @param inputThings
@@ -393,15 +357,6 @@ public class CalicoInputManager
 				break;
 		}
 		
-		// if we are in the ViewPort view we want to override the default behavior		
-		if(CalicoDataStore.isInViewPort){			
-			boolean processEvent =CalicoViewportInputHandler.transformInput(ev);
-			//Calico.logger.debug("CalicoViewportInputHandler returned:"+processEvent);
-			if(!processEvent){
-				return;
-			}
-		}
-		
 		if (PieMenu.performingPieMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
 		{
 			PieMenu.isPerformingPieMenuAction = false;
@@ -427,11 +382,11 @@ public class CalicoInputManager
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				if(!CalicoPerspective.Active.hasPhasicPieMenuActions() && ev.getAction()==InputEventInfo.ACTION_PRESSED)
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if (!CalicoDataStore.isViewingGrid)
+				if (CalicoPerspective.Active.hasPhasicPieMenuActions())
 				{
 					lockInputHandler = 0l;
 					PieMenu.isPerformingPieMenuAction = true;
@@ -473,7 +428,7 @@ public class CalicoInputManager
 					{
 						PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 					}*/
-					if (!CalicoDataStore.isViewingGrid)
+					if (CalicoPerspective.Active.hasPhasicPieMenuActions())
 					{
 						lockInputHandler = 0l;
 						BubbleMenu.isPerformingBubbleMenuAction = true;
@@ -523,60 +478,17 @@ public class CalicoInputManager
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
 		// Are they clicking the menu bar?
-		else if(/*!CalicoDataStore.isInViewPort &&*/ !CalicoDataStore.isViewingGrid && CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).isPointOnMenuBar(ev.getGlobalPoint()))
+		else if(CalicoPerspective.Active.processToolEvent(ev)) 
 		{
-			if (ev.getAction() == InputEventInfo.ACTION_RELEASED)
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(ev.getGlobalPoint());
 			return;
 		}		
-		
-		// 0L is the grid
-		if(CalicoDataStore.isViewingGrid )
-		{			
-			sendEventOut(0L,ev);
-			return;
-		}
+
 		
 		// Ok, now we find what input handler to run
-		long itemUUID = 0L;
+		long itemUUID;
 		if(lockInputHandler==0L)
 		{
-			
-			// check for arrows
-			long arrowAtPoint = getArrowAtPoint(ev);
-			if(arrowAtPoint!=0L)
-			{
-				itemUUID = arrowAtPoint;
-			}
-			
-			if(itemUUID==0L)
-			{
-				// Check to see if any groups fit in to the point
-				long smallestGroupUUID = getSmallestGroupAtPoint(ev);
-				if(smallestGroupUUID!=0L)
-				{
-					// we found the smallest group that contains the coord. So run her action listener
-					itemUUID = smallestGroupUUID;
-				}
-			}
-			
-//			//check for List.CheckBox!
-//			
-//			if (itemUUID==0L)
-//			{
-//				long firstUUID = 0L;
-//				long[] boxes = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getChildCheckBoxes();
-//				for (int i = 0; i < boxes.length; i++)
-//					if (CListController.checkBoxes.get(boxes[i]).getBounds().contains(ev.getPoint()))
-//						itemUUID = boxes[i];
-//			}
-			
-			
-			// Set a default, if all else fails, we go to the canvas
-			if(itemUUID==0L)
-			{
-				itemUUID = CCanvasController.getCurrentUUID();
-			}
+			itemUUID = CalicoPerspective.Active.getEventTarget(ev);
 		}
 		else
 		{
@@ -658,18 +570,8 @@ public class CalicoInputManager
 			
 			CalicoInputManager.RemoveCursorImageListener mouseListener = (new CalicoInputManager()).new RemoveCursorImageListener(cuuid, leftClickIcon);
 			
-			if (CalicoDataStore.isInViewPort)
-			{
-				CViewportCanvas.getInstance().addMouseListener(mouseListener);
-				CViewportCanvas.getInstance().addMouseMotionListener(mouseListener);
-			}
-			else
-			{
-				CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(mouseListener);
-				CCanvasController.canvasdb.get(cuuid).addMouseListener(mouseListener);
-			}
-
-			
+			CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(mouseListener);
+			CCanvasController.canvasdb.get(cuuid).addMouseListener(mouseListener);
 		}
 		catch(Exception e)
 		{
@@ -708,16 +610,8 @@ public class CalicoInputManager
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (CalicoDataStore.isInViewPort)
-			{
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-				CViewportCanvas.getInstance().removeMouseListener(this);
-			}
-			else
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 
 			
 			e.consume();

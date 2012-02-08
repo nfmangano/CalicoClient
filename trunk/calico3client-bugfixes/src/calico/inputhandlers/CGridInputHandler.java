@@ -5,11 +5,8 @@ import java.awt.Polygon;
 import java.util.Date;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
 import calico.Calico;
 import calico.CalicoOptions;
-import calico.components.CCanvas;
 import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.grid.CopyCanvasButton;
@@ -18,13 +15,9 @@ import calico.components.piemenu.grid.DeleteCanvasButton;
 import calico.components.piemenu.grid.LockCanvasButton;
 import calico.components.piemenu.grid.UnlockCanvasButton;
 import calico.controllers.CCanvasController;
-import calico.controllers.CViewportController;
-import calico.inputhandlers.CalicoAbstractInputHandler.MenuTimer;
-import calico.inputhandlers.canvas.CCanvasExpertModeInputHandler;
 import calico.modules.StatusMessage;
 import calico.utils.Geometry;
 import calico.utils.Ticker;
-import calico.utils.TickerTask;
 
 
 
@@ -78,7 +71,6 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 //			CGrid.getInstance().moveViewPortToPoints(ev.getPoint());
 			mouseDown = ev.getPoint();
 			long canvasClicked = CCanvasController.getCanvasAtPoint( ev.getGlobalPoint() );
-			CGrid.getInstance().centerViewportSquareOnCanvas(canvasClicked);
 //			LoadCanvasTimerTicker timer = new LoadCanvasTimerTicker(this, canvasClicked, mousePressed);
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, timer);
 			
@@ -223,28 +215,8 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 	}
 	
 	@Override
-	public synchronized void pressAndHoldAbortedEarly()
+	public void pressAndHoldAbortedEarly()
 	{
-//		System.out.println("pressAndHoldAbortedEarly - 1");
-//		Logger.getLogger(CCanvas.class.getName()).info("pressAndHoldAbortedEarly - 1");
-		if (mousePressed == 0l)
-			return;
-		
-		long canvasClicked = CCanvasController.getCanvasAtPoint( mouseDown );
-		if(canvasClicked==0L)
-		{
-			if(CGrid.getInstance().getViewportCentralCanvas()!=0l)
-			{
-//				CViewportController.loadViewport();
-			}
-		}
-		//if the size of the viewport is the smallest one, we will zoom directly into 1 single canvas
-		if(CViewportController.isViewportMinSize()){
-			CCanvasController.loadCanvas(canvasClicked);
-		}else{
-			//otherwise we go to the viewport
-			CViewportController.loadViewport();
-		}
 	}
 	
 	@Override
