@@ -1,31 +1,20 @@
 package calico.components.piemenu.canvas;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.AnchorPoint;
 import calico.components.CArrow;
-import calico.components.CGroup;
-import calico.components.CViewportCanvas;
 import calico.components.bubblemenu.BubbleMenu;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import calico.controllers.CViewportController;
-import calico.iconsets.CalicoIconManager;
-import calico.inputhandlers.*;
-import calico.networking.Networking;
-import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
-import edu.umd.cs.piccolo.nodes.PImage;
+import calico.inputhandlers.InputEventInfo;
 
 public class ArrowButton extends PieMenuButton
 {
@@ -50,16 +39,8 @@ public class ArrowButton extends PieMenuButton
 		
 		
 		ArrowCreateMouseListener arrowCreateMouseListener = new ArrowCreateMouseListener(canvasUUID, guuid);
-		if (CalicoDataStore.isInViewPort)
-		{
-			CViewportCanvas.getInstance().addMouseListener(arrowCreateMouseListener);
-			CViewportCanvas.getInstance().addMouseMotionListener(arrowCreateMouseListener);
-		}
-		else
-		{
-			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(arrowCreateMouseListener);
-			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(arrowCreateMouseListener);
-		}
+		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(arrowCreateMouseListener);
+		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(arrowCreateMouseListener);
 		
 		//pass click event on to this listener since it will miss it
 		arrowCreateMouseListener.mousePressed(ev.getPoint());
@@ -136,16 +117,8 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseReleased(MouseEvent e) {
 
-			if (CalicoDataStore.isInViewPort)
-			{
-				CViewportCanvas.getInstance().removeMouseListener(this);
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-			}
-			else
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			if(tempArrow!=null)
 			{

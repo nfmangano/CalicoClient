@@ -11,6 +11,8 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.swing.SwingUtilities;
+
 import calico.components.CGroup;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
@@ -239,7 +241,11 @@ public abstract class CGroupDecorator extends CGroup {
 					CGroupController.groupdb.get(child_groups[i]).delete();
 					if(CCanvasController.canvas_has_child_group_node(CGroupController.groupdb.get(child_groups[i]).getCanvasUID(), child_groups[i]))
 					{
-						CGroupController.groupdb.get(child_groups[i]).removeFromParent();
+						final long tempUUID = child_groups[i];
+						SwingUtilities.invokeLater(
+								new Runnable() { public void run() { 
+										CGroupController.groupdb.get(tempUUID).removeFromParent();
+								}});
 					}
 					CGroupController.dq_add(child_groups[i]);
 				}
@@ -253,7 +259,11 @@ public abstract class CGroupDecorator extends CGroup {
 	
 			if(CCanvasController.canvas_has_child_group_node(CGroupController.groupdb.get(this.decoratedGroupUUID).getCanvasUID(), this.decoratedGroupUUID))
 			{
-				CGroupController.groupdb.get(this.decoratedGroupUUID).removeFromParent();
+				final long tempUUID = this.decoratedGroupUUID;
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+								CGroupController.groupdb.get(tempUUID).removeFromParent();
+						}});
 			}
 			CGroupController.dq_add(this.decoratedGroupUUID);
 			decoratedGroup.clearChildGroups();

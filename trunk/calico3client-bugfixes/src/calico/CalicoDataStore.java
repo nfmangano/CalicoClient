@@ -15,13 +15,6 @@ import calico.input.CInputMode;
 
 public class CalicoDataStore
 {
-	
-
-	// Toggles
-	public static boolean isViewingGrid = true;
-	public static boolean isInViewPort = false;
-	
-
 	// Object Storage
 	public static CGrid gridObject = null;
 

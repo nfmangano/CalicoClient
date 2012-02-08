@@ -7,11 +7,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import javax.swing.RepaintManager;
 
 import org.apache.log4j.Logger;
 
@@ -23,15 +20,14 @@ import calico.components.CCanvas;
 import calico.components.CCanvasWatermark;
 import calico.components.CGroup;
 import calico.components.CStroke;
-import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
-import calico.input.CInputMode;
 import calico.modules.MessageObject;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CanvasPerspective;
 import calico.plugins.CalicoPluginManager;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
@@ -141,9 +137,6 @@ public class CCanvasController {
 	public static void no_notify_state_change_complete(long uuid) {
 		// just repaint it
 		canvasdb.get(uuid).validate();
-		if (CalicoDataStore.isInViewPort) {
-			CViewportCanvas.getInstance().repaint();
-		}
 		
 		Networking.synchroized = true;
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
@@ -190,10 +183,6 @@ public class CCanvasController {
 		}
 		
 		canvasdb.get(uuid).drawMenuBars();
-		if (CalicoDataStore.isInViewPort) {
-			CViewportCanvas.getInstance().drawToolbar();
-
-		}
 
 		// TODO do this also for grid and for viewport views
 
@@ -264,7 +253,7 @@ public class CCanvasController {
 			CCanvasController.canvasdb.get(CCanvasController.currentCanvasUUID).getLayer().setScale(1.0d);
 		
 		Calico cal = CalicoDataStore.calicoObj;
-		CalicoDataStore.isViewingGrid = false;
+		CanvasPerspective.getInstance().activate();
 //		cal.getContentPane().removeAll();
 		
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();

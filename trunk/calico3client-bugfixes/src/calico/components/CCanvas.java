@@ -456,7 +456,6 @@ public class CCanvas
 	 */
 	public void deleteChildGroup(long gUUID)
 	{
-		System.out.println("deleting " + gUUID);
 		this.groups.remove(gUUID);
 	}
 	
@@ -981,7 +980,10 @@ public class CCanvas
 		this.arrows = new LongArraySet();
 		
 //		this.getLayer().removeAllChildren();
-		clearEverythingExceptMenu();
+		
+		//removing this line because it seems to incorrectly remove the borders and the repaint below seems to do the same thing.
+		//clearEverythingExceptMenu();
+		
 		drawMenuBars();
 		this.getLayer(Layer.CONTENT).repaint();
 		
