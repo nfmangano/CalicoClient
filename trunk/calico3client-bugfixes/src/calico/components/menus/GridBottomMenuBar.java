@@ -4,12 +4,7 @@ import java.awt.Font;
 import java.awt.Rectangle;
 
 import calico.Calico;
-import calico.CalicoDataStore;
-import calico.components.menus.buttons.EmailButton;
 import calico.components.menus.buttons.EmailGridButton;
-import calico.components.menus.buttons.GridSessionMenuButton;
-import calico.components.menus.buttons.GridViewportChangeButton;
-import calico.controllers.CCanvasController;
 
 
 

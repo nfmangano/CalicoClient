@@ -1,3 +1,4 @@
+
 package calico.networking;
 
 import it.unimi.dsi.Util;
@@ -15,6 +16,7 @@ import calico.events.CalicoEventHandler;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.netstuff.*;
+import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.plugins.events.CalicoEvent;
 import calico.*;
@@ -412,6 +414,7 @@ public class PacketHandler
 	private static void GROUP_DROP(CalicoPacket p)
 	{
 		long uuid = p.getLong();
+		System.out.println("packet");
 		CGroupController.no_notify_drop(uuid);
 	}
 	private static void GROUP_SET_PARENT(CalicoPacket p)
@@ -671,7 +674,7 @@ public class PacketHandler
 		}*/
 		
 
-		if( CGrid.PERSPECTIVE.isActive() )
+		if( GridPerspective.getInstance().isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 			
@@ -767,7 +770,7 @@ public class PacketHandler
 		
 		
 		//test
-		if( CGrid.PERSPECTIVE.isActive() )
+		if( GridPerspective.getInstance().isActive() )
 		{
 			Calico cal = CalicoDataStore.calicoObj;
 

@@ -8,9 +8,11 @@ import java.net.URL;
 import edu.umd.cs.piccolo.nodes.*;
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.*;
+import calico.perspectives.CalicoPerspective;
 
 //addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(WindowEvent winEvt) {Calico.exit();}});
 
@@ -24,7 +26,7 @@ public class PieMenuButton
 	
 	protected String iconPath = "";
 	protected Image iconImage = null;
-	protected Rectangle bounds = new Rectangle();
+	public Rectangle bounds = new Rectangle();
 	
 	protected Point buttonPosition = new Point(0,0);
 		
@@ -67,7 +69,7 @@ public class PieMenuButton
 	{
 		// This should be implemented
 		onClick();
-		PieMenu.isPerformingPieMenuAction =true;
+		BubbleMenu.isPerformingBubbleMenuAction =true;
 		
 		MouseListener mouseListener = new MouseListener()
 		{
@@ -82,10 +84,7 @@ public class PieMenuButton
 			public void mousePressed(MouseEvent e) {}
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (CViewportCanvas.PERSPECTIVE.isActive())
-					CViewportCanvas.getInstance().removeMouseListener(this);
-				else if (CCanvas.PERSPECTIVE.isActive())
-					CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(this);
+				CalicoPerspective.Active.removeMouseListener(this);
 				
 				e.consume();
 //				PieMenu.isPerformingPieMenuAction = false;
@@ -93,15 +92,46 @@ public class PieMenuButton
 			}
 			
 		};
-		if (CViewportCanvas.PERSPECTIVE.isActive())
+		CalicoPerspective.Active.addMouseListener(mouseListener);
+//		System.out.println("//////////// Removing pie menu event handler");
+	}
+	
+	public void onPressed(InputEventInfo event)
+	{
+
+		BubbleMenu.isPerformingBubbleMenuAction =true;
+		
+		MouseListener mouseListener = new MouseListener()
 		{
-			CViewportCanvas.getInstance().addMouseListener(mouseListener);
-		}
-		else if (CCanvas.PERSPECTIVE.isActive())
-		{
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).addMouseListener(mouseListener);
-//			System.out.println("//////////// Removing pie menu event handler");
-		}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				CalicoPerspective.Active.removeMouseListener(this);
+				
+				e.consume();
+//				PieMenu.isPerformingPieMenuAction = false;
+//				System.out.println("//////////// Removing pie menu event handler");
+			}
+			
+		};
+		CalicoPerspective.Active.addMouseListener(mouseListener);
+//		System.out.println("//////////// Removing pie menu event handler");
+	}
+	
+	public void onReleased(InputEventInfo event)
+	{
+
+		//BubbleMenu.isPerformingBubbleMenuAction =false;
+		
+		
 	}
 	
 	public final void setPosition(Point point)

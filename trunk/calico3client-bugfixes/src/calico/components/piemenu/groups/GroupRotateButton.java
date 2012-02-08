@@ -7,14 +7,12 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
-import calico.CalicoDataStore;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.CCanvas;
-import calico.components.CViewportCanvas;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import calico.iconsets.CalicoIconManager;
+import calico.controllers.CStrokeController;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.nodes.PImage;
 
@@ -30,8 +28,16 @@ public class GroupRotateButton extends PieMenuButton
 		uuid = u;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{	
+		//Preemptively delete the original stroke or else bad things will happen.
+		//Race condition?
+		if (CGroupController.originalStroke != 0)
+		{
+			CStrokeController.delete(CGroupController.originalStroke);
+			CGroupController.originalStroke = 0l;
+		}
+		
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
 		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
@@ -41,23 +47,15 @@ public class GroupRotateButton extends PieMenuButton
 		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
 		
 		RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, uuid);
-		if (CViewportCanvas.PERSPECTIVE.isActive())
-		{
-			CViewportCanvas.getInstance().addMouseListener(rotateDragListener);
-			CViewportCanvas.getInstance().addMouseMotionListener(rotateDragListener);
-		}
-		else if (CCanvas.PERSPECTIVE.isActive())
-		{
-			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
-			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
-		}
+		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
+		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
 
 		
 		//pass click event on to this listener since it will miss it
 		rotateDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		
 		Calico.logger.debug("CLICKED GROUP ROTATE BUTTON");
@@ -86,12 +84,15 @@ public class GroupRotateButton extends PieMenuButton
 			double angle = getAngle(prevPoint, p, centerPoint);
 			ghost.rotateAboutPoint(angle, centerPoint);
 			
-			double oldScale = getScaleMP(prevPoint);
+			/*double oldScale = getScaleMP(prevPoint);
 			double newScale = getScaleMP(p);
 			double scale = newScale/oldScale;
-			ghost.scaleAboutPoint(scale, centerPoint);
+			ghost.scaleAboutPoint(scale, centerPoint);*/
 
 			ghost.repaintFrom(ghost.getBounds(), ghost);
+
+			BubbleMenu.moveIconPositions(ghost.getFullBounds());
+			
 			
 			prevPoint.x = scaledPoint.getX();
 			prevPoint.y = scaledPoint.getY();
@@ -111,46 +112,46 @@ public class GroupRotateButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 			
 		public void mousePressed(Point p) {	
+			//BubbleMenu.setSelectedButton(GroupRotateButton.class.getName());
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(p);
 			
 			prevPoint.x = scaledPoint.getX();
 			prevPoint.y = scaledPoint.getY();
 			mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
-			
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			//BubbleMenu.setSelectedButton(null);
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
-			if (CViewportCanvas.PERSPECTIVE.isActive())
-			{
-				CViewportCanvas.getInstance().removeMouseListener(this);
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-			}
-			else if (CCanvas.PERSPECTIVE.isActive())
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
 			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
 			
+			//Turn off highlighter before rotate to make sure it does not leave artifacts. 
+			CGroupController.groupdb.get(guuid).highlight_off();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
+			
 			double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
 			CGroupController.rotate(guuid, angle);
 			
-			double scale = getScaleMP(mouseUpPoint);
-			CGroupController.scale(guuid, scale, scale);
+			//Turn highlighter back on for rotated version
+			CGroupController.groupdb.get(guuid).highlight_on();
 			
+			/*double scale = getScaleMP(mouseUpPoint);
+			CGroupController.scale(guuid, scale, scale);*/
+			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				CGroupController.drop(guuid);
+				//CGroupController.drop(guuid);
 			}
 		}
 		
@@ -188,7 +189,7 @@ public class GroupRotateButton extends PieMenuButton
 			return theta;
 		}
 		
-		private double getScaleMP(Point2D.Double p)
+		/*private double getScaleMP(Point2D.Double p)
 		{
 			double originalDistance = Math.sqrt(Math.pow(mouseDownPoint.getY() - centerPoint.getY(), 2) 
 											+ Math.pow(mouseDownPoint.getX() - centerPoint.getX(), 2));
@@ -196,7 +197,7 @@ public class GroupRotateButton extends PieMenuButton
 					+ Math.pow(p.getX() - centerPoint.getX(), 2));
 			
 			return newDistance / originalDistance;
-		}
+		}*/
 
 	}
 }

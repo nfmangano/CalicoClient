@@ -458,6 +458,7 @@ public class CCanvas
 	 */
 	public void deleteChildGroup(long gUUID)
 	{
+		System.out.println("deleting " + gUUID);
 		this.groups.remove(gUUID);
 	}
 	
@@ -1361,7 +1362,9 @@ public class CCanvas
 
 		public void paintComponent(Graphics g) {
 			if (this.bufferedImage == null)
+			{
 				super.paintComponent(g);
+			}
 			else
 			{
 //				super.paintComponent(bufferedImage.getGraphics());

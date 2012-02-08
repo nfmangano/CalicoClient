@@ -1,12 +1,12 @@
 package calico.utils;
 
 import calico.*;
-import calico.components.CViewportCanvas;
 import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.canvas.CCanvasExpertModeInputHandler;
 import calico.networking.*;
 import calico.networking.netstuff.*;
+import calico.perspectives.GridPerspective;
 
 import it.unimi.dsi.fastutil.objects.*;
 
@@ -61,7 +61,7 @@ public class Ticker extends Thread
 				}
 			}
 			
-			if(CalicoDataStore.gridObject!=null && onTick(66) && (CGrid.PERSPECTIVE.isActive() || CViewportCanvas.PERSPECTIVE.isActive())&& !Calico.isGridLoading )
+			if(CalicoDataStore.gridObject!=null && onTick(66) && GridPerspective.getInstance().isActive() && !Calico.isGridLoading )
 			{
 				CalicoDataStore.gridObject.updateCells();
 			}

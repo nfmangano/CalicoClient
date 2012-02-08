@@ -1,36 +1,27 @@
 package calico.components.piemenu.canvas;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.AnchorPoint;
 import calico.components.CArrow;
 import calico.components.CCanvas;
-import calico.components.CGroup;
-import calico.components.CViewportCanvas;
-import calico.components.piemenu.PieMenu;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import calico.controllers.CViewportController;
-import calico.iconsets.CalicoIconManager;
-import calico.inputhandlers.*;
-import calico.networking.Networking;
-import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
-import edu.umd.cs.piccolo.nodes.PImage;
+import calico.inputhandlers.InputEventInfo;
 
 public class ArrowButton extends PieMenuButton
 {
+	//Remove from BubbleMenu
+	//public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
 	
-	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
 	private long guuid = 0L;
 	
 	public ArrowButton(long uuid)
@@ -49,23 +40,15 @@ public class ArrowButton extends PieMenuButton
 		
 		
 		ArrowCreateMouseListener arrowCreateMouseListener = new ArrowCreateMouseListener(canvasUUID, guuid);
-		if (CViewportCanvas.PERSPECTIVE.isActive())
-		{
-			CViewportCanvas.getInstance().addMouseListener(arrowCreateMouseListener);
-			CViewportCanvas.getInstance().addMouseMotionListener(arrowCreateMouseListener);
-		}
-		else if (CCanvas.PERSPECTIVE.isActive())
-		{
-			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(arrowCreateMouseListener);
-			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(arrowCreateMouseListener);
-		}
+		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(arrowCreateMouseListener);
+		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(arrowCreateMouseListener);
 		
 		//pass click event on to this listener since it will miss it
 		arrowCreateMouseListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
 //		ev.getMouseEvent().consume();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		//CGroupController.drop(group_uuid);
 	}
@@ -84,7 +67,7 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
-			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(PieMenu.lastOpenedPosition);
+			Point scaledStartPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(BubbleMenu.lastOpenedPosition);
 			
 			if(tempArrow==null)
 			{
@@ -135,16 +118,8 @@ public class ArrowButton extends PieMenuButton
 		@Override
 		public void mouseReleased(MouseEvent e) {
 
-			if (CViewportCanvas.PERSPECTIVE.isActive())
-			{
-				CViewportCanvas.getInstance().removeMouseListener(this);
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-			}
-			else if (CCanvas.PERSPECTIVE.isActive())
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			if(tempArrow!=null)
 			{

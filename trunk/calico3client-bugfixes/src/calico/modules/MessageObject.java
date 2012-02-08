@@ -1,6 +1,7 @@
 package calico.modules;
 
 import calico.*;
+import calico.perspectives.GridPerspective;
 import calico.utils.*;
 import calico.components.*;
 import calico.components.grid.CGrid;
@@ -59,7 +60,7 @@ public class MessageObject extends PComposite
 		
 		public boolean runtask()
 		{
-			if(CCanvasController.getCurrentUUID()==canvasuid || CGrid.PERSPECTIVE.isActive())
+			if(CCanvasController.getCurrentUUID()==canvasuid || GridPerspective.getInstance().isActive())
 			{
 				try
 				{

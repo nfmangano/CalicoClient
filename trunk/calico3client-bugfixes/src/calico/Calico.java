@@ -5,7 +5,18 @@ package calico;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -15,7 +26,16 @@ import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.Random;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -31,9 +51,11 @@ import org.json.me.JSONObject;
 
 import calico.components.CCanvasWatermark;
 import calico.components.CSession;
-import calico.components.CViewportCanvas;
 import calico.components.grid.CGrid;
-import calico.controllers.*;
+import calico.controllers.CArrowController;
+import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
@@ -42,6 +64,8 @@ import calico.inputhandlers.InputQueue;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
+import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.utils.Ticker;
 
@@ -119,6 +143,7 @@ public class Calico extends JFrame
 		// We load the conf/calico.conf file
 		CalicoOptions.setup();
 		CalicoDataStore.setup();
+		GridPerspective.getInstance().activate();
 		setPropertiesFromArgs(args);
 		try
 		{
@@ -264,8 +289,6 @@ public class Calico extends JFrame
 			Calico.logger.debug("SET W+H ("+fullScreen.width+","+fullScreen.height+")");
 			CalicoDataStore.ScreenWidth = fullScreen.width;
 			CalicoDataStore.ScreenHeight = fullScreen.height;
-			CViewportCanvas.PreferredScreenHeight = fullScreen.height;
-			CViewportCanvas.PreferredScreenWidth = fullScreen.width;
 		}
 		else
 		{
@@ -580,9 +603,6 @@ public class Calico extends JFrame
 		{			
 			CalicoDataStore.ScreenWidth = resw;
 			CalicoDataStore.ScreenHeight = resh;
-			
-			CViewportCanvas.PreferredScreenHeight = resh;
-			CViewportCanvas.PreferredScreenWidth = resw;
 		}
 		
 		/*GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

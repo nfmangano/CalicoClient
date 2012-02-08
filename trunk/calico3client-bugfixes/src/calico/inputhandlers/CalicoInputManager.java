@@ -7,15 +7,17 @@ import java.awt.geom.Point2D;
 
 import calico.*;
 import calico.components.*;
-import calico.components.grid.CGrid;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.canvas.CCanvasStrokeModeInputHandler;
 import calico.modules.MessageObject;
 import calico.networking.ListenServer;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -266,46 +268,7 @@ public class CalicoInputManager
 //		return chosenGUID;
 //	}
 
-	public static long getSmallestGroupAtPoint(InputEventInfo ev)
-	{
-		return CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), ev.getPoint());
-//		return getSmallestGroupAtPoint(ev.getX(), ev.getY());
-	}
-	
-	/**
-	 * What UUID arrow is located at the requested X,Y coordinate
-	 * @param x
-	 * @param y
-	 * @return
-	 */
 	@Deprecated
-	public static long getArrowAtPoint(int x, int y)
-	{
-		long[] arrowlist = CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getChildArrows();
-		if(arrowlist.length>0)
-		{
-			for(int i=0;i<arrowlist.length;i++)
-			{
-				if(CArrowController.arrows.get(arrowlist[i]).containsMousePoint(new Point(x,y)) )
-				{
-					return arrowlist[i];
-				}//if contained
-			}//for groups
-			
-		}//if grplist>0
-		return 0L;
-	}
-	
-	@Deprecated
-	public static long getArrowAtPoint(InputEventInfo ev)
-	{
-		return getArrowAtPoint(ev.getX(), ev.getY());
-	}
-
-
-
-
-
 	/**
 	 * Input comes in sets of 3 - (Xpos, Ypos, ButtonID)
 	 * @param inputThings
@@ -395,21 +358,17 @@ public class CalicoInputManager
 				break;
 		}
 		
-		// if we are in the ViewPort view we want to override the default behavior		
-		if(CViewportCanvas.PERSPECTIVE.isActive()){			
-			boolean processEvent =CalicoViewportInputHandler.transformInput(ev);
-			//Calico.logger.debug("CalicoViewportInputHandler returned:"+processEvent);
-			if(!processEvent){
-				return;
-			}
-		}
-		
 		if (PieMenu.performingPieMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
 		{
 			PieMenu.isPerformingPieMenuAction = false;
 			lockInputHandler = 0l;
 		}
-		
+		if (BubbleMenu.performingBubbleMenuAction() && ev.getAction() ==InputEventInfo.ACTION_PRESSED)
+		{
+			BubbleMenu.isPerformingBubbleMenuAction = false;
+			lockInputHandler = 0l;
+		}
+
 		// This means we have a menu open, so we give that priority!
 		if(PieMenu.isPieMenuActive())
 		{			
@@ -424,11 +383,11 @@ public class CalicoInputManager
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if(CGrid.PERSPECTIVE.isActive() && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				if(!CalicoPerspective.Active.hasPhasicPieMenuActions() && ev.getAction()==InputEventInfo.ACTION_PRESSED)
 				{
 					PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
 				}
-				if (!CGrid.PERSPECTIVE.isActive())
+				if (CalicoPerspective.Active.hasPhasicPieMenuActions())
 				{
 					lockInputHandler = 0l;
 					PieMenu.isPerformingPieMenuAction = true;
@@ -447,66 +406,90 @@ public class CalicoInputManager
 			lockInputHandler = 0;
 			return;
 		}
+
+		else if (BubbleMenu.isBubbleMenuActive() && ev.getAction()!=InputEventInfo.ACTION_DRAGGED)
+		{
+			// We are from a pie menu. PIGGYBACK FROM PIEMENU FLAG FOR NOW
+			ev.setFlag(InputEventInfo.FLAG_IS_FROM_PIEMENU);
+			
+			// Was it actually on the thing?
+			if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
+			{				
+				//Make sure did not land on it from a stroke
+				if (BubbleMenu.performingBubbleMenuAction() || ev.getAction()==InputEventInfo.ACTION_PRESSED)
+				{
+				
+					// Did we press the button?
+					if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
+					{
+						BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+					}
+					//No bubblemenu on grid currently
+					/*if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+					{
+						PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
+					}*/
+					if (CalicoPerspective.Active.hasPhasicPieMenuActions())
+					{
+						lockInputHandler = 0l;
+						BubbleMenu.isPerformingBubbleMenuAction = true;
+					}
+					return;
+				}
+			}
+			else if (BubbleMenu.performingBubbleMenuAction())
+			{
+				if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
+				{
+					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+				}
+				lockInputHandler = 0l;
+				return;
+			}
+			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
+			{				
+				// Now just kill it.
+				
+				//Need this if else in case group does not exist
+				if (BubbleMenu.isBubbleMenuActive())
+				{
+					if (!CGroupController.exists(BubbleMenu.activeGroup))
+					{
+						BubbleMenu.clearMenu();
+						CCanvasStrokeModeInputHandler.deleteSmudge = true;
+					}
+					else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
+							|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+					{
+						BubbleMenu.clearMenu();
+						CCanvasStrokeModeInputHandler.deleteSmudge = true;
+						
+					}
+				}
+				//return;// Dont return, we should let this one thru!
+			}
+		}
+		else if (BubbleMenu.performingBubbleMenuAction())
+		{
+			lockInputHandler = 0;
+			return;
+		}
 		else if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getPoint()) != 0)
 		{
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
 		// Are they clicking the menu bar?
-		else if(/*!CalicoDataStore.isInViewPort &&*/ !CGrid.PERSPECTIVE.isActive() && CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).isPointOnMenuBar(ev.getGlobalPoint()))
+		else if(CalicoPerspective.Active.processToolEvent(ev)) 
 		{
-			if (ev.getAction() == InputEventInfo.ACTION_RELEASED)
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(ev.getGlobalPoint());
 			return;
 		}		
 
 		
-		// 0L is the grid
-		if(CGrid.PERSPECTIVE.isActive())
-		{			
-			sendEventOut(0L,ev);
-			return;
-		}
-		
 		// Ok, now we find what input handler to run
-		long itemUUID = 0L;
+		long itemUUID;
 		if(lockInputHandler==0L)
 		{
-			
-			// check for arrows
-			long arrowAtPoint = getArrowAtPoint(ev);
-			if(arrowAtPoint!=0L)
-			{
-				itemUUID = arrowAtPoint;
-			}
-			
-			if(itemUUID==0L)
-			{
-				// Check to see if any groups fit in to the point
-				long smallestGroupUUID = getSmallestGroupAtPoint(ev);
-				if(smallestGroupUUID!=0L)
-				{
-					// we found the smallest group that contains the coord. So run her action listener
-					itemUUID = smallestGroupUUID;
-				}
-			}
-			
-//			//check for List.CheckBox!
-//			
-//			if (itemUUID==0L)
-//			{
-//				long firstUUID = 0L;
-//				long[] boxes = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getChildCheckBoxes();
-//				for (int i = 0; i < boxes.length; i++)
-//					if (CListController.checkBoxes.get(boxes[i]).getBounds().contains(ev.getPoint()))
-//						itemUUID = boxes[i];
-//			}
-			
-			
-			// Set a default, if all else fails, we go to the canvas
-			if(itemUUID==0L)
-			{
-				itemUUID = CCanvasController.getCurrentUUID();
-			}
+			itemUUID = CalicoPerspective.Active.getEventTarget(ev);
 		}
 		else
 		{
@@ -588,18 +571,8 @@ public class CalicoInputManager
 			
 			CalicoInputManager.RemoveCursorImageListener mouseListener = (new CalicoInputManager()).new RemoveCursorImageListener(cuuid, leftClickIcon);
 			
-			if (CViewportCanvas.PERSPECTIVE.isActive())
-			{
-				CViewportCanvas.getInstance().addMouseListener(mouseListener);
-				CViewportCanvas.getInstance().addMouseMotionListener(mouseListener);
-			}
-			else if (CCanvas.PERSPECTIVE.isActive())
-			{
-				CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(mouseListener);
-				CCanvasController.canvasdb.get(cuuid).addMouseListener(mouseListener);
-			}
-
-			
+			CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(mouseListener);
+			CCanvasController.canvasdb.get(cuuid).addMouseListener(mouseListener);
 		}
 		catch(Exception e)
 		{
@@ -638,16 +611,8 @@ public class CalicoInputManager
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (CViewportCanvas.PERSPECTIVE.isActive())
-			{
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
-				CViewportCanvas.getInstance().removeMouseListener(this);
-			}
-			else if (CCanvas.PERSPECTIVE.isActive())
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-			}
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 
 			
 			e.consume();

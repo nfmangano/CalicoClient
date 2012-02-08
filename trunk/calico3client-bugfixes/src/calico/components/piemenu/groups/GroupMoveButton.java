@@ -1,27 +1,18 @@
 package calico.components.piemenu.groups;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 
 import calico.CalicoDataStore;
 import calico.components.CCanvas;
-import calico.components.CGroup;
-import calico.components.CViewportCanvas;
-import calico.components.piemenu.PieMenu;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import calico.controllers.CViewportController;
-import calico.iconsets.CalicoIconManager;
-import calico.inputhandlers.*;
-import calico.networking.Networking;
-import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
-import edu.umd.cs.piccolo.nodes.PImage;
+import calico.controllers.CStrokeController;
+import calico.inputhandlers.InputEventInfo;
 
 public class GroupMoveButton extends PieMenuButton
 {
@@ -35,8 +26,15 @@ public class GroupMoveButton extends PieMenuButton
 		guuid = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
 	{
+		//Preemptively delete the original stroke or else bad things will happen.
+		//Race condition?
+		if (CGroupController.originalStroke != 0)
+		{
+			CStrokeController.delete(CGroupController.originalStroke);
+			CGroupController.originalStroke = 0l;
+		}
 //		ev.stop();
 //
 //		CGroupController.setCopyUUID(guuid);
@@ -66,22 +64,14 @@ public class GroupMoveButton extends PieMenuButton
 //		CCanvasController.canvasdb.get(canvasUUID).getCamera().addChild(ghost);
 		
 		TranslateMouseListener resizeDragListener = new TranslateMouseListener(canvasUUID, guuid);
-		if (CViewportCanvas.PERSPECTIVE.isActive())
-		{
-			CViewportCanvas.getInstance().addMouseListener(resizeDragListener);
-			CViewportCanvas.getInstance().addMouseMotionListener(resizeDragListener);
-		}
-		else if (CCanvas.PERSPECTIVE.isActive())
-		{
-			CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
-			CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
-		}
+		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
+		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
 		
 		//pass click event on to this listener since it will miss it
 		resizeDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-		PieMenu.isPerformingPieMenuAction = true;
+		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		System.out.println("CLICKED GROUP MOVE BUTTON");
 		//CGroupController.drop(group_uuid);
@@ -91,36 +81,57 @@ public class GroupMoveButton extends PieMenuButton
 	{
 		Point prevPoint, mouseDownPoint;
 		long cuuid, guuid;
+		long prevParent;
 		
 		public TranslateMouseListener(long canvasUUID, long groupUUID)  {
 			prevPoint = new Point();
 			cuuid = canvasUUID;
 			guuid = groupUUID;
+			prevParent = 0l;
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			double viewportScale = 1/CalicoDataStore.gridObject.getViewportScale();
-			Point scaledPoint = new Point((int)(e.getPoint().x * viewportScale), (int)(e.getPoint().y * viewportScale));
-			
 			if (mouseDownPoint == null)
 			{
-				prevPoint.x = scaledPoint.x;
-				prevPoint.y = scaledPoint.y;
-				mouseDownPoint = scaledPoint;
+				prevPoint.x = e.getPoint().x;
+				prevPoint.y = e.getPoint().y;
+				mouseDownPoint = e.getPoint();
 				CGroupController.move_start(guuid);
 			}
 			
-			CGroupController.move(guuid, (int)(scaledPoint.x - prevPoint.x), scaledPoint.y - prevPoint.y);
-			if (PieMenu.highlightedGroup != 0l)
-				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
-			long smallest = 0;
-			if ((smallest = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
+			if (BubbleMenu.activeGroup != 0l)
 			{
-				CGroupController.groupdb.get(smallest).highlight_on();
+				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_off();
+				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_repaint();
+			}
+			CGroupController.move(guuid, (int)(e.getPoint().x - prevPoint.x), e.getPoint().y - prevPoint.y);
+			
+			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+			
+			long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
+			if (smallestParent != prevParent)
+			{
+				if (prevParent != 0l)
+				{
+					CGroupController.groupdb.get(prevParent).highlight_off();
+					CGroupController.groupdb.get(prevParent).highlight_repaint();
+				}
+				if (smallestParent != 0l)
+				{
+					CGroupController.groupdb.get(smallestParent).highlight_on();
+					CGroupController.groupdb.get(smallestParent).highlight_repaint();
+				}
+				prevParent = smallestParent;
 			}
 			
-			prevPoint.x = scaledPoint.x;
-			prevPoint.y = scaledPoint.y;
+			/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
+			{
+				CGroupController.groupdb.get(smallestParent).highlight_on();
+			}*/
+			CGroupController.groupdb.get(guuid).highlight_on();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
+			prevPoint.x = e.getPoint().x;
+			prevPoint.y = e.getPoint().y;
 			e.consume();
 		}
 		
@@ -137,8 +148,6 @@ public class GroupMoveButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 		
 		public void mousePressed(Point p) {
-			Point scaledPoint = p;
-			
 			prevPoint.x = 0;
 			prevPoint.y = 0;
 			mouseDownPoint = null;
@@ -147,38 +156,27 @@ public class GroupMoveButton extends PieMenuButton
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			double viewportScale = 1/CalicoDataStore.gridObject.getViewportScale();
-			Point scaledPoint = new Point((int)(e.getPoint().x * viewportScale), (int)(e.getPoint().y * viewportScale));
-			
-			if (PieMenu.highlightedGroup != 0l)
-				CGroupController.groupdb.get(PieMenu.highlightedGroup).highlight_off();
-			
-			if (CViewportCanvas.PERSPECTIVE.isActive())
+			if (prevParent != 0l)
 			{
-				CViewportCanvas.getInstance().removeMouseListener(this);
-				CViewportCanvas.getInstance().removeMouseMotionListener(this);
+				CGroupController.groupdb.get(prevParent).highlight_off();
 			}
-			else if (CCanvas.PERSPECTIVE.isActive())
-			{
-				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			}
+
+			//if (BubbleMenu.highlightedGroup != 0l)
+				//CGroupController.groupdb.get(BubbleMenu.highlightedGroup).highlight_off();
+			
+			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			//This threw a null pointer exception for some reason...
 			if (mouseDownPoint != null)
-				CGroupController.move_end(this.guuid, e.getX(), e.getY()); //scaledPoint.x - mouseDownPoint.x, scaledPoint.y - mouseDownPoint.y);
-//			Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_MOVE_END,
-//					this.guuid,
-//				scaledPoint.x - mouseDownPoint.x, 
-//				scaledPoint.y - mouseDownPoint.y
-//			));
+				CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
 			
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
 			
 			if(!CGroupController.groupdb.get(guuid).isPermanent())
 			{
-				CGroupController.drop(guuid);
+				//CGroupController.drop(guuid);
 			}
 		}
 	}

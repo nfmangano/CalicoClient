@@ -19,7 +19,7 @@ public class CCanvasLinkBadge extends CGroupImage
 	private final Type type;
 
 	public CCanvasLinkBadge(CCanvasLinkAnchor link)
-	{
+	{ 
 		super(Calico.uuid(), link.getCanvasId(), link.getLink().getLinkType().image);
 		
 		this.link = link;

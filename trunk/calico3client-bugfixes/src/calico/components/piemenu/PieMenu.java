@@ -18,6 +18,7 @@ import calico.controllers.CGroupController;
 import edu.umd.cs.piccolo.*;
 import edu.umd.cs.piccolo.nodes.*;
 import calico.inputhandlers.*;
+import calico.perspectives.CalicoPerspective;
 
 import it.unimi.dsi.fastutil.objects.*;
 
@@ -92,24 +93,12 @@ public class PieMenu
 		pieContainer = new PieMenuContainer();
 		pieContainer.setBounds(getBoundsOfButtons());
 		
-		if(CGrid.PERSPECTIVE.isActive()){
-			CGrid.getInstance().getCamera().addChild(pieContainer);
-			CGrid.getInstance().getCamera().repaintFrom(pieContainer.getBounds(), pieContainer);
-		}
-		else if (CCanvas.PERSPECTIVE.isActive()){
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).getCamera().addChild(pieContainer);
-			CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
-		}
-
+		CalicoPerspective.Active.drawPieMenu(pieContainer);
 	}
 	
 	
 	private static void getIconPositions(Point center)
 	{
-		//if we are in the viewport the position of the center must be scaled
-		if(CViewportCanvas.PERSPECTIVE.isActive()){
-			center = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(center);
-		}
 		int numOfPositions = buttonList.size();
 		
 		double degIncrement = Math.min(360.0 / (numOfPositions), DEFAULT_DEGREE_INCREMENT);
@@ -226,7 +215,11 @@ public class PieMenu
 		if (highlightedGroup != 0l)
 		{
 			if (CGroupController.exists(highlightedGroup))
+			{
 				CGroupController.groupdb.get(highlightedGroup).highlight_off();
+				CGroupController.groupdb.get(highlightedGroup).highlight_repaint();
+			}
+			
 			highlightedGroup = 0l;
 		}
 	}
@@ -237,10 +230,6 @@ public class PieMenu
 		{
 			return false;
 		}		
-		if(CViewportCanvas.PERSPECTIVE.isActive()){
-			Point p = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(point);						
-			return pieContainer.getFullBounds().contains(p);
-		}
 		return pieContainer.getFullBounds().contains(point);
 	}
 	
@@ -249,9 +238,6 @@ public class PieMenu
 		if(buttonList.size()==0)
 		{
 			return;
-		}
-		if(CViewportCanvas.PERSPECTIVE.isActive()){
-			point = CViewportCanvas.getInstance().unscalePointFromFocusedCanvas(point);
 		}
 		
 		int numOfPositions = buttonList.size();

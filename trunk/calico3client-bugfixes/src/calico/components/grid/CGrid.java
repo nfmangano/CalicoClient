@@ -10,31 +10,24 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.net.URL;
+import java.awt.event.MouseListener;
 import java.util.Date;
 
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 
-import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.CalicoPerspective;
 import calico.components.CCanvas;
-import calico.components.CViewportCanvas;
-import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.GridBottomMenuBar;
-import calico.components.menus.buttons.CanvasNavButton;
 import calico.controllers.CCanvasController;
-import calico.controllers.CViewportController;
-import calico.iconsets.CalicoIconManager;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.GridPerspective;
 import calico.utils.Geometry;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
@@ -53,16 +46,7 @@ import edu.umd.cs.piccolox.nodes.PLine;
  */
 public class CGrid 
 {
-
 	private static final long serialVersionUID = 1L;
-
-	public static final CalicoPerspective PERSPECTIVE = new CalicoPerspective() {
-		public boolean isActive()
-		{
-			// The viewport is a kind of grid perspective, so when the viewport is active, so is the grid
-			return super.isActive() || CViewportCanvas.PERSPECTIVE.isActive();
-		}
-	};
 	
 	//public static final int MODE_NONE = 0;
 	//public static final int MODE_VIEWPORT = 1;
@@ -79,9 +63,6 @@ public class CGrid
 	private int imgh = 0;
 	
 	private GridBottomMenuBar menuBar = null;
-	
-	private PNode viewportNode = null;
-	private PLine[] viewportBorders = new PLine[4];
 	
 	//public static int mode = MODE_NONE;
 
@@ -100,13 +81,9 @@ public class CGrid
 	public static final int NO_ACTION=0;
 	public static int canvasAction=NO_ACTION;
 	
-	public static Point viewportDragPoint = null;
-
 	public static int moveDelta=1;
 	public static int moveDelay=100;
 	
-	private PNode viewportBorder = null;
-		
 	public static CGrid getInstance(){
 		if(instance==null){
 			instance = new CGrid();
@@ -225,7 +202,6 @@ public class CGrid
 		}
 
 		//sets the initial sizes of the viewports in the viewport controller
-		setViewportSizes();
 		int cellindex = 0;
 
 		long[] canvasuids = CCanvasController.getCanvasIDList();
@@ -240,9 +216,6 @@ public class CGrid
 		}
 		getLayer().addChild(cellLayer);
 		repaint();
-
-		drawViewport();
-
 	}
 	
 	
@@ -263,18 +236,10 @@ public class CGrid
 			cellindex++;
 		}
 		getLayer().addChild(cellLayer);
-		if(viewportNode!=null){
-			getLayer().removeChild(viewportNode);
-			getLayer().addChild(viewportNode);			
-		}
 		//drawBottomToolbar();
 		repaint();
 	}
 	
-	public void setViewportSizes() {
-		CViewportController.setSizes(imgw, imgh);
-	}
-
 	public void drawBottomToolbar()
 	{		
 		GridBottomMenuBar temp = new GridBottomMenuBar(1L);
@@ -303,36 +268,6 @@ public class CGrid
 		}
 	}
 
-	/*public static void setMode(int type) {
-		mode = type;
-	}*/
-	
-	/**
-	 * draws the initial viewport
-	 */
-	public void drawViewport(){
-		if (viewportBorder != null)
-			getLayer().removeChild(viewportBorder);
-		Rectangle viewportRectangle = CViewportController.getViewportRectangle();
-		viewportNode = new PNode();
-		viewportNode.setBounds(viewportRectangle);
-		
-		//viewportNode.setPaint( CalicoOptions.grid.viewport_background_color );
-		//viewportNode.setTransparency( CalicoOptions.grid.viewport_background_transparency );
-		drawViewportBorders(viewportRectangle);
-		getLayer().addChild(viewportNode);
-		CViewportController.setViewPortSize(1);
-		viewportBorder = viewportNode;
-	}
-	
-	/**
-	 * removes the viewport
-	 */
-	public void removeViewport(){
-		getLayer().removeChild(viewportNode);
-		viewportNode = null;
-	}
-	
 	public boolean isPointOnMenuBar(Point point)
 	{
 		return (this.menuBar.isPointInside(point));
@@ -340,206 +275,6 @@ public class CGrid
 
 	public void clickMenuBar(Point point) {
 		this.menuBar.clickMenu(point);	
-	}
-	
-	public void setViewPortDragPoint(Point point){
-		viewportDragPoint= point;		
-	}
-	
-	/**
-	 * drags the viewport to a new point
-	 * @param point the point to drag the viewport to
-	 */
-	//removed this method cause were no longer gonna allow the user to drag the viewport, just increase or decrease its size and jump in
-	/*public void dragViewPort(Point point){		
-		//calculate the relative distance from the previous point to the corner of the viewport
-		double vpcenterX = viewportNode.getBounds().getMinX();
-		double vpcenterY = viewportNode.getBounds().getMinY();
-		double relativeX = viewportDragPoint.getX()-vpcenterX; 
-		double relativeY = viewportDragPoint.getY()-vpcenterY;			
-		
-		//get the current size of the viewport
-		int height = (int)viewportNode.getBounds().getHeight();
-		int width = (int)viewportNode.getBounds().getWidth();
-		
-		int newX= (int)(point.getX()+relativeX);
-		int newY= (int)(point.getY()+relativeY);
-		
-		//move the viewport
-		Rectangle viewportRectangle = new Rectangle (newX,newY,width, height);
-		CViewportController.setViewportRectangle(viewportRectangle);
-		
-		viewportNode.setBounds(viewportRectangle);
-		repaint();
-		//set the new point
-		viewportDragPoint= point;
-	}*/
-	
-	public void dragViewPort(double deltaX, double deltaY){		
-		//calculate the relative distance from the previous point to the corner of the viewport
-		double topX = viewportNode.getBounds().getMinX();
-		double topY = viewportNode.getBounds().getMinY();
-				
-		
-		//get the current size of the viewport
-		int height = (int)viewportNode.getBounds().getHeight();
-		int width = (int)viewportNode.getBounds().getWidth();
-		
-		int newX= (int)(topX+deltaX);
-		int newY= (int)(topY+deltaY);
-		
-		//move the viewport
-		Rectangle viewportRectangle = new Rectangle (newX,newY,width, height);
-		CViewportController.setViewportRectangle(viewportRectangle);
-		
-		viewportNode.setBounds(viewportRectangle);
-		drawViewportBorders(viewportRectangle);
-		repaint();		
-	}
-	
-	/**
-	 * returns true if a point is inside the viewport and false otherwise
-	 * @param point
-	 * @return
-	 */
-	public boolean isPointOnViewport(Point point){
-		return (this.viewportNode.getBounds().contains(point));
-	}
-
-	/**
-	 * Changes the size of the viewport according to sizes defined as constants in CViewportController
-	 * @param newSizew the new width (in intervals defined in CViewportController)
-	 * @param newSizeh the new height (in intervals defined in CViewportController)
-	 * @param animate true if we want to animate the movement false otherwise
-	 */
-	public void changeViewPortSize(int newSizew, int newSizeh, boolean animate) {		
-		double vpcenterX = viewportNode.getBounds().getCenterX();
-		double vpcenterY = viewportNode.getBounds().getCenterY();
-				
-		
-		double newX = vpcenterX-(newSizew/2);
-		double newY = vpcenterY-(newSizeh/2);
-					
-		CViewportController.setViewportRectangle(new Rectangle ((int)newX,(int)newY,newSizew, newSizeh));
-//		if(animate){
-//			viewportNode.animateToBounds((int)newX,(int)newY, newSizew,newSizeh, CalicoOptions.viewport.viewportmovetime);
-//			drawViewportBorders(new Rectangle ((int)newX,(int)newY,newSizew, newSizeh));
-//		}else{
-			viewportNode.setBounds((int)newX,(int)newY, newSizew,newSizeh);
-			drawViewportBorders(new Rectangle ((int)newX,(int)newY,newSizew, newSizeh));
-		//}
-		
-		
-	}
-	
-	/**
-	 * Moves the viewport to a new point
-	 * @param p the point on which the viewport will be centered
-	 * @param animate true if we want to animate the movement false otherwise
-	 */
-	public void moveViewPortToPoints(Point p){
-		double height = viewportNode.getBounds().getHeight();
-		double width = viewportNode.getBounds().getWidth();
-		int finalX =(int)(  p.getX()-(width/2));
-		int finalY =(int)( p.getY()-(height/2));
-		CViewportController.setViewportRectangle(new Rectangle ((int)finalX,(int)finalY, (int)width,(int)height));
-		
-		viewportNode.setBounds((int)finalX,(int)finalY, (int)width,(int)height);
-		drawViewportBorders(new Rectangle ((int)finalX,(int)finalY, (int)width,(int)height));
-		
-	}
-	
-	/**
-	 * Moves the viewport in a direction as a result of clicking the arrows in the bottom menu
-	 * changes the focus canvas so it moves in the same direction as the viewport move
-	 * @param type
-	 */
-	public void moveViewPort(int type){
-		Calico.logger.debug("moving viewport");
-		double height = viewportNode.getBounds().getHeight();
-		double width = viewportNode.getBounds().getWidth();
-		int finalX = (int)viewportNode.getBounds().getMinX();
-		int finalY = (int)viewportNode.getBounds().getMinY();
-		long workingCanvas;
-		if (CGrid.PERSPECTIVE.isActive())
-		{
-			workingCanvas = CCanvasController.getCanvasAtPoint(new Point((int)CViewportController.getViewportRectangle().getCenterX(),(int)CViewportController.getViewportRectangle().getCenterY()));
-		}
-		else if (CViewportCanvas.PERSPECTIVE.isActive())
-			workingCanvas = CViewportCanvas.getInstance().getCuidWorkingCanvas();
-		else 
-			workingCanvas = 1; //the default is the upper left canvas
-		PBounds workingBounds= getCellBounds(workingCanvas);		 
-		boolean ignoreMove=false;
-		//Point centerPoint=null;
-		int focusedX=(int)workingBounds.getCenterX()-finalX;
-		int focusedY=(int)workingBounds.getCenterY()-finalY;
-		//Calico.logger.debug("current focused center :X"+workingBounds.getCenterX()+". Y:"+workingBounds.getCenterY());
-		if(type==CanvasNavButton.TYPE_DOWN){			
-			finalY=finalY+imgh;
-			focusedY = focusedY+imgh;
-			if(finalY>=CalicoDataStore.ScreenHeight){
-				ignoreMove=true;
-			}
-		}
-		else if(type==CanvasNavButton.TYPE_UP)
-		{
-			finalY=finalY-imgh;
-			focusedY = focusedY-imgh;
-			if(finalY+height<=0){
-				ignoreMove=true;
-			}
-		}
-		else if(type==CanvasNavButton.TYPE_RIGHT)
-		{
-			finalX=finalX+imgw;
-			focusedX = focusedX+imgw;
-			if(finalX>=CalicoDataStore.ScreenWidth){
-				ignoreMove=true;
-			}
-		}
-		else if(type==CanvasNavButton.TYPE_LEFT)
-		{
-			finalX=finalX-imgw;
-			focusedX = focusedX-imgw;
-			if(finalX+width<=0){
-				ignoreMove=true;
-			}
-		}
-		if(!ignoreMove){
-			CViewportController.setViewportRectangle(new Rectangle ((int)finalX,(int)finalY, (int)width,(int)height));
-			viewportNode.setBounds((int)finalX,(int)finalY, (int)width,(int)height);
-			focusedX=(int)((focusedX/width)*CalicoDataStore.ScreenWidth);
-			focusedY=(int)((focusedY/height)*CalicoDataStore.ScreenHeight);
-			Point centerPoint=new Point(focusedX, focusedY);
-			//Calico.logger.debug("NEW focused center:"+centerPoint);			
-			CViewportController.changeFocusedCanvas(centerPoint);
-		}
-	}
-	
-	
-	/**
-	 * returns the canvases that are contained within the viewport 
-	 */
-	public Long2ReferenceOpenHashMap<Boolean> getCanvasesInViewport(){
-		Long2ReferenceOpenHashMap<Boolean> canvasIds= new Long2ReferenceOpenHashMap<Boolean>();		
-		
-		for(CGridCell cell: cells.values()){
-			if(cell.getBounds().intersects((viewportNode.getBounds()))){
-				canvasIds.put(cell.getCanvasUID(), new Boolean(true));
-			}else{
-				canvasIds.put(cell.getCanvasUID(), new Boolean(false));
-			}
-		}		
-		return canvasIds;
-	}
-	
-	/**
-	 * returns the relative size of the canvases compared to the viewport size. 
-	 * @return
-	 */	 
-	public double getViewportScale(){		
-		return (imgw-4)/viewportNode.getWidth();		
 	}
 	
 	/**
@@ -555,30 +290,6 @@ public class CGrid
 		return null;
 	}
 	
-	 public PBounds getViewportBounds(){
-		return viewportNode.getBounds(); 
-	 }
-
-	 /**
-	  * Gets the canvas id of a canvas that intersects a small rectangle in the center of the viewport 
-	  * @return the canvas id or 0l if there is no canvas in the center of the viewport
-	  */
-	public long getViewportCentralCanvas() {
-		int centerX=(int) viewportNode.getBounds().getCenterX();
-		int centerY=(int) viewportNode.getBounds().getCenterY();
-		
-		Rectangle center = new Rectangle(centerX-8, centerY-8, 16, 16 );
-		
-		for(CGridCell cell: cells.values()){
-			if(cell.getBounds().intersects(center)){
-				//Calico.logger.debug("center in "+cell.getCanvasUID());
-				return cell.getCanvasUID();
-				
-			}
-		}	
-		return 0l;
-	}
-
 	public int getImgw() {
 		return imgw;
 	}
@@ -587,45 +298,14 @@ public class CGrid
 		return imgh;
 	}
 	
-	/**
-	 * Moves the viewport and centers it around a canvas
-	 * @param cuid
-	 */
-	public void centerViewportOnCanvas(long cuid){
-		CViewportController.setSmallerSize();
-		
-		centerViewportSquareOnCanvas(cuid);
-		
-		CCanvasController.canvasdb.get(cuid).drawMenuBars();
-	}
-
-
-
-	public void centerViewportSquareOnCanvas(long cuid) {
-		if(viewportNode==null){
-			drawViewport();
-		}
-		else{
-			
-		}
-		PBounds bounds = getCellBounds(cuid);
-		if (bounds != null)
-			moveViewPortToPoints(new Point((int)bounds.getCenterX(),(int)bounds.getCenterY()));
+	public void addMouseListener(MouseListener listener)
+	{
+		canvas.addMouseListener(listener);
 	}
 	
-	/**
-	 * returns true if a given canvas id is whithin the viewport	
-	 * @param cuid the id 
-	 * @return true if inside the viewport
-	 */
-	public boolean isCanvasInViewport(long cuid){		
-		CGridCell cell = cells.get(cuid);
-		if(cell!= null){		
-			if(cell.getBounds().intersects((viewportNode.getBounds()))){		
-				return true;
-			}
-		}
-		return false;
+	public void removeMouseListener(MouseListener listener)
+	{
+		canvas.removeMouseListener(listener);
 	}
 	
 	/**
@@ -711,30 +391,6 @@ public class CGrid
 				}
 			}		
 		}
-	}
-	
-	private void drawViewportBorders(Rectangle vpBounds){
-		
-		if(viewportBorders[0]!=null){
-			viewportNode.removeChild(viewportBorders[0]);
-		}
-		if(viewportBorders[1]!=null){
-			viewportNode.removeChild(viewportBorders[1]);
-		}
-		if(viewportBorders[2]!=null){
-			viewportNode.removeChild(viewportBorders[2]);
-		}
-		if(viewportBorders[3]!=null){
-			viewportNode.removeChild(viewportBorders[3]);
-		}
-		viewportBorders[0] = drawDashedBorderLine(vpBounds.getMinX(), vpBounds.getMinY(), vpBounds.getMinX(), vpBounds.getMaxY());
-		viewportBorders[1] = drawDashedBorderLine(vpBounds.getMinX(), vpBounds.getMinY(), vpBounds.getMaxX(), vpBounds.getMinY());
-		viewportBorders[2] = drawDashedBorderLine(vpBounds.getMinX(), vpBounds.getMaxY(), vpBounds.getMaxX(), vpBounds.getMaxY());
-		viewportBorders[3] = drawDashedBorderLine(vpBounds.getMaxX(), vpBounds.getMinY(), vpBounds.getMaxX(), vpBounds.getMaxY());			
-		viewportNode.addChild(viewportBorders[0]);
-		viewportNode.addChild(viewportBorders[1]);
-		viewportNode.addChild(viewportBorders[2]);
-		viewportNode.addChild(viewportBorders[3]);
 	}
 	
 	private PLine drawDashedBorderLine(double x,double y, double x2, double y2)
@@ -851,16 +507,6 @@ public class CGrid
 	
 	public static void loadGrid()
 	{
-		if(!CGrid.PERSPECTIVE.isActive()){
-			CViewportCanvas viewport = CViewportCanvas.getInstance();
-			if(viewport!=null){
-				viewport.closeViewport();
-			}
-			CGrid.PERSPECTIVE.activate();
-		}else{
-			CGrid.getInstance().centerViewportOnCanvas(CCanvasController.getCurrentUUID());
-			CViewportCanvas.PERSPECTIVE.activate();
-		}
 		CalicoDataStore.gridObject = CGrid.getInstance();
 		CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
@@ -876,6 +522,7 @@ public class CGrid
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
+		GridPerspective.getInstance().activate();
 	}
 
 	private class ContainedCanvas extends PCanvas

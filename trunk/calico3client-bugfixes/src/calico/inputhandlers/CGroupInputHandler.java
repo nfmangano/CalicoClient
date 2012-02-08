@@ -4,6 +4,7 @@ import java.awt.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.controllers.CGroupController;
 import calico.input.CInputManager;
@@ -111,12 +112,12 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 	{
 		CalicoInputManager.lockInputHandler(uuid);
 		e.group = uuid;
+		
 		if(CalicoOptions.canvas.lowquality_on_interaction)
 		{
 			//CCanvasController.canvasdb.get(canvas_uid).setInteracting(true);
 		}
 		
-
 		CGroupController.checkToRemoveLastTempGroup(this.uuid);
 		
 		switch(CalicoDataStore.Mode)
