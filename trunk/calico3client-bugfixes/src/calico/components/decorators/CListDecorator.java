@@ -420,8 +420,12 @@ public class CListDecorator extends CGroupDecorator {
 				break;
 			}
 		}
-		if (CGroupController.groupdb.get(retList[retList.length-1]).getMidPoint().getY() < gY)
-			retList = ArrayUtils.add(retList, guuid);
+		
+		if (retList.length > 0)
+		{
+			if (CGroupController.groupdb.get(retList[retList.length-1]).getMidPoint().getY() < gY)
+				retList = ArrayUtils.add(retList, guuid);
+		}
 		
 		return retList;
 	}
