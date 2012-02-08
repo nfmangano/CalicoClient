@@ -580,11 +580,12 @@ public class PacketHandler
 		String text = p.getString();
 		
 		
-		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
 //		CGroupController.groupdb.get(uuid).finish();
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
 		CGroupController.groupdb.get(uuid).setText(text);
+		
+		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
 		
 //		if (captureChildren)
 //			CGroupController.no_notify_calculate_parenting(uuid, true);
