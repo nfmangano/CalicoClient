@@ -15,6 +15,8 @@ import java.awt.geom.*;
 import java.awt.geom.Line2D.Double;
 import java.util.*;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 import org.shodor.util11.PolygonUtils;
 
@@ -931,8 +933,19 @@ public class CStrokeController
 		if (!exists(uuid))
 			return;
 		
-		strokes.get(uuid).hiding = false;
-		strokes.get(uuid).setTransparency(1.0f);
+		final long tempUUID = uuid;
+		
+		strokes.get(tempUUID).hiding = false;
+		//This line is not thread safe so must invokeLater to prevent exceptions.
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					
+					strokes.get(tempUUID).setTransparency(1.0f);
+					} }
+		);
+		
+		//strokes.get(uuid).hiding = false;
+		//strokes.get(uuid).setTransparency(1.0f);
 	}
 
 }

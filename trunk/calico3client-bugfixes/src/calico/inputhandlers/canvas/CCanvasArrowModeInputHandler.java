@@ -22,6 +22,8 @@ import java.awt.*;
 
 import java.util.*;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.*;
 
 import edu.umd.cs.piccolo.event.*;
@@ -190,9 +192,17 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 				tempArrow.getAnchorB()
 			);
 			
-			CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
 			
-			tempArrow = null;
+			//This line is not thread safe so must invokeLater to prevent exceptions.
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
+						tempArrow = null;
+						} }
+			);
+			//CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
+			//tempArrow = null;
+			
 			tempGuuidB = 0;
 		}
 		

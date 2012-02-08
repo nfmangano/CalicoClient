@@ -6,6 +6,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
@@ -36,9 +38,9 @@ public class BubbleMenu {
 	
 	public static int selectedButtonIndex = -1;
 	
-	private static PActivity fade;
+	private static PActivity fadeActivity;
 	
-	public static void displayBubbleMenu(Point location, Long uuid, PieMenuButton... buttons)
+	public static void displayBubbleMenu(Point location, Long uuid, boolean fade, PieMenuButton... buttons)
 	{
 		if(bubbleContainer!=null)
 		{
@@ -57,7 +59,7 @@ public class BubbleMenu {
 		
 		getIconPositions();
 		
-		drawBubbleMenu( );
+		drawBubbleMenu(fade);
 	}
 	
 	/*public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
@@ -66,39 +68,49 @@ public class BubbleMenu {
 		
 	}*/
 	
-	private static void drawBubbleMenu()//, PieMenuButton[] buttons)
+	private static void drawBubbleMenu(boolean fade)//, PieMenuButton[] buttons)
 	{
 		bubbleContainer = new BubbleMenuContainer();
-		bubbleContainer.setTransparency(0);
+		//bubbleContainer.setTransparency(0);
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
-		if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
-			fade = new PActivity(500,70, System.currentTimeMillis()) {
-				long step = 0;
-	      
-			    protected void activityStep(long time) {
-			            super.activityStep(time);
-
-			            bubbleContainer.setTransparency(1.0f * step/5);
-			            
-	//		            repaint();
-			            step++;
-			            
-			            if (step > 5)
-			            	terminate();
-			    }
-			    
-			    protected void activityFinished() {
-			    		bubbleContainer.setTransparency(1.0f);
-			    }
-			};
-			// Must schedule the activity with the root for it to run.
-			bubbleContainer.getRoot().addActivity(fade);
-			
-			//CCanvasController.canvasdb.get( CCanvasController.getCurrentUUID() ).repaint();
-		}
-
+		final boolean tempFade = fade;
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+		
+				if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
+					fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
+						long step = 0;
+			      
+					    protected void activityStep(long time) {
+					            super.activityStep(time);
+		
+					            bubbleContainer.setTransparency(1.0f * step/5);
+					            
+			//		            repaint();
+					            step++;
+					            
+					            if (step > 5)
+					            	terminate();
+					    }
+					    
+					    protected void activityFinished() {
+					    		bubbleContainer.setTransparency(1.0f);
+					    }
+					};
+					// Must schedule the activity with the root for it to run.
+					if (tempFade)
+					{
+						bubbleContainer.getRoot().addActivity(fadeActivity);
+					}
+					else
+					{
+						updateContainerBounds();
+						bubbleContainer.repaintFrom(bubbleContainer.getBounds(), bubbleContainer);
+					}
+				}
+				}});
 	}
 	
 	
@@ -114,6 +126,8 @@ public class BubbleMenu {
 			
 		}
 		updateHighlighterPosition(selectedButtonIndex);
+		updateContainerBounds();
+		bubbleContainer.repaintFrom(BubbleMenu.getContainerBounds(), bubbleContainer);
 	}
 	
 	private static void updateHighlighterPosition(int buttonNumber)
@@ -357,9 +371,9 @@ public class BubbleMenu {
 	
 	public static void clearMenu()
 	{
-		if (fade.isStepping())
+		if (fadeActivity.isStepping())
 		{
-			fade.terminate();
+			fadeActivity.terminate();
 		}
 		bubbleContainer.removeAllChildren();
 		bubbleContainer.removeFromParent();
@@ -369,13 +383,19 @@ public class BubbleMenu {
 		bubbleContainer = null;
 		bubbleHighlighter = null;
 		selectedButtonIndex = -1;
+		isPerformingBubbleMenuAction = false;
 		if (activeGroup != 0l)
 		{
-			if (CGroupController.exists(activeGroup))
+			final long tempActiveGroup = activeGroup;
+			//SwingUtilities.invokeLater(
+			//		new Runnable() { public void run() { 
+			if (CGroupController.exists(tempActiveGroup))
 			{
-				CGroupController.groupdb.get(activeGroup).highlight_off();
-				CGroupController.groupdb.get(activeGroup).highlight_repaint();
+				CGroupController.groupdb.get(tempActiveGroup).highlight_off();
+				CGroupController.groupdb.get(tempActiveGroup).highlight_repaint();
 			}
+			
+			//		}});
 			activeGroup = 0l;
 		}
 	}

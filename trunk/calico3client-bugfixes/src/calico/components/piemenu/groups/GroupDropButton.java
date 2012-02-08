@@ -28,7 +28,8 @@ public class GroupDropButton extends PieMenuButton
 		//super.onClick(ev);
 		ev.stop();
 		//System.out.println("CLICKED GROUP DROP BUTTON");
-		CGroupController.drop(group_uuid);
 		BubbleMenu.clearMenu();
+		CGroupController.drop(group_uuid);
+		
 	}
 }

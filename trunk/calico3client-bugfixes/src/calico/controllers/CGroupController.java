@@ -302,7 +302,8 @@ public class CGroupController
 			originalStroke = 0l;
 		}
 		
-		groupdb.get(uuid).setTransparency(0f);
+		//The purpose of this block is to achieve smoother drawing, but it is not thread safe
+		/*groupdb.get(uuid).setTransparency(0f);
 		if (groupdb.get(uuid).getBounds() != null)
 		{
 		int buffer = 5;
@@ -310,28 +311,38 @@ public class CGroupController
 			Rectangle boundsWithBuffer =  new Rectangle(bounds.x - buffer, bounds.y - buffer, bounds.width + buffer * 2, bounds.height + buffer * 2);
 			CCanvasController.canvasdb.get(groupdb.get(uuid).getCanvasUID()).repaint(boundsWithBuffer);
 			groupdb.get(uuid).repaint();
-		}
+		}*/
 		
 		// TODO: This should also delete the elements inside of the group first
 		groupdb.get(uuid).delete();
 
 		//CCanvasController.canvasdb.get(groupdb.get(uuid).getCanvasUID()).getLayer().removeChild(groupdb.get(uuid));
-		if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
-		{
-			groupdb.get(uuid).removeFromParent();
-			groupdb.remove(uuid);
-//			SwingUtilities.invokeLater(
-//					new Runnable() { 
-//						public void run() {
-//
-//						}
-//					}
-//			);
-			
-		}
-//		
 		
-		dq_add(uuid);
+		//This ain't pretty, but its needed for thread safety.
+		SwingUtilities.invokeLater(
+			new Runnable() { 
+				public void run() {
+					
+					if(!exists(uuid))
+					{
+						//Even if we get this warning it should be ok. 
+						//It means the AWT eventqueue did not process this remove and a duplicate delete request came.
+						//The rest of the code in this method should deal with it ok and the code in here deals with it through this warning
+						logger.warn("DELETE for non-existant group "+uuid);
+					}
+					else
+					{
+						if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
+						{
+							groupdb.get(uuid).removeFromParent();
+							groupdb.remove(uuid);
+				
+							dq_add(uuid);
+						}
+					}
+	
+				} } );
+		
 	}
 	
 	public static void no_notify_finish(long uuid, boolean captureChildren)
@@ -974,12 +985,17 @@ public class CGroupController
 		
 	}
 	
-	public static void show_group_bubblemenu(long uuid, Point point)
+	public static void show_group_bubblemenu(long uuid, Point point, boolean fade)
 	{
-		show_group_bubblemenu(uuid, point, PieMenuButton.SHOWON_SCRAP_MENU);
+		show_group_bubblemenu(uuid, point, PieMenuButton.SHOWON_SCRAP_MENU, fade);
 	}
 	
-	public static void show_group_bubblemenu(long uuid, Point point, int showfilter)
+	public static void show_group_bubblemenu(long uuid, Point point)
+	{
+		show_group_bubblemenu(uuid, point, PieMenuButton.SHOWON_SCRAP_MENU, true);
+	}
+	
+	public static void show_group_bubblemenu(long uuid, Point point, int showfilter, boolean fade)
 	{
 		//Class<?> pieMenuClass = calico.components.piemenu.PieMenu.class;
 		if (!exists(uuid))
@@ -1028,50 +1044,9 @@ public class CGroupController
 					e.printStackTrace();
 				}
 			}
-			
-//			for(int i=0;i<pieMenuButtons.size();i++)
-//			{
-//				try
-//				{
-////					if (pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0
-////							&& CGroupController.groupdb.get(uuid).getText().length() > 0)
-////						continue;
-//					bitmasks[i] = pieMenuButtons.get(i).getField("SHOWON").getInt(null);
-//					if( (bitmasks[i] & showfilter) == showfilter)
-//					{
-//						totalButtons++;
-//						//buttons[curPos++] = (PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid);
-//					}
-//				}
-//				catch (Exception e)
-//				{
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//			PieMenuButton[] buttons = new PieMenuButton[totalButtons];
-//			
-//			for(int i=0;i<pieMenuButtons.size();i++)
-//			{
-//				try
-//				{
-////					if (pieMenuButtons.get(i).getName().compareTo("GroupRotateButton") == 0
-////							&& CGroupController.groupdb.get(i).getText().length() > 0)
-////						continue;
-//					if( ( bitmasks[i] & showfilter) == showfilter)
-//					{
-//						buttons[curPos++] = (PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid);
-//					}
-//				}
-//				catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//			}
 
-			//PieMenu.displayPieMenuArray(point, buttons.toArray(new PieMenuButton[buttons.size()]));
 			CGroupController.groupdb.get(uuid).highlight_on();
-			BubbleMenu.displayBubbleMenu(point,uuid,buttons.toArray(new PieMenuButton[buttons.size()]));
+			BubbleMenu.displayBubbleMenu(point,uuid,fade,buttons.toArray(new PieMenuButton[buttons.size()]));
 			
 			
 		}

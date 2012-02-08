@@ -80,13 +80,11 @@ public class GroupMoveButton extends PieMenuButton
 	{
 		Point prevPoint, mouseDownPoint;
 		long cuuid, guuid;
-		long prevParent;
 		
 		public TranslateMouseListener(long canvasUUID, long groupUUID)  {
 			prevPoint = new Point();
 			cuuid = canvasUUID;
 			guuid = groupUUID;
-			prevParent = 0l;
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
@@ -108,19 +106,19 @@ public class GroupMoveButton extends PieMenuButton
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			
 			long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
-			if (smallestParent != prevParent)
+			if (smallestParent != BubbleMenu.highlightedParentGroup)
 			{
-				if (prevParent != 0l)
+				if (BubbleMenu.highlightedParentGroup != 0l)
 				{
-					CGroupController.groupdb.get(prevParent).highlight_off();
-					CGroupController.groupdb.get(prevParent).highlight_repaint();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
 				}
 				if (smallestParent != 0l)
 				{
 					CGroupController.groupdb.get(smallestParent).highlight_on();
 					CGroupController.groupdb.get(smallestParent).highlight_repaint();
 				}
-				prevParent = smallestParent;
+				BubbleMenu.highlightedParentGroup = smallestParent;
 			}
 			
 			/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
@@ -155,9 +153,11 @@ public class GroupMoveButton extends PieMenuButton
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (prevParent != 0l)
+			if (BubbleMenu.highlightedParentGroup != 0l)
 			{
-				CGroupController.groupdb.get(prevParent).highlight_off();
+				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+				BubbleMenu.highlightedParentGroup = 0l;
 			}
 
 			//if (BubbleMenu.highlightedGroup != 0l)
@@ -169,6 +169,9 @@ public class GroupMoveButton extends PieMenuButton
 			//This threw a null pointer exception for some reason...
 			if (mouseDownPoint != null)
 				CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
+			
+			//Update the menu location in case it was dropped into a list
+			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 			
 			e.consume();
 //			PieMenu.isPerformingPieMenuAction = false;
