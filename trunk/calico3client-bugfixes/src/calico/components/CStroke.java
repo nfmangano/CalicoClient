@@ -233,7 +233,7 @@ public class CStroke extends PPath
 		final PLayer layer = CCanvasController.canvasdb.get(canvasUID).getLayer();
 		for (final PNode path : tempSegments)
 		{
-			path.setTransparency(0f);
+			//path.setTransparency(0f);
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() { layer.removeChild(path); } }
 			);
