@@ -407,14 +407,12 @@ public class PacketHandler
 		long uuid = p.getLong();
 		int x = p.getInt();
 		int y = p.getInt();
-		
 		CGroupController.no_notify_move_end(uuid, x, y);
 	}
 	
 	private static void GROUP_DROP(CalicoPacket p)
 	{
 		long uuid = p.getLong();
-		System.out.println("packet");
 		CGroupController.no_notify_drop(uuid);
 	}
 	private static void GROUP_SET_PARENT(CalicoPacket p)
@@ -580,11 +578,12 @@ public class PacketHandler
 		String text = p.getString();
 		
 		
-		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
 //		CGroupController.groupdb.get(uuid).finish();
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
 		CGroupController.groupdb.get(uuid).setText(text);
+		
+		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
 		
 //		if (captureChildren)
 //			CGroupController.no_notify_calculate_parenting(uuid, true);

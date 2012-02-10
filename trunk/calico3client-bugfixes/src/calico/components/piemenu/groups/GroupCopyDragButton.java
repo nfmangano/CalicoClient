@@ -157,7 +157,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			//BubbleMenu.setSelectedButton(null);
+			//BubbleMenu.clearMenu();
 			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
 			
 			mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
@@ -181,7 +181,7 @@ public class GroupCopyDragButton extends PieMenuButton
 				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
 				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
 	
-				BubbleMenu.clearMenu();
+				//BubbleMenu.clearMenu();
 
 				//temporary solution
 				try {
@@ -195,7 +195,7 @@ public class GroupCopyDragButton extends PieMenuButton
 				}
 				CGroupController.setCurrentUUID(new_guuid);
 				CGroupController.setLastCreatedGroupUUID(new_guuid);
-				CGroupController.show_group_bubblemenu(new_guuid, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE);
+				CGroupController.show_group_bubblemenu(new_guuid, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE, false);
 
 			}
 			else
@@ -206,7 +206,7 @@ public class GroupCopyDragButton extends PieMenuButton
 				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
 				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
 	
-				BubbleMenu.clearMenu();
+				//BubbleMenu.clearMenu();
 				
 				//temporary solution
 				try {
@@ -219,7 +219,7 @@ public class GroupCopyDragButton extends PieMenuButton
 					e1.printStackTrace();
 				}
 
-				CGroupController.show_group_bubblemenu(new_guuid, newPoint);
+				CGroupController.show_group_bubblemenu(new_guuid, newPoint, false);
 			}
 		}
 	}

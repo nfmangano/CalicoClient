@@ -14,6 +14,8 @@ import edu.umd.cs.piccolox.nodes.*;
 
 import java.awt.*;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 import org.shodor.util11.PolygonUtils;
 
@@ -310,7 +312,11 @@ public class CArrow extends PComposite
 
 		CCanvasController.canvasdb.get(canvasUID).removeChildArrow(uuid);
 		
-		removeFromParent();
+		//This line is not thread safe so must invokeLater to prevent eraser artifacts.
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { removeFromParent(); } }
+		);
+		//removeFromParent();
 	}
 	
 	public void moveAnchor(int anchor, int x, int y)

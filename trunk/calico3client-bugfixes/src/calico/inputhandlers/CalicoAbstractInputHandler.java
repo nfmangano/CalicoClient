@@ -299,7 +299,7 @@ public abstract class CalicoAbstractInputHandler
 //				if (!CGroupController.checkIfLastTempGroupExists())
 //				{
 					long previewScrap = stroke.createTemporaryScrapPreview(deleteStroke);
-					CGroupController.show_group_bubblemenu(previewScrap, point, PieMenuButton.SHOWON_SCRAP_CREATE);
+					CGroupController.show_group_bubblemenu(previewScrap, point, PieMenuButton.SHOWON_SCRAP_CREATE, true);
 //				}
 
 			}

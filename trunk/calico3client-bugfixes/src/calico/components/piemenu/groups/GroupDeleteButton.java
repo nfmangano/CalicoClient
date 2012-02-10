@@ -27,8 +27,8 @@ public class GroupDeleteButton extends PieMenuButton
 	
 	public void onReleased(InputEventInfo ev)
 	{
-		CGroupController.delete(uuidToBeDeleted);
 		BubbleMenu.clearMenu();
+		CGroupController.delete(uuidToBeDeleted);
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED GROUP DELETE BUTTON");
