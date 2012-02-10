@@ -6,6 +6,7 @@ import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.plugins.iip.controllers.CanvasPerspectiveController;
 import calico.plugins.iip.controllers.IntentionPerspectiveController;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 public class ShowIntentionGraphButton extends CanvasMenuButton
 {
@@ -34,6 +35,6 @@ public class ShowIntentionGraphButton extends CanvasMenuButton
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
-		CalicoDataStore.isViewingGrid = false;
+		IntentionalInterfacesPerspective.getInstance().activate();
 	}
 }

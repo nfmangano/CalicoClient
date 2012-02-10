@@ -2,6 +2,8 @@ package calico.plugins.iip.components.graph;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JComponent;
 
@@ -99,7 +101,27 @@ public class IntentionGraph
 		menuBar = new IntentionGraphMenuBar(CanvasMenuBar.POSITION_BOTTOM);
 		getCamera().addChild(menuBar);
 	}
-
+	
+	public void addMouseListener(MouseListener listener)
+	{
+		canvas.addMouseListener(listener);
+	}
+	
+	public void addMouseMotionListener(MouseMotionListener listener)
+	{
+		canvas.addMouseMotionListener(listener);
+	}
+	
+	public void removeMouseListener(MouseListener listener)
+	{
+		canvas.removeMouseListener(listener);
+	}
+	
+	public void removeMouseMotionListener(MouseMotionListener listener)
+	{
+		canvas.removeMouseMotionListener(listener);
+	}
+	
 	private class ContainedCanvas extends PCanvas
 	{
 		@Override
