@@ -17,7 +17,6 @@ import javax.swing.JComponent;
 
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
-import calico.CalicoPerspective;
 import calico.components.CCanvas;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;

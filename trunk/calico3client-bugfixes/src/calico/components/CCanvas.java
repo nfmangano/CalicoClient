@@ -55,8 +55,6 @@ public class CCanvas
 	
 	private static final long serialVersionUID = 1L;
 	
-	public static final CalicoPerspective PERSPECTIVE = new CalicoPerspective();
-	
 	public enum Layer
 	{
 		CONTENT(1),
