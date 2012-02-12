@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import calico.Calico;
-import calico.components.CCanvas;
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
-import calico.plugins.iip.components.CCanvasLinkBadge;
-import calico.plugins.iip.controllers.CanvasPerspectiveController;
+import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CanvasLinkBay implements StickyItem
@@ -25,31 +25,31 @@ public class CanvasLinkBay implements StickyItem
 	
 	public static final double BAY_INSET_X = 100.0;
 	public static final double BAY_INSET_Y = 50.0;
-	public static final double BADGE_MARGIN = 3.0;
+	public static final double TOKEN_MARGIN = 3.0;
 
 	final Bay bay = new Bay();
 
 	private final long uuid;
-	private final long canvas_uuid;
-	private final CCanvasLinkBadge.Type type;
+	private long canvas_uuid;
+	private final CCanvasLink.LinkDirection direction;
 
+	private boolean visible;
 	private final Rectangle2D bounds = new Rectangle2D.Double();
 	private Layout layout;
-	private final List<CCanvasLinkBadge> badges = new ArrayList<CCanvasLinkBadge>();
+	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
 
-	public CanvasLinkBay(long canvas_uuid, CCanvasLinkBadge.Type type, Layout layout)
+	public CanvasLinkBay(long canvas_uuid, CCanvasLink.LinkDirection direction, Layout layout)
 	{
 		uuid = Calico.uuid();
-		this.type = type;
+		this.direction = direction;
 		this.canvas_uuid = canvas_uuid;
 
 		CalicoInputManager.addCustomInputHandler(uuid, new InputHandler());
-		CalicoInputManager.registerStickyItem(this);
 
 		this.layout = layout;
 
 		bay.setPaint(Color.LIGHT_GRAY);
-		bay.setVisible(false);
+		bay.setVisible(visible = false);
 	}
 
 	@Override
@@ -71,51 +71,75 @@ public class CanvasLinkBay implements StickyItem
 
 	public void setVisible(boolean b)
 	{
+		visible = b;
+		
 		if (b)
 		{
 			refreshLayout();
 		}
+
 		bay.setVisible(b);
+
 		if (b)
 		{
+			CalicoInputManager.registerStickyItem(this);
 			bay.repaint();
+		}
+		else
+		{
+			CalicoInputManager.unregisterStickyItem(this);
 		}
 	}
 
-	public void install(CCanvas canvas)
+	public void moveTo(long canvas_uuid)
 	{
-		canvas.getCamera().addChild(bay);
+		this.canvas_uuid = canvas_uuid;
+		
+		if (bay.getParent() != null)
+		{
+			bay.getParent().removeChild(bay);
+		}
+		refreshLayout();
+		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(bay);
 	}
 
 	public void refreshLayout()
 	{
-		int badgeCount = CanvasPerspectiveController.getInstance().getBadgeCount(canvas_uuid, type);
-		if (badgeCount == 0)
+		if (!visible)
+		{
+			return;
+		}
+		
+		int tokenCount = IntentionCanvasController.getInstance().getTokenCount(canvas_uuid, direction);
+		if (tokenCount == 0)
 		{
 			bay.setBounds(0, 0, 0, 0);
 			bay.setVisible(false);
 			return;
 		}
+		
+		bay.setVisible(true);
 
-		double width = (badgeCount * (CCanvasLinkBadge.BADGE_WIDTH + BADGE_MARGIN)) + BADGE_MARGIN;
-		double height = CCanvasLinkBadge.BADGE_HEIGHT + (BADGE_MARGIN * 2);
+		double width = (tokenCount * (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN)) + TOKEN_MARGIN;
+		double height = CCanvasLinkToken.TOKEN_HEIGHT + (TOKEN_MARGIN * 2);
 		layout.updateBounds(bounds, width, height);
 		bay.setBounds(bounds);
+		bay.repaint();
 		
-		bay.updateBadges();
+		bay.updateTokens();
 	}
 	
 	private class Bay extends PComposite
 	{
-		void updateBadges()
+		void updateTokens()
 		{
 			removeAllChildren();
-			synchronized (badges)
+			synchronized (tokens)
 			{
-				CanvasPerspectiveController.getInstance().populateBadges(canvas_uuid, type, badges);
-				for (CCanvasLinkBadge badge : badges)
+				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
+				for (CCanvasLinkToken token : tokens)
 				{
-					addChild(badge);
+					addChild(token);
 				}
 			}
 		}
@@ -123,17 +147,17 @@ public class CanvasLinkBay implements StickyItem
 		@Override
 		protected void layoutChildren()
 		{
-			double x = ((int) bounds.getX()) + BADGE_MARGIN;
-			double y = ((int) bounds.getY()) + BADGE_MARGIN;
+			double x = ((int) bounds.getX()) + TOKEN_MARGIN;
+			double y = ((int) bounds.getY()) + TOKEN_MARGIN;
 
-			synchronized (badges)
+			synchronized (tokens)
 			{
-				CanvasPerspectiveController.getInstance().populateBadges(canvas_uuid, type, badges);
-				for (CCanvasLinkBadge badge : badges)
+				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
+				for (CCanvasLinkToken token : tokens)
 				{
-					badge.setBounds(x, y, CCanvasLinkBadge.BADGE_WIDTH, CCanvasLinkBadge.BADGE_HEIGHT);
+					token.setBounds(x, y, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT);
+					x += (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN);
 				}
-				x += (CCanvasLinkBadge.BADGE_WIDTH + BADGE_MARGIN);
 			}
 		}
 	}
@@ -143,14 +167,14 @@ public class CanvasLinkBay implements StickyItem
 		@Override
 		public void actionReleased(InputEventInfo event)
 		{
-			synchronized (badges)
+			synchronized (tokens)
 			{
-				CanvasPerspectiveController.getInstance().populateBadges(canvas_uuid, type, badges);
-				for (CCanvasLinkBadge badge : badges)
+				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
+				for (CCanvasLinkToken token : tokens)
 				{
-					if (badge.getGlobalBounds().contains(event.getPoint()))
+					if (token.getGlobalBounds().contains(event.getPoint()))
 					{
-						System.out.println("Clicked on a " + badge.getLink().getType() + " to canvas #" + badge.getLink().getCanvasId());
+						System.out.println("Clicked on a " + token.getLink().getType() + " to canvas #" + token.getLink().getCanvasId());
 						break;
 					}
 				}

@@ -28,7 +28,7 @@ public class CalicoIconManager
 		iconThemeName = name;
 		try
 		{
-			iconTheme.load( clazz.getResourceAsStream("/calico/iconsets/"+iconThemeName+"/paletteicontheme.properties")  );
+			iconTheme.load( clazz.getResourceAsStream("/calico/iconsets/"+iconThemeName+"/intention-icon-theme.properties")  );
 			//iconTheme.list(System.out);
 		}
 		catch(Exception e)

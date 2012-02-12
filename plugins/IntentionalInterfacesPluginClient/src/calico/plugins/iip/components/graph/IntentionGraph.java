@@ -12,6 +12,7 @@ import calico.CalicoDataStore;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCamera;
@@ -24,21 +25,24 @@ public class IntentionGraph
 	{
 		if (INSTANCE == null)
 		{
-			INSTANCE = new IntentionGraph();
+			new IntentionGraph();
 		}
-		INSTANCE.repaint(); 
+		INSTANCE.repaint();
 		return INSTANCE;
 	}
 
 	private static IntentionGraph INSTANCE;
 
 	private final ContainedCanvas canvas = new ContainedCanvas();
+	private final ContainedCanvas contentCanvas = new ContainedCanvas();
 	private IntentionGraphMenuBar menuBar;
 
 	private final long uuid;
 
 	private IntentionGraph()
 	{
+		INSTANCE = this;
+
 		uuid = Calico.uuid();
 
 		// IntentionGraph.exitButtonBounds = new Rectangle(CalicoDataStore.ScreenWidth-32,5,24,24);
@@ -48,8 +52,6 @@ public class IntentionGraph
 
 		CalicoInputManager.addCustomInputHandler(uuid, new IntentionGraphInputHandler());
 
-		canvas.removeInputSources();
-
 		canvas.addMouseListener(new CalicoMouseListener());
 		canvas.addMouseMotionListener(new CalicoMouseListener());
 
@@ -58,17 +60,19 @@ public class IntentionGraph
 
 		repaint();
 
+		canvas.getCamera().addChild(contentCanvas.getLayer());
+		
 		drawMenuBar();
 	}
-
-	public PCamera getCamera()
+	
+	public long getId()
 	{
-		return canvas.getCamera();
+		return uuid;
 	}
 
 	public PLayer getLayer()
 	{
-		return canvas.getLayer();
+		return contentCanvas.getLayer();
 	}
 
 	public JComponent getComponent()
@@ -79,8 +83,9 @@ public class IntentionGraph
 	public void repaint()
 	{
 		canvas.repaint();
+		contentCanvas.repaint();
 	}
-	
+
 	public Rectangle getBounds()
 	{
 		return canvas.getBounds();
@@ -95,37 +100,48 @@ public class IntentionGraph
 	{
 		if (menuBar != null)
 		{
-			getCamera().removeChild(menuBar);
+			canvas.getCamera().removeChild(menuBar);
 		}
 
 		menuBar = new IntentionGraphMenuBar(CanvasMenuBar.POSITION_BOTTOM);
-		getCamera().addChild(menuBar);
+		canvas.getCamera().addChild(menuBar);
+
+		contentCanvas.setBounds(0, 0, CalicoDataStore.ScreenWidth, (int) (CalicoDataStore.ScreenHeight - menuBar.getBounds().height));
 	}
-	
+
+	public boolean processToolEvent(InputEventInfo event)
+	{
+		if (menuBar.isPointInside(event.getGlobalPoint()))
+		{
+			menuBar.processEvent(event);
+			return true;
+		}
+		return false;
+	}
+
 	public void addMouseListener(MouseListener listener)
 	{
 		canvas.addMouseListener(listener);
 	}
-	
+
 	public void addMouseMotionListener(MouseMotionListener listener)
 	{
 		canvas.addMouseMotionListener(listener);
 	}
-	
+
 	public void removeMouseListener(MouseListener listener)
 	{
 		canvas.removeMouseListener(listener);
 	}
-	
+
 	public void removeMouseMotionListener(MouseMotionListener listener)
 	{
 		canvas.removeMouseMotionListener(listener);
 	}
-	
+
 	private class ContainedCanvas extends PCanvas
 	{
-		@Override
-		protected void removeInputSources()
+		public ContainedCanvas()
 		{
 			super.removeInputSources();
 		}

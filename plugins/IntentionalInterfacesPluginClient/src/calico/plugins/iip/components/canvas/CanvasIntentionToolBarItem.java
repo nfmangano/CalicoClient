@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 
 import calico.components.menus.CanvasMenuButton;
-import calico.iconsets.CalicoIconManager;
+import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public abstract class CanvasIntentionToolBarItem extends CanvasMenuButton
 {
@@ -12,7 +12,6 @@ public abstract class CanvasIntentionToolBarItem extends CanvasMenuButton
 
 	public CanvasIntentionToolBarItem(String imageId)
 	{
-		// TODO: it may not work to use the client's icon manager
 		Image image = CalicoIconManager.getIconImage(imageId);
 		setImage(image);
 		setPaint(Color.white);

@@ -5,6 +5,8 @@ import java.awt.event.MouseListener;
 import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import edu.umd.cs.piccolo.PNode;
 
 public class IntentionalInterfacesPerspective extends CalicoPerspective
@@ -31,15 +33,22 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected void drawPieMenu(PNode pieCrust)
 	{
-		IntentionGraph.getInstance().getCamera().addChild(pieCrust);
+		IntentionGraph.getInstance().getLayer().addChild(pieCrust);
 		IntentionGraph.getInstance().repaint();
 	}
 	
 	@Override
 	protected long getEventTarget(InputEventInfo event)
 	{
-		// look for arrows, CICs
-		return 0;
+		long cic_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
+		if (cic_uuid >= 0L)
+		{
+			CIntentionCellInputHandler.getInstance().setCurrentCellId(cic_uuid);
+			return cic_uuid;
+		}
+		
+		// look for arrows, CICs, else:
+		return IntentionGraph.getInstance().getId();
 	}
 	
 	@Override
@@ -51,15 +60,14 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected boolean processToolEvent(InputEventInfo event)
 	{
-		// if the event is on the menubar, process it as such and return true to consume
-		return false;
+		return IntentionGraph.getInstance().processToolEvent(event);
 	}
 	
 	@Override
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
-		IntentionGraph.getInstance().getCamera().addChild(bubbleHighlighter);
-		IntentionGraph.getInstance().getCamera().addChild(bubbleContainer);
+		IntentionGraph.getInstance().getLayer().addChild(bubbleHighlighter);
+		IntentionGraph.getInstance().getLayer().addChild(bubbleContainer);
 		return true;
 	}
 }

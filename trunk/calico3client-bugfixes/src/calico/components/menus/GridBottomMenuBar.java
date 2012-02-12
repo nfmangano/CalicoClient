@@ -1,5 +1,7 @@
 package calico.components.menus;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.awt.Font;
 import java.awt.Rectangle;
 
@@ -12,9 +14,10 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 {
 	private static final long serialVersionUID = 1L;
 	
-	
 	private long cuid = 0L;
 	
+	private static ObjectArrayList<Class<?>> externalButtons = new ObjectArrayList<Class<?>>();
+	private static ObjectArrayList<Class<?>> externalButtons_rightAligned = new ObjectArrayList<Class<?>>();
 	
 	public GridBottomMenuBar(long c)
 	{
@@ -71,10 +74,37 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailGridButton());
 		
+		try
+		{
+			for (Class<?> button : externalButtons)
+			{
+				addSpacer();
+				addIcon((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
+			}
+			
+			for (Class<?> button : externalButtons_rightAligned)
+			{
+				addSpacer(ALIGN_END);
+				addIconRightAligned((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		
 		//addCap();
 		
 	}
 	
+	public static void addMenuButton(Class<?> button)
+	{
+		externalButtons.add(button);
+	}
+	
+	public static void addMenuButtonRightAligned(Class<?> button)
+	{
+		externalButtons_rightAligned.add(button);
+	}
 	
 }

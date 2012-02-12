@@ -175,7 +175,8 @@ public class EmailGridButton extends CanvasMenuButton
             for (int i = 1; i < CalicoDataStore.GridCols*CalicoDataStore.GridRows; i++)
             {
               long canvasUUID = i;
-              if (CCanvasController.isEmpty(canvasUUID))
+              CCanvas canvas = CCanvasController.canvasdb.get(canvasUUID);
+              if ((canvas == null) || canvas.isEmpty())
             	  continue;
               
               bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);

@@ -1,9 +1,12 @@
 package calico.plugins.iip;
 
+import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.menus.CanvasStatusBar;
+import calico.components.menus.GridBottomMenuBar;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
+import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.CalicoPlugin;
@@ -14,6 +17,8 @@ import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
+import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoEventListener
@@ -28,17 +33,34 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 	public void onPluginStart()
 	{
-		System.out.println("Fire it up!");
-		
 		// register for palette events
 		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
+		GridBottomMenuBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		// CGroup.registerPieMenuButton(SaveToPaletteButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
 		{
 			CalicoEventHandler.getInstance().addListener(event.intValue(), this, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
 		}
+
+		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
+
+		while (Calico.numUUIDs() == 0)
+		{
+			try
+			{
+				Thread.sleep(100L);
+			}
+			catch (InterruptedException e)
+			{
+			}
+		}
+
+		CCanvasLinkController.initialize();
+		CIntentionCellController.initialize();
+		IntentionGraphController.initialize();
+		IntentionCanvasController.initialize();
 	}
 
 	@Override
@@ -46,10 +68,10 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	{
 		if (event == NetworkCommand.VIEWING_SINGLE_CANVAS)
 		{
-			
+			VIEWING_SINGLE_CANVAS(p);
 			return;
 		}
-		
+
 		switch (IntentionalInterfacesNetworkCommands.Command.forId(event))
 		{
 			case CIC_CREATE:
@@ -74,6 +96,15 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 				CLINK_DELETE(p);
 				break;
 		}
+	}
+
+	private static void VIEWING_SINGLE_CANVAS(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		long cuid = p.getLong();
+
+		IntentionCanvasController.getInstance().canvasChanged(cuid);
 	}
 
 	private static void CIC_CREATE(CalicoPacket p)

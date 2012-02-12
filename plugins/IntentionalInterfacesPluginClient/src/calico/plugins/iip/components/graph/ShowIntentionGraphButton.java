@@ -2,10 +2,7 @@ package calico.plugins.iip.components.graph;
 
 import calico.CalicoDataStore;
 import calico.components.menus.CanvasMenuButton;
-import calico.controllers.CCanvasController;
-import calico.iconsets.CalicoIconManager;
-import calico.plugins.iip.controllers.CanvasPerspectiveController;
-import calico.plugins.iip.controllers.IntentionPerspectiveController;
+import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 public class ShowIntentionGraphButton extends CanvasMenuButton
@@ -19,7 +16,6 @@ public class ShowIntentionGraphButton extends CanvasMenuButton
 	{
 		try
 		{
-			// TODO: it may not work to use the client's icon manager
 			setImage(CalicoIconManager.getIconImage("intention.to-intention-graph"));
 		}
 		catch (Exception e)

@@ -1,22 +1,19 @@
-package calico.plugins.iip.components;
+package calico.plugins.iip.components.canvas;
 
 import calico.Calico;
 import calico.components.CGroupImage;
 import calico.iconsets.CalicoIconManager;
+import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CCanvasLink.LinkDirection;
 
 public class CCanvasLinkBadge extends CGroupImage
 {
-	public enum Type
-	{
-		INCOMING,
-		OUTGOING;
-	}
-
 	public static final double BADGE_WIDTH = 30.0;
 	public static final double BADGE_HEIGHT = 30.0;
 	
 	private final CCanvasLinkAnchor link;
-	private final Type type;
+	private final CCanvasLink.LinkDirection direction;
 
 	public CCanvasLinkBadge(CCanvasLinkAnchor link)
 	{ 
@@ -25,11 +22,11 @@ public class CCanvasLinkBadge extends CGroupImage
 		this.link = link;
 		if (link.getCanvasId() == link.getLink().getAnchorA().getCanvasId())
 		{
-			type = Type.OUTGOING;
+			direction = CCanvasLink.LinkDirection.OUTGOING;
 		}
 		else
 		{
-			type = Type.INCOMING;
+			direction = CCanvasLink.LinkDirection.INCOMING;
 		}
 	}
 	
@@ -43,8 +40,8 @@ public class CCanvasLinkBadge extends CGroupImage
 		return link;
 	}
 	
-	public Type getType()
+	public CCanvasLink.LinkDirection getDirection()
 	{
-		return type;
+		return direction;
 	}
 }

@@ -2,7 +2,7 @@ package calico.plugins.iip.components;
 
 import java.awt.Image;
 
-import calico.iconsets.CalicoIconManager;
+import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public class CCanvasLink
 {
@@ -19,6 +19,12 @@ public class CCanvasLink
 		{
 			image = CalicoIconManager.getIconImage(imageId);
 		}
+	}
+	
+	public enum LinkDirection
+	{
+		INCOMING,
+		OUTGOING;
 	}
 
 	private long uuid;

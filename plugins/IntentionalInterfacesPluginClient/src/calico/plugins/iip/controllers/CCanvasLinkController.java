@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import calico.Calico;
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -9,19 +10,27 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
-import calico.plugins.iip.components.CCanvasLinkArrow;
-import calico.plugins.iip.components.CCanvasLinkBadge;
 
-public class CCanvasLinkController
+public class CCanvasLinkController implements CCanvas.ContentContributor
 {
 	public static CCanvasLinkController getInstance()
 	{
 		return INSTANCE;
 	}
+	
+	public static void initialize()
+	{
+		INSTANCE = new CCanvasLinkController();
+	}
 
-	private static final CCanvasLinkController INSTANCE = new CCanvasLinkController();
+	private static CCanvasLinkController INSTANCE;
 
 	private static Long2ReferenceArrayMap<CCanvasLink> links = new Long2ReferenceArrayMap<CCanvasLink>();
+	
+	public CCanvasLinkController()
+	{
+		CCanvasController.addContentContributor(this);
+	}
 
 	public void addLink(CCanvasLink link)
 	{
@@ -33,9 +42,10 @@ public class CCanvasLinkController
 		// CGroupController.groupdb.get(uuid).drawPermTemp(true);
 		// CGroupController.no_notify_finish(uuid, false);
 
-		IntentionPerspectiveController.getInstance().addArrow(new CCanvasLinkArrow(link));
-		CanvasPerspectiveController.getInstance().addBadge(new CCanvasLinkBadge(link.getAnchorA()));
-		CanvasPerspectiveController.getInstance().addBadge(new CCanvasLinkBadge(link.getAnchorB()));
+		IntentionGraphController.getInstance().addLink(link);
+		IntentionCanvasController.getInstance().addLink(link);
+		
+		notifyCanvasContentChange(link);
 	}
 
 	public CCanvasLink getLinkById(long uuid)
@@ -45,7 +55,16 @@ public class CCanvasLinkController
 
 	public void removeLinkById(long uuid)
 	{
-		links.remove(uuid);
+		notifyCanvasContentChange(links.remove(uuid));
+	}
+	
+	private void notifyCanvasContentChange(CCanvasLink link)
+	{
+		if (link != null)
+		{
+			CCanvasController.notifyContentChanged(this, link.getAnchorA().getCanvasId());
+			CCanvasController.notifyContentChanged(this, link.getAnchorB().getCanvasId());
+		}
 	}
 	
 	private long getNextEmptyCanvas(long fromCanvasId)
@@ -57,12 +76,7 @@ public class CCanvasLinkController
 				continue;
 			}
 			
-			if (!CCanvasController.canvasdb.get(canvas_uuid).isEmpty())
-			{
-				continue;
-			}
-			
-			if (CanvasPerspectiveController.getInstance().getBadgeCount(canvas_uuid) > 0)
+			if (CCanvasController.hasContent(canvas_uuid))
 			{
 				continue;
 			}
@@ -102,5 +116,28 @@ public class CCanvasLinkController
 		packet.putInt(type.ordinal());
 		packet.putInt(0);
 		packet.putInt(0);
+	}
+	
+	@Override
+	public boolean hasContent(long canvas_uuid)
+	{
+		for (CCanvasLink link : links.values())
+		{
+			if (link.getAnchorA().getCanvasId() == canvas_uuid)
+			{
+				return true;
+			}
+			if (link.getAnchorB().getCanvasId() == canvas_uuid)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public void contentChanged(long canvas_uuid)
+	{
+		IntentionGraphController.getInstance().contentChanged(canvas_uuid);
 	}
 }

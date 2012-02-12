@@ -50,6 +50,18 @@ public class CCanvasLinkAnchor
 	{
 		return uuid;
 	}
+	
+	public CCanvasLinkAnchor getOpposite()
+	{
+		if (link.getAnchorA() == this)
+		{
+			return link.getAnchorB();
+		}
+		else
+		{
+			return link.getAnchorA();
+		}
+	}
 
 	public long getCanvasId()
 	{

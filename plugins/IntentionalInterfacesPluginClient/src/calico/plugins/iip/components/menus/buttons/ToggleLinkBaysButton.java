@@ -1,7 +1,7 @@
 package calico.plugins.iip.components.menus.buttons;
 
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarItem;
-import calico.plugins.iip.controllers.CanvasPerspectiveController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 
 public class ToggleLinkBaysButton extends CanvasIntentionToolBarItem
 {
@@ -22,7 +22,7 @@ public class ToggleLinkBaysButton extends CanvasIntentionToolBarItem
 	protected void onClick()
 	{
 		baysVisible = !baysVisible;
-		CanvasPerspectiveController.getInstance().getIncomingLinkBay().setVisible(baysVisible);
-		CanvasPerspectiveController.getInstance().getOutgoingLinkBay().setVisible(baysVisible);
+		IntentionCanvasController.getInstance().getIncomingLinkBay().setVisible(baysVisible);
+		IntentionCanvasController.getInstance().getOutgoingLinkBay().setVisible(baysVisible);
 	}
 }
