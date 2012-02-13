@@ -40,7 +40,13 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected long getEventTarget(InputEventInfo event)
 	{
-		long cic_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
+		long cic_uuid = CIntentionCellInputHandler.getInstance().getActiveCell();
+		if (cic_uuid >= 0L)
+		{
+			return cic_uuid;
+		}
+
+		cic_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
 		if (cic_uuid >= 0L)
 		{
 			CIntentionCellInputHandler.getInstance().setCurrentCellId(cic_uuid);

@@ -10,6 +10,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CIntentionCell;
 
 public class CCanvasLinkController implements CCanvas.ContentContributor
 {

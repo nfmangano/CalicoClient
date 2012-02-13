@@ -4,6 +4,7 @@ import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.menus.CanvasStatusBar;
 import calico.components.menus.GridBottomMenuBar;
+import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.networking.Networking;
@@ -39,6 +40,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		GridBottomMenuBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		// CGroup.registerPieMenuButton(SaveToPaletteButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
 		{
 			CalicoEventHandler.getInstance().addListener(event.intValue(), this, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
@@ -66,10 +68,14 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
-		if (event == NetworkCommand.VIEWING_SINGLE_CANVAS)
+		switch (event)
 		{
-			VIEWING_SINGLE_CANVAS(p);
-			return;
+			case NetworkCommand.VIEWING_SINGLE_CANVAS:
+				VIEWING_SINGLE_CANVAS(p);
+				return;
+			case NetworkCommand.CONSISTENCY_FINISH:
+				IntentionGraphController.getInstance().prepareDisplay();
+				return;
 		}
 
 		switch (IntentionalInterfacesNetworkCommands.Command.forId(event))
@@ -119,6 +125,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, x, y);
 		CIntentionCellController.getInstance().addCell(cell);
+		cell.setVisible(CCanvasController.hasContent(canvas_uuid));
 	}
 
 	private static void CIC_MOVE(CalicoPacket p)
@@ -126,8 +133,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_MOVE.verify(p);
 
-		long uuid = p.getLong();
-		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
+		long canvas_uuid = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 
 		int x = p.getInt();
 		int y = p.getInt();
@@ -139,8 +146,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
 
-		long uuid = p.getLong();
-		CIntentionCellController.getInstance().removeCellById(uuid);
+		// long uuid = p.getLong();
+		// CIntentionCellController.getInstance().removeCellById(uuid);
 	}
 
 	private static CCanvasLinkAnchor unpackAnchor(CalicoPacket p)

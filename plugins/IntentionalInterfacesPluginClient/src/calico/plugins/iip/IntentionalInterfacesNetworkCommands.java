@@ -3,8 +3,15 @@ package calico.plugins.iip;
 import calico.networking.netstuff.CalicoPacket;
 
 public class IntentionalInterfacesNetworkCommands
-{ 
+{
+	// According to current policy, the client should receive but never send this event. Only the server creates CICs.
+	@Deprecated
 	public static final int CIC_CREATE = Command.CIC_CREATE.id;
+
+	// This should never occur, according to current policy. The set of CICs is static, one per canvas.
+	@Deprecated
+	public static final int CIC_DELETE = Command.CIC_DELETE.id;
+
 	public static final int CIC_MOVE = Command.CIC_MOVE.id;
 	public static final int CLINK_CREATE = Command.CLINK_CREATE.id;
 	public static final int CLINK_RETYPE = Command.CLINK_RETYPE.id;
