@@ -541,9 +541,9 @@ public class CCanvasController
 	 */
 	public static void notifyContentChanged(long canvasId)
 	{
-		contributionController.contentChanged(contributionController, canvasId);
+		contributionController.notifyContentChanged(contributionController, canvasId);
 	}
-
+	
 	/**
 	 * Each ContentContributor is responsible for calling this method when its content on the canvas has changed.
 	 * 
@@ -554,7 +554,7 @@ public class CCanvasController
 	 */
 	public static void notifyContentChanged(ContentContributor changeContributor, long canvasId)
 	{
-		contributionController.contentChanged(changeContributor, canvasId);
+		contributionController.notifyContentChanged(changeContributor, canvasId);
 	}
 
 	public static void show_canvas_piemenu(Point point)
@@ -640,8 +640,8 @@ public class CCanvasController
 			}
 			return !canvas.isEmpty();
 		}
-
-		void contentChanged(ContentContributor changeContributor, long canvasId)
+		
+		void notifyContentChanged(ContentContributor changeContributor, long canvasId)
 		{
 			System.out.println("Content changed on canvas " + canvasdb.get(canvasId).getGridCoordTxt() + "; it is "
 					+ (CCanvasController.hasContent(canvasId) ? "not empty" : "now empty"));
@@ -651,7 +651,7 @@ public class CCanvasController
 				contributor.contentChanged(canvasId);
 			}
 		}
-
+		
 		@Override
 		public void contentChanged(long canvas_uuid)
 		{
