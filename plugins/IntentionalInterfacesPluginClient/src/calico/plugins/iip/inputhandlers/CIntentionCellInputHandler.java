@@ -98,8 +98,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 		{
 			double xMouseDelta = event.getGlobalPoint().x - mouseDragAnchor.x;
 			double yMouseDelta = event.getGlobalPoint().y - mouseDragAnchor.y;
-			CIntentionCellController.getInstance().moveCell(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId(),
-					cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+			CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
 		}
 
 		state = State.IDLE;

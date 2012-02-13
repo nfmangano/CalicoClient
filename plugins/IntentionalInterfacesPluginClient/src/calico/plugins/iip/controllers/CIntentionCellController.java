@@ -67,11 +67,11 @@ public class CIntentionCellController
 		Networking.send(packet);
 	}
 
-	public void moveCell(long canvas_uuid, double x, double y)
+	public void moveCell(long uuid, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
-		packet.putLong(canvas_uuid);
+		packet.putLong(uuid);
 		packet.putInt((int) x);
 		packet.putInt((int) y);
 

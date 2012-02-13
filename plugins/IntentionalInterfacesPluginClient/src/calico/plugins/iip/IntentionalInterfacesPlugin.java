@@ -133,8 +133,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_MOVE.verify(p);
 
-		long canvas_uuid = p.getLong();
-		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
+		long uuid = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
 
 		int x = p.getInt();
 		int y = p.getInt();
