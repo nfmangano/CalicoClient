@@ -22,24 +22,19 @@ public class IntentionGraphController
 
 	private static IntentionGraphController INSTANCE;
 
-	private final Long2ReferenceArrayMap<CCanvasLinkArrow> arrows = new Long2ReferenceArrayMap<CCanvasLinkArrow>();
+	private final Long2ReferenceArrayMap<CCanvasLinkArrow> arrowsByLinkId = new Long2ReferenceArrayMap<CCanvasLinkArrow>();
 
 	public void addLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
-		arrows.put(arrow.getId(), arrow);
+		arrowsByLinkId.put(link.getId(), arrow);
 	}
 
-	public CCanvasLinkArrow getArrowById(long uuid)
+	public void removeLink(CCanvasLink link)
 	{
-		return arrows.get(uuid);
+		arrowsByLinkId.remove(link.getId());
 	}
 
-	public void removeArrowById(long uuid)
-	{
-		arrows.remove(uuid);
-	}
-	
 	public void contentChanged(long canvas_uuid)
 	{
 		boolean hasContent = CCanvasController.hasContent(canvas_uuid);

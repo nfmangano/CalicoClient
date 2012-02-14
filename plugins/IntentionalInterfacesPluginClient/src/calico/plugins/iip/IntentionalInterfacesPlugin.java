@@ -146,8 +146,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
 
-		// long uuid = p.getLong();
-		// CIntentionCellController.getInstance().removeCellById(uuid);
+//		 long uuid = p.getLong();
+//		 CIntentionCellController.getInstance().removeCellById(uuid);
 	}
 
 	private static CCanvasLinkAnchor unpackAnchor(CalicoPacket p)

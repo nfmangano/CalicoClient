@@ -125,11 +125,12 @@ public class IntentionGraph
 		double xRatio = contentBounds.width / (maxX - minX);
 		double yRatio = contentBounds.height / (maxY - minY);
 
-		contentCanvas.getLayer().setScale(Math.min(xRatio, yRatio) * 0.9);
+		double scale = Math.min(xRatio, yRatio) * 0.9;
+		contentCanvas.getLayer().setScale(scale);
 		contentBounds = contentCanvas.getBounds();
 		Point2D center = new Point2D.Double(minX + ((maxX - minX) / 2), minY + ((maxY - minY) / 2));
-		Point2D origin = new Point2D.Double(center.getX() - (contentBounds.width / 2), center.getY() - (contentBounds.height / 2));
-		contentCanvas.getLayer().setBounds(origin.getX(), origin.getY(), contentBounds.width, contentBounds.height);
+		Point2D origin = new Point2D.Double((center.getX() * scale) - (contentBounds.width / 2), (center.getY() * scale) - (contentBounds.height / 2));
+		contentCanvas.getLayer().translate(-origin.getX(), -origin.getY());
 	}
 
 	public void repaint()

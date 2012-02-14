@@ -40,7 +40,7 @@ public class CIntentionCellController
 	{
 		for (CIntentionCell cell : cells.values())
 		{
-			if (cell.contains(point))
+			if (cell.isVisible() && cell.contains(point))
 			{
 				return cell.getId();
 			}

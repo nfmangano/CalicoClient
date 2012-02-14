@@ -40,5 +40,27 @@ public class IntentionalInterfacesGraphics
 		return compound;
 	}
 
+	public static void superimposeCellAddressInCorner(Graphics2D g, long canvas_uuid, int fontSize)
+	{
+		CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
+		String coordinates = canvas.getGridCoordTxt();
+
+		Color c = g.getColor();
+		Font f = g.getFont();
+
+		g.setFont(new Font("Verdana", Font.BOLD, fontSize));
+		g.setColor(COORDINATES_COLOR);
+
+		Rectangle2D coordinatesBoundsMess = g.getFontMetrics().getStringBounds(coordinates, g);
+		Rectangle coordinatesBounds = new Rectangle((int) coordinatesBoundsMess.getWidth(), (int) coordinatesBoundsMess.getHeight());
+		int x = CORNER_INSET;
+		int y = (coordinatesBounds.height + CORNER_INSET) - g.getFontMetrics().getDescent();
+		g.drawString(coordinates, x, y);
+
+		g.setColor(c);
+		g.setFont(f);
+	}
+
 	private static final Color COORDINATES_COLOR = new Color(0x77777766);
+	private static final int CORNER_INSET = 3;
 }

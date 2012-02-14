@@ -32,11 +32,11 @@ public class IntentionCanvasController
 	private static IntentionCanvasController INSTANCE;
 
 
-	private Long2ReferenceArrayMap<CCanvasLinkBadge> badges = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
-	private Long2ReferenceArrayMap<List<Long>> badgesByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
+	private Long2ReferenceArrayMap<CCanvasLinkBadge> badgesByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
+	private Long2ReferenceArrayMap<List<Long>> badgeAnchorIdsByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
 
-	private Long2ReferenceArrayMap<CCanvasLinkToken> tokens = new Long2ReferenceArrayMap<CCanvasLinkToken>();
-	private Long2ReferenceArrayMap<List<Long>> tokensByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
+	private Long2ReferenceArrayMap<CCanvasLinkToken> tokensByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkToken>();
+	private Long2ReferenceArrayMap<List<Long>> tokenAnchorIdsByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
 
 	private long currentCanvasId = 0L;
 	private final CanvasLinkBay incomingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.INCOMING, new UpperLeftLayout());
@@ -55,7 +55,19 @@ public class IntentionCanvasController
 				addTokens(link);
 				break;
 		}
-
+	}
+	
+	public void removeLink(CCanvasLink link)
+	{
+		switch (link.getLinkType())
+		{
+			case DESIGN_INSIDE:
+				removeBadges(link);
+				break;
+			default:
+				removeTokens(link);
+				break;
+		}
 	}
 	
 	private void addBadges(CCanvasLink link)
@@ -67,28 +79,46 @@ public class IntentionCanvasController
 	private void addBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
-		badges.put(badge.getId(), badge);
-		getBadgesByCanvasId(badge.getCanvasUID()).add(badge.getId());
+		badgesByAnchorId.put(badge.getLink().getId(), badge);
+		getBadgesByCanvasId(badge.getCanvasUID()).add(badge.getLink().getId());
 	}
 	
-	public CCanvasLinkBadge getBadgeById(long uuid)
+	public CCanvasLinkBadge getBadgeByAnchorId(long anchor_uuid)
 	{
-		return badges.get(uuid);
+		return badgesByAnchorId.get(anchor_uuid);
 	}
 
-	public void removeBadgeById(long uuid)
+	private void removeBadges(CCanvasLink link)
 	{
-		CCanvasLinkBadge badge = badges.remove(uuid);
-		getBadgesByCanvasId(badge.getCanvasUID()).remove(badge.getId());
+		removeBadge(link.getAnchorA());
+		removeBadge(link.getAnchorB());
+	}
+	
+	private void removeBadge(CCanvasLinkAnchor anchor)
+	{
+		CCanvasLinkBadge badge = badgesByAnchorId.remove(anchor.getId());
+		getBadgesByCanvasId(badge.getCanvasUID()).remove(badge.getLink().getId());
+
+		if (anchor.getCanvasId() == currentCanvasId)
+		{
+			if (anchor.getLink().getAnchorA() == anchor)
+			{
+				outgoingLinkBay.refreshLayout();
+			}
+			else
+			{
+				incomingLinkBay.refreshLayout();
+			}
+		}
 	}
 
 	private List<Long> getBadgesByCanvasId(long canvas_uuid)
 	{
-		List<Long> badges = badgesByCanvasId.get(canvas_uuid);
+		List<Long> badges = badgeAnchorIdsByCanvasId.get(canvas_uuid);
 		if (badges == null)
 		{
 			badges = new ArrayList<Long>();
-			badgesByCanvasId.put(canvas_uuid, badges);
+			badgeAnchorIdsByCanvasId.put(canvas_uuid, badges);
 		}
 		return badges;
 	}
@@ -102,9 +132,33 @@ public class IntentionCanvasController
 	private void addToken(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkToken token = new CCanvasLinkToken(anchor);
-		tokens.put(token.getId(), token);
-		getTokensByCanvasId(token.getLink().getCanvasId()).add(token.getId());
+		tokensByAnchorId.put(token.getLink().getId(), token);
+		getTokensByCanvasId(token.getLink().getCanvasId()).add(token.getLink().getId());
 		
+		if (anchor.getCanvasId() == currentCanvasId)
+		{
+			if (anchor.getLink().getAnchorA() == anchor)
+			{
+				outgoingLinkBay.refreshLayout();
+			}
+			else
+			{
+				incomingLinkBay.refreshLayout();
+			}
+		}
+	}
+
+	private void removeTokens(CCanvasLink link)
+	{
+		removeToken(link.getAnchorA());
+		removeToken(link.getAnchorB());
+	}
+	
+	private void removeToken(CCanvasLinkAnchor anchor)
+	{
+		CCanvasLinkToken token = tokensByAnchorId.remove(anchor.getId());
+		getTokensByCanvasId(token.getLink().getCanvasId()).remove(token.getLink().getId());
+
 		if (anchor.getCanvasId() == currentCanvasId)
 		{
 			if (anchor.getLink().getAnchorA() == anchor)
@@ -120,20 +174,15 @@ public class IntentionCanvasController
 
 	private List<Long> getTokensByCanvasId(long canvas_uuid)
 	{
-		List<Long> tokens = tokensByCanvasId.get(canvas_uuid);
+		List<Long> tokens = tokenAnchorIdsByCanvasId.get(canvas_uuid);
 		if (tokens == null)
 		{
 			tokens = new ArrayList<Long>();
-			tokensByCanvasId.put(canvas_uuid, tokens);
+			tokenAnchorIdsByCanvasId.put(canvas_uuid, tokens);
 		}
 		return tokens;
 	}
 	
-	public CCanvasLinkToken getTokenById(long uuid)
-	{
-		return tokens.get(uuid);
-	}
-
 	public int getTokenCount(long canvas_uuid)
 	{
 		return getTokensByCanvasId(canvas_uuid).size();
@@ -142,9 +191,9 @@ public class IntentionCanvasController
 	public int getTokenCount(long canvas_uuid, CCanvasLink.LinkDirection direction)
 	{
 		int count = 0;
-		for (long tokenId : getTokensByCanvasId(canvas_uuid))
+		for (long tokenAnchorId : getTokensByCanvasId(canvas_uuid))
 		{
-			CCanvasLinkToken token = tokens.get(tokenId);
+			CCanvasLinkToken token = tokensByAnchorId.get(tokenAnchorId);
 			if (token.getDirection() == direction)
 			{
 				count++;
@@ -157,9 +206,9 @@ public class IntentionCanvasController
 	{
 		tokens.clear();
 
-		for (Long token_uuid : getTokensByCanvasId(canvas_uuid))
+		for (Long tokenAnchorId : getTokensByCanvasId(canvas_uuid))
 		{
-			CCanvasLinkToken token = this.tokens.get(token_uuid);
+			CCanvasLinkToken token = this.tokensByAnchorId.get(tokenAnchorId);
 			if (token.getDirection() == direction)
 			{
 				tokens.add(token);

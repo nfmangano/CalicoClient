@@ -18,7 +18,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	{
 		return INSTANCE;
 	}
-	
+
 	public static void initialize()
 	{
 		INSTANCE = new CCanvasLinkController();
@@ -27,7 +27,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	private static CCanvasLinkController INSTANCE;
 
 	private static Long2ReferenceArrayMap<CCanvasLink> links = new Long2ReferenceArrayMap<CCanvasLink>();
-	
+
 	public CCanvasLinkController()
 	{
 		CCanvasController.addContentContributor(this);
@@ -45,7 +45,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 
 		IntentionGraphController.getInstance().addLink(link);
 		IntentionCanvasController.getInstance().addLink(link);
-		
+
 		notifyCanvasContentChange(link);
 	}
 
@@ -56,9 +56,12 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 
 	public void removeLinkById(long uuid)
 	{
-		notifyCanvasContentChange(links.remove(uuid));
+		CCanvasLink link = links.remove(uuid);
+		IntentionGraphController.getInstance().removeLink(link);
+		IntentionCanvasController.getInstance().removeLink(link);
+		notifyCanvasContentChange(link);
 	}
-	
+
 	private void notifyCanvasContentChange(CCanvasLink link)
 	{
 		if (link != null)
@@ -67,7 +70,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 			CCanvasController.notifyContentChanged(this, link.getAnchorB().getCanvasId());
 		}
 	}
-	
+
 	private long getNextEmptyCanvas(long fromCanvasId)
 	{
 		for (long canvas_uuid : CCanvasController.getCanvasIDList())
@@ -76,15 +79,15 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 			{
 				continue;
 			}
-			
+
 			if (CCanvasController.hasContent(canvas_uuid))
 			{
 				continue;
 			}
-			
+
 			return canvas_uuid;
 		}
-		
+
 		return 0L;
 	}
 
@@ -96,19 +99,19 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 			System.out.println("Can't create a link to a new canvas of type " + type + " because there are no more empty canvases!");
 			return;
 		}
-		
+
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putInt(type.ordinal());
 		packAnchor(packet, fromCanvasId, CCanvasLinkAnchor.Type.INTENTION_CELL);
 		packAnchor(packet, toCanvasId, CCanvasLinkAnchor.Type.INTENTION_CELL);
-		
+
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
+
 	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.Type type)
 	{
 		packet.putLong(Calico.uuid());
@@ -118,7 +121,18 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(0);
 		packet.putInt(0);
 	}
-	
+
+	private void deleteLink(long uuid)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_DELETE);
+		packet.putLong(uuid);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+
 	@Override
 	public boolean hasContent(long canvas_uuid)
 	{
@@ -135,10 +149,22 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void contentChanged(long canvas_uuid)
 	{
 		IntentionGraphController.getInstance().contentChanged(canvas_uuid);
+	}
+
+	@Override
+	public void clearContent(long canvas_uuid)
+	{
+		for (CCanvasLink link : links.values())
+		{
+			if ((link.getAnchorA().getCanvasId() == canvas_uuid) || (link.getAnchorB().getCanvasId() == canvas_uuid))
+			{
+				deleteLink(link.getId());
+			}
+		}
 	}
 }
