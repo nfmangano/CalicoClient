@@ -9,7 +9,9 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -31,6 +33,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.CalicoPluginManager;
+import calico.utils.TaskBuffer;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 
@@ -74,7 +77,7 @@ public class CCanvasController
 			return;
 		}
 
-		canvasdb.get(uuid).clear();
+		contributionController.clearCanvas(uuid);
 		CalicoDataStore.gridObject.updateCell(uuid);
 	}
 
@@ -543,7 +546,7 @@ public class CCanvasController
 	{
 		contributionController.notifyContentChanged(contributionController, canvasId);
 	}
-	
+
 	/**
 	 * Each ContentContributor is responsible for calling this method when its content on the canvas has changed.
 	 * 
@@ -623,11 +626,18 @@ public class CCanvasController
 	 * 
 	 * @author Byron Hawkins
 	 */
-	private static class ContentContributionController implements CCanvas.ContentContributor
+	private static class ContentContributionController implements CCanvas.ContentContributor, TaskBuffer.Client
 	{
+		private final TaskBuffer notificationSpool;
+
+		private final Set<Long> changedCanvasIds = new HashSet<Long>();
+
 		public ContentContributionController()
 		{
 			addContentContributor(this);
+
+			notificationSpool = new TaskBuffer(this, 100L);
+			notificationSpool.start();
 		}
 
 		@Override
@@ -640,22 +650,54 @@ public class CCanvasController
 			}
 			return !canvas.isEmpty();
 		}
-		
-		void notifyContentChanged(ContentContributor changeContributor, long canvasId)
-		{
-			System.out.println("Content changed on canvas " + canvasdb.get(canvasId).getGridCoordTxt() + "; it is "
-					+ (CCanvasController.hasContent(canvasId) ? "not empty" : "now empty"));
 
+		void clearCanvas(long canvas_uuid)
+		{
 			for (CCanvas.ContentContributor contributor : contentContributors)
 			{
-				contributor.contentChanged(canvasId);
+				contributor.clearContent(canvas_uuid);
 			}
 		}
-		
+
+		void notifyContentChanged(ContentContributor changeContributor, long canvas_uuid)
+		{
+			System.out.println("Content changed on canvas " + canvasdb.get(canvas_uuid).getGridCoordTxt() + "; it is "
+					+ (CCanvasController.hasContent(canvas_uuid) ? "not empty" : "now empty"));
+
+			synchronized (changedCanvasIds)
+			{
+				changedCanvasIds.add(canvas_uuid);
+			}
+
+			notificationSpool.taskPending();
+		}
+
+		@Override
+		public void executeTasks()
+		{
+			synchronized (changedCanvasIds)
+			{
+				for (Long canvasId : changedCanvasIds)
+				{
+					for (CCanvas.ContentContributor contributor : contentContributors)
+					{
+						contributor.contentChanged(canvasId);
+					}
+				}
+				changedCanvasIds.clear();
+			}
+		}
+
 		@Override
 		public void contentChanged(long canvas_uuid)
 		{
 			// no response required for this instance
+		}
+
+		@Override
+		public void clearContent(long canvas_uuid)
+		{
+			canvasdb.get(canvas_uuid).clear();
 		}
 	}
 }

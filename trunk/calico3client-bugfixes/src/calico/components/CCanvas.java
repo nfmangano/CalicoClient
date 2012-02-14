@@ -74,6 +74,8 @@ public class CCanvas
 		boolean hasContent(long canvas_uuid);
 
 		void contentChanged(long canvas_uuid);
+		
+		void clearContent(long canvas_uuid);
 	}
 	
 	private final ContainedCanvas canvas = new ContainedCanvas();
@@ -1014,11 +1016,10 @@ public class CCanvas
 		
 		drawMenuBars();
 		this.getLayer(Layer.CONTENT).repaint();
-		
-		CCanvasController.notifyContentChanged(uuid);
 	}
 	
-	public void clearEverythingExceptMenu()
+	@Deprecated
+	private void clearEverythingExceptMenu()
 	{
 		for (int i = getLayer(Layer.CONTENT).getChildrenCount() - 1; i >= 0; i--)
 		{
