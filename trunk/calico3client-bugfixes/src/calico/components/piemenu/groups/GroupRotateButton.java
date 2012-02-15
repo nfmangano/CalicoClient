@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 
 import calico.Calico;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.CCanvas;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;

@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import calico.CalicoDataStore;
+import calico.components.CCanvas;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;

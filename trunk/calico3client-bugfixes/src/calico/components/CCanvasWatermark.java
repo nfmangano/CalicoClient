@@ -26,6 +26,7 @@ public class CCanvasWatermark extends PLayer
 				watermarks.put(mode, new CCanvasWatermark(mode.getImage()));
 			}
 			watermarks.remove(CInputMode.EXPERT); // no watermark for pen mode
+			watermarks.remove(CInputMode.POINTER); // no watermark for highlighter mode
 		}
 		
 		public static CCanvasWatermark get(CInputMode mode)

@@ -23,7 +23,7 @@ import edu.umd.cs.piccolo.nodes.*;
 import edu.umd.cs.piccolo.util.*;
 import edu.umd.cs.piccolox.nodes.PLine;
 
-
+@Deprecated
 public class CArrowInputHandler extends CalicoAbstractInputHandler
 {
 	public static Logger logger = Logger.getLogger(CArrowInputHandler.class.getName());

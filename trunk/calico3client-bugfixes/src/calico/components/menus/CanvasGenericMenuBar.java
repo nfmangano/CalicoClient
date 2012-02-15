@@ -133,11 +133,6 @@ public class CanvasGenericMenuBar extends PComposite
 		addCap(align);
 	}
 	
-	public Rectangle addIcon()
-	{
-		return addIcon(menubar.defaultIconDimension);
-	}
-	
 	public Rectangle addIcon(int span)
 	{
 		int startPosition = empty_space_start;
@@ -192,7 +187,12 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	public void addIcon(CanvasMenuButton icon)
 	{
-		rect_array[button_array_index] = addIcon();
+		addIcon(icon, menubar.defaultIconDimension);
+	}
+	
+	public void addIcon(CanvasMenuButton icon, int span)
+	{
+		rect_array[button_array_index] = addIcon(span);
 		button_array[button_array_index] = icon;
 		button_array[button_array_index].setBounds(rect_array[button_array_index]);
 		
@@ -203,7 +203,12 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	public void addIconRightAligned(CanvasMenuButton icon)
 	{
-		rect_array[button_array_index] = addIconEndAligned(menubar.defaultIconDimension);
+		addIconRightAligned(icon, menubar.defaultIconDimension);
+	}
+	
+	public void addIconRightAligned(CanvasMenuButton icon, int span)
+	{
+		rect_array[button_array_index] = addIconEndAligned(span);
 		button_array[button_array_index] = icon;
 		button_array[button_array_index].setBounds(rect_array[button_array_index]);
 		

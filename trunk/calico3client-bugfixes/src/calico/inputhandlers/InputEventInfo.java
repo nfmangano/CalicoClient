@@ -6,6 +6,7 @@ import edu.umd.cs.piccolo.event.*;
 import java.awt.geom.*;
 
 import calico.*;
+import calico.components.CCanvas;
 import calico.components.CGroup;
 import calico.controllers.CCanvasController;
 import calico.input.*;

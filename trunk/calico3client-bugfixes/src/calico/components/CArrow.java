@@ -57,6 +57,7 @@ public class CArrow extends PComposite
 	
 
 	// This is used as a larger polygon, used to check if the mouse is touching the arrow.
+	@Deprecated
 	private Polygon arrowContainment = new Polygon();
 	
 	private Polygon pointPath = new Polygon();
@@ -226,7 +227,7 @@ public class CArrow extends PComposite
 		return pointPath;
 	}
 	
-	
+	@Deprecated
 	public boolean containsMousePoint(Point point)
 	{
 		return arrowContainment.contains(point);

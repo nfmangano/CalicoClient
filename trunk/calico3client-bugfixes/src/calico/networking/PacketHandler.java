@@ -608,7 +608,6 @@ public class PacketHandler
 		
 		CCanvasController.canvasdb.get(uuid).drawMenuBars();
 		
-		
 		// Should we run the consistency
 		if(CCanvasController.canvasdb.size()==(CalicoDataStore.GridRows*CalicoDataStore.GridCols))
 		{
