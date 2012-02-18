@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import calico.CalicoOptions;
 import calico.components.*;
+import calico.components.arrow.CArrow;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
 import calico.networking.netstuff.NetworkCommand;

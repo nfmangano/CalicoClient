@@ -199,7 +199,7 @@ public class PieMenu
 	{
 		double degIncrement = Math.min(360.0 / (numButtons), DEFAULT_DEGREE_INCREMENT);
 		
-		Arc2D.Double arc = new Arc2D.Double(pieContainer.getBounds(), PieMenu.START_ANGLE - degIncrement*(buttonNumber+1), degIncrement, Arc2D.PIE);
+		Arc2D.Double arc = new Arc2D.Double(pieContainer.getGlobalBounds(), PieMenu.START_ANGLE - degIncrement*(buttonNumber+1), degIncrement, Arc2D.PIE);
 		
 		return arc;
 	}
@@ -228,9 +228,9 @@ public class PieMenu
 	{
 		if(pieContainer==null)
 		{
-			return false;
+			return false; 
 		}		
-		return pieContainer.getFullBounds().contains(point);
+		return pieContainer.getGlobalBounds().contains(point);
 	}
 	
 	public static void clickPieMenuButton(Point point, InputEventInfo ev)

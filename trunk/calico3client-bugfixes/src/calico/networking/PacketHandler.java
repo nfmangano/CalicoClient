@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.*;
 
 import calico.components.*;
+import calico.components.arrow.AnchorPoint;
 import calico.components.grid.*;
 import calico.components.menus.buttons.UndoButton;
 import calico.controllers.*;

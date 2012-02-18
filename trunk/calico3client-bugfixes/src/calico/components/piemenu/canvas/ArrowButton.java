@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import calico.Calico;
 import calico.CalicoDataStore;
-import calico.components.AnchorPoint;
-import calico.components.CArrow;
 import calico.components.CCanvas;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;

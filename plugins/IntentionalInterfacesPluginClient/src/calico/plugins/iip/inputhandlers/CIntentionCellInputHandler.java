@@ -6,10 +6,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import calico.components.piemenu.PieMenu;
-import calico.components.piemenu.PieMenuButton;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.piemenu.iip.CreateNewIdeaLinkButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
@@ -38,6 +38,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 
 	private Point mouseDragAnchor;
 	private Point2D cellDragAnchor;
+
+	private final CreateNewIdeaLinkButton newIdeaButton = new CreateNewIdeaLinkButton();
 
 	public void setCurrentCellId(long currentCellId)
 	{
@@ -86,7 +88,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 				state = State.ACTIVATED;
 			}
 
-			pieMenuTimer.start(event.getGlobalPoint());
+			Point2D point = IntentionGraph.getInstance().getLayer().globalToLocal(event.getGlobalPoint());
+			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 
 			mouseDragAnchor = event.getGlobalPoint();
 			cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentCellId).getLocation();
@@ -101,10 +104,6 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 		if (state == State.DRAG)
 		{
 			moveCurrentCell(event.getGlobalPoint());
-			// double xMouseDelta = event.getGlobalPoint().x - mouseDragAnchor.x;
-			// double yMouseDelta = event.getGlobalPoint().y - mouseDragAnchor.y;
-			// CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta,
-			// cellDragAnchor.getY() + yMouseDelta);
 		}
 
 		state = State.IDLE;
@@ -131,7 +130,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, new PieMenuButton[0]);
+						PieMenu.displayPieMenu(point, newIdeaButton);
 					}
 				}
 			}
