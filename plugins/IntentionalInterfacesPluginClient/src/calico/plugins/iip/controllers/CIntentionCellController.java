@@ -3,6 +3,7 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

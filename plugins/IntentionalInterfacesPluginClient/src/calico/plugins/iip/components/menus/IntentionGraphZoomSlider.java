@@ -39,7 +39,7 @@ public class IntentionGraphZoomSlider extends PComposite
 		if ((x > buttonSpan) && (x < (bounds.width - buttonSpan)))
 		{
 			double scale = convertSlidePointToScale(point);
-			IntentionGraph.getInstance().getLayer().setScale(scale);
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
 			updateKnobPosition();
 
 			System.out.println("zoom to " + scale);
@@ -51,7 +51,7 @@ public class IntentionGraphZoomSlider extends PComposite
 		PBounds bounds = getBounds();
 		double x = (point.x - bounds.x);
 
-		double scale = IntentionGraph.getInstance().getLayer().getScale();
+		double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 
 		if (x < buttonSpan)
 		{
@@ -100,7 +100,7 @@ public class IntentionGraphZoomSlider extends PComposite
 			System.out.println("zoom to " + scale);
 		}
 
-		IntentionGraph.getInstance().getLayer().setScale(scale);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
 		updateKnobPosition();
 	}
 
@@ -147,7 +147,7 @@ public class IntentionGraphZoomSlider extends PComposite
 		double knobHeight = getBounds().height / 2.0;
 		double knobWidth = knob.getImage().getWidth(null) * (knobHeight / knob.getImage().getHeight(null));
 
-		double scale = IntentionGraph.getInstance().getLayer().getScale();
+		double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 
 		// limit extremes
 		if (scale < 0.0)

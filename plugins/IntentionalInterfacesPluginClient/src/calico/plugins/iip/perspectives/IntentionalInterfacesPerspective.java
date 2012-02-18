@@ -33,7 +33,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected void drawPieMenu(PNode pieCrust)
 	{
-		IntentionGraph.getInstance().getLayer().addChild(pieCrust);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(pieCrust);
 		IntentionGraph.getInstance().repaint();
 	}
 	
@@ -72,8 +72,8 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
-		IntentionGraph.getInstance().getLayer().addChild(bubbleHighlighter);
-		IntentionGraph.getInstance().getLayer().addChild(bubbleContainer);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleHighlighter);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
 		return true;
 	}
 }

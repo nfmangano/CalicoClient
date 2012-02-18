@@ -9,7 +9,9 @@ import calico.components.piemenu.PieMenu;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.piemenu.iip.CreateNewAlternativeLinkButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewIdeaLinkButton;
+import calico.plugins.iip.components.piemenu.iip.CreateNewPerspectiveLinkButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
@@ -40,6 +42,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 	private Point2D cellDragAnchor;
 
 	private final CreateNewIdeaLinkButton newIdeaButton = new CreateNewIdeaLinkButton();
+	private final CreateNewAlternativeLinkButton newAlternativeButton = new CreateNewAlternativeLinkButton();
+	private final CreateNewPerspectiveLinkButton newPerspectiveButton = new CreateNewPerspectiveLinkButton();
 
 	public void setCurrentCellId(long currentCellId)
 	{
@@ -58,8 +62,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 
 	private void moveCurrentCell(Point destination)
 	{
-		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer().getScale();
-		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer().getScale();
+		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
+		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		CIntentionCellController.getInstance().getCellById(currentCellId).setLocation(cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
 	}
 
@@ -88,7 +92,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 				state = State.ACTIVATED;
 			}
 
-			Point2D point = IntentionGraph.getInstance().getLayer().globalToLocal(event.getGlobalPoint());
+			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
 			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 
 			mouseDragAnchor = event.getGlobalPoint();
@@ -130,7 +134,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, newIdeaButton);
+						PieMenu.displayPieMenu(point, newIdeaButton, newAlternativeButton, newPerspectiveButton);
 					}
 				}
 			}

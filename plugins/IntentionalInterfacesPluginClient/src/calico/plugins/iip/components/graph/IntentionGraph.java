@@ -14,6 +14,7 @@ import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
@@ -23,6 +24,19 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 public class IntentionGraph
 {
+	public enum Layer
+	{
+		CONTENT(0),
+		TOOLS(1);
+
+		public final int id;
+
+		private Layer(int id)
+		{
+			this.id = id;
+		}
+	}
+
 	public static IntentionGraph getInstance()
 	{
 		if (INSTANCE == null)
@@ -34,6 +48,8 @@ public class IntentionGraph
 	}
 
 	private static IntentionGraph INSTANCE;
+
+	private final PLayer toolLayer = new PLayer();
 
 	private final ContainedCanvas canvas = new ContainedCanvas();
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
@@ -62,7 +78,9 @@ public class IntentionGraph
 
 		repaint();
 
-		canvas.getCamera().addChild(contentCanvas.getLayer());
+		PLayer contentLayer = contentCanvas.getLayer();
+		canvas.getCamera().addLayer(Layer.CONTENT.id, contentLayer);
+		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 
 		drawMenuBar();
 	}
@@ -72,9 +90,17 @@ public class IntentionGraph
 		return uuid;
 	}
 
-	public PLayer getLayer()
+	public PLayer getLayer(Layer layer)
 	{
-		return contentCanvas.getLayer();
+		switch (layer)
+		{
+			case CONTENT:
+				return contentCanvas.getLayer();
+			case TOOLS:
+				return toolLayer;
+			default:
+				throw new IllegalArgumentException("Unknown layer " + layer);
+		}
 	}
 
 	public JComponent getComponent()
@@ -171,7 +197,7 @@ public class IntentionGraph
 		}
 		return false;
 	}
-
+	
 	public void addMouseListener(MouseListener listener)
 	{
 		canvas.addMouseListener(listener);
