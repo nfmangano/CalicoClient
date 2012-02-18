@@ -6,9 +6,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
+import calico.Calico;
 import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
 class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
@@ -56,8 +60,23 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		{
 			toCell.setHighlighted(false);
 		}
-
+		
+		createArrow(terminationPoint);
+	}
+	
+	private void createArrow(Point terminationPoint)
+	{
 		Point2D graphPosition = getGraphPosition(terminationPoint);
+		
+		if (toCell == null)
+		{
+			CCanvasLinkController.getInstance().createOrphanedLink(fromCell.getCanvasId(), type, graphPosition.getX(), graphPosition.getY());
+		}
+		else
+		{
+			CCanvasLinkController.getInstance().createLink(fromCell.getCanvasId(), toCell.getCanvasId(), type);
+		}
+		
 		System.out.println("Create " + type + " arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + ", with anchor point "
 				+ anchorPoint + ", to " + ((toCell == null) ? "the canvas" : "cell #" + toCell.getCanvasId()) + " at " + graphPosition);
 	}

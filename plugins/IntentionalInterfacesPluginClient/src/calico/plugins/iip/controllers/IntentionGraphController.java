@@ -1,9 +1,13 @@
 package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
-import calico.Calico;
+
+import java.awt.geom.Point2D;
+import java.util.List;
+
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -28,6 +32,8 @@ public class IntentionGraphController
 	{
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
 		arrowsByLinkId.put(link.getId(), arrow);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		arrow.redraw();
 	}
 
 	public void removeLink(CCanvasLink link)
@@ -56,5 +62,43 @@ public class IntentionGraphController
 	public void prepareDisplay()
 	{
 		IntentionGraph.getInstance().fitContents();
+	}
+
+	public void updateLinkArrow(CCanvasLink link)
+	{
+		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
+		arrow.redraw();
+	}
+	
+	public void localUpdateAttachedArrows(long cellId, double x, double y)
+	{
+		long canvasId = CIntentionCellController.getInstance().getCellById(cellId).getCanvasId();
+		List<Long> anchorIds = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasId);
+		for (long anchorId : anchorIds)
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			Point2D edgePosition = alignAnchorAtCellEdge(x, y, anchor);
+			anchor.getPoint().setLocation(edgePosition);
+			updateLinkArrow(anchor.getLink());
+		}
+	}
+	
+	public void updateAttachedArrows(long cellId, double x, double y)
+	{
+		long canvasId = CIntentionCellController.getInstance().getCellById(cellId).getCanvasId();
+		List<Long> anchorIds = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasId);
+		for (long anchorId : anchorIds)
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			Point2D edgePosition = alignAnchorAtCellEdge(x, y, anchor);
+			
+			CCanvasLinkController.getInstance().moveLinkAnchor(anchor, edgePosition);
+		}	
+	}
+	
+	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, CCanvasLinkAnchor anchor)
+	{
+		// for now just put the link endpoint in the center of the CIC
+		return new Point2D.Double(xCell + 32, yCell + 32);
 	}
 }

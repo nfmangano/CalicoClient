@@ -14,6 +14,7 @@ import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;

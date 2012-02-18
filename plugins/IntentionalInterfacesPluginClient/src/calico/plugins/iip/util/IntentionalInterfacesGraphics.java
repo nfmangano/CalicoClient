@@ -16,7 +16,15 @@ public class IntentionalInterfacesGraphics
 	public static Image superimposeCellAddress(Image baseImage, long canvas_uuid)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
-		String coordinates = canvas.getGridCoordTxt();
+		String coordinates;
+		if (canvas == null)
+		{
+			coordinates = "X";
+		}
+		else
+		{
+			coordinates = canvas.getGridCoordTxt();
+		}
 		Rectangle baseBounds = new Rectangle(baseImage.getWidth(null), baseImage.getHeight(null));
 		BufferedImage compound = new BufferedImage(baseBounds.width, baseBounds.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) compound.getGraphics();

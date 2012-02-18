@@ -1,16 +1,6 @@
 package calico.plugins.iip.components.canvas;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-
 import calico.Calico;
-import calico.components.CCanvas;
-import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;

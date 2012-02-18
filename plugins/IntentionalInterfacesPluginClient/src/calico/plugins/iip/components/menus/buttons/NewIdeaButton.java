@@ -14,6 +14,6 @@ public class NewIdeaButton extends CanvasIntentionToolBarItem
 	@Override
 	protected void onClick()
 	{
-		CCanvasLinkController.getInstance().createLink(canvas_uuid, CCanvasLink.LinkType.NEW_IDEA);
+		CCanvasLinkController.getInstance().createLinkToEmptyCanvas(canvas_uuid, CCanvasLink.LinkType.NEW_IDEA);
 	}
 }

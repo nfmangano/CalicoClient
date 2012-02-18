@@ -2,11 +2,14 @@ package calico.plugins.iip.components;
 
 import java.awt.Point;
 
-public class CCanvasLinkAnchor
+import calico.components.arrow.AbstractArrowAnchorPoint;
+import calico.plugins.iip.controllers.CIntentionCellController;
+
+public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 {
 	public enum Type
 	{
-		CANVAS,
+		FLOATING,
 		INTENTION_CELL;
 	}
 
@@ -14,43 +17,43 @@ public class CCanvasLinkAnchor
 	private long canvas_uuid;
 	private long group_uuid;
 	private Type type;
-	private Point point;
-	
+
 	private CCanvasLink link;
 
-	public CCanvasLinkAnchor(long uuid, long canvas_uuid)
+	private CCanvasLinkAnchor(long uuid, long canvas_uuid, Type type)
 	{
+		super();
+
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
 		this.group_uuid = 0L;
-		type = Type.CANVAS;
-		point = null;
+		this.type = type;
 	}
 
-	public CCanvasLinkAnchor(long uuid, long canvas_uuid, Type type, int x, int y)
+	public CCanvasLinkAnchor(long uuid, long canvas_uuid)
+	{
+		this(uuid, canvas_uuid, Type.INTENTION_CELL);
+	}
+
+	public CCanvasLinkAnchor(long uuid, long canvas_uuid, long group_uuid)
 	{
 		this(uuid, canvas_uuid);
 
-		this.type = type;
-
-		if (canvas_uuid == 0L)
-		{
-			this.point = new Point(x, y);
-		}
+		this.group_uuid = group_uuid;
 	}
 
-	public CCanvasLinkAnchor(long uuid, long canvas_uuid, long group_uuid, Type type, int x, int y)
+	public CCanvasLinkAnchor(long uuid, int x, int y)
 	{
-		this(uuid, canvas_uuid, type, x, y);
+		this(uuid, 0L, Type.FLOATING);
 
-		this.group_uuid = group_uuid;
+		this.point.setLocation(x, y);
 	}
 
 	public long getId()
 	{
 		return uuid;
 	}
-	
+
 	public CCanvasLinkAnchor getOpposite()
 	{
 		if (link.getAnchorA() == this)
@@ -82,33 +85,21 @@ public class CCanvasLinkAnchor
 	{
 		return point;
 	}
-	
+
 	public CCanvasLink getLink()
 	{
 		return link;
 	}
-	
+
 	void setLink(CCanvasLink link)
 	{
 		this.link = link;
 	}
 
-	public void move(long canvas_uuid, long group_uuid)
+	public void move(long canvas_uuid, long group_uuid, int x, int y)
 	{
 		this.canvas_uuid = canvas_uuid;
 		this.group_uuid = group_uuid;
-		point = null;
-	}
-
-	public void move(int x, int y)
-	{
-		canvas_uuid = 0L;
-		group_uuid = 0L;
-
-		if (point == null)
-		{
-			point = new Point();
-		}
 		point.x = x;
 		point.y = y;
 	}

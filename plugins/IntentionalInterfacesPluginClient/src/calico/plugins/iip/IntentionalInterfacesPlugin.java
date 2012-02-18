@@ -95,8 +95,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			case CLINK_RETYPE:
 				CLINK_RETYPE(p);
 				break;
-			case CLINK_MOVE:
-				CLINK_MOVE(p);
+			case CLINK_MOVE_ANCHOR:
+				CLINK_MOVE_ANCHOR(p);
 				break;
 			case CLINK_DELETE:
 				CLINK_DELETE(p);
@@ -146,8 +146,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
 
-//		 long uuid = p.getLong();
-//		 CIntentionCellController.getInstance().removeCellById(uuid);
+		// long uuid = p.getLong();
+		// CIntentionCellController.getInstance().removeCellById(uuid);
 	}
 
 	private static CCanvasLinkAnchor unpackAnchor(CalicoPacket p)
@@ -158,7 +158,16 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		CCanvasLinkAnchor.Type type = CCanvasLinkAnchor.Type.values()[p.getInt()];
 		int x = p.getInt();
 		int y = p.getInt();
-		return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid, type, x, y);
+
+		switch (type)
+		{
+			case FLOATING:
+				return new CCanvasLinkAnchor(uuid, x, y);
+			case INTENTION_CELL:
+				return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid);
+			default:
+				throw new IllegalArgumentException("Unknown link type " + type);
+		}
 	}
 
 	private static void CLINK_CREATE(CalicoPacket p)
@@ -186,42 +195,18 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		link.setLinkType(type);
 	}
 
-	private static void CLINK_MOVE(CalicoPacket p)
+	private static void CLINK_MOVE_ANCHOR(CalicoPacket p)
 	{
 		p.rewind();
-		IntentionalInterfacesNetworkCommands.Command.CLINK_MOVE.verify(p);
+		IntentionalInterfacesNetworkCommands.Command.CLINK_MOVE_ANCHOR.verify(p);
 
-		long uuid = p.getLong();
-		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(uuid);
-
-		boolean isEndpointA = p.getBoolean();
+		long anchor_uuid = p.getLong();
 		long canvas_uuid = p.getLong();
 		long group_uuid = p.getLong();
 		int x = p.getInt();
 		int y = p.getInt();
-
-		if (isEndpointA)
-		{
-			if (canvas_uuid == 0L)
-			{
-				link.getAnchorA().move(x, y);
-			}
-			else
-			{
-				link.getAnchorA().move(canvas_uuid, group_uuid);
-			}
-		}
-		else
-		{
-			if (canvas_uuid == 0L)
-			{
-				link.getAnchorB().move(x, y);
-			}
-			else
-			{
-				link.getAnchorB().move(canvas_uuid, group_uuid);
-			}
-		}
+		
+		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, group_uuid, x, y);
 	}
 
 	private static void CLINK_DELETE(CalicoPacket p)

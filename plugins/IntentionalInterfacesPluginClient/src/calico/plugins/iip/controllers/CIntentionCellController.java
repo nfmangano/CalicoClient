@@ -67,6 +67,13 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
+	
+	public void localMoveCell(long cellId, double x, double y)
+	{
+		cells.get(cellId).setLocation(x, y);
+		
+		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
+	}
 
 	public void moveCell(long uuid, double x, double y)
 	{
@@ -79,6 +86,8 @@ public class CIntentionCellController
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
+		
+		IntentionGraphController.getInstance().updateAttachedArrows(uuid, x, y);
 	}
 
 	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become

@@ -64,7 +64,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 	{
 		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		CIntentionCellController.getInstance().getCellById(currentCellId).setLocation(cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+		CIntentionCellController.getInstance().localMoveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
 	}
 
 	@Override
