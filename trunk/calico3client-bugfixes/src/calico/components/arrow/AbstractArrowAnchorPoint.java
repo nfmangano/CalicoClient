@@ -4,8 +4,13 @@ import java.awt.Point;
 
 public abstract class AbstractArrowAnchorPoint
 {
-	private Point point = new Point(0,0);
+	protected final Point point;
 
+	protected AbstractArrowAnchorPoint()
+	{
+		this(new Point());
+	}
+	
 	protected AbstractArrowAnchorPoint(Point point)
 	{
 		this.point = point;
