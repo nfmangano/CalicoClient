@@ -4,7 +4,9 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import calico.Calico;
 import calico.components.CCanvas;
@@ -77,6 +79,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 
 	private void addAnchor(CCanvasLinkAnchor anchor)
 	{
+		anchorsById.put(anchor.getId(), anchor);
 		if (anchor.getType() == Type.INTENTION_CELL)
 		{
 			getAnchorIdsByCanvasId(anchor.getCanvasId()).add(anchor.getId());
@@ -132,7 +135,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	private void removeLinkAnchor(long uuid)
 	{
 		CCanvasLinkAnchor anchor = anchorsById.remove(uuid);
-		anchorsIdsByCanvasId.get(anchor.getCanvasId()).remove(anchor.getId());
+		getAnchorIdsByCanvasId(anchor.getCanvasId()).remove(anchor.getId());
 	}
 
 	private void notifyCanvasContentChange(CCanvasLink link)
@@ -190,7 +193,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putInt(type.ordinal());
-		packAnchor(packet, fromCanvasId, CCanvasLinkAnchor.Type.INTENTION_CELL);
+		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, x, y));
 		packAnchor(packet, 0L, CCanvasLinkAnchor.Type.FLOATING, (int) x, (int) y);
 
 		packet.rewind();
@@ -204,17 +207,17 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putInt(type.ordinal());
-		packAnchor(packet, fromCanvasId, CCanvasLinkAnchor.Type.INTENTION_CELL);
-		packAnchor(packet, toCanvasId, CCanvasLinkAnchor.Type.INTENTION_CELL);
+		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId));
+		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
 
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
 
-	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.Type type)
+	private void packAnchor(CalicoPacket packet, long canvas_uuid, Point2D position)
 	{
-		packAnchor(packet, canvas_uuid, type, 0, 0);
+		packAnchor(packet, canvas_uuid, CCanvasLinkAnchor.Type.INTENTION_CELL, (int) position.getX(), (int) position.getY());
 	}
 
 	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.Type type, int x, int y)
@@ -264,12 +267,16 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	@Override
 	public void clearContent(long canvas_uuid)
 	{
-		for (CCanvasLink link : linksById.values())
+		Set<Long> linkIdsToDelete = new HashSet<Long>();
+		for (long anchorId : getAnchorIdsByCanvasId(canvas_uuid))
 		{
-			if ((link.getAnchorA().getCanvasId() == canvas_uuid) || (link.getAnchorB().getCanvasId() == canvas_uuid))
-			{
-				deleteLink(link.getId());
-			}
+			CCanvasLinkAnchor anchor = anchorsById.get(anchorId);
+			linkIdsToDelete.add(anchor.getLink().getId());
+		}
+		
+		for (long linkId : linkIdsToDelete)
+		{
+			deleteLink(linkId);
 		}
 	}
 }

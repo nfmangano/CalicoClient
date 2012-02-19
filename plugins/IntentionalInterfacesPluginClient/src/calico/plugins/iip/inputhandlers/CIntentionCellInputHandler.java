@@ -60,11 +60,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 		return currentCellId;
 	}
 
-	private void moveCurrentCell(Point destination)
+	private void moveCurrentCell(Point destination, boolean local)
 	{
 		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		CIntentionCellController.getInstance().localMoveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+		CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta, local);
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 				case ACTIVATED:
 					state = State.DRAG;
 				case DRAG:
-					moveCurrentCell(event.getGlobalPoint());
+					moveCurrentCell(event.getGlobalPoint(), true);
 			}
 		}
 	}
@@ -107,7 +107,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler
 	{
 		if (state == State.DRAG)
 		{
-			moveCurrentCell(event.getGlobalPoint());
+			moveCurrentCell(event.getGlobalPoint(), false);
 		}
 
 		state = State.IDLE;

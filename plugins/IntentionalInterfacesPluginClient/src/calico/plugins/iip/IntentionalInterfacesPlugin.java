@@ -164,7 +164,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			case FLOATING:
 				return new CCanvasLinkAnchor(uuid, x, y);
 			case INTENTION_CELL:
-				return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid);
+				return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid, x, y);
 			default:
 				throw new IllegalArgumentException("Unknown link type " + type);
 		}

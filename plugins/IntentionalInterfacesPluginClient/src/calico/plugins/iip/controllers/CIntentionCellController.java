@@ -67,27 +67,28 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
-	public void localMoveCell(long cellId, double x, double y)
-	{
-		cells.get(cellId).setLocation(x, y);
-		
-		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
-	}
 
-	public void moveCell(long uuid, double x, double y)
+	public void moveCell(long cellId, double x, double y, boolean local)
 	{
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
-		packet.putLong(uuid);
-		packet.putInt((int) x);
-		packet.putInt((int) y);
+		if (local)
+		{
+			cells.get(cellId).setLocation(x, y);
+			IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
+		}
+		else
+		{
+			CalicoPacket packet = new CalicoPacket();
+			packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
+			packet.putLong(cellId);
+			packet.putInt((int) x);
+			packet.putInt((int) y);
 
-		packet.rewind();
-		PacketHandler.receive(packet);
-		Networking.send(packet);
-		
-		IntentionGraphController.getInstance().updateAttachedArrows(uuid, x, y);
+			packet.rewind();
+			PacketHandler.receive(packet);
+			Networking.send(packet);
+
+			IntentionGraphController.getInstance().updateAttachedArrows(cellId, x, y);
+		}
 	}
 
 	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become

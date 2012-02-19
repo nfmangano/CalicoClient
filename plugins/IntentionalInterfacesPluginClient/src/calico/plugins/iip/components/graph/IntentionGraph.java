@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import javax.swing.JComponent;
@@ -14,8 +15,6 @@ import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
-import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
@@ -44,7 +43,6 @@ public class IntentionGraph
 		{
 			new IntentionGraph();
 		}
-		INSTANCE.repaint();
 		return INSTANCE;
 	}
 
@@ -171,6 +169,14 @@ public class IntentionGraph
 		return canvas.getBounds();
 	}
 
+	public Rectangle getLocalBounds(Layer layer)
+	{
+		Rectangle globalBounds = canvas.getBounds();
+		Point2D localPoint = getLayer(layer).globalToLocal(globalBounds.getLocation());
+		Dimension2D localSize = getLayer(layer).globalToLocal(globalBounds.getSize());
+		return new Rectangle((int) localPoint.getX(), (int) localPoint.getY(), (int) localSize.getWidth(), (int) localSize.getHeight());
+	}
+
 	public void setBounds(int x, int y, int w, int h)
 	{
 		canvas.setBounds(x, y, w, h);
@@ -198,7 +204,7 @@ public class IntentionGraph
 		}
 		return false;
 	}
-	
+
 	public void addMouseListener(MouseListener listener)
 	{
 		canvas.addMouseListener(listener);

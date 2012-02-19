@@ -20,31 +20,26 @@ public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 
 	private CCanvasLink link;
 
-	private CCanvasLinkAnchor(long uuid, long canvas_uuid, Type type)
+	private CCanvasLinkAnchor(long uuid, long canvas_uuid, long group_uuid, Type type)
 	{
 		super();
 
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
-		this.group_uuid = 0L;
+		this.group_uuid = group_uuid;
 		this.type = type;
 	}
 
-	public CCanvasLinkAnchor(long uuid, long canvas_uuid)
+	public CCanvasLinkAnchor(long uuid, long canvas_uuid, long group_uuid, int x, int y)
 	{
-		this(uuid, canvas_uuid, Type.INTENTION_CELL);
-	}
+		this(uuid, canvas_uuid, group_uuid, Type.INTENTION_CELL);
 
-	public CCanvasLinkAnchor(long uuid, long canvas_uuid, long group_uuid)
-	{
-		this(uuid, canvas_uuid);
-
-		this.group_uuid = group_uuid;
+		this.point.setLocation(x, y);
 	}
 
 	public CCanvasLinkAnchor(long uuid, int x, int y)
 	{
-		this(uuid, 0L, Type.FLOATING);
+		this(uuid, 0L, 0L, Type.FLOATING);
 
 		this.point.setLocation(x, y);
 	}

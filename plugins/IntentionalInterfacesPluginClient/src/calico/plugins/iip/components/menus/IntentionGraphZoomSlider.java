@@ -40,6 +40,7 @@ public class IntentionGraphZoomSlider extends PComposite
 		{
 			double scale = convertSlidePointToScale(point);
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+			IntentionGraph.getInstance().repaint();
 			updateKnobPosition();
 
 			System.out.println("zoom to " + scale);
@@ -101,6 +102,7 @@ public class IntentionGraphZoomSlider extends PComposite
 		}
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+		IntentionGraph.getInstance().repaint();
 		updateKnobPosition();
 	}
 

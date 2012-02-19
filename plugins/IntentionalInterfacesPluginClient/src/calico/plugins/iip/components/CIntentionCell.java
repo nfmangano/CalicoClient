@@ -86,6 +86,11 @@ public class CIntentionCell
 		return shell.getBounds().getOrigin();
 	}
 
+	public Point2D getCenter()
+	{
+		return shell.getBounds().getCenter2D();
+	}
+
 	public void setLocation(double x, double y)
 	{
 		System.out.println("Move cell " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt() + " to " + x + ", " + y);
@@ -116,7 +121,7 @@ public class CIntentionCell
 
 	public boolean isInGraphFootprint()
 	{
-		return IntentionGraph.getInstance().getBounds().intersects(shell.getBounds());
+		return IntentionGraph.getInstance().getLocalBounds(IntentionGraph.Layer.CONTENT).intersects(shell.getBounds());
 	}
 
 	public void contentsChanged()
@@ -240,6 +245,11 @@ public class CIntentionCell
 			}
 			else
 			{
+				if (isVisible())
+				{
+					System.out.println("Not updating snapshot for canvas #" + canvas_uuid + " because "
+							+ (shell.showingSnapshot ? "it is not in the graph footprint." : "the snapshot is not showing now."));
+				}
 				isDirty = true;
 			}
 		}
