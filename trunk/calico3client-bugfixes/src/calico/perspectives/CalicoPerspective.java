@@ -2,6 +2,8 @@ package calico.perspectives;
 
 import java.awt.event.MouseListener;
 
+import calico.components.bubblemenu.BubbleMenu;
+import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.PNode;
 
@@ -29,6 +31,8 @@ public abstract class CalicoPerspective
 	public void activate()
 	{
 		Active.INSTANCE.currentPerspective = this;
+
+		CalicoInputManager.perspectiveChanged();
 	}
 
 	public static class Active

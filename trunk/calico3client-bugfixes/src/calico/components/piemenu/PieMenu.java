@@ -212,6 +212,8 @@ public class PieMenu
 		pieContainer.removeFromParent();
 		buttonList.clear();
 		pieContainer = null;
+		
+		// given a PieMenuListener, the CGroupController could listen for the "clear" event and respond accordingly.
 		if (highlightedGroup != 0l)
 		{
 			if (CGroupController.exists(highlightedGroup))

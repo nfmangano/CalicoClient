@@ -169,6 +169,15 @@ public class CalicoInputManager
 			lockInputHandler = uuid;
 	}
 
+	public static void perspectiveChanged()
+	{
+		// unlock the active input handler and clear the bubble menu
+		lockInputHandler = 0L;
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
+		}
+	}
 
 
 	public static void determineObjectsAtPoint(long canvasuid, Point2D p)
