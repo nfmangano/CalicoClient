@@ -6,6 +6,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -13,6 +15,7 @@ import org.apache.log4j.Logger;
 import calico.*;
 import calico.components.*;
 import calico.components.grid.CGrid;
+import calico.components.menus.ContextMenu;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import edu.umd.cs.piccolo.*;
@@ -42,6 +45,17 @@ public class PieMenu
 	public static long highlightedGroup = 0l;
 	public static Point lastOpenedPosition = null;
 	
+	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
+
+	public static void addListener(ContextMenu.Listener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	public static void removeListener(ContextMenu.Listener listener)
+	{
+		listeners.remove(listener);
+	}
 	
 	// TODO: The pie menu must maintain a list of the current menu objects on display.
 	// When one is called, then we call that button's onClick method.
@@ -86,6 +100,10 @@ public class PieMenu
 		
 		drawPieMenu( );
 		
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuDisplayed(ContextMenu.PIE_MENU, location);
+		}
 	}
 	
 	private static void drawPieMenu()//, PieMenuButton[] buttons)
@@ -223,6 +241,11 @@ public class PieMenu
 			}
 			
 			highlightedGroup = 0l;
+		}
+
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuCleared(ContextMenu.PIE_MENU);
 		}
 	}
 	

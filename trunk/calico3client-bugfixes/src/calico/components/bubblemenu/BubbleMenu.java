@@ -5,12 +5,15 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
+import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.InputEventInfo;
@@ -40,6 +43,18 @@ public class BubbleMenu {
 	
 	private static PActivity fadeActivity;
 	
+	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
+
+	public static void addListener(ContextMenu.Listener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	public static void removeListener(ContextMenu.Listener listener)
+	{
+		listeners.remove(listener);
+	}
+	
 	public static void displayBubbleMenu(Point location, Long uuid, boolean fade, PieMenuButton... buttons)
 	{
 		if(bubbleContainer!=null)
@@ -60,6 +75,11 @@ public class BubbleMenu {
 		getIconPositions();
 		
 		drawBubbleMenu(fade);
+		
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuDisplayed(ContextMenu.BUBBLE_MENU, location);
+		}
 	}
 	
 	/*public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
@@ -203,10 +223,10 @@ public class BubbleMenu {
 		{
 			return 9;
 		}
-		//else if (className.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
-		/*{
+		else if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
+		{
 		    return 10;
-		}*/
+		}
 		else if (className.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
 		{
 			return 11;
@@ -325,12 +345,12 @@ public class BubbleMenu {
 				maxX = screenWidth - screenX - iconSize - small - large;
 				maxY = screenHeight - screenYBottom - iconSize;
 			break;
-		case 10: //x = (int)groupBounds.getMinX() - startX + large;
-				 //y = (int)groupBounds.getMaxY() + startY + small;
-				minX = screenX + small + large;
-				minY = screenYTop + farSideDistance + large + small;
-				maxX = screenWidth - screenX - iconSize - farSideDistance;
-				maxY = screenHeight - screenYBottom - iconSize;
+		case 10: x = (int)groupBounds.getMinX() - startX + large;
+				 y = (int)groupBounds.getMaxY() + startY + small;
+				 minX = screenX + small + large;
+				 minY = screenYTop + farSideDistance + large + small;
+				 maxX = screenWidth - screenX - iconSize - farSideDistance;
+				 maxY = screenHeight - screenYBottom - iconSize;
 			break;
 		case 11: x = (int)groupBounds.getMinX() - startX - centerOffset;
 				 y = (int)groupBounds.getMaxY() + startY - centerOffset;
@@ -397,6 +417,11 @@ public class BubbleMenu {
 			
 			//		}});
 			activeGroup = 0l;
+		}
+
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuCleared(ContextMenu.BUBBLE_MENU);
 		}
 	}
 	
