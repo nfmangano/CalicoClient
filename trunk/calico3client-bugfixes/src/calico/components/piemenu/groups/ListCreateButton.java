@@ -1,5 +1,6 @@
 package calico.components.piemenu.groups;
 
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
@@ -47,25 +48,26 @@ public class ListCreateButton extends PieMenuButton
 		
 		if (CGroupController.exists(this.uuidToBeDecorated))
 		{
-			createList(this.uuidToBeDecorated);
-			BubbleMenu.clearMenu();
+			long listuuid = createList(this.uuidToBeDecorated);
+			CGroupController.show_group_bubblemenu(listuuid, new Point(0,0));
 		}
 		else if (CStrokeController.exists(this.uuidToBeDecorated))
 		{
 			long new_uuid = Calico.uuid();
 			CStrokeController.makeScrap(this.uuidToBeDecorated, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
-			createList(new_uuid);
-			BubbleMenu.clearMenu();
+			long listuuid = createList(new_uuid);
+			CGroupController.show_group_bubblemenu(listuuid, new Point(0,0));
 		}
 		ev.stop();
 	}
-	public void createList(long groupToBeDecorated) {
+	public long createList(long groupToBeDecorated) {
 		long newuuid = Calico.uuid();
 
 		
 
 //		CGroupController.shrink_to_contents(groupToBeDecorated);
 		CGroupDecoratorController.list_create(groupToBeDecorated, newuuid);
+		return newuuid;
 	}
 }
