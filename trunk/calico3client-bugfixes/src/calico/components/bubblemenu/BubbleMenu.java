@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.SwingUtilities;
@@ -11,6 +12,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
+import calico.CalicoOptions;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.InputEventInfo;
@@ -51,7 +53,6 @@ public class BubbleMenu {
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
 		
 		//displayBubbleMenuArray(location, buttons);
-		
 		lastOpenedPosition = location;
 		
 		buttonList.addElements(0, buttons, 0, buttons.length);
@@ -128,14 +129,15 @@ public class BubbleMenu {
 		updateHighlighterPosition(selectedButtonIndex);
 		updateContainerBounds();
 		bubbleContainer.repaintFrom(BubbleMenu.getContainerBounds(), bubbleContainer);
+		bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), bubbleHighlighter);
 	}
 	
 	private static void updateHighlighterPosition(int buttonNumber)
 	{
 		if (buttonNumber != -1)
 		{
-			bubbleHighlighter.setX(buttonList.get(buttonNumber).getBounds().getMinX() - 5);
-			bubbleHighlighter.setY(buttonList.get(buttonNumber).getBounds().getMinY() - 5);
+			bubbleHighlighter.setX(buttonList.get(buttonNumber).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2));
+			bubbleHighlighter.setY(buttonList.get(buttonNumber).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2));
 		}
 	}
 	
@@ -229,25 +231,25 @@ public class BubbleMenu {
 		
 		//Determines position of left and right buttons in each quadrant
 		int small = 10;
-		int large = 35;
+		int large = 40;
 		
 		//subtract 12 because x,y represents center of button
-		int centerOffset = 12;
+		int centerOffset = CalicoOptions.menu.icon_size / 2;
 		
 		int iconSize = 24;
-		int gap = 10;
+		int gap = 20;
 		
 		//Determines diagonal distance of bubble menu buttons away from the scrap
 		int startX = 13;
 		int startY = 13;
 		
-		int farSideDistance = iconSize + small + large + gap;
+		int farSideDistance = (iconSize + small + large + gap);
 		
 		if (groupBounds.getWidth() < farSideDistance)
 		{
 			startX += (farSideDistance - groupBounds.getWidth()) / 2;
 		}
-		if (groupBounds.getHeight() < 80)
+		if (groupBounds.getHeight() < farSideDistance)
 		{
 			startY += (farSideDistance - groupBounds.getHeight()) / 2;
 		}
@@ -437,7 +439,9 @@ public class BubbleMenu {
 		//return bubbleContainer.getFullBounds().contains(point);
 		for (int i = 0; i < buttonList.size(); i++)
 		{
-			if (buttonList.get(i).getBounds().contains(point))
+			Ellipse2D.Double halo = getButtonHalo(i);
+			
+			if (halo.contains(point))
 			{
 				return true;
 			}
@@ -460,7 +464,8 @@ public class BubbleMenu {
 			{
 				
 				//if (getIconSliceBounds(menuRadius, numOfPositions, i).contains(point))
-				if(getButton(i).checkWithinBounds(point))
+				//if(getButton(i).checkWithinBounds(point))
+				if(getButtonHalo(i).contains(point))
 				{
 					CGroupController.restoreOriginalStroke = false;
 					
@@ -506,6 +511,13 @@ public class BubbleMenu {
 		ev.stop();
 //		ev.getMouseEvent().consume();
 		
+	}
+	
+	public static Ellipse2D.Double getButtonHalo(int buttonIndex)
+	{
+		return new Ellipse2D.Double(buttonList.get(buttonIndex).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2),
+									buttonList.get(buttonIndex).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2),
+									BubbleMenuHighlighter.halo_size, BubbleMenuHighlighter.halo_size);
 	}
 	
 	public static PBounds getContainerBounds()
