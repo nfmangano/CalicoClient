@@ -8,7 +8,7 @@ import java.util.List;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
-import calico.plugins.iip.components.CCanvasLinkAnchor.Type;
+import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
 import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -39,7 +39,7 @@ public class IntentionGraphController
 
 	private void updateAnchorPosition(CCanvasLinkAnchor anchor)
 	{
-		if (anchor.getType() == Type.INTENTION_CELL)
+		if (anchor.getArrowEndpointType() == ArrowEndpointType.INTENTION_CELL)
 		{
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId());
 
@@ -51,14 +51,14 @@ public class IntentionGraphController
 	private Point2D getOppositePosition(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkAnchor opposite = anchor.getOpposite();
-		switch (opposite.getType())
+		switch (opposite.getArrowEndpointType())
 		{
 			case INTENTION_CELL:
 				return CIntentionCellController.getInstance().getCellByCanvasId(opposite.getCanvasId()).getCenter();
 			case FLOATING:
 				return anchor.getPoint();
 			default:
-				throw new IllegalArgumentException("Unknown anchor type " + anchor.getType());
+				throw new IllegalArgumentException("Unknown anchor type " + anchor.getArrowEndpointType());
 		}
 	}
 

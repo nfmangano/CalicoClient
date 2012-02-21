@@ -1,5 +1,7 @@
 package calico.plugins.iip;
 
+import java.awt.Point;
+
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.CGroup;
@@ -156,20 +158,34 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	{
 		long uuid = p.getLong();
 		long canvas_uuid = p.getLong();
-		long group_uuid = p.getLong();
-		CCanvasLinkAnchor.Type type = CCanvasLinkAnchor.Type.values()[p.getInt()];
+		CCanvasLinkAnchor.ArrowEndpointType type = CCanvasLinkAnchor.ArrowEndpointType.values()[p.getInt()];
 		int x = p.getInt();
 		int y = p.getInt();
 
+		CCanvasLinkAnchor anchor;
 		switch (type)
 		{
 			case FLOATING:
-				return new CCanvasLinkAnchor(uuid, x, y);
+				anchor = new CCanvasLinkAnchor(uuid, x, y);
+				break;
 			case INTENTION_CELL:
-				return new CCanvasLinkAnchor(uuid, canvas_uuid, group_uuid, x, y);
+				anchor = new CCanvasLinkAnchor(uuid, canvas_uuid, x, y);
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown link type " + type);
 		}
+
+		long group_uuid = p.getLong();
+		int xGroup = p.getInt();
+		int yGroup = p.getInt();
+		
+		if (group_uuid > 0L)
+		{
+			anchor.getBadge().setGroupId(group_uuid);
+			anchor.getBadge().setPosition(new Point(xGroup, yGroup));
+		}
+		
+		return anchor;
 	}
 
 	private static void CLINK_CREATE(CalicoPacket p)
@@ -204,11 +220,10 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		long anchor_uuid = p.getLong();
 		long canvas_uuid = p.getLong();
-		long group_uuid = p.getLong();
 		int x = p.getInt();
 		int y = p.getInt();
 
-		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, group_uuid, x, y);
+		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, x, y);
 	}
 
 	private static void CLINK_DELETE(CalicoPacket p)

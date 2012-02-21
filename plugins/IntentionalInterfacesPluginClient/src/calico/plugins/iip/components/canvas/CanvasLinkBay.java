@@ -219,7 +219,7 @@ public class CanvasLinkBay implements StickyItem
 				{
 					if (token.getGlobalBounds().contains(event.getPoint()))
 					{
-						System.out.println("Clicked on a " + token.getLinkAnchor().getType() + " to canvas #"
+						System.out.println("Clicked on a " + token.getLinkAnchor().getArrowEndpointType() + " to canvas #"
 								+ token.getLinkAnchor().getOpposite().getCanvasId());
 						clickedToken = token;
 						break;

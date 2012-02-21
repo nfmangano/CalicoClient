@@ -3,16 +3,16 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import calico.CalicoDataStore;
 import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
 import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLink.LinkType;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
@@ -77,6 +77,13 @@ public class IntentionCanvasController
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
 		badgesByAnchorId.put(badge.getLink().getId(), badge);
+
+		// set the badge position
+		
+		CGroupController.groupdb.put(badge.getId(), badge);
+		CCanvasController.canvasdb.get(badge.getCanvasUID()).getCamera().addChild(badge);
+		badge.drawPermTemp(true);
+		CGroupController.no_notify_finish(badge.getId(), false);
 	}
 
 	public CCanvasLinkBadge getBadgeByAnchorId(long anchor_uuid)
@@ -191,7 +198,7 @@ public class IntentionCanvasController
 				// these are badges, not tokens
 				continue;
 			}
-			
+
 			CCanvasLinkToken token = this.tokensByAnchorId.get(tokenAnchorId);
 			if (token.getDirection() == direction)
 			{
@@ -250,7 +257,7 @@ public class IntentionCanvasController
 		@Override
 		public int compare(CCanvasLinkToken first, CCanvasLinkToken second)
 		{
-			int comparison = first.getLinkAnchor().getType().compareTo(second.getLinkAnchor().getType());
+			int comparison = first.getLinkAnchor().getArrowEndpointType().compareTo(second.getLinkAnchor().getArrowEndpointType());
 			if (comparison == 0)
 			{
 				return (int) (first.getLinkAnchor().getCanvasId() - second.getLinkAnchor().getCanvasId());
