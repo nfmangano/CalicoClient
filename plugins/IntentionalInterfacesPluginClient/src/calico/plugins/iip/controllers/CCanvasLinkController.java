@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,13 +12,17 @@ import java.util.Set;
 import calico.Calico;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CCanvasLinkAnchor.Type;
+import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
+import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
 public class CCanvasLinkController implements CCanvas.ContentContributor
 {
@@ -57,6 +62,18 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		}
 		return anchorIds;
 	}
+	
+	public long getLinkAt(Point point)
+	{
+		for (CCanvasLink link : linksById.values())
+		{
+			if (link.contains(point))
+			{
+				return link.getId();
+			}
+		}
+		return -1L;
+	}
 
 	public void addLink(CCanvasLink link)
 	{
@@ -74,6 +91,8 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		addAnchor(link.getAnchorA());
 		addAnchor(link.getAnchorB());
 
+		CalicoInputManager.addCustomInputHandler(link.getId(), CCanvasLinkInputHandler.getInstance());
+		
 		notifyCanvasContentChange(link);
 	}
 
@@ -129,6 +148,8 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		IntentionCanvasController.getInstance().removeLink(link);
 		removeLinkAnchor(link.getAnchorA().getId());
 		removeLinkAnchor(link.getAnchorB().getId());
+
+		CalicoInputManager.removeCustomInputHandler(uuid);
 		notifyCanvasContentChange(link);
 	}
 
@@ -230,7 +251,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(y);
 	}
 
-	private void deleteLink(long uuid)
+	public void deleteLink(long uuid)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_DELETE);

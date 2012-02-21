@@ -5,7 +5,9 @@ import java.awt.event.MouseListener;
 import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import edu.umd.cs.piccolo.PNode;
 
@@ -44,17 +46,30 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		// handler has no idea that the pie menu was cleared, and it will continue to think that cell is active until
 		// the next event occurs (for which it will report the old active cell as being still active now).
 
-		long cic_uuid = CIntentionCellInputHandler.getInstance().getActiveCell();
-		if (cic_uuid >= 0L)
+		long target_uuid = CIntentionCellInputHandler.getInstance().getActiveCell();
+		if (target_uuid >= 0L)
 		{
-			return cic_uuid;
+			return target_uuid;
+		}
+		
+		target_uuid = CCanvasLinkInputHandler.getInstance().getActiveLink();
+		if (target_uuid >= 0L)
+		{
+			return target_uuid;
 		}
 
-		cic_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
-		if (cic_uuid >= 0L)
+		target_uuid = CCanvasLinkController.getInstance().getLinkAt(event.getGlobalPoint());
+		if (target_uuid >= 0L)
 		{
-			CIntentionCellInputHandler.getInstance().setCurrentCellId(cic_uuid);
-			return cic_uuid;
+			CCanvasLinkInputHandler.getInstance().setCurrentLinkId(target_uuid);
+			return target_uuid;
+		}
+		
+		target_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
+		if (target_uuid >= 0L)
+		{
+			CIntentionCellInputHandler.getInstance().setCurrentCellId(target_uuid);
+			return target_uuid;
 		}
 
 		// look for arrows, CICs, else:

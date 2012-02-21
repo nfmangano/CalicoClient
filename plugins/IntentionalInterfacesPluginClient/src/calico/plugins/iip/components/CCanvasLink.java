@@ -1,7 +1,10 @@
 package calico.plugins.iip.components;
 
 import java.awt.Image;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
+import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public class CCanvasLink
@@ -26,6 +29,8 @@ public class CCanvasLink
 		INCOMING,
 		OUTGOING;
 	}
+	
+	private static final double HIT_PROXIMITY = 10.0;
 
 	private long uuid;
 
@@ -33,6 +38,9 @@ public class CCanvasLink
 
 	private CCanvasLinkAnchor anchorA;
 	private CCanvasLinkAnchor anchorB;
+	
+	private final Line2D hitTestLink = new Line2D.Double();
+	private final Point2D hitTestPoint = new Point2D.Double();
 
 	public CCanvasLink(long uuid, LinkType linkType, CCanvasLinkAnchor anchorA, CCanvasLinkAnchor anchorB)
 	{
@@ -68,5 +76,14 @@ public class CCanvasLink
 	public void setLinkType(LinkType linkType)
 	{
 		this.linkType = linkType;
+	}
+	
+	public boolean contains(Point2D point)
+	{
+		hitTestPoint.setLocation(point);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(hitTestPoint);
+		hitTestLink.setLine(anchorA.getPoint(), anchorB.getPoint());
+		double proximity = hitTestLink.ptSegDist(hitTestPoint);
+		return proximity < HIT_PROXIMITY;
 	}
 }

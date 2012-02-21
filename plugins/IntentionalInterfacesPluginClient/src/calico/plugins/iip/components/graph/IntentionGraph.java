@@ -146,16 +146,19 @@ public class IntentionGraph
 			return;
 		}
 
-		Rectangle contentBounds = contentCanvas.getBounds();
-		double xRatio = contentBounds.width / (maxX - minX);
-		double yRatio = contentBounds.height / (maxY - minY);
+		Dimension contentSize = contentCanvas.getBounds().getSize();
+		double xRatio = contentSize.width / (maxX - minX);
+		double yRatio = contentSize.height / (maxY - minY);
 
 		double scale = Math.min(xRatio, yRatio) * 0.9;
 		contentCanvas.getLayer().setScale(scale);
-		contentBounds = contentCanvas.getBounds();
+		contentSize = contentCanvas.getBounds().getSize();
 		Point2D center = new Point2D.Double(minX + ((maxX - minX) / 2), minY + ((maxY - minY) / 2));
-		Point2D origin = new Point2D.Double((center.getX() * scale) - (contentBounds.width / 2), (center.getY() * scale) - (contentBounds.height / 2));
-		contentCanvas.getLayer().translate(-origin.getX(), -origin.getY());
+		Point2D origin = new Point2D.Double((center.getX() * scale) - (contentSize.width / 2), (center.getY() * scale) - (contentSize.height / 2));
+		double xDelta = -(contentCanvas.getLayer().getTransform().getTranslateX() + origin.getX());
+		double yDelta = -(contentCanvas.getLayer().getTransform().getTranslateY() + origin.getY());
+		contentCanvas.getLayer().translate(xDelta, yDelta);
+		repaint();
 	}
 
 	public void repaint()

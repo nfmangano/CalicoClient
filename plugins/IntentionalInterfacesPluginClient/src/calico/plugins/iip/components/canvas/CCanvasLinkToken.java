@@ -38,7 +38,7 @@ public class CCanvasLinkToken extends PImage
 		return uuid;
 	}
 
-	public CCanvasLinkAnchor getLink()
+	public CCanvasLinkAnchor getLinkAnchor()
 	{
 		return link;
 	}

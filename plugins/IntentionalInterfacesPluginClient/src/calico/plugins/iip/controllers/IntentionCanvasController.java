@@ -12,6 +12,7 @@ import calico.CalicoDataStore;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
@@ -30,7 +31,6 @@ public class IntentionCanvasController
 	}
 
 	private static IntentionCanvasController INSTANCE;
-
 
 	private Long2ReferenceArrayMap<CCanvasLinkBadge> badgesByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
 	private Long2ReferenceArrayMap<CCanvasLinkToken> tokensByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkToken>();
@@ -53,7 +53,7 @@ public class IntentionCanvasController
 				break;
 		}
 	}
-	
+
 	public void removeLink(CCanvasLink link)
 	{
 		switch (link.getLinkType())
@@ -66,19 +66,19 @@ public class IntentionCanvasController
 				break;
 		}
 	}
-	
+
 	private void addBadges(CCanvasLink link)
 	{
 		addBadge(link.getAnchorA());
 		addBadge(link.getAnchorB());
 	}
-	
+
 	private void addBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
 		badgesByAnchorId.put(badge.getLink().getId(), badge);
 	}
-	
+
 	public CCanvasLinkBadge getBadgeByAnchorId(long anchor_uuid)
 	{
 		return badgesByAnchorId.get(anchor_uuid);
@@ -89,7 +89,7 @@ public class IntentionCanvasController
 		removeBadge(link.getAnchorA());
 		removeBadge(link.getAnchorB());
 	}
-	
+
 	private void removeBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = badgesByAnchorId.remove(anchor.getId());
@@ -112,12 +112,12 @@ public class IntentionCanvasController
 		addToken(link.getAnchorA());
 		addToken(link.getAnchorB());
 	}
-	
+
 	private void addToken(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkToken token = new CCanvasLinkToken(anchor);
-		tokensByAnchorId.put(token.getLink().getId(), token);
-		
+		tokensByAnchorId.put(token.getLinkAnchor().getId(), token);
+
 		if (anchor.getCanvasId() == currentCanvasId)
 		{
 			if (anchor.getLink().getAnchorA() == anchor)
@@ -136,10 +136,11 @@ public class IntentionCanvasController
 		removeToken(link.getAnchorA());
 		removeToken(link.getAnchorB());
 	}
-	
+
 	private void removeToken(CCanvasLinkAnchor anchor)
 	{
-		CCanvasLinkToken token = tokensByAnchorId.remove(anchor.getId());
+		tokensByAnchorId.remove(anchor.getId());
+		CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(anchor.getCanvasId()).remove(anchor.getId());
 
 		if (anchor.getCanvasId() == currentCanvasId)
 		{
@@ -164,6 +165,12 @@ public class IntentionCanvasController
 		int count = 0;
 		for (long tokenAnchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 		{
+			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).getLink().getLinkType() == LinkType.DESIGN_INSIDE)
+			{
+				// these are badges, not tokens
+				continue;
+			}
+
 			CCanvasLinkToken token = tokensByAnchorId.get(tokenAnchorId);
 			if (token.getDirection() == direction)
 			{
@@ -179,6 +186,12 @@ public class IntentionCanvasController
 
 		for (Long tokenAnchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 		{
+			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).getLink().getLinkType() == LinkType.DESIGN_INSIDE)
+			{
+				// these are badges, not tokens
+				continue;
+			}
+			
 			CCanvasLinkToken token = this.tokensByAnchorId.get(tokenAnchorId);
 			if (token.getDirection() == direction)
 			{
@@ -237,10 +250,10 @@ public class IntentionCanvasController
 		@Override
 		public int compare(CCanvasLinkToken first, CCanvasLinkToken second)
 		{
-			int comparison = first.getLink().getType().compareTo(second.getLink().getType());
+			int comparison = first.getLinkAnchor().getType().compareTo(second.getLinkAnchor().getType());
 			if (comparison == 0)
 			{
-				return (int) (first.getLink().getCanvasId() - second.getLink().getCanvasId());
+				return (int) (first.getLinkAnchor().getCanvasId() - second.getLinkAnchor().getCanvasId());
 			}
 			return comparison;
 		}

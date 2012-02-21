@@ -7,20 +7,16 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
-public class CreateNewIdeaLinkButton extends PieMenuButton
+public class MoveLinkButton extends PieMenuButton
 {
-	public CreateNewIdeaLinkButton()
+	public MoveLinkButton()
 	{
-		super(CCanvasLink.LinkType.NEW_IDEA.image);
+		super(CalicoIconManager.getIconImage("intention-graph.move-link"));
 	}
-
+	
 	@Override
 	public void onClick(InputEventInfo event)
 	{
-		System.out.println("Start creating a new idea arrow from here");
-
-		CreateIntentionArrowPhase.INSTANCE.startPhase(
-				CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()), event.getGlobalPoint(),
-				CCanvasLink.LinkType.NEW_IDEA);
+		System.out.println("Move this here link around");
 	}
 }

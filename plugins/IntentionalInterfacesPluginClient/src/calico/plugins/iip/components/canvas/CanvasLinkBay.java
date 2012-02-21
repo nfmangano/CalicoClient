@@ -5,14 +5,19 @@ import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import calico.Calico;
+import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.piemenu.DeleteLinkButton;
+import calico.plugins.iip.components.piemenu.GoToCanvasButton;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
@@ -22,7 +27,7 @@ public class CanvasLinkBay implements StickyItem
 	{
 		void updateBounds(Rectangle2D bounds, double width, double height);
 	}
-	
+
 	public static final double BAY_INSET_X = 100.0;
 	public static final double BAY_INSET_Y = 50.0;
 	public static final double TOKEN_MARGIN = 3.0;
@@ -37,6 +42,9 @@ public class CanvasLinkBay implements StickyItem
 	private final Rectangle2D bounds = new Rectangle2D.Double();
 	private Layout layout;
 	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
+
+	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
 
 	public CanvasLinkBay(long canvas_uuid, CCanvasLink.LinkDirection direction, Layout layout)
 	{
@@ -72,7 +80,7 @@ public class CanvasLinkBay implements StickyItem
 	public void setVisible(boolean b)
 	{
 		visible = b;
-		
+
 		if (b)
 		{
 			refreshLayout();
@@ -94,7 +102,7 @@ public class CanvasLinkBay implements StickyItem
 	public void moveTo(long canvas_uuid)
 	{
 		this.canvas_uuid = canvas_uuid;
-		
+
 		if (bay.getParent() != null)
 		{
 			bay.getParent().removeChild(bay);
@@ -109,7 +117,7 @@ public class CanvasLinkBay implements StickyItem
 		{
 			return;
 		}
-		
+
 		int tokenCount = IntentionCanvasController.getInstance().getTokenCount(canvas_uuid, direction);
 		if (tokenCount == 0)
 		{
@@ -117,7 +125,7 @@ public class CanvasLinkBay implements StickyItem
 			bay.setVisible(false);
 			return;
 		}
-		
+
 		bay.setVisible(true);
 
 		double width = (tokenCount * (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN)) + TOKEN_MARGIN;
@@ -125,10 +133,10 @@ public class CanvasLinkBay implements StickyItem
 		layout.updateBounds(bounds, width, height);
 		bay.setBounds(bounds);
 		bay.repaint();
-		
+
 		bay.updateTokens();
 	}
-	
+
 	private class Bay extends PComposite
 	{
 		void updateTokens()
@@ -143,7 +151,7 @@ public class CanvasLinkBay implements StickyItem
 				}
 			}
 		}
-		
+
 		@Override
 		protected void layoutChildren()
 		{
@@ -164,9 +172,46 @@ public class CanvasLinkBay implements StickyItem
 
 	private class InputHandler extends CalicoAbstractInputHandler
 	{
+		private final Object stateLock = new Object();
+
+		private boolean pieMenuPending = false;
+		private CCanvasLinkToken clickedToken = null;
+
+		private final PieMenuTimer pieTimer = new PieMenuTimer();
+
 		@Override
 		public void actionReleased(InputEventInfo event)
 		{
+			synchronized (stateLock)
+			{
+				pieMenuPending = false;
+			}
+
+			clickedToken = null;
+
+			CalicoInputManager.unlockHandlerIfMatch(uuid);
+		}
+
+		@Override
+		public void actionDragged(InputEventInfo event)
+		{
+			synchronized (stateLock)
+			{
+				pieMenuPending = false;
+			}
+
+			clickedToken = null;
+		}
+
+		@Override
+		public void actionPressed(InputEventInfo event)
+		{
+			synchronized (stateLock)
+			{
+				pieMenuPending = false;
+			}
+
+			clickedToken = null;
 			synchronized (tokens)
 			{
 				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
@@ -174,23 +219,52 @@ public class CanvasLinkBay implements StickyItem
 				{
 					if (token.getGlobalBounds().contains(event.getPoint()))
 					{
-						System.out.println("Clicked on a " + token.getLink().getType() + " to canvas #" + token.getLink().getCanvasId());
+						System.out.println("Clicked on a " + token.getLinkAnchor().getType() + " to canvas #"
+								+ token.getLinkAnchor().getOpposite().getCanvasId());
+						clickedToken = token;
 						break;
 					}
 				}
 			}
 
-			CalicoInputManager.unlockHandlerIfMatch(uuid);
+			if (clickedToken != null)
+			{
+				pieTimer.start(event.getGlobalPoint());
+			}
 		}
 
-		@Override
-		public void actionDragged(InputEventInfo ev)
+		private class PieMenuTimer extends Timer
 		{
-		}
+			private Point point;
 
-		@Override
-		public void actionPressed(InputEventInfo ev)
-		{
+			void start(Point point)
+			{
+				this.point = point;
+
+				synchronized (stateLock)
+				{
+					pieMenuPending = true;
+					schedule(new Task(), 200L);
+				}
+			}
+
+			private class Task extends TimerTask
+			{
+				@Override
+				public void run()
+				{
+					synchronized (stateLock)
+					{
+						if (pieMenuPending)
+						{
+							pieMenuPending = false;
+							deleteLinkButton.setContext(clickedToken.getLinkAnchor().getLink());
+							goToCanvasButton.setContext(clickedToken.getLinkAnchor().getOpposite().getCanvasId());
+							PieMenu.displayPieMenu(point, deleteLinkButton, goToCanvasButton);
+						}
+					}
+				}
+			}
 		}
 	}
 }

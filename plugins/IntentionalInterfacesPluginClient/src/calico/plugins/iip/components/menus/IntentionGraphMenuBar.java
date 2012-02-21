@@ -7,6 +7,7 @@ import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ReturnToGrid;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 {
@@ -20,6 +21,8 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
 		addIcon(new ReturnToGrid());
+		addSpacer();
+		addIcon(new ZoomToExtent());
 
 		addSpacer();
 

@@ -2,6 +2,7 @@ package calico.plugins.iip;
 
 import calico.Calico;
 import calico.CalicoOptions;
+import calico.components.CGroup;
 import calico.components.menus.CanvasStatusBar;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
@@ -16,6 +17,7 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
+import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
@@ -38,7 +40,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		GridBottomMenuBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
-		// CGroup.registerPieMenuButton(SaveToPaletteButton.class);
+		CGroup.registerPieMenuButton(CreateDesignInsideLinkButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
@@ -205,7 +207,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		long group_uuid = p.getLong();
 		int x = p.getInt();
 		int y = p.getInt();
-		
+
 		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, group_uuid, x, y);
 	}
 
