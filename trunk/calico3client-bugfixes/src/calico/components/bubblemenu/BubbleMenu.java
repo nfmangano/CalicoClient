@@ -254,8 +254,9 @@ public class BubbleMenu {
 		
 		int minX, minY, maxX, maxY;
 		
-		int x = 0;
-		int y = 0;
+		//Start offscreen in case a button is missing
+		int x = -50;
+		int y = -50;
 		
 		int screenHeight = CalicoDataStore.ScreenHeight;
 		int screenWidth = CalicoDataStore.ScreenWidth;
