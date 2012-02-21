@@ -1047,7 +1047,6 @@ public class PacketHandler
 			y[i] = p.getInt();
 		}
 		CStrokeController.no_notify_batch_append(uuid, x, y);
-		CStrokeController.strokes.get(uuid).finish();
 		
 		double rotation = p.getDouble();
 		double scaleX = p.getDouble();
@@ -1055,6 +1054,8 @@ public class PacketHandler
 		
 		CStrokeController.strokes.get(uuid).primative_rotate(rotation);
 		CStrokeController.strokes.get(uuid).primative_scale(scaleX, scaleY);
+		
+		CStrokeController.strokes.get(uuid).finish();
 		
 //		CStrokeController.no_notify_finish(uuid);
 		
