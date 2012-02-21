@@ -131,8 +131,9 @@ public class CStrokeController
 	{	
 		if (!strokes.containsKey(suuid))
 		{
-			System.err.println("Attempting to load a stroke that does not exist!");
-			(new Exception()).printStackTrace();
+			logger.warn("Attempting to load stroke " + suuid + " which does not exist!");
+			//System.err.println("Attempting to load a stroke that does not exist!");
+			//(new Exception()).printStackTrace();
 			return;
 		}
 		CalicoPacket[] packets = strokes.get(suuid).getUpdatePackets();
@@ -297,6 +298,7 @@ public class CStrokeController
 		
 		
 		strokes.get(uuid).delete();
+		strokes.remove(uuid);
 		CGroupController.originalStroke = 0l;
 		CGroupController.restoreOriginalStroke = false;
 
