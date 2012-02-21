@@ -184,6 +184,7 @@ public class NetworkCommand
 	public static final int CONSISTENCY_FAILED		= 514;
 	public static final int CONSISTENCY_RESYNC_CANVAS  = 515;
 	public static final int CONSISTENCY_DEBUG		= 516;
+	public static final int CONSISTENCY_RESYNCED    = 517;
 	
 	public static final int GRID_SIZE				= 512; // <ROWS> <COLS> (this is server->client)
 

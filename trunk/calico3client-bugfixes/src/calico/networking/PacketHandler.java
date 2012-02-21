@@ -117,6 +117,7 @@ public class PacketHandler
 			case NetworkCommand.CONSISTENCY_FINISH:CONSISTENCY_FINISH(packet);break;
 			case NetworkCommand.CONSISTENCY_FAILED:CONSISTENCY_FAILED(packet);break;
 			case NetworkCommand.CONSISTENCY_DEBUG:CONSISTENCY_DEBUG(packet);break;
+			case NetworkCommand.CONSISTENCY_RESYNCED:CONSISTENCY_RESYNCED(packet);break;
 			
 			case NetworkCommand.CANVAS_INFO:CANVAS_INFO(packet);break;
 			case NetworkCommand.CANVAS_REDRAW:CANVAS_REDRAW(packet);break;
@@ -703,6 +704,12 @@ public class PacketHandler
 	private static void CONSISTENCY_FAILED(CalicoPacket p)
 	{
 		Networking.synchroized = false;
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
+	}
+	
+	private static void CONSISTENCY_RESYNCED(CalicoPacket p)
+	{
+		Networking.synchroized = true;
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
 	
