@@ -662,9 +662,6 @@ public class CCanvasController
 
 		void notifyContentChanged(ContentContributor changeContributor, long canvas_uuid)
 		{
-			System.out.println("Content changed on canvas " + canvasdb.get(canvas_uuid).getGridCoordTxt() + "; it is "
-					+ (CCanvasController.hasContent(canvas_uuid) ? "not empty" : "now empty"));
-
 			synchronized (changedCanvasIds)
 			{
 				changedCanvasIds.add(canvas_uuid);

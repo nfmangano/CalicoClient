@@ -58,7 +58,7 @@ public class CGroupController
 
 	public static interface Listener
 	{
-		void groupMovedBy(long uuid, int xDistance, int yDistance);
+		void groupMovedBy(long uuid);
 		
 		void groupDeleted(long uuid);
 	}
@@ -80,6 +80,14 @@ public class CGroupController
 	public static void removeListener(Listener listener)
 	{
 		listeners.remove(listener);
+	}
+	
+	private static void informListenersOfMove(long uuid)
+	{
+		for (Listener listener : listeners)
+		{
+			listener.groupMovedBy(uuid);
+		}
 	}
 	
 	public static boolean dq_add(long uuid)
@@ -284,10 +292,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).move(x, y);
 		
-		for (Listener listener : listeners)
-		{
-			listener.groupMovedBy(uuid, x, y);
-		}
+		informListenersOfMove(uuid);
 	}
 	
 	public static void no_notify_delete(final long uuid)
@@ -1245,9 +1250,9 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).rotate(theta);
+		
+		informListenersOfMove(uuid);
 	}
-	
-
 
 	public static void no_notify_scale(long uuid, double scaleX, double scaleY) 
 	{
@@ -1259,6 +1264,8 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).scale(scaleX, scaleY);
+		
+		informListenersOfMove(uuid);
 	}
 	
 	public static void no_notify_create_text_scrap(long uuid, long cuuid, String text, int x, int y)
