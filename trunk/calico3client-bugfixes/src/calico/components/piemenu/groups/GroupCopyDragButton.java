@@ -212,7 +212,7 @@ public class GroupCopyDragButton extends PieMenuButton
 				try {
 					while(!CGroupController.exists(new_guuid))
 					{
-					Thread.sleep(100);
+					Thread.sleep(10);
 					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block

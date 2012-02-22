@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.ProgressMonitor;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -537,7 +538,8 @@ public class CCanvas
 		
 		if(this.menuBarLeft!=null)
 		{
-			canvas.getCamera().removeChild(this.menuBarLeft);
+			//canvas.getCamera().removeChild(this.menuBarLeft);
+			toolLayer.removeChild(this.menuBarLeft);
 			this.menuBarLeft = null;
 		}
 		if(this.menuBarRight!=null)
@@ -572,8 +574,13 @@ public class CCanvas
 	public void drawMenuBars()
 	{		
 //		drawTopMenuBar();
-		drawMenuBar();
-		drawStatusBar();
+		//This may be ugly, but it prevents the menu bars from flickering and disappearing randomly.
+		//In order for all 
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					drawMenuBar();
+					drawStatusBar();
+				}});
 	}
 	
 	public void removeTopMenuBar(){
