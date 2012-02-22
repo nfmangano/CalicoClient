@@ -23,7 +23,6 @@ public class CreateDesignInsideLinkButton extends PieMenuButton
 	{
 		System.out.println("Design inside the active scrap");
 
-		CCanvasLinkController.getInstance()
-				.createLinkToEmptyCanvas(CGroupController.groupdb.get(group_uuid).getCanvasUID(), CCanvasLink.LinkType.DESIGN_INSIDE);
+		CCanvasLinkController.getInstance().createDesignInsideLink(group_uuid);
 	}
 }

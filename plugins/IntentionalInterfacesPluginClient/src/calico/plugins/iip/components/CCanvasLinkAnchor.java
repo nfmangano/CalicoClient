@@ -13,35 +13,9 @@ public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 		INTENTION_CELL;
 	}
 	
-	public class Badge
-	{
-		private long groupId;
-		private Point position;
-		
-		public long getGroupId()
-		{
-			return groupId;
-		}
-		
-		public void setGroupId(long groupId)
-		{
-			this.groupId = groupId;
-		}
-		
-		public Point getPosition()
-		{
-			return position;
-		}
-		
-		public void setPosition(Point position)
-		{
-			this.position = position;
-		}
-	}
-
 	private final long uuid;
 	private long canvas_uuid;
-	private Badge badge = null;
+	private long group_uuid;
 	private ArrowEndpointType type;
 
 	private CCanvasLink link;
@@ -91,18 +65,19 @@ public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 		return canvas_uuid;
 	}
 	
-	public boolean hasBadge()
+	public boolean hasGroup()
 	{
-		return badge != null;
+		return group_uuid > 0L;
 	}
 
-	public Badge getBadge()
+	public long getGroupId()
 	{
-		if (badge == null)
-		{
-			badge = new Badge();
-		}
-		return badge;
+		return group_uuid;
+	}
+
+	public void setGroupId(long group_uuid)
+	{
+		this.group_uuid = group_uuid;
 	}
 
 	public ArrowEndpointType getArrowEndpointType()

@@ -12,6 +12,7 @@ import java.util.Set;
 import calico.Calico;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -229,13 +230,16 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		Networking.send(packet);
 	}
 
-	public void createDesignInsideLink(long fromCanvasId, long toCanvasId, int xGroup, int yGroup)
+	public void createDesignInsideLink(long group_uuid)
 	{
+		long fromCanvasId = CGroupController.groupdb.get(group_uuid).getCanvasUID();
+		long toCanvasId = getNextEmptyCanvas(fromCanvasId);
+		
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putInt(CCanvasLink.LinkType.DESIGN_INSIDE.ordinal());
-		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId), Calico.uuid(), xGroup, yGroup);
+		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId), group_uuid);
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
 
 		packet.rewind();
@@ -245,22 +249,20 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 
 	private void packAnchor(CalicoPacket packet, long canvas_uuid, Point2D position)
 	{
-		packAnchor(packet, canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL, (int) position.getX(), (int) position.getY(), 0L, 0, 0);
+		packAnchor(packet, canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL, (int) position.getX(), (int) position.getY(), 0L);
 	}
 
-	private void packAnchor(CalicoPacket packet, long canvas_uuid, Point2D position, long group_uuid, int xGroup, int yGroup)
+	private void packAnchor(CalicoPacket packet, long canvas_uuid, Point2D position, long group_uuid)
 	{
-		packAnchor(packet, canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL, (int) position.getX(), (int) position.getY(), group_uuid, xGroup,
-				yGroup);
+		packAnchor(packet, canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL, (int) position.getX(), (int) position.getY(), group_uuid);
 	}
 
 	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType type, int x, int y)
 	{
-		packAnchor(packet, canvas_uuid, type, x, y, 0L, 0, 0);
+		packAnchor(packet, canvas_uuid, type, x, y, 0L);
 	}
 
-	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType type, int x, int y, long group_uuid, int xGroup,
-			int yGroup)
+	private void packAnchor(CalicoPacket packet, long canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType type, int x, int y, long group_uuid)
 	{
 		packet.putLong(Calico.uuid());
 		packet.putLong(canvas_uuid);
@@ -268,8 +270,6 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(x);
 		packet.putInt(y);
 		packet.putLong(group_uuid);
-		packet.putInt(xGroup);
-		packet.putInt(yGroup);
 	}
 
 	public void deleteLink(long uuid)

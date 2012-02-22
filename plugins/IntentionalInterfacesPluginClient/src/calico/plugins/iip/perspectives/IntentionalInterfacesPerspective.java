@@ -42,10 +42,6 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected long getEventTarget(InputEventInfo event)
 	{
-		// this will be entirely wrong if the pie menu was activated on a cell and then it was cleared. The input
-		// handler has no idea that the pie menu was cleared, and it will continue to think that cell is active until
-		// the next event occurs (for which it will report the old active cell as being still active now).
-
 		long target_uuid = CIntentionCellInputHandler.getInstance().getActiveCell();
 		if (target_uuid >= 0L)
 		{

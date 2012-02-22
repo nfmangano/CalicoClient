@@ -175,15 +175,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 				throw new IllegalArgumentException("Unknown link type " + type);
 		}
 
-		long group_uuid = p.getLong();
-		int xGroup = p.getInt();
-		int yGroup = p.getInt();
-		
-		if (group_uuid > 0L)
-		{
-			anchor.getBadge().setGroupId(group_uuid);
-			anchor.getBadge().setPosition(new Point(xGroup, yGroup));
-		}
+		anchor.setGroupId(p.getLong());
 		
 		return anchor;
 	}

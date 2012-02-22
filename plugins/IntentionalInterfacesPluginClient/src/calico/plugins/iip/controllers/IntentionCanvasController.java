@@ -8,8 +8,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import calico.CalicoDataStore;
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
@@ -18,7 +20,7 @@ import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
 import calico.plugins.iip.components.canvas.CanvasLinkBay;
 
-public class IntentionCanvasController
+public class IntentionCanvasController implements CGroupController.Listener
 {
 	public static IntentionCanvasController getInstance()
 	{
@@ -41,15 +43,22 @@ public class IntentionCanvasController
 
 	private Comparator<CCanvasLinkToken> sorter = new DefaultSorter();
 
+	private IntentionCanvasController()
+	{
+		CGroupController.addListener(this);
+	}
+
 	public void addLink(CCanvasLink link)
 	{
 		switch (link.getLinkType())
 		{
 			case DESIGN_INSIDE:
-				addBadges(link);
+				addBadge(link.getAnchorA());
+				addToken(link.getAnchorB());
 				break;
 			default:
-				addTokens(link);
+				addToken(link.getAnchorA());
+				addToken(link.getAnchorB());
 				break;
 		}
 	}
@@ -59,31 +68,23 @@ public class IntentionCanvasController
 		switch (link.getLinkType())
 		{
 			case DESIGN_INSIDE:
-				removeBadges(link);
+				removeBadge(link.getAnchorA());
+				removeToken(link.getAnchorB());
 				break;
 			default:
-				removeTokens(link);
+				removeToken(link.getAnchorA());
+				removeToken(link.getAnchorB());
 				break;
 		}
-	}
-
-	private void addBadges(CCanvasLink link)
-	{
-		addBadge(link.getAnchorA());
-		addBadge(link.getAnchorB());
 	}
 
 	private void addBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
-		badgesByAnchorId.put(badge.getLink().getId(), badge);
+		badgesByAnchorId.put(badge.getLinkAnchor().getId(), badge);
 
-		// set the badge position
-		
-		CGroupController.groupdb.put(badge.getId(), badge);
-		CCanvasController.canvasdb.get(badge.getCanvasUID()).getCamera().addChild(badge);
-		badge.drawPermTemp(true);
-		CGroupController.no_notify_finish(badge.getId(), false);
+		CCanvasController.canvasdb.get(anchor.getCanvasId()).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
+		badge.updatePosition();
 	}
 
 	public CCanvasLinkBadge getBadgeByAnchorId(long anchor_uuid)
@@ -91,33 +92,16 @@ public class IntentionCanvasController
 		return badgesByAnchorId.get(anchor_uuid);
 	}
 
-	private void removeBadges(CCanvasLink link)
-	{
-		removeBadge(link.getAnchorA());
-		removeBadge(link.getAnchorB());
-	}
-
 	private void removeBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = badgesByAnchorId.remove(anchor.getId());
-
-		if (anchor.getCanvasId() == currentCanvasId)
-		{
-			if (anchor.getLink().getAnchorA() == anchor)
-			{
-				outgoingLinkBay.refreshLayout();
-			}
-			else
-			{
-				incomingLinkBay.refreshLayout();
-			}
-		}
+		removeBadgeFromCanvas(badge);
 	}
 
-	private void addTokens(CCanvasLink link)
+	private void removeBadgeFromCanvas(CCanvasLinkBadge badge)
 	{
-		addToken(link.getAnchorA());
-		addToken(link.getAnchorB());
+		CCanvasController.canvasdb.get(badge.getLinkAnchor().getCanvasId()).getLayer(CCanvas.Layer.TOOLS).removeChild(badge.getImage());
+		badge.cleanup();
 	}
 
 	private void addToken(CCanvasLinkAnchor anchor)
@@ -136,12 +120,6 @@ public class IntentionCanvasController
 				incomingLinkBay.refreshLayout();
 			}
 		}
-	}
-
-	private void removeTokens(CCanvasLink link)
-	{
-		removeToken(link.getAnchorA());
-		removeToken(link.getAnchorB());
 	}
 
 	private void removeToken(CCanvasLinkAnchor anchor)
@@ -172,9 +150,9 @@ public class IntentionCanvasController
 		int count = 0;
 		for (long tokenAnchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 		{
-			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).getLink().getLinkType() == LinkType.DESIGN_INSIDE)
+			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).hasGroup())
 			{
-				// these are badges, not tokens
+				// it's a badge on a CGroup, don't put it in the link bay
 				continue;
 			}
 
@@ -193,9 +171,9 @@ public class IntentionCanvasController
 
 		for (Long tokenAnchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 		{
-			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).getLink().getLinkType() == LinkType.DESIGN_INSIDE)
+			if (CCanvasLinkController.getInstance().getAnchor(tokenAnchorId).hasGroup())
 			{
-				// these are badges, not tokens
+				// it's a badge on a CGroup, don't put it in the link bay
 				continue;
 			}
 
@@ -220,6 +198,69 @@ public class IntentionCanvasController
 
 		incomingLinkBay.moveTo(canvas_uuid);
 		outgoingLinkBay.moveTo(canvas_uuid);
+
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (!anchor.hasGroup())
+			{
+				// not all anchors have badges
+				continue;
+			}
+
+			CCanvasLinkBadge badge = badgesByAnchorId.get(anchorId);
+			if (badge == null)
+			{
+				System.out.println("Warning: badge missing for design-inside anchor " + anchorId);
+				continue;
+			}
+
+			CCanvasController.canvasdb.get(canvas_uuid).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
+			badge.updatePosition();
+		}
+	}
+
+	@Override
+	public void groupDeleted(long uuid)
+	{
+		CCanvasLinkBadge badge = getBadgeForGroup(uuid);
+		if (badge == null)
+		{
+			return;
+		}
+		CCanvasLinkController.getInstance().deleteLink(badge.getLinkAnchor().getLink().getId());
+	}
+
+	@Override
+	public void groupMovedBy(long uuid, int xDistance, int yDistance)
+	{
+		CCanvasLinkBadge badge = getBadgeForGroup(uuid);
+		if ((badge == null) || !isCurrentlyDisplayed(badge))
+		{
+			return;
+		}
+		badge.updatePosition();
+	}
+
+	private boolean isCurrentlyDisplayed(CCanvasLinkBadge badge)
+	{
+		if (!CanvasPerspective.getInstance().isActive())
+		{
+			return false;
+		}
+		return (badge.getLinkAnchor().getCanvasId() == CCanvasController.getCurrentUUID());
+	}
+
+	private CCanvasLinkBadge getBadgeForGroup(long group_uuid)
+	{
+		for (CCanvasLinkBadge badge : badgesByAnchorId.values())
+		{
+			if (badge.getLinkAnchor().getGroupId() == group_uuid)
+			{
+				return badge;
+			}
+		}
+		return null;
 	}
 
 	public CanvasLinkBay getIncomingLinkBay()
