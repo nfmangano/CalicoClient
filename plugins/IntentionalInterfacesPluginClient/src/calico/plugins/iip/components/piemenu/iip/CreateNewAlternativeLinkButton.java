@@ -18,7 +18,7 @@ public class CreateNewAlternativeLinkButton extends PieMenuButton
 	{
 		System.out.println("Start creating a new alternative arrow from here");
 
-		CreateIntentionArrowPhase.INSTANCE.startPhase(
+		CreateIntentionArrowPhase.INSTANCE.startCreate(
 				CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()), event.getGlobalPoint(),
 				CCanvasLink.LinkType.NEW_ALTERNATIVE);
 	}

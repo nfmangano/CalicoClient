@@ -86,8 +86,6 @@ public class CIntentionCellController
 			packet.rewind();
 			PacketHandler.receive(packet);
 			Networking.send(packet);
-
-			IntentionGraphController.getInstance().updateAttachedArrows(cellId, x, y);
 		}
 	}
 

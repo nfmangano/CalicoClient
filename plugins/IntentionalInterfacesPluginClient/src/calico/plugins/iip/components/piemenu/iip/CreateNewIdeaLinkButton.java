@@ -19,7 +19,7 @@ public class CreateNewIdeaLinkButton extends PieMenuButton
 	{
 		System.out.println("Start creating a new idea arrow from here");
 
-		CreateIntentionArrowPhase.INSTANCE.startPhase(
+		CreateIntentionArrowPhase.INSTANCE.startCreate(
 				CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()), event.getGlobalPoint(),
 				CCanvasLink.LinkType.NEW_IDEA);
 	}

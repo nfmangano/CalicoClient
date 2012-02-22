@@ -36,6 +36,11 @@ public class IntentionGraphController
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
 		arrow.redraw();
 	}
+	
+	public CCanvasLinkArrow getArrowByLinkId(long uuid)
+	{
+		return arrowsByLinkId.get(uuid);
+	}
 
 	private void updateAnchorPosition(CCanvasLinkAnchor anchor)
 	{
@@ -94,6 +99,7 @@ public class IntentionGraphController
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
+		alignAnchors(link);
 		arrow.redraw();
 	}
 
@@ -138,6 +144,49 @@ public class IntentionGraphController
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 		return alignAnchorAtCellEdge(cell.getLocation().getX(), cell.getLocation().getY(), xOpposite, yOpposite);
+	}
+
+	private void alignAnchors(CCanvasLink link)
+	{
+		CIntentionCell fromCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorA().getCanvasId());
+		CIntentionCell toCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
+		Point2D aPosition;
+		Point2D bPosition;
+
+		if (fromCell == null)
+		{
+			aPosition = link.getAnchorA().getPoint();
+		}
+		else
+		{
+			if (toCell == null)
+			{
+				aPosition = alignAnchorAtCellEdge(fromCell.getLocation().getX(), fromCell.getLocation().getY(), link.getAnchorB().getPoint());
+			}
+			else
+			{
+				aPosition = alignAnchorAtCellEdge(fromCell.getLocation().getX(), fromCell.getLocation().getY(), toCell.getCenter());
+			}
+		}
+
+		if (toCell == null)
+		{
+			bPosition = link.getAnchorB().getPoint();
+		}
+		else
+		{
+			if (fromCell == null)
+			{
+				bPosition = alignAnchorAtCellEdge(toCell.getLocation().getX(), toCell.getLocation().getY(), link.getAnchorA().getPoint());
+			}
+			else
+			{
+				bPosition = alignAnchorAtCellEdge(toCell.getLocation().getX(), toCell.getLocation().getY(), fromCell.getCenter());
+			}
+		}
+
+		link.getAnchorA().getPoint().setLocation(aPosition);
+		link.getAnchorB().getPoint().setLocation(bPosition);
 	}
 
 	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, Point2D opposite)

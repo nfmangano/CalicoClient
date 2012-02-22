@@ -7,6 +7,7 @@ import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import edu.umd.cs.piccolo.PNode;
@@ -14,10 +15,24 @@ import edu.umd.cs.piccolo.PNode;
 public class IntentionalInterfacesPerspective extends CalicoPerspective
 {
 	private static final IntentionalInterfacesPerspective INSTANCE = new IntentionalInterfacesPerspective();
-
+	
 	public static IntentionalInterfacesPerspective getInstance()
 	{
 		return INSTANCE;
+	}
+	
+	private boolean notYetDisplayed = true;
+
+	@Override
+	public void activate()
+	{
+		if (notYetDisplayed)
+		{
+			notYetDisplayed = false;
+			IntentionGraphController.getInstance().prepareDisplay();
+		}
+		
+		super.activate();
 	}
 
 	@Override
@@ -57,7 +72,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		target_uuid = CCanvasLinkController.getInstance().getLinkAt(event.getGlobalPoint());
 		if (target_uuid >= 0L)
 		{
-			CCanvasLinkInputHandler.getInstance().setCurrentLinkId(target_uuid);
+			CCanvasLinkInputHandler.getInstance().setCurrentLinkId(target_uuid, event.getGlobalPoint());
 			return target_uuid;
 		}
 		

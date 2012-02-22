@@ -109,8 +109,6 @@ public class CIntentionCell
 	public void setVisible(boolean b)
 	{
 		shell.setVisible(b);
-
-		System.out.println((b ? "Showing" : "Hiding") + " a CIC: " + CIntentionCellController.getInstance().listVisibleCellAddresses());
 	}
 
 	public void setHighlighted(boolean highlighted)

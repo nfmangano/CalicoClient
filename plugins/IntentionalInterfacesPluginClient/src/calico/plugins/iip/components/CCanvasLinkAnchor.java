@@ -100,9 +100,10 @@ public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 		this.link = link;
 	}
 
-	public void move(long canvas_uuid, int x, int y)
+	public void move(long canvas_uuid, ArrowEndpointType type, int x, int y)
 	{
 		this.canvas_uuid = canvas_uuid;
+		this.type = type;
 		point.x = x;
 		point.y = y;
 	}

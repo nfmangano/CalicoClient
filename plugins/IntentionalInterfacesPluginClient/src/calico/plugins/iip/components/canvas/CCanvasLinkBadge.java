@@ -16,6 +16,7 @@ import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PImage;
 
 public class CCanvasLinkBadge implements StickyItem
@@ -25,22 +26,22 @@ public class CCanvasLinkBadge implements StickyItem
 
 	private static final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
 	private static final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
-	
+
 	private final long uuid;
 
 	private final CCanvasLinkAnchor anchor;
 	private final CCanvasLink.LinkDirection direction;
 
 	private PImage image;
-	
-	public CCanvasLinkBadge(CCanvasLinkAnchor link)
+
+	public CCanvasLinkBadge(CCanvasLinkAnchor anchor)
 	{
 		uuid = Calico.uuid();
 
-		image = new PImage(link.getLink().getLinkType().image);
+		image = new PImage(IntentionalInterfacesGraphics.superimposeCellAddress(anchor.getLink().getLinkType().image, anchor.getOpposite().getCanvasId()));
 
-		this.anchor = link;
-		if (link.getCanvasId() == link.getLink().getAnchorA().getCanvasId())
+		this.anchor = anchor;
+		if (anchor.getCanvasId() == anchor.getLink().getAnchorA().getCanvasId())
 		{
 			direction = CCanvasLink.LinkDirection.OUTGOING;
 		}
@@ -72,6 +73,12 @@ public class CCanvasLinkBadge implements StickyItem
 	{
 		return image;
 	}
+	
+	public void setVisible(boolean b)
+	{
+		image.setVisible(b);
+		image.repaint();
+	}
 
 	public void updatePosition()
 	{
@@ -85,18 +92,18 @@ public class CCanvasLinkBadge implements StickyItem
 		image.setBounds(group.getBounds().getCenterX() - (BADGE_WIDTH / 2), group.getBounds().getCenterY() - (BADGE_HEIGHT / 2), BADGE_WIDTH, BADGE_HEIGHT);
 		image.repaint();
 	}
-	
+
 	public void cleanup()
 	{
 		CalicoInputManager.removeCustomInputHandler(uuid);
 	}
-	
+
 	@Override
 	public long getUUID()
 	{
 		return uuid;
 	}
-	
+
 	@Override
 	public boolean containsPoint(Point p)
 	{

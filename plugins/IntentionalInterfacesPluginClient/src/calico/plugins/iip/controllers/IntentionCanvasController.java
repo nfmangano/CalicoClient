@@ -42,10 +42,25 @@ public class IntentionCanvasController implements CGroupController.Listener
 	private final CanvasLinkBay outgoingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.OUTGOING, new LowerRightLayout());
 
 	private Comparator<CCanvasLinkToken> sorter = new DefaultSorter();
+	
+	private boolean linksVisible = false;
 
 	private IntentionCanvasController()
 	{
 		CGroupController.addListener(this);
+	}
+	
+	public void toggleLinkVisibility()
+	{
+		linksVisible = !linksVisible;
+		
+		incomingLinkBay.setVisible(linksVisible);
+		outgoingLinkBay.setVisible(linksVisible);
+		
+		for (CCanvasLinkBadge badge : badgesByAnchorId.values())
+		{
+			badge.setVisible(linksVisible);
+		}
 	}
 
 	public void addLink(CCanvasLink link)
@@ -82,6 +97,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
 		badgesByAnchorId.put(badge.getLinkAnchor().getId(), badge);
+		badge.setVisible(linksVisible);
 
 		CCanvasController.canvasdb.get(anchor.getCanvasId()).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
 		badge.updatePosition();
@@ -232,7 +248,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 	}
 
 	@Override
-	public void groupMovedBy(long uuid, int xDistance, int yDistance)
+	public void groupMovedBy(long uuid)
 	{
 		CCanvasLinkBadge badge = getBadgeForGroup(uuid);
 		if ((badge == null) || !isCurrentlyDisplayed(badge))

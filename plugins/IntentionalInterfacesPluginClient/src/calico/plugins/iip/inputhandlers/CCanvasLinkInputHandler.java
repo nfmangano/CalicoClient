@@ -11,11 +11,8 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewAlternativeLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewIdeaLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewPerspectiveLinkButton;
+import calico.plugins.iip.components.piemenu.iip.MoveLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
-import calico.plugins.iip.controllers.CIntentionCellController;
 
 public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
 {
@@ -45,17 +42,20 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	// private Point2D cellDragAnchor;
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	private final MoveLinkButton moveLinkButton = new MoveLinkButton();
 
 	private CCanvasLinkInputHandler()
 	{
 		PieMenu.addListener(this);
 	}
 
-	public void setCurrentLinkId(long currentLinkId)
+	public void setCurrentLinkId(long currentLinkId, Point point)
 	{
 		this.currentLinkId = currentLinkId;
 
 		deleteLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId));
+		moveLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId),
+				CCanvasLinkController.getInstance().isNearestSideA(currentLinkId, point));
 	}
 
 	public long getActiveLink()
@@ -160,7 +160,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, deleteLinkButton);
+						PieMenu.displayPieMenu(point, moveLinkButton, deleteLinkButton);
 					}
 				}
 			}

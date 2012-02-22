@@ -1,14 +1,17 @@
 package calico.plugins.iip.components.menus;
 
 import java.awt.Point;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
-public class IntentionGraphZoomSlider extends PComposite
+public class IntentionGraphZoomSlider extends PComposite implements PropertyChangeListener
 {
 	public static final int SPAN = 400;
 
@@ -18,6 +21,7 @@ public class IntentionGraphZoomSlider extends PComposite
 	private final PImage zoomInButton;
 
 	private double buttonSpan;
+	private double knobInset;
 
 	public IntentionGraphZoomSlider()
 	{
@@ -30,6 +34,8 @@ public class IntentionGraphZoomSlider extends PComposite
 		addChild(slider);
 		addChild(zoomInButton);
 		addChild(knob);
+
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 	}
 
 	public void dragTo(Point point)
@@ -41,7 +47,6 @@ public class IntentionGraphZoomSlider extends PComposite
 			double scale = convertSlidePointToScale(point);
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
 			IntentionGraph.getInstance().repaint();
-			updateKnobPosition();
 
 			System.out.println("zoom to " + scale);
 		}
@@ -103,19 +108,18 @@ public class IntentionGraphZoomSlider extends PComposite
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
 		IntentionGraph.getInstance().repaint();
-		updateKnobPosition();
 	}
 
 	private double convertSlidePointToScale(Point point)
 	{
 		double x = (point.x - getBounds().x);
-		double sliderPosition = (x - buttonSpan);
-		double sliderWidth = slider.getBounds().width;
+		double sliderWidth = slider.getBounds().width - (2 * knobInset);
+		double sliderPosition = Math.min(sliderWidth, Math.max(0, x - (buttonSpan + knobInset)));
 		double sliderCenter = sliderWidth / 2;
 		double ratio;
 		if (sliderPosition < sliderCenter)
 		{
-			ratio = sliderPosition / sliderCenter;
+			ratio = Math.max(0.1, sliderPosition / sliderCenter);
 		}
 		else if (sliderPosition > sliderCenter)
 		{
@@ -141,10 +145,12 @@ public class IntentionGraphZoomSlider extends PComposite
 		double sliderWidth = bounds.width - (2 * buttonSpan);
 		slider.setBounds(bounds.x + buttonSpan, bounds.y, sliderWidth, bounds.height);
 
+		knobInset = sliderWidth * 0.05;
+		
 		updateKnobPosition();
 	}
 
-	public void updateKnobPosition()
+	private void updateKnobPosition()
 	{
 		double knobHeight = getBounds().height / 2.0;
 		double knobWidth = knob.getImage().getWidth(null) * (knobHeight / knob.getImage().getHeight(null));
@@ -168,7 +174,7 @@ public class IntentionGraphZoomSlider extends PComposite
 			ratio = (ratio - 0.1) / 0.9; // normalize to [0.0 - 1.0]
 		}
 
-		double sliderHalfWidth = (slider.getBounds().width / 2.0);
+		double sliderHalfWidth = ((slider.getBounds().width - (2 * knobInset)) / 2.0);
 		double knobHalfWidth = (knobWidth / 2.0);
 		double xCenter = sliderHalfWidth - knobHalfWidth;
 		double knobCenter;
@@ -188,6 +194,12 @@ public class IntentionGraphZoomSlider extends PComposite
 		}
 
 		double yOffset = (getBounds().height - knobHeight) / 2.0;
-		knob.setBounds(slider.getBounds().x + (knobCenter - knobHalfWidth), getBounds().y + yOffset, knobWidth, knobHeight);
+		knob.setBounds(slider.getBounds().x + knobInset + knobCenter, getBounds().y + yOffset, knobWidth, knobHeight);
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent event)
+	{
+		updateKnobPosition();
 	}
 }

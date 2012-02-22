@@ -16,6 +16,7 @@ import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
+import calico.plugins.iip.components.menus.IntentionGraphZoomSlider;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -143,21 +144,24 @@ public class IntentionGraph
 
 		if (visibleCount < 2)
 		{
-			return;
+			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX, minY));
+		}
+		else
+		{
+			Dimension canvasSize = contentCanvas.getBounds().getSize();
+			double xRatio = canvasSize.width / (maxX - minX);
+			double yRatio = canvasSize.height / (maxY - minY);
+
+			double scale = Math.min(xRatio, yRatio) * 0.9;
+			contentCanvas.getLayer().setScale(scale);
+			double contentWidth = maxX - minX;
+			double contentHeight = maxY - minY;
+			double xMargin = (contentWidth * (xRatio - scale)) / 2;
+			double yMargin = (contentHeight * (yRatio - scale)) / 2;
+
+			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX + xMargin, minY + yMargin));
 		}
 
-		Dimension contentSize = contentCanvas.getBounds().getSize();
-		double xRatio = contentSize.width / (maxX - minX);
-		double yRatio = contentSize.height / (maxY - minY);
-
-		double scale = Math.min(xRatio, yRatio) * 0.9;
-		contentCanvas.getLayer().setScale(scale);
-		contentSize = contentCanvas.getBounds().getSize();
-		Point2D center = new Point2D.Double(minX + ((maxX - minX) / 2), minY + ((maxY - minY) / 2));
-		Point2D origin = new Point2D.Double((center.getX() * scale) - (contentSize.width / 2), (center.getY() * scale) - (contentSize.height / 2));
-		double xDelta = -(contentCanvas.getLayer().getTransform().getTranslateX() + origin.getX());
-		double yDelta = -(contentCanvas.getLayer().getTransform().getTranslateY() + origin.getY());
-		contentCanvas.getLayer().translate(xDelta, yDelta);
 		repaint();
 	}
 

@@ -78,7 +78,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 				VIEWING_SINGLE_CANVAS(p);
 				return;
 			case NetworkCommand.CONSISTENCY_FINISH:
-				IntentionGraphController.getInstance().prepareDisplay();
+				// not using this command anymore
 				return;
 		}
 
@@ -143,6 +143,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
+
+		IntentionGraphController.getInstance().updateAttachedArrows(cell.getId(), x, y);
 	}
 
 	private static void CIC_DELETE(CalicoPacket p)
@@ -212,10 +214,11 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		long anchor_uuid = p.getLong();
 		long canvas_uuid = p.getLong();
+		CCanvasLinkAnchor.ArrowEndpointType type = CCanvasLinkAnchor.ArrowEndpointType.values()[p.getInt()];
 		int x = p.getInt();
 		int y = p.getInt();
 
-		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, x, y);
+		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, type, x, y);
 	}
 
 	private static void CLINK_DELETE(CalicoPacket p)
