@@ -6,24 +6,20 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
 
 import calico.Calico;
 import calico.CalicoDataStore;
@@ -31,17 +27,12 @@ import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
-import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
-import calico.components.piemenu.groups.GroupRotateButton;
-import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
-import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
-import calico.utils.Geometry;
 
 /**
  * This handles all canvas requests
@@ -63,9 +54,14 @@ public class CGroupController
 	public static boolean restoreOriginalStroke = false;
 	public static long originalStroke = 0l;
 	
-	
+	private static List<Listener> listeners = new ArrayList<Listener>();
 
-	
+	public static interface Listener
+	{
+		void groupMovedBy(long uuid, int xDistance, int yDistance);
+		
+		void groupDeleted(long uuid);
+	}
 	
 	public static void setCopyUUID(long u)
 	{
@@ -76,7 +72,15 @@ public class CGroupController
 		return group_copy_uuid;
 	}
 	
+	public static void addListener(Listener listener)
+	{
+		listeners.add(listener);
+	}
 	
+	public static void removeListener(Listener listener)
+	{
+		listeners.remove(listener);
+	}
 	
 	public static boolean dq_add(long uuid)
 	{
@@ -279,6 +283,11 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).move(x, y);
+		
+		for (Listener listener : listeners)
+		{
+			listener.groupMovedBy(uuid, x, y);
+		}
 	}
 	
 	public static void no_notify_delete(final long uuid)
@@ -338,6 +347,11 @@ public class CGroupController
 							groupdb.remove(uuid);
 				
 							dq_add(uuid);
+						}
+						
+						for (Listener listener : listeners)
+						{
+							listener.groupDeleted(uuid);
 						}
 					}
 	
