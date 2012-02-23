@@ -559,6 +559,8 @@ public class CListDecorator extends CGroupDecorator {
 					if ((int)CGroupController.groupdb.get(listItems[j]).getMidPoint().getY() == yValues[i])
 					{
 						sortedElementList[i] = listItems[j];
+						//This line needed in case multiple groups have the same y value
+						listItems[j] = -1;
 						break;
 					}
 				}
