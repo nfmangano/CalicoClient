@@ -51,6 +51,7 @@ public class BubbleMenu {
 		}
 		activeGroup = uuid;
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+		CGroupController.groupdb.get(activeGroup).highlight_on();
 		
 		//displayBubbleMenuArray(location, buttons);
 		lastOpenedPosition = location;
@@ -112,8 +113,7 @@ public class BubbleMenu {
 					}
 				}
 				}});
-	}
-	
+	}	
 	
 	public static void moveIconPositions(PBounds groupBounds)
 	{

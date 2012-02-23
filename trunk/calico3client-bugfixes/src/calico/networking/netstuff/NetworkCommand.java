@@ -270,6 +270,7 @@ public class NetworkCommand
 	public static final int GROUP_SCALE = 1539;
 	public static final int GROUP_CREATE_TEXT_GROUP = 1540;
 	public static final int GROUP_MAKE_RECTANGLE = 1541;
+	public static final int GROUP_COPY_WITH_MAPPINGS = 1542;
 
 
 	public static final int BACKUP_FILE_INFO	= 1600; // 

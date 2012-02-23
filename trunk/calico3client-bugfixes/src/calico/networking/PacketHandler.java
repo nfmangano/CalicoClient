@@ -2,6 +2,8 @@
 package calico.networking;
 
 import it.unimi.dsi.Util;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 
 import java.io.*;
 import java.nio.*;
@@ -112,6 +114,7 @@ public class PacketHandler
 			case NetworkCommand.GROUP_SCALE:GROUP_SCALE(packet);break;
 			case NetworkCommand.GROUP_CREATE_TEXT_GROUP:GROUP_CREATE_TEXT_GROUP(packet);break;
 			case NetworkCommand.GROUP_MAKE_RECTANGLE:GROUP_MAKE_RECTANGLE(packet);break;
+			case NetworkCommand.GROUP_COPY_WITH_MAPPINGS:GROUP_COPY_WITH_MAPPINGS(packet);break;
 			
 			case NetworkCommand.GRID_SIZE:GRID_SIZE(packet);break;
 			case NetworkCommand.CONSISTENCY_FINISH:CONSISTENCY_FINISH(packet);break;
@@ -366,6 +369,22 @@ public class PacketHandler
 		
 		CGroupController.no_notify_make_rectangle(guuid, x, y, width, height);
 		
+	}
+	
+	public static void GROUP_COPY_WITH_MAPPINGS(CalicoPacket p)
+	{
+		long guuid = p.getLong();
+		
+		Long2ReferenceArrayMap<Long> UUIDMappings = new Long2ReferenceArrayMap<Long>();
+		int mappingSize = p.getInt();
+		for (int i = 0; i < mappingSize; i++)
+		{
+			long key = p.getLong();
+			long value = p.getLong();
+			UUIDMappings.put(key, new Long(value));
+		}
+		
+		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings);
 	}
 	
 	private static void GROUP_START(CalicoPacket p)

@@ -64,8 +64,6 @@ public class ListCreateButton extends PieMenuButton
 	public long createList(long groupToBeDecorated) {
 		long newuuid = Calico.uuid();
 
-		
-
 //		CGroupController.shrink_to_contents(groupToBeDecorated);
 		CGroupDecoratorController.list_create(groupToBeDecorated, newuuid);
 		return newuuid;

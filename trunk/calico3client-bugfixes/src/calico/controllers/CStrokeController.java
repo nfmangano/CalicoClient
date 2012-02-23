@@ -385,6 +385,22 @@ public class CStrokeController
 	{
 		no_notify_append(uuid, x, y, true);
 	}
+	public static void no_notify_copy(long uuid, long new_uuid, long new_puuid, long new_canvasuuid, int shift_x, int shift_y)
+	{
+		if(!exists(uuid) || exists(new_uuid)){return;}
+
+		CalicoPacket[] packets = strokes.get(uuid).getUpdatePackets(new_uuid, new_canvasuuid, new_puuid, shift_x, shift_y);
+		batchReceive(packets);	
+	}
+	
+	private static void batchReceive(CalicoPacket[] packets)
+	{
+		for (int i = 0; i < packets.length; i++)
+		{
+			CalicoPacket p = new CalicoPacket(packets[i].getBuffer());
+			PacketHandler.receive(p);
+		}
+	}
 	
 	//////////////////////////////////////// NOTIFY ELEMENTS
 	
