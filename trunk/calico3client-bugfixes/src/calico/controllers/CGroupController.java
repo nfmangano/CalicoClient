@@ -1,21 +1,19 @@
 package calico.controllers;
 
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -23,25 +21,22 @@ import java.util.Random;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
-
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.components.AnchorPoint;
+import calico.components.CArrow;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
-import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
-import calico.components.piemenu.groups.GroupRotateButton;
-import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
+import calico.networking.PacketHandler;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
-import calico.utils.Geometry;
 
 /**
  * This handles all canvas requests
@@ -619,6 +614,273 @@ public class CGroupController
 //		p.putInt(y);
 //		Networking.send(p);
 	}
+	
+	public static long copy_to_canvas(final long uuid)
+	{
+		Long2ReferenceArrayMap<Long> UUIDMappings = new Long2ReferenceArrayMap<Long>();
+		
+		long new_uuid = Calico.uuid();
+		UUIDMappings.put(uuid, new Long(new_uuid));
+		UUIDMappings.putAll(getMappings(uuid));
+
+		no_notify_copy(uuid, 0l, UUIDMappings);
+
+		Networking.send(getCopyMappingPackets(uuid, UUIDMappings));
+
+		return new_uuid;
+	}
+	
+	 public static CalicoPacket getCopyMappingPackets(long uuid, Long2ReferenceArrayMap<Long> UUIDMappings) {
+
+			int packetSize = ByteUtils.SIZE_OF_INT
+					+ ByteUtils.SIZE_OF_LONG + ByteUtils.SIZE_OF_BYTE
+					+ ByteUtils.SIZE_OF_SHORT
+					+ (2 * UUIDMappings.size() * ByteUtils.SIZE_OF_LONG);
+
+			CalicoPacket packet = new CalicoPacket(packetSize);
+			// UUID CUID PUID <COLOR> <NUMCOORDS> x1 y1
+			packet.putInt(NetworkCommand.GROUP_COPY_WITH_MAPPINGS);
+			packet.putLong(uuid);
+			packet.putInt(UUIDMappings.size());
+			LongIterator iterator = UUIDMappings.keySet().iterator();
+			while (iterator.hasNext()) {
+				long key = iterator.nextLong();
+				packet.putLong(key);
+				packet.putLong(UUIDMappings.get(key).longValue());
+			}
+
+			return packet;
+		}
+	
+	public static void no_notify_copy(final long uuid, final long new_puuid, Long2ReferenceArrayMap<Long> UUIDMappings)
+	{
+		if(!exists(uuid)){return;}// old one doesnt exist
+		
+		CGroup temp = groupdb.get(uuid);
+		long new_uuid = UUIDMappings.get(uuid).longValue();
+		long canvasuuid = temp.getCanvasUID();
+		CalicoPacket[] packets;
+		
+		if (temp instanceof CGroupDecorator)
+		{
+			long old_decoratorChildUUID = ((CGroupDecorator)temp).getDecoratedUUID();
+			if (UUIDMappings.containsKey(old_decoratorChildUUID))
+			{
+				long new_decoratorChildUUID = UUIDMappings.get(old_decoratorChildUUID).longValue();
+				no_notify_copy(old_decoratorChildUUID, new_uuid, UUIDMappings);
+				
+				ArrayList<Long> subGroups = getSubGroups(old_decoratorChildUUID);
+				Long2ReferenceArrayMap<Long> subGroupMappings = new Long2ReferenceArrayMap<Long>();
+				for (Long sub_uuid: subGroups)
+				{
+					if (UUIDMappings.containsKey(sub_uuid))
+					{
+						subGroupMappings.put(sub_uuid, UUIDMappings.get(sub_uuid));
+					}
+				}
+				packets = ((CGroupDecorator)temp).getDecoratorUpdatePackets(new_uuid, canvasuuid, new_puuid, new_decoratorChildUUID, subGroupMappings);
+				batchReceive(packets);
+				
+				CGroupController.groupdb.get(new_uuid).setChildGroups(new long[] { new_decoratorChildUUID } );
+
+			}
+		}
+		else
+		{
+			packets = groupdb.get(uuid).getUpdatePackets(new_uuid, canvasuuid, new_puuid, 0, 0, false);
+		
+			batchReceive(packets);
+			
+			CGroup tempNew = groupdb.get(new_uuid);
+			
+			// DEAL WITH THE CHILDREN
+			
+			// Child stroke elements
+			long[] bge_uuids = temp.getChildStrokes();
+			long[] new_bge_uuids = new long[bge_uuids.length];
+			
+			if(bge_uuids.length>0)
+			{
+				for(int i=0;i<bge_uuids.length;i++)
+				{
+					if ((UUIDMappings.containsKey(bge_uuids[i])))
+					{
+						new_bge_uuids[i] = UUIDMappings.get(bge_uuids[i]).longValue();
+						CStrokeController.no_notify_copy(bge_uuids[i], new_bge_uuids[i], new_uuid, canvasuuid, 0, 0);
+					}
+				}
+				tempNew.clearChildStrokes();
+				tempNew.setChildStrokes(new_bge_uuids);
+	//			for(int i = 0; i < new_bge_uuids.length; i++)
+	//			{
+	//				tempNew.addChildStroke(new_bge_uuids[i]);
+	//			}
+			}
+			
+			//Child group elements
+			long[] grp_uuids = temp.getChildGroups();
+			long[] new_grp_uuids = new long[grp_uuids.length];
+			
+			if(grp_uuids.length>0)
+			{
+				for(int i=0;i<grp_uuids.length;i++)
+				{
+					if ((UUIDMappings.containsKey(grp_uuids[i])))
+					{
+						new_grp_uuids[i] = UUIDMappings.get(grp_uuids[i]).longValue();
+						no_notify_copy(grp_uuids[i], new_uuid, UUIDMappings);
+					}
+				}
+				tempNew.setChildGroups(new_grp_uuids);
+			}
+			
+			//Child arrow elements
+			long[] arrow_uuids = temp.getChildArrows();
+			long[] new_arw_uuids = new long[arrow_uuids.length];
+			
+			if(arrow_uuids.length>0)
+			{
+				for(int i=0;i<arrow_uuids.length;i++)
+				{				
+					CArrow tempA = CArrowController.arrows.get(arrow_uuids[i]);
+					if(tempA.getAnchorA().getUUID()==uuid||tempA.getAnchorB().getUUID()==uuid){	
+						if ((UUIDMappings.containsKey(arrow_uuids[i])))
+						{
+							new_arw_uuids[i] = UUIDMappings.get(arrow_uuids[i]).longValue();
+											
+							AnchorPoint anchorA = tempA.getAnchorA().clone();
+							AnchorPoint anchorB = tempA.getAnchorB().clone();				
+
+							if (anchorA.getUUID() == uuid)
+							{
+								anchorA.setUUID(new_uuid);
+							}
+							if (anchorB.getUUID() == uuid)
+							{
+								anchorB.setUUID(new_uuid);
+							}
+							CArrowController.no_notify_start(new_arw_uuids[i], canvasuuid, tempA.getColor(), tempA.getArrowType(), anchorA, anchorB);
+						}
+					}
+				}
+			}
+		}		
+	}//no_notify_copy
+	
+	private static ArrayList<Long> getSubGroups(long uuid)
+	{
+		if(!exists(uuid)){return null;}// doesn't exist
+		
+		ArrayList<Long> childGroups = new ArrayList<Long>();
+		
+		CGroup temp = groupdb.get(uuid);
+		
+		if (temp instanceof CGroupDecorator)
+		{
+			childGroups.addAll(getSubGroups(((CGroupDecorator)temp).getDecoratedUUID()));
+		}
+		else
+		{						
+			//Child group elements
+			long[] grp_uuids = temp.getChildGroups();
+			
+			if(grp_uuids.length>0)
+			{
+				for(int i=0;i<grp_uuids.length;i++)
+				{
+					childGroups.add(grp_uuids[i]);
+					childGroups.addAll(getSubGroups(grp_uuids[i]));
+				}
+			}
+		}
+
+		return childGroups;	
+	}
+	
+	private static void batchReceive(CalicoPacket[] packets)
+	{
+		for (int i = 0; i < packets.length; i++)
+		{
+			if (packets[i] == null)
+			{
+				logger.warn("WARNING!!! BatchReceive received a null packet, something likely went wrong!");
+				continue;
+			}
+			
+			CalicoPacket p = new CalicoPacket(packets[i].getBuffer());
+			PacketHandler.receive(p);
+		}
+	}
+	
+	public static Long2ReferenceArrayMap<Long> getMappings(final long uuid)
+	{
+		if(!exists(uuid)){return null;}// doesn't exist
+		
+		Long2ReferenceArrayMap<Long> UUIDMappings = new Long2ReferenceArrayMap<Long>();
+		
+		CGroup temp = groupdb.get(uuid);
+		
+		if (temp instanceof CGroupDecorator)
+		{
+			long new_decoratorChildUUID = Calico.uuid();
+			long old_decoratorChildUUID = ((CGroupDecorator)temp).getDecoratedUUID();
+			UUIDMappings.put(old_decoratorChildUUID, new Long(new_decoratorChildUUID));
+			
+			Long2ReferenceArrayMap<Long> subGroupMappings = getMappings(old_decoratorChildUUID);
+			if (subGroupMappings != null)
+				UUIDMappings.putAll(subGroupMappings);
+		}
+		else
+		{			
+			// DEAL WITH THE CHILDREN
+			
+			// Child stroke elements
+			long[] bge_uuids = temp.getChildStrokes();
+			long[] new_bge_uuids = new long[bge_uuids.length];
+			
+			if(bge_uuids.length>0)
+			{
+				for(int i=0;i<bge_uuids.length;i++)
+				{
+					new_bge_uuids[i] = Calico.uuid();
+					UUIDMappings.put(bge_uuids[i], new Long(new_bge_uuids[i]));
+				}
+			}
+			
+			//Child group elements
+			long[] grp_uuids = temp.getChildGroups();
+			long[] new_grp_uuids = new long[grp_uuids.length];
+			
+			if(grp_uuids.length>0)
+			{
+				for(int i=0;i<grp_uuids.length;i++)
+				{
+					new_grp_uuids[i] = Calico.uuid();
+					UUIDMappings.put(grp_uuids[i], new Long(new_grp_uuids[i]));
+					Long2ReferenceArrayMap<Long> subGroupMappings = getMappings(grp_uuids[i]);
+
+					if (subGroupMappings != null)
+						UUIDMappings.putAll(subGroupMappings);
+				}
+			}
+			
+			//Child arrow elements
+			long[] arrow_uuids = temp.getChildArrows();
+			long[] new_arw_uuids = new long[arrow_uuids.length];
+			
+			if(arrow_uuids.length>0)
+			{
+				for(int i=0;i<arrow_uuids.length;i++)
+				{					
+					new_arw_uuids[i] = Calico.uuid();
+					UUIDMappings.put(arrow_uuids[i], new Long(new_arw_uuids[i]));
+				}
+			}
+		}
+
+		return UUIDMappings;	
+	}
+	
 	public static void move(long uuid, int x, int y)
 	{
 		if (x == 0 && y == 0)
@@ -1045,7 +1307,6 @@ public class CGroupController
 				}
 			}
 
-			CGroupController.groupdb.get(uuid).highlight_on();
 			BubbleMenu.displayBubbleMenu(point,uuid,fade,buttons.toArray(new PieMenuButton[buttons.size()]));
 			
 			

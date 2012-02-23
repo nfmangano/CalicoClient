@@ -7,7 +7,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.components.CGroup;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -66,6 +68,7 @@ public class GroupResizeButton extends PieMenuButton
 		Point2D.Double prevPoint, mouseDownPoint, mouseUpPoint;
 		Point2D.Double centerPoint;
 		long cuuid, guuid;
+		boolean isListItem;
 		
 		public RotateMouseListener(PImage g, long canvasUUID, long groupUUID)  {
 			ghost = g;
@@ -74,6 +77,18 @@ public class GroupResizeButton extends PieMenuButton
 			prevPoint = new Point2D.Double();
 			cuuid = canvasUUID;
 			guuid = groupUUID;
+			
+			isListItem = false;
+			CGroup cGroup = CGroupController.groupdb.get(guuid);
+			while(cGroup.getParentUUID() != 0l)
+			{
+				cGroup = CGroupController.groupdb.get(cGroup.getParentUUID());
+				if (cGroup instanceof CListDecorator)
+				{
+					isListItem = true;
+					break;
+				}
+			}
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
@@ -117,6 +132,11 @@ public class GroupResizeButton extends PieMenuButton
 			prevPoint.x = scaledPoint.getX();
 			prevPoint.y = scaledPoint.getY();
 			mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
+			
+			if (!isListItem)
+			{
+				CGroupController.move_start(guuid);
+			}
 		}
 		
 		@Override
@@ -141,6 +161,10 @@ public class GroupResizeButton extends PieMenuButton
 			
 			double scale = getScaleMP(mouseUpPoint);
 			CGroupController.scale(guuid, scale, scale);
+			if (!isListItem)
+			{
+				CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
+			}
 			
 			//Turn highlighter back on for resized version
 			CGroupController.groupdb.get(guuid).highlight_on();

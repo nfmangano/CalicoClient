@@ -13,9 +13,12 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class BubbleMenuHighlighter extends PComposite {
+	public static int halo_buffer = 12;
+	public static int halo_size = CalicoOptions.menu.icon_size + halo_buffer;
+	
 	public BubbleMenuHighlighter()
 	{
-		setBounds(0,0,CalicoOptions.menu.icon_size + 10,CalicoOptions.menu.icon_size + 10);
+		setBounds(0,0,halo_size,halo_size);
 	}
 	
 	

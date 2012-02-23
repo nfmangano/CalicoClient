@@ -3,6 +3,7 @@ package calico.inputhandlers.canvas;
 import calico.*;
 
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.*;
 import calico.components.piemenu.*;
 import calico.controllers.CArrowController;
@@ -67,6 +68,15 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 		{
 			pressedPoint = e.getPoint();
 			hasBrokenDistanceThreshold = false;
+			
+			if (BubbleMenu.isBubbleMenuActive())
+			{
+				long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
+				if (guuid != BubbleMenu.activeGroup)
+				{
+					BubbleMenu.clearMenu();
+				}
+			}
 		}
 //		this.showModeIcon(e.getPoint());
 		CalicoInputManager.drawCursorImage(canvas_uid,
@@ -145,6 +155,10 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 				if(pressedPoint.distance(e.getPoint()) >= CalicoOptions.arrow.create_dist_threshold)
 				{
 					hasBrokenDistanceThreshold = true;
+					if (BubbleMenu.isBubbleMenuActive())
+					{
+						BubbleMenu.clearMenu();
+					}
 				}
 			}
 		}
@@ -204,6 +218,15 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			//tempArrow = null;
 			
 			tempGuuidB = 0;
+		}
+		
+		if (!hasBrokenDistanceThreshold)
+		{
+			long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
+			if (BubbleMenu.activeGroup != guuid && guuid != 0)
+			{
+				CGroupController.show_group_bubblemenu(guuid, new Point(0,0));
+			}
 		}
 		
 		lastEvent = e;

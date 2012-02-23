@@ -103,9 +103,9 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 				{
 					if(CStrokeController.exists(bgelist[i]) && CStrokeController.intersectsCircle(bgelist[i],e.getPoint(), CalicoOptions.pen.eraser.radius) )
 					{
+						System.out.println("Deleting Stroke. Stroke ID: " + bgelist[i] + ", parent: " + CStrokeController.strokes.get(bgelist[i]).getParentUUID() + ", i = " + i + ", line: (" + lastEvent.getPoint().getX() + "," + lastEvent.getPoint().getY() + ") (" + e.getPoint().getX() + "," + e.getPoint().getY());
 						CStrokeController.delete(bgelist[i]);
 						erasedSomething = true;
-						System.out.println("Deleting Stroke. Storke ID: " + bgelist[i] + ", parent: " + CStrokeController.strokes.get(bgelist[i]).getParentUUID() + ", i = " + i + ", line: (" + lastEvent.getPoint().getX() + "," + lastEvent.getPoint().getY() + ") (" + e.getPoint().getX() + "," + e.getPoint().getY());
 					}
 				}
 			}
