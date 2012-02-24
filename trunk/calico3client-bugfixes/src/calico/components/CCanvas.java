@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.ProgressMonitor;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -67,6 +68,15 @@ public class CCanvas
 		{
 			this.id = id;
 		}
+	}
+	
+	public interface ContentContributor
+	{
+		boolean hasContent(long canvas_uuid);
+
+		void contentChanged(long canvas_uuid);
+		
+		void clearContent(long canvas_uuid);
 	}
 	
 	private final ContainedCanvas canvas = new ContainedCanvas();
@@ -405,6 +415,7 @@ public class CCanvas
 	public void addChildStroke(long uid)
 	{
 		this.strokes.add(uid);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	public int getNumStrokes()
 	{
@@ -423,21 +434,25 @@ public class CCanvas
 	public void deleteChildStroke(long uid)
 	{
 		this.strokes.remove(uid);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 
 	public void addChildGroup(long gUUID)
 	{
 		this.groups.add(gUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public void addChildList(long lUUID)
 	{
 		this.lists.add(lUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public void addChildCheckBox(long cUUID)
 	{
 		this.checkBoxes.add(cUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 
 	/**
@@ -457,16 +472,19 @@ public class CCanvas
 	public void deleteChildGroup(long gUUID)
 	{
 		this.groups.remove(gUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public void deleteChildList(long gUUID)
 	{
 		this.lists.remove(gUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public void deleteChildCheckBox(long cUUID)
 	{
 		this.checkBoxes.remove(cUUID);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 
 	/**
@@ -481,10 +499,12 @@ public class CCanvas
 	public void addChildArrow(long uid)
 	{
 		this.arrows.add(uid);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	public void removeChildArrow(long uid)
 	{
 		this.arrows.remove(uid);
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public Rectangle getBounds()
@@ -518,7 +538,8 @@ public class CCanvas
 		
 		if(this.menuBarLeft!=null)
 		{
-			canvas.getCamera().removeChild(this.menuBarLeft);
+			//canvas.getCamera().removeChild(this.menuBarLeft);
+			toolLayer.removeChild(this.menuBarLeft);
 			this.menuBarLeft = null;
 		}
 		if(this.menuBarRight!=null)
@@ -553,8 +574,13 @@ public class CCanvas
 	public void drawMenuBars()
 	{		
 //		drawTopMenuBar();
-		drawMenuBar();
-		drawStatusBar();
+		//This may be ugly, but it prevents the menu bars from flickering and disappearing randomly.
+		//In order for all 
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					drawMenuBar();
+					drawStatusBar();
+				}});
 	}
 	
 	public void removeTopMenuBar(){
@@ -575,10 +601,15 @@ public class CCanvas
 	{
 		CCanvasController.setCurrentUUID(this.uuid);
 	}
+	
+	public boolean isEmpty()
+	{
+		return (strokes.isEmpty() && groups.isEmpty() && lists.isEmpty() && checkBoxes.isEmpty() && arrows.isEmpty());
+	}
 
 	public Image toImage()
 	{
-		if( strokes.size()>0 || groups.size()>0 || lists.size()>0 || checkBoxes.size()>0 || arrows.size()>0 )
+		if (!isEmpty())
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
 //			getCamera().removeChild(menuBarLeft);
@@ -821,6 +852,7 @@ public class CCanvas
 		arrows.clear();
 		strokes.clear();
 		groups.clear();
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	@Deprecated
 	public void reload_finish()
@@ -834,6 +866,7 @@ public class CCanvas
 		{
 			groups.add(uuids[i]);
 		}
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	@Deprecated
 	public void reload_strokes(long[] uuids)
@@ -842,6 +875,7 @@ public class CCanvas
 		{
 			strokes.add(uuids[i]);
 		}
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	@Deprecated
 	public void reload_arrows(long[] uuids)
@@ -850,6 +884,7 @@ public class CCanvas
 		{
 			arrows.add(uuids[i]);
 		}	
+		CCanvasController.notifyContentChanged(uuid);
 	}
 	
 	public void repaint()
@@ -978,6 +1013,8 @@ public class CCanvas
 		this.groups = new LongArraySet();
 		this.strokes = new LongArraySet();
 		this.arrows = new LongArraySet();
+		this.lists = new LongArraySet();
+		this.checkBoxes = new LongArraySet();
 		
 //		this.getLayer().removeAllChildren();
 		
@@ -986,11 +1023,10 @@ public class CCanvas
 		
 		drawMenuBars();
 		this.getLayer(Layer.CONTENT).repaint();
-		
-		
 	}
 	
-	public void clearEverythingExceptMenu()
+	@Deprecated
+	private void clearEverythingExceptMenu()
 	{
 		for (int i = getLayer(Layer.CONTENT).getChildrenCount() - 1; i >= 0; i--)
 		{

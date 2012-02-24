@@ -113,7 +113,21 @@ public class CArrowController
 						new Runnable() { public void run() { arrow.removeFromParent(); } }
 				);		
 		//arrow.removeFromParent();
+				
+		// Clear the anchor A
+		if(arrows.get(uuid).getAnchorA().getType()==CArrow.TYPE_GROUP)
+		{
+			CGroupController.no_notify_delete_child_arrow(arrows.get(uuid).getAnchorA().getUUID(), uuid);
+		}
 		
+		// Clear anchor B
+		if(arrows.get(uuid).getAnchorB().getType()==CArrow.TYPE_GROUP)
+		{
+			CGroupController.no_notify_delete_child_arrow(arrows.get(uuid).getAnchorB().getUUID(), uuid);
+		}
+		
+		arrows.remove(uuid);
+				
 		CCanvasController.canvasdb.get(cuid).getLayer().setPaintInvalid(true);
 	}
 	

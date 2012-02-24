@@ -268,6 +268,7 @@ public class CalicoInputManager
 //		return chosenGUID;
 //	}
 
+	@Deprecated
 	/**
 	 * Input comes in sets of 3 - (Xpos, Ypos, ButtonID)
 	 * @param inputThings

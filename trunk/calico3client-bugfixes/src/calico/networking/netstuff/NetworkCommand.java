@@ -184,6 +184,7 @@ public class NetworkCommand
 	public static final int CONSISTENCY_FAILED		= 514;
 	public static final int CONSISTENCY_RESYNC_CANVAS  = 515;
 	public static final int CONSISTENCY_DEBUG		= 516;
+	public static final int CONSISTENCY_RESYNCED    = 517;
 	
 	public static final int GRID_SIZE				= 512; // <ROWS> <COLS> (this is server->client)
 
@@ -269,6 +270,7 @@ public class NetworkCommand
 	public static final int GROUP_SCALE = 1539;
 	public static final int GROUP_CREATE_TEXT_GROUP = 1540;
 	public static final int GROUP_MAKE_RECTANGLE = 1541;
+	public static final int GROUP_COPY_WITH_MAPPINGS = 1542;
 
 
 	public static final int BACKUP_FILE_INFO	= 1600; // 

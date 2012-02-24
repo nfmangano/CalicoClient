@@ -9,6 +9,7 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.AnchorPoint;
 import calico.components.CArrow;
+import calico.components.CCanvas;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;

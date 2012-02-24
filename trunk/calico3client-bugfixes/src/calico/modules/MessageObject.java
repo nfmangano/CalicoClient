@@ -4,6 +4,7 @@ import calico.*;
 import calico.perspectives.GridPerspective;
 import calico.utils.*;
 import calico.components.*;
+import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 
 import edu.umd.cs.piccolo.nodes.*;

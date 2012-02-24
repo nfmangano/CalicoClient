@@ -13,6 +13,7 @@ import calico.controllers.CGroupController;
 
 import java.awt.*;
 
+@Deprecated
 public class ArrowSetAnchorButton extends PieMenuButton
 {
 	private Point point = null;

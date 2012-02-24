@@ -1,6 +1,7 @@
 package calico.utils;
 
 import calico.*;
+import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.canvas.CCanvasExpertModeInputHandler;
 import calico.networking.*;

@@ -73,22 +73,19 @@ public class Calico extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
-
 	public static Logger logger = Logger.getLogger(Calico.class.getName());
 
 	private static Calico instance = null;
-	
-	private static Ticker ticker = null;
-	
-	// MODES
-//	public static final int MODE_EXPERT		= 1 << 0;
-//	public static final int MODE_SCRAP		= 1 << 1;
-//	public static final int MODE_STROKE		= 1 << 2;
-//	public static final int MODE_ARROW		= 1 << 3;
-//	public static final int MODE_DELETE		= 1 << 4;
-//	public static final int MODE_POINTER	= 1 << 5;
 
-	
+	private static Ticker ticker = null;
+
+	// MODES
+	// public static final int MODE_EXPERT = 1 << 0;
+	// public static final int MODE_SCRAP = 1 << 1;
+	// public static final int MODE_STROKE = 1 << 2;
+	// public static final int MODE_ARROW = 1 << 3;
+	// public static final int MODE_DELETE = 1 << 4;
+	// public static final int MODE_POINTER = 1 << 5;
 
 	public static boolean isGridLoading = true;
 
@@ -96,23 +93,21 @@ public class Calico extends JFrame
 
 	public static LongArrayList uuidlist = new LongArrayList();
 
-
-
 	/**
 	 * This generates a 128-bit unique ID.
-	 *
+	 * 
 	 * @return the uuid
 	 */
 	public static long uuid()
 	{
-		if( uuidlist.size() < 100 )
+		if (uuidlist.size() < 100)
 		{
 			// Request More
 			Networking.send(NetworkCommand.UUID_GET_BLOCK);
 		}
 		return uuidlist.removeLong(0);
 	}
-	
+
 	public static long numUUIDs()
 	{
 		return uuidlist.size();
@@ -120,26 +115,25 @@ public class Calico extends JFrame
 
 	public static void main(String[] args)
 	{
-		/*int pixel = (new Color(100,200,250)).getRGB();
-		int rp = (pixel & 0x00FF0000)>>16;
-	   	int gp = (pixel & 0x0000FF00)>>8;
-	   	int bp = (pixel & 0x000000FF);
-	   	*/
-		
+		/*
+		 * int pixel = (new Color(100,200,250)).getRGB(); int rp = (pixel & 0x00FF0000)>>16; int gp = (pixel &
+		 * 0x0000FF00)>>8; int bp = (pixel & 0x000000FF);
+		 */
+
 		String ipaddress = "", port = "";
-		
+
 		if (args.length >= 2)
 		{
-			
+
 		}
-	   	
+
 		if (!CalicoOptions.webstart.isWebstart)
-			DOMConfigurator.configure(System.getProperty("log4j.configuration","conf/log4j.xml"));
-		
-		//logger.debug("Color: "+rp+","+gp+","+bp);
-	
+			DOMConfigurator.configure(System.getProperty("log4j.configuration", "conf/log4j.xml"));
+
+		// logger.debug("Color: "+rp+","+gp+","+bp);
+
 		Thread.currentThread().setName("Calico Main");
-		
+
 		// We load the conf/calico.conf file
 		CalicoOptions.setup();
 		CalicoDataStore.setup();
@@ -149,7 +143,7 @@ public class Calico extends JFrame
 		{
 
 			// Show the connection screen
-			
+
 			if (CalicoDataStore.RunStressTest)
 			{
 				System.out.println("Loading stress test");
@@ -166,16 +160,16 @@ public class Calico extends JFrame
 			}
 			System.out.println("Username: " + CalicoDataStore.Username);
 		}
-		catch(HeadlessException he)
+		catch (HeadlessException he)
 		{
 			logger.fatal("This program cannot be run on a headless system. Please run from a GUI environment.");
 			Calico.exit();
 		}
 
-		//System.getProperties().list(System.out);
+		// System.getProperties().list(System.out);
 
 	}
-	
+
 	private static void setPropertiesFromArgs(String[] args)
 	{
 		for (int i = 0; i < args.length; i++)
@@ -233,17 +227,15 @@ public class Calico extends JFrame
 				}
 			}
 		}
-		if (CalicoDataStore.ServerHost == null || CalicoDataStore.ServerPort == 0 
-				|| CalicoDataStore.StressTestInterval == Integer.MAX_VALUE 
-				|| CalicoDataStore.ScreenWidth == 0 || CalicoDataStore.ScreenHeight == 0
-				|| CalicoDataStore.RunStressTest == false)
+		if (CalicoDataStore.ServerHost == null || CalicoDataStore.ServerPort == 0 || CalicoDataStore.StressTestInterval == Integer.MAX_VALUE
+				|| CalicoDataStore.ScreenWidth == 0 || CalicoDataStore.ScreenHeight == 0 || CalicoDataStore.RunStressTest == false)
 		{
-//			System.out.println("Not running stress test!");
+			// System.out.println("Not running stress test!");
 			CalicoDataStore.RunStressTest = false;
 		}
 		else
 		{
-//			System.out.println("Running stress test!");
+			// System.out.println("Running stress test!");
 		}
 	}
 
@@ -252,18 +244,18 @@ public class Calico extends JFrame
 		this.gConf = gConf;
 	}
 
-
 	private void setupCalico()
 	{
-		if( CalicoDataStore.calicoObj != null ) {
+		if (CalicoDataStore.calicoObj != null)
+		{
 			CalicoDataStore.calicoObj.dispose();
 		}
 		CGrid.instance = null;
-		
+
 		CalicoDataStore.gridObject = null;
 		CalicoDataStore.calicoObj = this;
 		CalicoDataStore.messageHandlerObj = StatusMessageHandler.getInstance();
-		
+
 		// Run the setup methods
 		CArrowController.setup();
 		CCanvasController.setup();
@@ -271,75 +263,76 @@ public class Calico extends JFrame
 		CStrokeController.setup();
 
 		// Load the icon theme
-		CalicoIconManager.setIconTheme( CalicoOptions.core.icontheme );
+		CalicoIconManager.setIconTheme(CalicoOptions.core.icontheme);
 		CInputMode.setup();
 		CCanvasWatermark.InputModeWatermarks.setup();
-		
-		CalicoPluginManager.setup();
 
 		Thread.currentThread().setName("Calico Main 3");
-		
-		
-		if(CalicoDataStore.isFullScreen)
+
+		if (CalicoDataStore.isFullScreen)
 		{
-			
+
 			Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize();
-			setBounds(0,0,fullScreen.width,fullScreen.height);
+			setBounds(0, 0, fullScreen.width, fullScreen.height);
 			setUndecorated(true);
-			Calico.logger.debug("SET W+H ("+fullScreen.width+","+fullScreen.height+")");
+			Calico.logger.debug("SET W+H (" + fullScreen.width + "," + fullScreen.height + ")");
 			CalicoDataStore.ScreenWidth = fullScreen.width;
 			CalicoDataStore.ScreenHeight = fullScreen.height;
 		}
 		else
 		{
-			setBounds(50,50, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
+			setBounds(50, 50, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
 		}
 
 		// Setup the networking system
 		Networking.setup();
 
-		if(ticker==null) {
-		ticker = new Ticker();
-		ticker.start();
+		if (ticker == null)
+		{
+			ticker = new Ticker();
+			ticker.start();
 		}
-		
-		
+
 		CCanvasController.setup();
 
 		// Join!
 		Networking.join();
-		
-		this.addComponentListener(new java.awt.event.ComponentAdapter(){
-			public void componentResized(ComponentEvent e) {
-				//System.out.println(e.paramString());
-				
+
+		// Wait to initialize the plugins until after the network connection has been established, because the plugins
+		// may need to use network services as they are initializing. They should not wait around for the network to
+		// appear. For example, UUID request crashes the entire application if called before networking is up.
+		CalicoPluginManager.setup();
+
+		this.addComponentListener(new java.awt.event.ComponentAdapter() {
+			public void componentResized(ComponentEvent e)
+			{
+				// System.out.println(e.paramString());
+
 				Dimension dim = e.getComponent().getSize();
-				//System.out.println(e.getComponent().getSize().toString());
-				
-				
-				
+				// System.out.println(e.getComponent().getSize().toString());
+
 				CalicoDataStore.ScreenWidth = dim.width;
 				CalicoDataStore.ScreenHeight = dim.height;
-				
+
 				long cuid = CCanvasController.getCurrentUUID();
-				if(cuid!=0L)
+				if (cuid != 0L)
 				{
 					CCanvasController.windowResized();
 				}
-				
+
 			}
-	
+
 		});
 
 		// The title and die function
-		setTitle( CalicoOptions.core.version );
+		setTitle(CalicoOptions.core.version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	
+
 		setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		setCursor(getDrawCursor());
 
-		//When the window closes, finalize - which right now is just closing the output stream
-		addWindowListener(new java.awt.event.WindowAdapter(){
+		// When the window closes, finalize - which right now is just closing the output stream
+		addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(WindowEvent winEvt)
 			{
 				Calico.exit();
@@ -348,16 +341,16 @@ public class Calico extends JFrame
 			// windowGainedFocus
 			// windowStateChanged
 		});
-		
-		Thread inputThread = new Thread(null, new InputQueue(),"InputQueue");
+
+		Thread inputThread = new Thread(null, new InputQueue(), "InputQueue");
 		inputThread.start();
-		
+
 		addKeyListener(new CalicoKeyListener());
-		
+
 		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
-		
 
+		CGrid.loadGrid();
 	}
 
 	public static void exit()
@@ -367,8 +360,6 @@ public class Calico extends JFrame
 		System.exit(0);
 	}
 
-
-
 	private static JTextField nameBox;
 	private static JTextField nickBox;
 	private static JTextField passBox;
@@ -376,12 +367,13 @@ public class Calico extends JFrame
 	private static JTextField reswBox;
 	private static JTextField reshBox;
 	private static JFrame conn;
+
 	private static void getConnection()
 	{
 		conn = new JFrame();
 
 		conn.setTitle("Calico Session");
-		conn.setLocation(new Point(225,270));
+		conn.setLocation(new Point(225, 270));
 		conn.setLayout(null);
 		Properties settings = null;
 		if (!CalicoOptions.webstart.isWebstart)
@@ -390,60 +382,93 @@ public class Calico extends JFrame
 			{
 				settings = CalicoOptions.loadPropertyFile(CalicoOptions.core.connection.settings_file);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				settings = new Properties();
 			}
 		}
-		else {
+		else
+		{
 			settings = new Properties();
 		}
-		
-		String tempHost = System.getProperty("calico.host", settings.getProperty("host","localhost"));
-		String tempPort = System.getProperty("calico.port", settings.getProperty("port","27000"));
 
-		nameBox = new JTextField(tempHost,16);
-		portBox = new JTextField(tempPort,5);
-		nickBox = new JTextField(settings.getProperty("username",(CalicoOptions.webstart.isWebstart)?"Table-":System.getProperty("user.name")),16);
-		passBox = new JTextField(settings.getProperty("password"),16);
-		reswBox = new JTextField(settings.getProperty("resw","0"),4);
-		reshBox = new JTextField(settings.getProperty("resh","0"),4);
+		String tempHost = System.getProperty("calico.host", settings.getProperty("host", "localhost"));
+		String tempPort = System.getProperty("calico.port", settings.getProperty("port", "27000"));
+
+		nameBox = new JTextField(tempHost, 16);
+		portBox = new JTextField(tempPort, 5);
+		nickBox = new JTextField(settings.getProperty("username", (CalicoOptions.webstart.isWebstart) ? "Table-" : System.getProperty("user.name")), 16);
+		passBox = new JTextField(settings.getProperty("password"), 16);
+		reswBox = new JTextField(settings.getProperty("resw", "0"), 4);
+		reshBox = new JTextField(settings.getProperty("resh", "0"), 4);
 		JButton submit = new JButton();
 		submit.setText(" Connect ");
 
-		conn.setPreferredSize( new Dimension(430,225) );
+		conn.setPreferredSize(new Dimension(430, 225));
 
-		submit.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		nameBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		nickBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		passBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		portBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		reswBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
-		reshBox.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){submitConnectionForm();}});
+		submit.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		nameBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		nickBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		passBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		portBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		reswBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
+		reshBox.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				submitConnectionForm();
+			}
+		});
 
 		JLabel label_username = new JLabel("Username:");
-		label_username.setPreferredSize( new Dimension(70,20));
-
+		label_username.setPreferredSize(new Dimension(70, 20));
 
 		JLabel label_hostinfo = new JLabel("IP:");
-		label_hostinfo.setPreferredSize( new Dimension(70,20));
+		label_hostinfo.setPreferredSize(new Dimension(70, 20));
 
 		JLabel label_portinfo = new JLabel("Port:");
-		label_portinfo.setPreferredSize( new Dimension(30,20));
+		label_portinfo.setPreferredSize(new Dimension(30, 20));
 
 		JLabel label_password = new JLabel("Password:");
-		label_password.setPreferredSize( new Dimension(70,20));
-
+		label_password.setPreferredSize(new Dimension(70, 20));
 
 		JLabel label_resolution = new JLabel("Resolution:");
-		label_resolution.setPreferredSize( new Dimension(80,20));
+		label_resolution.setPreferredSize(new Dimension(80, 20));
 
 		JLabel label_by = new JLabel("X");
-		label_by.setPreferredSize( new Dimension(8,20));
+		label_by.setPreferredSize(new Dimension(8, 20));
 
 		JLabel label_fs = new JLabel("(Use 0 for fullscreen)");
-		label_fs.setPreferredSize( new Dimension(150,20));
-
+		label_fs.setPreferredSize(new Dimension(150, 20));
 
 		conn.add(label_username);
 		conn.add(label_hostinfo);
@@ -459,7 +484,6 @@ public class Calico extends JFrame
 		conn.add(reswBox);
 		conn.add(reshBox);
 		conn.add(submit);
-
 
 		Insets insets = conn.getInsets();
 
@@ -479,18 +503,16 @@ public class Calico extends JFrame
 		Dimension size_rehb = reshBox.getPreferredSize();
 		Dimension size_sub = submit.getPreferredSize();
 
+		// IP: [ ] PORT: [ ]
+		int hpos = 5 + insets.top;
 
-		// IP: [     ] PORT: [   ]
-		int hpos = 5+insets.top;
-
-		label_hostinfo.setBounds(5+insets.left, hpos, size_hi.width, size_hi.height);
-		nameBox.setBounds(15+insets.left + size_hi.width , 5 + insets.top, size_nb.width, size_nb.height);
+		label_hostinfo.setBounds(5 + insets.left, hpos, size_hi.width, size_hi.height);
+		nameBox.setBounds(15 + insets.left + size_hi.width, 5 + insets.top, size_nb.width, size_nb.height);
 
 		label_portinfo.setBounds(insets.left + size_hi.width + size_nb.width + 20, hpos, size_pi.width, size_pi.height);
 		portBox.setBounds(insets.left + size_hi.width + size_nb.width + 20 + size_pi.width, hpos, size_pb.width, size_pb.height);
 
 		hpos = hpos + size_pb.height + 5;
-
 
 		// Username
 		label_username.setBounds(5 + insets.left, hpos, size_lu.width, size_lu.height);
@@ -507,19 +529,18 @@ public class Calico extends JFrame
 		// Resolution
 		int xpos = 5 + insets.left;
 		label_resolution.setBounds(xpos, hpos, size_re.width, size_re.height);
-		xpos = xpos+0+size_re.width;
+		xpos = xpos + 0 + size_re.width;
 		reswBox.setBounds(xpos, hpos, size_rewb.width, size_rewb.height);
-		xpos = xpos+0+size_rewb.width;
-		label_by.setBounds(xpos, hpos+3, size_by.width, size_by.height);
-		xpos = xpos+0+size_by.width;
+		xpos = xpos + 0 + size_rewb.width;
+		label_by.setBounds(xpos, hpos + 3, size_by.width, size_by.height);
+		xpos = xpos + 0 + size_by.width;
 		reshBox.setBounds(xpos, hpos, size_rehb.width, size_rehb.height);
-		xpos = xpos+0+size_rehb.width;
-		label_fs.setBounds(xpos, hpos+5, size_fs.width, size_fs.height);
-
+		xpos = xpos + 0 + size_rehb.width;
+		label_fs.setBounds(xpos, hpos + 5, size_fs.width, size_fs.height);
 
 		// Submit
 		hpos = hpos + size_pb.height + 5;
-		submit.setBounds(100,hpos,size_sub.width,size_sub.height);
+		submit.setBounds(100, hpos, size_sub.width, size_sub.height);
 
 		if (!CalicoOptions.webstart.isWebstart)
 			conn.setAlwaysOnTop(true);
@@ -528,109 +549,114 @@ public class Calico extends JFrame
 		conn.pack();
 
 	}
-	
-	public static void reconnect(String host, int port) {
-		//CalicoDataStore.SessionName = "default";//sessBox.getText();
-		//CalicoDataStore.Username = nickBox.getText();
-		//CalicoDataStore.Password = passBox.getText();
+
+	public static void reconnect(String host, int port)
+	{
+		// CalicoDataStore.SessionName = "default";//sessBox.getText();
+		// CalicoDataStore.Username = nickBox.getText();
+		// CalicoDataStore.Password = passBox.getText();
 
 		CalicoDataStore.ServerHost = host;
 		CalicoDataStore.ServerPort = port;
-		
+
 		// XXX: WE MUST RESET THIS TO 0. Otherwise, the client will just hang there like an idiot
 		CalicoDataStore.GridRows = 0;
 		CalicoDataStore.GridCols = 0;
-		
-		if(Networking.receivePacketThread!=null && !Networking.receivePacketThread.isInterrupted()) {
+
+		if (Networking.receivePacketThread != null && !Networking.receivePacketThread.isInterrupted())
+		{
 			Networking.receivePacketThread.interrupt();
 		}
-		
-		if(Networking.sendPacketThread!=null && !Networking.sendPacketThread.isInterrupted()) {
+
+		if (Networking.sendPacketThread != null && !Networking.sendPacketThread.isInterrupted())
+		{
 			Networking.sendPacketThread.interrupt();
 		}
-		
+
 		Networking.recvQueue.clear();
 		Networking.sendQueue.clear();
-		
+
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-		if(instance != null ) {
+		if (instance != null)
+		{
 			instance.dispose();
 			instance = null;
 		}
-		
-		if(ticker!=null) {
+
+		if (ticker != null)
+		{
 			ticker.interrupt();
 			ticker = null;
 		}
-		
+
 		instance = new Calico(gd.getDefaultConfiguration());
 		instance.setupCalico();
 	}
 
 	private static void submitConnectionForm()
 	{
-		
-		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0, 1, "Synchronizing with server... "));
+
+		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START,
+				CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0, 1, "Synchronizing with server... "));
 		Properties settings = new Properties();
 
-		settings.setProperty("host",nameBox.getText());
-		settings.setProperty("port",portBox.getText());
-		settings.setProperty("username",nickBox.getText());
-		settings.setProperty("password",passBox.getText());
-		settings.setProperty("resw",reswBox.getText());
-		settings.setProperty("resh",reshBox.getText());
+		settings.setProperty("host", nameBox.getText());
+		settings.setProperty("port", portBox.getText());
+		settings.setProperty("username", nickBox.getText());
+		settings.setProperty("password", passBox.getText());
+		settings.setProperty("resw", reswBox.getText());
+		settings.setProperty("resh", reshBox.getText());
 
 		CalicoOptions.writePropertyFile(settings, CalicoOptions.core.connection.settings_file);
 
-
-		CalicoDataStore.SessionName = "default";//sessBox.getText();
+		CalicoDataStore.SessionName = "default";// sessBox.getText();
 		CalicoDataStore.Username = nickBox.getText();
 		CalicoDataStore.Password = passBox.getText();
 
-		int resw = Integer.parseInt( reswBox.getText() );
-		int resh = Integer.parseInt( reshBox.getText() );
+		int resw = Integer.parseInt(reswBox.getText());
+		int resh = Integer.parseInt(reshBox.getText());
 
 		CalicoDataStore.ServerHost = nameBox.getText();
-		CalicoDataStore.ServerPort = Integer.parseInt( portBox.getText() );
+		CalicoDataStore.ServerPort = Integer.parseInt(portBox.getText());
 
-		if(resw==0 || resh==0)
+		if (resw == 0 || resh == 0)
 		{
 			CalicoDataStore.isFullScreen = true;
 		}
 		else
-		{			
+		{
 			CalicoDataStore.ScreenWidth = resw;
 			CalicoDataStore.ScreenHeight = resh;
 		}
-		
-		/*GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-		instance = new Calico(gd.getDefaultConfiguration());
-		
-		instance.setupCalico();
-		conn.dispose();*/
+		/*
+		 * GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice gd =
+		 * ge.getDefaultScreenDevice();
+		 * 
+		 * instance = new Calico(gd.getDefaultConfiguration());
+		 * 
+		 * instance.setupCalico(); conn.dispose();
+		 */
 		conn.dispose();
 		Calico.reconnect(CalicoDataStore.ServerHost, CalicoDataStore.ServerPort);
-		
+
 	}
-	
+
 	public static Cursor getDrawCursor()
 	{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		BufferedImage image = new BufferedImage(30,30, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage(30, 30, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) image.getGraphics();
 		g.setColor(Color.black);
 		g.drawRect(0, 0, 1, 1);
-//		Image image = CalicoIconManager.getIconImage("cursor.dot");
-		Point hotSpot = new Point(0,0);
-		
+		// Image image = CalicoIconManager.getIconImage("cursor.dot");
+		Point hotSpot = new Point(0, 0);
+
 		return toolkit.createCustomCursor(image, hotSpot, "DrawCursor");
 	}
 
-	
 	private static JFrame sessionPopup;
 	private static JTextField newSessionNameTextBox;
 	private static JTextField newSessionSizeTextBox;
@@ -641,77 +667,93 @@ public class Calico extends JFrame
 		sessionPopup = new JFrame();
 
 		HttpClient httpclient = new DefaultHttpClient();
-        try {
-            HttpGet httpget = new HttpGet("http://"+CalicoDataStore.ServerHost+":27015/api/sessions");
+		try
+		{
+			HttpGet httpget = new HttpGet("http://" + CalicoDataStore.ServerHost + ":27015/api/sessions");
 
+			// System.out.println("executing request " + httpget.getURI());
 
-            //System.out.println("executing request " + httpget.getURI());
+			// Create a response handler
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			String responseBody = httpclient.execute(httpget, responseHandler);
 
-            // Create a response handler
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String responseBody = httpclient.execute(httpget, responseHandler);
-            
-            
-            JSONObject json = new JSONObject(responseBody);
-            
-            CalicoDataStore.sessiondb.clear();
-            JSONArray sessionList = json.getJSONArray("sessions");
-            for (int i = 0; i < sessionList.length(); i++)
+			JSONObject json = new JSONObject(responseBody);
+
+			CalicoDataStore.sessiondb.clear();
+			JSONArray sessionList = json.getJSONArray("sessions");
+			for (int i = 0; i < sessionList.length(); i++)
 			{
 				JSONObject sessionObj = sessionList.getJSONObject(i);
-				CalicoDataStore.sessiondb.add(new CSession(sessionObj.getString("name"), CalicoDataStore.ServerHost, sessionObj.getJSONObject("calico_server").getInt("port")));
+				CalicoDataStore.sessiondb.add(new CSession(sessionObj.getString("name"), CalicoDataStore.ServerHost, sessionObj.getJSONObject("calico_server")
+						.getInt("port")));
 			}
 
-        }
+		}
 		catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-            // When HttpClient instance is no longer needed,
-            // shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            httpclient.getConnectionManager().shutdown();
-        }
+		}
+		finally
+		{
+			// When HttpClient instance is no longer needed,
+			// shut down the connection manager to ensure
+			// immediate deallocation of all system resources
+			httpclient.getConnectionManager().shutdown();
+		}
 		/*
-		CalicoDataStore.sessiondb.add(new CSession("Session1", "calico.ics.uci.edu", 27000));
-		CalicoDataStore.sessiondb.add(new CSession("Session2", "calico.ics.uci.edu", 27001));
-		CalicoDataStore.sessiondb.add(new CSession("Session3", "calico.ics.uci.edu", 27002));
-		CalicoDataStore.sessiondb.add(new CSession("Session4", "calico.ics.uci.edu", 27003));
-		CalicoDataStore.sessiondb.add(new CSession("Session5", "calico.ics.uci.edu", 27004));
-		CalicoDataStore.sessiondb.add(new CSession("Session6", "calico.ics.uci.edu", 27005));
-		*/
-		sessionList = new JList(CalicoDataStore.sessiondb.toArray(new CSession[]{}));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session1", "calico.ics.uci.edu", 27000));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session2", "calico.ics.uci.edu", 27001));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session3", "calico.ics.uci.edu", 27002));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session4", "calico.ics.uci.edu", 27003));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session5", "calico.ics.uci.edu", 27004));
+		 * CalicoDataStore.sessiondb.add(new CSession("Session6", "calico.ics.uci.edu", 27005));
+		 */
+		sessionList = new JList(CalicoDataStore.sessiondb.toArray(new CSession[] {}));
 		sessionPopup.setTitle("Calico Session");
-		sessionPopup.setLocation(new Point(225,270));
-		//sessionPopup.setLayout(null);
-		
+		sessionPopup.setLocation(new Point(225, 270));
+		// sessionPopup.setLayout(null);
+
 		JScrollPane listScroller = new JScrollPane(sessionList);
 		listScroller.setPreferredSize(new Dimension(250, 80));
 		listScroller.setAlignmentX(LEFT_ALIGNMENT);
-		//...
-		//Lay out the label and scroll pane from top to bottom.
+		// ...
+		// Lay out the label and scroll pane from top to bottom.
 		JPanel listPane = new JPanel();
 		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
 		JLabel label = new JLabel("Sessions");
-		//...
+		// ...
 		listPane.add(label);
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
+		listPane.add(Box.createRigidArea(new Dimension(0, 5)));
 		listPane.add(listScroller);
-		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		listPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		JButton cancelButton = new JButton("Cancel");
 		JButton createButton = new JButton("Create");
 		JButton joinButton = new JButton("Join");
-		newSessionNameTextBox = new JTextField("",16);
+		newSessionNameTextBox = new JTextField("", 16);
 		newSessionSizeTextBox = new JTextField("5", 3);
-		
 
-		cancelButton.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){closeSessionPopup();}});
-		joinButton.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){pressJoinSessionButton();}});
-		createButton.addActionListener( new java.awt.event.ActionListener() {public void actionPerformed(java.awt.event.ActionEvent ev){createNewSession();}});
-		
-		//Lay out the buttons from left to right.
+		cancelButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				closeSessionPopup();
+			}
+		});
+		joinButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				pressJoinSessionButton();
+			}
+		});
+		createButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent ev)
+			{
+				createNewSession();
+			}
+		});
+
+		// Lay out the buttons from left to right.
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -719,7 +761,7 @@ public class Calico extends JFrame
 		buttonPane.add(cancelButton);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPane.add(joinButton);
-		
+
 		JPanel createPane = new JPanel();
 		createPane.setLayout(new BoxLayout(createPane, BoxLayout.LINE_AXIS));
 		createPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -738,69 +780,70 @@ public class Calico extends JFrame
 		sessionPopup.repaint();
 		sessionPopup.pack();
 	}
-	
+
 	private static void closeSessionPopup()
 	{
 		sessionPopup.dispose();
 	}
-	
+
 	private static void createNewSession()
 	{
 		String name = newSessionNameTextBox.getText();
 		String grid_size = newSessionSizeTextBox.getText();
-		System.out.println("New Session Name: "+newSessionNameTextBox.getText());
+		System.out.println("New Session Name: " + newSessionNameTextBox.getText());
 		closeSessionPopup();
-		
+
 		HttpClient httpclient = new DefaultHttpClient();
 		int port = CalicoDataStore.ServerPort;
-        try {
-            HttpPost httppost = new HttpPost("http://"+CalicoDataStore.ServerHost+":27015/api/sessions");
-            
-            String requestParams = "";
-            
-            requestParams += "name=" + URLEncoder.encode(name, "utf-8");
-            requestParams += "&rows=" + URLEncoder.encode(grid_size, "utf-8");
-            requestParams += "&cols=" + URLEncoder.encode(grid_size, "utf-8");
-            
-            InputStreamEntity inputEntity = new InputStreamEntity(new ByteArrayInputStream(requestParams.getBytes()),-1);
-            inputEntity.setContentType("application/x-www-form-urlencoded");
-            inputEntity.setChunked(false);
-            httppost.setEntity(inputEntity);
+		try
+		{
+			HttpPost httppost = new HttpPost("http://" + CalicoDataStore.ServerHost + ":27015/api/sessions");
 
-            //System.out.println("executing request " + httpget.getURI());
+			String requestParams = "";
 
-            // Create a response handler
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String responseBody = httpclient.execute(httppost, responseHandler);
-            
-            JSONObject sessionObj = new JSONObject(responseBody);
-            port = sessionObj.getJSONObject("calico_server").getInt("port");
-        }
+			requestParams += "name=" + URLEncoder.encode(name, "utf-8");
+			requestParams += "&rows=" + URLEncoder.encode(grid_size, "utf-8");
+			requestParams += "&cols=" + URLEncoder.encode(grid_size, "utf-8");
+
+			InputStreamEntity inputEntity = new InputStreamEntity(new ByteArrayInputStream(requestParams.getBytes()), -1);
+			inputEntity.setContentType("application/x-www-form-urlencoded");
+			inputEntity.setChunked(false);
+			httppost.setEntity(inputEntity);
+
+			// System.out.println("executing request " + httpget.getURI());
+
+			// Create a response handler
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			String responseBody = httpclient.execute(httppost, responseHandler);
+
+			JSONObject sessionObj = new JSONObject(responseBody);
+			port = sessionObj.getJSONObject("calico_server").getInt("port");
+		}
 		catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-            // When HttpClient instance is no longer needed,
-            // shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            httpclient.getConnectionManager().shutdown();
-        }
-		//reconnect(CalicoDataStore.ServerHost, port);
+		}
+		finally
+		{
+			// When HttpClient instance is no longer needed,
+			// shut down the connection manager to ensure
+			// immediate deallocation of all system resources
+			httpclient.getConnectionManager().shutdown();
+		}
+		// reconnect(CalicoDataStore.ServerHost, port);
 		showSessionPopup();
 	}
-	
+
 	private static void pressJoinSessionButton()
 	{
 		int selectedIndex = sessionList.getAnchorSelectionIndex();
 		CSession selectedSession = CalicoDataStore.sessiondb.get(selectedIndex);
-		
-		logger.info("Connecting to selected session: "+selectedSession.toString());
+
+		logger.info("Connecting to selected session: " + selectedSession.toString());
 		closeSessionPopup();
 		reconnect(selectedSession.getHost(), selectedSession.getPort());
-		
-		
-	}
 
+	}
 
 }

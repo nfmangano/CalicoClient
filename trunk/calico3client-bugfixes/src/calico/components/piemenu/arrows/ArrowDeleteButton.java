@@ -8,6 +8,7 @@ import calico.controllers.CGroupController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 
+@Deprecated
 public class ArrowDeleteButton extends PieMenuButton
 {
 	
