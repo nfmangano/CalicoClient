@@ -16,6 +16,7 @@ import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PImage;
 
@@ -25,6 +26,7 @@ public class CCanvasLinkBadge implements StickyItem
 	public static final double BADGE_HEIGHT = 30.0;
 
 	private static final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	private static final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 	private static final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
 
 	private final long uuid;
@@ -175,8 +177,9 @@ public class CCanvasLinkBadge implements StickyItem
 						{
 							pieMenuPending = false;
 							deleteLinkButton.setContext(anchor.getLink());
+							setLinkLabelButton.setContext(anchor.getLink());
 							goToCanvasButton.setContext(anchor.getOpposite().getCanvasId());
-							PieMenu.displayPieMenu(point, deleteLinkButton, goToCanvasButton);
+							PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton, goToCanvasButton);
 						}
 					}
 				}

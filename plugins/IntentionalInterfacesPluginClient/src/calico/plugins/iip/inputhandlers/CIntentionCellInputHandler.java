@@ -45,7 +45,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private final CreateNewAlternativeLinkButton newAlternativeButton = new CreateNewAlternativeLinkButton();
 	private final CreateNewPerspectiveLinkButton newPerspectiveButton = new CreateNewPerspectiveLinkButton();
 	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
-	
+
 	private CIntentionCellInputHandler()
 	{
 		PieMenu.addListener(this);
@@ -54,8 +54,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	public void setCurrentCellId(long currentCellId)
 	{
 		this.currentCellId = currentCellId;
-		
+
 		goToCanvasButton.setContext(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
+
+		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(true);
 	}
 
 	public long getActiveCell()
@@ -72,7 +74,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		
+
 		if (local)
 		{
 			CIntentionCellController.getInstance().moveCellLocal(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
@@ -125,19 +127,21 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		{
 			moveCurrentCell(event.getGlobalPoint(), false);
 		}
+		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
 
 		state = State.IDLE;
 	}
-	
+
 	@Override
 	public void menuCleared(ContextMenu menu)
 	{
 		if ((state == State.PIE) && (menu == ContextMenu.PIE_MENU))
 		{
 			state = State.IDLE;
+			CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
 		}
 	}
-	
+
 	@Override
 	public void menuDisplayed(ContextMenu menu, Point2D position)
 	{

@@ -18,6 +18,7 @@ import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
@@ -44,6 +45,7 @@ public class CanvasLinkBay implements StickyItem
 	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
 
 	public CanvasLinkBay(long canvas_uuid, CCanvasLink.LinkDirection direction, Layout layout)
@@ -259,8 +261,9 @@ public class CanvasLinkBay implements StickyItem
 						{
 							pieMenuPending = false;
 							deleteLinkButton.setContext(clickedToken.getLinkAnchor().getLink());
+							setLinkLabelButton.setContext(clickedToken.getLinkAnchor().getLink());
 							goToCanvasButton.setContext(clickedToken.getLinkAnchor().getOpposite().getCanvasId());
-							PieMenu.displayPieMenu(point, deleteLinkButton, goToCanvasButton);
+							PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton, goToCanvasButton);
 						}
 					}
 				}

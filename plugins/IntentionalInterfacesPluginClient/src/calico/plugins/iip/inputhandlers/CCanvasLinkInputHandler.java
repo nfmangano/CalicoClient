@@ -11,8 +11,11 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
+import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.components.piemenu.iip.MoveLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
+import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionGraphController;
 
 public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
 {
@@ -38,10 +41,8 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 
 	private final PieMenuTimer pieMenuTimer = new PieMenuTimer();
 
-	private Point mouseDragAnchor;
-	// private Point2D cellDragAnchor;
-
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 	private final MoveLinkButton moveLinkButton = new MoveLinkButton();
 
 	private CCanvasLinkInputHandler()
@@ -54,8 +55,11 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		this.currentLinkId = currentLinkId;
 
 		deleteLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId));
+		setLinkLabelButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId));
 		moveLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId),
 				CCanvasLinkController.getInstance().isNearestSideA(currentLinkId, point));
+		
+		IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(true);
 	}
 
 	public long getActiveLink()
@@ -68,31 +72,9 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		return currentLinkId;
 	}
 
-	@Deprecated
-	private void moveCurrentLink(Point destination, boolean local)
-	{
-		// seems to be obsolete now, per CreateIntentionArrowPhase
-		
-		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		// something like this:
-		// CCanvasLinkController.getInstance().moveLink(currentLinkId, cellDragAnchor.getX() + xMouseDelta,
-		// cellDragAnchor.getY() + yMouseDelta, local);
-	}
-
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
-		synchronized (stateLock)
-		{
-			switch (state)
-			{
-				case ACTIVATED:
-					state = State.DRAG;
-				case DRAG:
-					moveCurrentLink(event.getGlobalPoint(), true);
-			}
-		}
 	}
 
 	@Override
@@ -104,28 +86,19 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 			{
 				state = State.ACTIVATED;
 			}
+			
+			
 
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
 			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
-
-			mouseDragAnchor = event.getGlobalPoint();
-
-			// don't know how to anchor the link just now...
-			// cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentLinkId).getLocation();
-
-			// CalicoInputManager.rerouteEvent(this.canvas_uid, e); ???
 		}
 	}
 
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
-		if (state == State.DRAG)
-		{
-			moveCurrentLink(event.getGlobalPoint(), false);
-		}
-
 		state = State.IDLE;
+		IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(false);
 	}
 
 	@Override
@@ -134,6 +107,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		if ((state == State.PIE) && (menu == ContextMenu.PIE_MENU))
 		{
 			state = State.IDLE;
+			IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(false);
 		}
 	}
 
@@ -163,7 +137,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, moveLinkButton, deleteLinkButton);
+						PieMenu.displayPieMenu(point, moveLinkButton, setLinkLabelButton, deleteLinkButton);
 					}
 				}
 			}

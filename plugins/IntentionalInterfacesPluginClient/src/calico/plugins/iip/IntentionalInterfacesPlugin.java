@@ -94,6 +94,9 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			case CLINK_MOVE_ANCHOR:
 				CLINK_MOVE_ANCHOR(p);
 				break;
+			case CLINK_LABEL:
+				CLINK_LABEL(p);
+				break;
 			case CLINK_DELETE:
 				CLINK_DELETE(p);
 				break;
@@ -193,7 +196,8 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		CCanvasLink.LinkType type = CCanvasLink.LinkType.values()[p.getInt()];
 		CCanvasLinkAnchor anchorA = unpackAnchor(p);
 		CCanvasLinkAnchor anchorB = unpackAnchor(p);
-		CCanvasLink link = new CCanvasLink(uuid, type, anchorA, anchorB);
+		String label = p.getString();
+		CCanvasLink link = new CCanvasLink(uuid, type, anchorA, anchorB, label);
 		CCanvasLinkController.getInstance().addLink(link);
 	}
 
@@ -221,6 +225,19 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		int y = p.getInt();
 
 		CCanvasLinkController.getInstance().localMoveLinkAnchor(anchor_uuid, canvas_uuid, type, x, y);
+	}
+
+	private static void CLINK_LABEL(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CLINK_LABEL.verify(p);
+
+		long uuid = p.getLong();
+		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(uuid);
+		link.setLabel(p.getString());
+
+		IntentionGraphController.getInstance().getArrowByLinkId(uuid).redraw();
+		// IntentionGraph.getInstance().repaint(); // is this required?
 	}
 
 	private static void CLINK_DELETE(CalicoPacket p)

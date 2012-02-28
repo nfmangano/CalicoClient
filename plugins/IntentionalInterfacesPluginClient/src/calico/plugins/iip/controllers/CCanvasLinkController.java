@@ -266,6 +266,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(type.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, x, y));
 		packAnchor(packet, 0L, CCanvasLinkAnchor.ArrowEndpointType.FLOATING, (int) x, (int) y);
+		packet.putString(""); // empty label
 
 		packet.rewind();
 		PacketHandler.receive(packet);
@@ -280,6 +281,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(type.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId));
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
+		packet.putString(""); // empty label
 
 		packet.rewind();
 		PacketHandler.receive(packet);
@@ -297,6 +299,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(CCanvasLink.LinkType.DESIGN_INSIDE.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId), group_uuid);
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
+		packet.putString(""); // empty label
 
 		packet.rewind();
 		PacketHandler.receive(packet);
@@ -326,6 +329,18 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		packet.putInt(x);
 		packet.putInt(y);
 		packet.putLong(group_uuid);
+	}
+	
+	public void setLinkLabel(long uuid, String label)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_LABEL);
+		packet.putLong(uuid);
+		packet.putString(label);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
 	}
 
 	public void deleteLink(long uuid)
