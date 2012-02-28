@@ -159,6 +159,17 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 	{
 		this.removeAllChildren();
 
+		addRenderingElements();
+
+		this.repaint();
+		if (repaint)
+		{
+			this.setPaintInvalid(true);
+		}
+	}
+	
+	protected void addRenderingElements()
+	{
 		if (arrowType == CArrow.TYPE_NORM_HEAD_AB || arrowType == CArrow.TYPE_NORM_HEAD_A)
 		{
 			arrowHeadA = null;
@@ -203,12 +214,6 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 		arrowLine.setPaint(this.color);
 
 		this.addChild(0, arrowLine);
-
-		this.repaint();
-		if (repaint)
-		{
-			this.setPaintInvalid(true);
-		}
 	}
 
 	public int get_signature()
