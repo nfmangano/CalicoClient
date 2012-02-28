@@ -9,6 +9,7 @@ import java.util.List;
 
 import calico.CalicoDataStore;
 import calico.components.CCanvas;
+import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.perspectives.CanvasPerspective;
@@ -18,7 +19,10 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
+import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
 import calico.plugins.iip.components.canvas.CanvasLinkBay;
+import calico.plugins.iip.components.graph.NewIdeaButton;
+import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 
 public class IntentionCanvasController implements CGroupController.Listener
 {
@@ -30,6 +34,10 @@ public class IntentionCanvasController implements CGroupController.Listener
 	public static void initialize()
 	{
 		INSTANCE = new IntentionCanvasController();
+
+		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
+		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
+		CanvasStatusBar.addMenuButtonRightAligned(NewIdeaButton.class);
 	}
 
 	private static IntentionCanvasController INSTANCE;

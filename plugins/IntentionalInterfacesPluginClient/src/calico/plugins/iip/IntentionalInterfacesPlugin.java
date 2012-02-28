@@ -1,12 +1,8 @@
 package calico.plugins.iip;
 
-import java.awt.Point;
-
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.CGroup;
-import calico.components.menus.CanvasStatusBar;
-import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
@@ -17,8 +13,7 @@ import calico.plugins.CalicoPlugin;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
-import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
-import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
+import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -39,9 +34,6 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	public void onPluginStart()
 	{
 		// register for palette events
-		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
-		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
-		GridBottomMenuBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		CGroup.registerPieMenuButton(CreateDesignInsideLinkButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
@@ -124,12 +116,14 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		long uuid = p.getLong();
 		long canvas_uuid = p.getLong();
+		boolean inUse = p.getBoolean();
 		int x = p.getInt();
 		int y = p.getInt();
 
-		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, x, y);
+		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, inUse, x, y);
 		CIntentionCellController.getInstance().addCell(cell);
 		cell.setVisible(CCanvasController.hasContent(canvas_uuid));
+		IntentionGraph.getInstance().repaint();
 	}
 
 	private static void CIC_MOVE(CalicoPacket p)
@@ -140,11 +134,19 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		long uuid = p.getLong();
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
 
+		boolean wasInUse = cell.isInUse();
+		cell.setInUse(p.getBoolean());
+		
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
 
 		IntentionGraphController.getInstance().updateAttachedArrows(cell.getId(), x, y);
+		
+		if (wasInUse != cell.isInUse())
+		{
+			CCanvasLinkController.getInstance().notifyContentChanged(cell.getCanvasId());
+		}
 	}
 
 	private static void CIC_DELETE(CalicoPacket p)

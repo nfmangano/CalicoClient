@@ -19,6 +19,8 @@ import calico.plugins.iip.controllers.IntentionGraphController;
 
 class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 {
+	private static final double DRAG_THRESHOLD = 3.0;
+
 	static final CreateIntentionArrowPhase INSTANCE = new CreateIntentionArrowPhase();
 
 	private enum Mode
@@ -28,6 +30,7 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		CREATE;
 	}
 
+	private boolean dragInitiated;
 	private Mode mode;
 	private CCanvasLink link;
 	private CIntentionCell fromCell;
@@ -58,17 +61,20 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		IntentionGraphController.getInstance().getArrowByLinkId(link.getId()).setVisible(false);
 
 		startPhase();
+		startDrag();
 	}
 
 	void startCreate(CIntentionCell fromCell, Point anchorPoint, CCanvasLink.LinkType type)
 	{
-		mode = Mode.CREATE;
+		this.mode = Mode.CREATE;
 		this.link = null;
 		this.fromCell = fromCell;
 		this.toCell = null;
-		this.anchorPoint = anchorPoint;
+		this.anchorPoint = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT)
+				.globalToLocal(new Point2D.Double(anchorPoint.getX(), anchorPoint.getY()));
 		this.type = type;
 		this.onSelf = false;
+		this.dragInitiated = false;
 
 		System.out.println("Start creating " + type + " arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + " with anchor point "
 				+ anchorPoint);
@@ -89,6 +95,11 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		{
 			toCell.setHighlighted(true);
 		}
+	}
+
+	private void startDrag()
+	{
+		dragInitiated = true;
 
 		moveTransitoryArrow(anchorPoint, true);
 
@@ -144,12 +155,16 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		{
 			toCell.setHighlighted(false);
 		}
-		arrow.setVisible(false);
 
-		if (onSelf)
+		if (dragInitiated)
 		{
-			System.out.println("Cancelling arrow creation because the arrow is pointing to the source cell");
-			return;
+			arrow.setVisible(false);
+
+			if (onSelf)
+			{
+				System.out.println("Cancelling arrow creation because the arrow is pointing to the source cell");
+				return;
+			}
 		}
 
 		Point2D graphPosition = getGraphPosition(terminationPoint);
@@ -181,13 +196,20 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 
 	private void createLink(Point2D graphPosition)
 	{
-		if (toCell == null)
+		if (dragInitiated)
 		{
-			CCanvasLinkController.getInstance().createOrphanedLink(fromCell.getCanvasId(), type, graphPosition.getX(), graphPosition.getY());
+			if (toCell == null)
+			{
+				CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), type, graphPosition.getX(), graphPosition.getY());
+			}
+			else
+			{
+				CCanvasLinkController.getInstance().createLink(fromCell.getCanvasId(), toCell.getCanvasId(), type);
+			}
 		}
 		else
 		{
-			CCanvasLinkController.getInstance().createLink(fromCell.getCanvasId(), toCell.getCanvasId(), type);
+			CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), type);
 		}
 
 		System.out.println("Create " + type + " arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + ", with anchor point "
@@ -243,9 +265,26 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		}
 	}
 
+	private boolean dragThresholdCrossed(Point point)
+	{
+		return anchorPoint.distance(point) >= DRAG_THRESHOLD;
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent event)
 	{
+		if (!dragInitiated)
+		{
+			if (dragThresholdCrossed(event.getPoint()))
+			{
+				startDrag();
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		Point2D graphPosition = getGraphPosition(event.getPoint());
 		System.out.println("Drag arrowhead to " + graphPosition);
 

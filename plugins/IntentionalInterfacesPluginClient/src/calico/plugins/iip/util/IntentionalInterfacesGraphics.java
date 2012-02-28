@@ -48,7 +48,7 @@ public class IntentionalInterfacesGraphics
 		return compound;
 	}
 
-	public static void superimposeCellAddressInCorner(Graphics2D g, long canvas_uuid, int fontSize)
+	public static void superimposeCellAddressInCorner(Graphics2D g, long canvas_uuid, double width, Font font, Color color)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
 		String coordinates = canvas.getGridCoordTxt();
@@ -56,12 +56,12 @@ public class IntentionalInterfacesGraphics
 		Color c = g.getColor();
 		Font f = g.getFont();
 
-		g.setFont(new Font("Verdana", Font.BOLD, fontSize));
-		g.setColor(COORDINATES_COLOR);
+		g.setFont(font); 
+		g.setColor(color);
 
 		Rectangle2D coordinatesBoundsMess = g.getFontMetrics().getStringBounds(coordinates, g);
 		Rectangle coordinatesBounds = new Rectangle((int) coordinatesBoundsMess.getWidth(), (int) coordinatesBoundsMess.getHeight());
-		int x = CORNER_INSET;
+		int x = (int)(width - (coordinatesBounds.width + CORNER_INSET));
 		int y = (coordinatesBounds.height + CORNER_INSET) - g.getFontMetrics().getDescent();
 		g.drawString(coordinates, x, y);
 

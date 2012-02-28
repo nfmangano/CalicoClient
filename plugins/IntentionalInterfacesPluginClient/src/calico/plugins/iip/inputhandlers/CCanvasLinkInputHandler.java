@@ -68,8 +68,11 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		return currentLinkId;
 	}
 
+	@Deprecated
 	private void moveCurrentLink(Point destination, boolean local)
 	{
+		// seems to be obsolete now, per CreateIntentionArrowPhase
+		
 		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		// something like this:

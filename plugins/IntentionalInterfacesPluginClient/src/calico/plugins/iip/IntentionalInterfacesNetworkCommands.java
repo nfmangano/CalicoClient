@@ -25,7 +25,7 @@ public class IntentionalInterfacesNetworkCommands
 		 */
 		CIC_CREATE,
 		/**
-		 * Move a CIntentionCell's (x,y) position
+		 * Move a CIntentionCell's (x,y) position and set its inUse flag
 		 */
 		CIC_MOVE,
 		/**

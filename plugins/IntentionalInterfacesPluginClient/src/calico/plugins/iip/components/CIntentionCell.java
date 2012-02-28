@@ -1,14 +1,15 @@
 package calico.plugins.iip.components;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
@@ -20,6 +21,8 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 public class CIntentionCell
 {
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
+	private static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
+	private static final Color COORDINATES_COLOR = Color.blue;
 
 	private enum BorderColor
 	{
@@ -37,15 +40,17 @@ public class CIntentionCell
 	long uuid;
 	long canvas_uuid;
 	Point2D location;
+	boolean inUse;
 
 	private boolean highlighted = false;
 
 	private final Shell shell;
 
-	public CIntentionCell(long uuid, long canvas_uuid, double x, double y)
+	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, double x, double y)
 	{
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
+		this.inUse = inUse;
 		this.location = new Point2D.Double(x, y);
 
 		shell = new Shell(x, y);
@@ -73,6 +78,16 @@ public class CIntentionCell
 	public long getCanvasId()
 	{
 		return canvas_uuid;
+	}
+	
+	public boolean isInUse()
+	{
+		return inUse;
+	}
+	
+	public void setInUse(boolean inUse)
+	{
+		this.inUse = inUse;
 	}
 
 	public boolean contains(Point2D point)
@@ -109,6 +124,7 @@ public class CIntentionCell
 	public void setVisible(boolean b)
 	{
 		shell.setVisible(b);
+		shell.repaint();
 	}
 
 	public void setHighlighted(boolean highlighted)
@@ -149,8 +165,8 @@ public class CIntentionCell
 					CalicoIconManager.getIconImage("intention-graph.obscured-intention-cell"), canvas_uuid));
 
 			addChild(canvasAddress);
-			setBounds(x, y, canvasAddress.getWidth() + (2 * BORDER_WIDTH), canvasAddress.getHeight() + (2 * BORDER_WIDTH));
-			// canvasAddress.setBounds(shell.getBounds());
+			double aspectRatio = CGrid.getInstance().getImgw() / (double) CGrid.getInstance().getImgh();
+			setBounds(x, y, (canvasAddress.getHeight() * aspectRatio) + (2 * BORDER_WIDTH), canvasAddress.getHeight() + (2 * BORDER_WIDTH));
 			repaint();
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
@@ -197,8 +213,8 @@ public class CIntentionCell
 
 			g.setColor(currentBorderColor());
 			g.translate(bounds.x, bounds.y);
-			g.drawRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1);
-			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, 16);
+			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 10, 10);
+			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, bounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT, COORDINATES_COLOR);
 
 			g.translate(-bounds.x, -bounds.y);
 			g.setColor(c);

@@ -11,7 +11,6 @@ public class CCanvasLink
 {
 	public enum LinkType
 	{
-		NEW_IDEA("intention.new-idea"),
 		NEW_PERSPECTIVE("intention.new-perspective"),
 		NEW_ALTERNATIVE("intention.new-alternative"),
 		DESIGN_INSIDE("intention.design-inside");

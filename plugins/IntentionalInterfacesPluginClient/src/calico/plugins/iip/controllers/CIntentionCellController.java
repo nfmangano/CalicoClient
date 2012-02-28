@@ -67,26 +67,42 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-
-	public void moveCell(long cellId, double x, double y, boolean local)
+	
+	public void moveCellLocal(long cellId, double x, double y)
 	{
-		if (local)
+		cells.get(cellId).setLocation(x, y);
+		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
+	}
+	
+	public void setInUse(long cellId, boolean inUse)
+	{
+		CIntentionCell cell = cells.get(cellId);
+		
+		if (cell.isInUse() == inUse)
 		{
-			cells.get(cellId).setLocation(x, y);
-			IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
+			return;
 		}
-		else
-		{
-			CalicoPacket packet = new CalicoPacket();
-			packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
-			packet.putLong(cellId);
-			packet.putInt((int) x);
-			packet.putInt((int) y);
+		
+		moveCell(cellId, inUse, cell.getLocation().getX(), cell.getLocation().getY());
+	}
+	
+	public void moveCell(long cellId, double x, double y)
+	{
+		moveCell(cellId, true, x, y);
+	}
+	
+	private void moveCell(long cellId, boolean inUse, double x, double y)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
+		packet.putLong(cellId);
+		packet.putBoolean(inUse);
+		packet.putInt((int) x);
+		packet.putInt((int) y);
 
-			packet.rewind();
-			PacketHandler.receive(packet);
-			Networking.send(packet);
-		}
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
 	}
 
 	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import calico.Calico;
+import calico.Geometry;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -21,6 +22,7 @@ import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 
@@ -144,15 +146,8 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 		}
 
 		point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point2D.Double(point.getX(), point.getY()));
-
-		double ax = point.getX() - link.getAnchorA().getPoint().getX();
-		double ay = point.getY() - link.getAnchorA().getPoint().getY();
-		double a = Math.sqrt((ax * ax) + (ay * ay));
-
-		double bx = point.getX() - link.getAnchorB().getPoint().getX();
-		double by = point.getY() - link.getAnchorB().getPoint().getY();
-		double b = Math.sqrt((bx * bx) + (by * by));
-
+		double a = point.distance(link.getAnchorA().getPoint());
+		double b = point.distance(link.getAnchorB().getPoint());
 		return a < b;
 	}
 
@@ -187,40 +182,40 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	{
 		if (anchor.getArrowEndpointType() == ArrowEndpointType.INTENTION_CELL)
 		{
-			CCanvasController.notifyContentChanged(this, anchor.getCanvasId());
+			notifyContentChanged(anchor.getCanvasId());
 		}
 	}
-
-	private long getNextEmptyCanvas(long fromCanvasId)
+	
+	public void notifyContentChanged(long canvasId)
 	{
-		for (long canvas_uuid : CCanvasController.getCanvasIDList())
-		{
-			if (canvas_uuid == fromCanvasId)
-			{
-				continue;
-			}
-
-			if (CCanvasController.hasContent(canvas_uuid))
-			{
-				continue;
-			}
-
-			return canvas_uuid;
-		}
-
-		return 0L;
+		CCanvasController.notifyContentChanged(this, canvasId);
 	}
 
-	public void createLinkToEmptyCanvas(long fromCanvasId, CCanvasLink.LinkType type)
+	public void createLinkToEmptyCanvas(long fromCanvasId, CCanvasLink.LinkType type, double xLinkEndpoint, double yLinkEndpoint)
 	{
-		long toCanvasId = getNextEmptyCanvas(fromCanvasId);
+		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId, type);
 		if (toCanvasId == 0L)
 		{
-			System.out.println("Can't create a link to a new canvas of type " + type + " because there are no more empty canvases!");
 			return;
 		}
 
+		// TODO: adjust (xLinkEndpoint, yLinkEndpoint) position the cell such that the arrowhead stays at (xLinkEndpoint, yLinkEndpoint)
+		CIntentionCellController.getInstance().moveCell(CIntentionCellController.getInstance().getCellByCanvasId(toCanvasId).getId(), xLinkEndpoint,
+				yLinkEndpoint);
+	}
+
+	public long createLinkToEmptyCanvas(long fromCanvasId, CCanvasLink.LinkType type)
+	{
+		long toCanvasId = IntentionGraphController.getInstance().getNearestEmptyCanvas(fromCanvasId);
+		if (toCanvasId == 0L)
+		{
+			System.out.println("Can't create a link to a new canvas of type " + type + " because there are no more empty canvases!");
+			return 0L;
+		}
+
 		createLink(fromCanvasId, toCanvasId, type);
+
+		return toCanvasId;
 	}
 
 	public void orphanLink(CCanvasLinkAnchor anchor, double x, double y)
@@ -294,7 +289,7 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	public void createDesignInsideLink(long group_uuid)
 	{
 		long fromCanvasId = CGroupController.groupdb.get(group_uuid).getCanvasUID();
-		long toCanvasId = getNextEmptyCanvas(fromCanvasId);
+		long toCanvasId = IntentionGraphController.getInstance().getNearestEmptyCanvas(fromCanvasId);
 
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
@@ -347,6 +342,11 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	@Override
 	public boolean hasContent(long canvas_uuid)
 	{
+		if (CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).isInUse())
+		{
+			return true;
+		}
+		
 		for (CCanvasLink link : linksById.values())
 		{
 			if (link.getAnchorA().getCanvasId() == canvas_uuid)
@@ -364,12 +364,25 @@ public class CCanvasLinkController implements CCanvas.ContentContributor
 	@Override
 	public void contentChanged(long canvas_uuid)
 	{
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
+		if (cell == null)
+		{
+			return;
+		}
+		
+		if (!cell.isInUse())
+		{
+			CIntentionCellController.getInstance().setInUse(cell.getId(), true);
+		}
+		
 		IntentionGraphController.getInstance().contentChanged(canvas_uuid);
 	}
 
 	@Override
 	public void clearContent(long canvas_uuid)
 	{
+		CIntentionCellController.getInstance().setInUse(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(), false);
+
 		Set<Long> linkIdsToDelete = new HashSet<Long>();
 		for (long anchorId : getAnchorIdsByCanvasId(canvas_uuid))
 		{

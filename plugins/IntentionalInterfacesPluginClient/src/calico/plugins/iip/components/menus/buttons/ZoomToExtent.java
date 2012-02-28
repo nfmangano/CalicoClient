@@ -1,7 +1,5 @@
 package calico.plugins.iip.components.menus.buttons;
 
-import java.awt.Image;
-
 import calico.components.menus.CanvasMenuButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;

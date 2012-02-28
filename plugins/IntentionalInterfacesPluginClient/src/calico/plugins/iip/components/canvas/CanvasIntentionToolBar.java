@@ -15,7 +15,6 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.menus.buttons.NewAlternativeButton;
-import calico.plugins.iip.components.menus.buttons.NewIdeaButton;
 import calico.plugins.iip.components.menus.buttons.NewPerspectiveButton;
 import calico.plugins.iip.components.menus.buttons.ToggleLinkBaysButton;
 import edu.umd.cs.piccolo.PCamera;
@@ -39,7 +38,6 @@ public class CanvasIntentionToolBar implements StickyItem
 	private enum Button
 	{
 		TOGGLE_LINK_BAYS(new ToggleLinkBaysButton()),
-		NEW_IDEA(new NewIdeaButton()),
 		NEW_ALTERNATIVE(new NewAlternativeButton()),
 		NEW_PERSPECTIVE(new NewPerspectiveButton());
 

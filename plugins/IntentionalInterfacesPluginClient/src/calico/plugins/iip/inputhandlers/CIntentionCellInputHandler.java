@@ -12,7 +12,6 @@ import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.GoToCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewAlternativeLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewIdeaLinkButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewPerspectiveLinkButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
@@ -43,7 +42,6 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private Point mouseDragAnchor;
 	private Point2D cellDragAnchor;
 
-	private final CreateNewIdeaLinkButton newIdeaButton = new CreateNewIdeaLinkButton();
 	private final CreateNewAlternativeLinkButton newAlternativeButton = new CreateNewAlternativeLinkButton();
 	private final CreateNewPerspectiveLinkButton newPerspectiveButton = new CreateNewPerspectiveLinkButton();
 	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
@@ -74,7 +72,15 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 		double xMouseDelta = (destination.x - mouseDragAnchor.x) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		double yMouseDelta = (destination.y - mouseDragAnchor.y) / IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
-		CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta, local);
+		
+		if (local)
+		{
+			CIntentionCellController.getInstance().moveCellLocal(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+		}
+		else
+		{
+			CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+		}
 	}
 
 	@Override
@@ -158,7 +164,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, newIdeaButton, newAlternativeButton, newPerspectiveButton, goToCanvasButton);
+						PieMenu.displayPieMenu(point, newAlternativeButton, newPerspectiveButton, goToCanvasButton);
 					}
 				}
 			}
