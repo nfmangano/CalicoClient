@@ -167,7 +167,7 @@ public class CalicoKeyListener extends KeyAdapter {
 			if (isImageURL(response))
 			{
 				new_uuid = Calico.uuid();
-				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, PieMenu.lastOpenedPosition.x, PieMenu.lastOpenedPosition.y));
+				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), 50, 50));
 			}
 			else
 			{

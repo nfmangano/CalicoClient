@@ -11,7 +11,6 @@ import calico.*;
 import calico.components.*;
 import calico.components.grid.*;
 import calico.components.menus.buttons.*;
-import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
@@ -115,12 +114,25 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		}
 		addSpacer();
 		
+		for(int i=0;i<CalicoOptions.menu.pensize.length;i++)
+		{
+			addIcon(new MBSizeButton(cuid, CalicoOptions.menu.pensize[i], CalicoOptions.menu.pensize_icons[i], rect_default));
+		}
+		addSpacer();
+		
 		// Mode buttons
 		addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
 		addIcon(new MBModeChangeButton(cuid, CInputMode.ARROW));
 
 //		addIcon(new MBModeChangeButton(cuid, CInputMode.EXPERT));
 		addIcon(new MBModeChangeButton(cuid, CInputMode.POINTER));
+		
+		addSpacer();
+		addIcon(new TextCreateButton(cuid));
+		addIcon(new ImageCreateButton(cuid));
+		
+		
+		
 		
 		//Begin align right
 

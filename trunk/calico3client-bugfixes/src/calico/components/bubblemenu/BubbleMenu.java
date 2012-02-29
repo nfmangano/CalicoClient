@@ -52,6 +52,7 @@ public class BubbleMenu {
 		activeGroup = uuid;
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
 		CGroupController.groupdb.get(activeGroup).highlight_on();
+		CGroupController.groupdb.get(activeGroup).highlight_repaint();
 		
 		//displayBubbleMenuArray(location, buttons);
 		lastOpenedPosition = location;
@@ -77,42 +78,49 @@ public class BubbleMenu {
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
-		final boolean tempFade = fade;
+		fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
+			long step = 0;
+      
+		    protected void activityStep(long time) {
+		            super.activityStep(time);
+
+		            bubbleContainer.setTransparency(1.0f * step/5);
+		            
+//		            repaint();
+		            step++;
+		            
+		            if (step > 5)
+		            	terminate();
+		    }
+		    
+		    protected void activityFinished() {
+		    		bubbleContainer.setTransparency(1.0f);
+		    }
+		};
+
+		final boolean tempfade = fade;
+		final PActivity tempActivity = fadeActivity;
+		final BubbleMenuContainer tempContainer = bubbleContainer;
+		final BubbleMenuHighlighter tempHighlighter = bubbleHighlighter;
+		
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
-		
-				if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
-					fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
-						long step = 0;
-			      
-					    protected void activityStep(long time) {
-					            super.activityStep(time);
-		
-					            bubbleContainer.setTransparency(1.0f * step/5);
-					            
-			//		            repaint();
-					            step++;
-					            
-					            if (step > 5)
-					            	terminate();
-					    }
-					    
-					    protected void activityFinished() {
-					    		bubbleContainer.setTransparency(1.0f);
-					    }
-					};
-					// Must schedule the activity with the root for it to run.
-					if (tempFade)
-					{
-						bubbleContainer.getRoot().addActivity(fadeActivity);
+					tempContainer.setTransparency(0);
+					if(CalicoPerspective.Active.showBubbleMenu(tempHighlighter, tempContainer)){
+						// Must schedule the activity with the root for it to run.
+						if (tempfade)
+						{
+							tempContainer.getRoot().addActivity(tempActivity);
+						}
+						else
+						{
+							//updateContainerBounds();
+							//bubbleContainer.setTransparency(100);
+							tempContainer.setTransparency(1.0f);
+							tempContainer.repaintFrom(tempContainer.getBounds(), tempContainer);
+						}
 					}
-					else
-					{
-						updateContainerBounds();
-						bubbleContainer.repaintFrom(bubbleContainer.getBounds(), bubbleContainer);
-					}
-				}
-				}});
+		}});
 	}	
 	
 	public static void moveIconPositions(PBounds groupBounds)
