@@ -140,7 +140,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if(!CGroupController.groupdb.get(oguuid).isPermanent())
+			if(CGroupController.exists(oguuid) && !CGroupController.groupdb.get(oguuid).isPermanent())
 			{
 				CGroupController.drop(oguuid);
 				
