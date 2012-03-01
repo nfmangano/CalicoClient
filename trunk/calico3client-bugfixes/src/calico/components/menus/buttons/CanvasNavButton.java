@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 
@@ -50,21 +51,23 @@ public class CanvasNavButton extends CanvasMenuButton
 			switch(type)
 			{
 				case CanvasNavButton.TYPE_DOWN:
-					setImage(CalicoIconManager.getIconImage("arrow.down"));
+					iconString = "arrow.down";
 					break;
 					
 				case CanvasNavButton.TYPE_UP:
-					setImage(CalicoIconManager.getIconImage("arrow.up"));
+					iconString = "arrow.up";
 					break;
 					
 				case CanvasNavButton.TYPE_LEFT:
-					setImage(CalicoIconManager.getIconImage("arrow.left"));
+					iconString = "arrow.left";
 					break;
 					
 				case CanvasNavButton.TYPE_RIGHT:
-					setImage(CalicoIconManager.getIconImage("arrow.right"));
+					iconString = "arrow.right";
 					break;
 			}
+			
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -86,69 +89,78 @@ public class CanvasNavButton extends CanvasMenuButton
 		CCanvasController.loadCanvas(cuid);
 	}
 	
-	public void actionMouseClicked()//long cuid, int type)
+	public void actionMouseClicked(InputEventInfo event)//long cuid, int type)
 	{
-		// Grid Size
-		int gridx = CalicoDataStore.GridCols-1;
-		int gridy = CalicoDataStore.GridRows-1;
-				
-		// Canvas Coords
-		int xpos = CCanvasController.canvasdb.get(canvasuid).getGridCol();
-		int ypos = CCanvasController.canvasdb.get(canvasuid).getGridRow();
-		
-		switch(button_type)
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			case CanvasNavButton.TYPE_DOWN:
-				if((ypos+1)<=gridy)
-				{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			// Grid Size
+			int gridx = CalicoDataStore.GridCols-1;
+			int gridy = CalicoDataStore.GridRows-1;
 					
+			// Canvas Coords
+			int xpos = CCanvasController.canvasdb.get(canvasuid).getGridCol();
+			int ypos = CCanvasController.canvasdb.get(canvasuid).getGridRow();
+			
+			switch(button_type)
+			{
+				case CanvasNavButton.TYPE_DOWN:
+					if((ypos+1)<=gridy)
+					{
+						
+						
+						loadCanvas(xpos,ypos+1);
+						
+					}
+					else
+					{
+						loadCanvas(xpos,0);
+					}
+					break;
 					
-					loadCanvas(xpos,ypos+1);
+				case CanvasNavButton.TYPE_UP:
+					if((ypos-1)>=0)
+					{
+						loadCanvas(xpos,ypos-1);
+					}
+					else
+					{
+						loadCanvas(xpos,gridy);
+					}
+					break;
 					
-				}
-				else
-				{
-					loadCanvas(xpos,0);
-				}
-				break;
-				
-			case CanvasNavButton.TYPE_UP:
-				if((ypos-1)>=0)
-				{
-					loadCanvas(xpos,ypos-1);
-				}
-				else
-				{
-					loadCanvas(xpos,gridy);
-				}
-				break;
-				
-			case CanvasNavButton.TYPE_LEFT:
-				if((xpos-1)>=0)
-				{
-					loadCanvas(xpos-1,ypos);
-				}
-				else
-				{
-					loadCanvas(gridx,ypos);
-				}
-				break;
-				
-			case CanvasNavButton.TYPE_RIGHT:
-				if((xpos+1)<=gridx)
-				{
-					loadCanvas(xpos+1,ypos);
-				}
-				else
-				{
-					loadCanvas(0,ypos);
-				}
-				break;
+				case CanvasNavButton.TYPE_LEFT:
+					if((xpos-1)>=0)
+					{
+						loadCanvas(xpos-1,ypos);
+					}
+					else
+					{
+						loadCanvas(gridx,ypos);
+					}
+					break;
+					
+				case CanvasNavButton.TYPE_RIGHT:
+					if((xpos+1)<=gridx)
+					{
+						loadCanvas(xpos+1,ypos);
+					}
+					else
+					{
+						loadCanvas(0,ypos);
+					}
+					break;
+			}
+			
+			super.onMouseUp();
 		}
 	}
-	public void actionMousePressed()//long cuid, int type)
+	/*public void actionMousePressed()//long cuid, int type)
 	{
 		actionMouseClicked();
-	}
+	}*/
 	
 }

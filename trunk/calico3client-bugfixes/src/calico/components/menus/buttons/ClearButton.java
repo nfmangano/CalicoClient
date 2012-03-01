@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -47,9 +48,10 @@ public class ClearButton extends CanvasMenuButton
 	{
 		super();
 		cuid = c;
+		iconString = "clear";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("clear"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -58,11 +60,19 @@ public class ClearButton extends CanvasMenuButton
 		
 	}
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, cuid));
-		CCanvasController.lock_canvas(cuid, false, "clean canvas action", (new Date()).getTime());
-		//StatusMessage.popup("Not yet implemented");
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, cuid));
+			CCanvasController.lock_canvas(cuid, false, "clean canvas action", (new Date()).getTime());
+			//StatusMessage.popup("Not yet implemented");
+			super.onMouseUp();
+		}
 	}
 
 	

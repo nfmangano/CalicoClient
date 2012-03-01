@@ -31,9 +31,10 @@ public class TextCreateButton extends CanvasMenuButton {
 	{
 		super();
 		this.cuid = c;
+		iconString = "group.text";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("canvas.text"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -41,32 +42,40 @@ public class TextCreateButton extends CanvasMenuButton {
 		}
 	}
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
-				  "Create Scrap with Text",
-				  "Please enter text",
-				  JOptionPane.QUESTION_MESSAGE);
-		
-		long new_uuid = 0l;
-		if (response != null)
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			if (isImageURL(response))
-			{
-				new_uuid = Calico.uuid();
-				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, 50, 50));
-			}
-			else
-			{
-				new_uuid = Calico.uuid();
-				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, CalicoDataStore.ScreenWidth / 3, CalicoDataStore.ScreenHeight / 3);
-			}
+			super.onMouseDown();
 		}
-//		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)
-//		{
-//			CGroupController.move_start(new_uuid);
-//			CGroupController.move_end(new_uuid, ev.getX(), ev.getY());
-//		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
+					  "Create Scrap with Text",
+					  "Please enter text",
+					  JOptionPane.QUESTION_MESSAGE);
+			
+			long new_uuid = 0l;
+			if (response != null)
+			{
+				if (isImageURL(response))
+				{
+					new_uuid = Calico.uuid();
+					Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, 50, 50));
+				}
+				else
+				{
+					new_uuid = Calico.uuid();
+					CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, CalicoDataStore.ScreenWidth / 3, CalicoDataStore.ScreenHeight / 3);
+				}
+			}
+	//		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)
+	//		{
+	//			CGroupController.move_start(new_uuid);
+	//			CGroupController.move_end(new_uuid, ev.getX(), ev.getY());
+	//		}
+			super.onMouseUp();
+		}
 	}
 	
 	private boolean isImageURL(String text)

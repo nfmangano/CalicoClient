@@ -42,6 +42,7 @@ public class CanvasGenericMenuBar extends PComposite
 	
 	public static final int ALIGN_START = 10;
 	public static final int ALIGN_END = 11;
+	public static final int ALIGN_CENTER = 12;
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -155,6 +156,15 @@ public class CanvasGenericMenuBar extends PComposite
 		return temp;
 	}
 	
+	public Rectangle addIconCenterAligned(int span)
+	{
+		int centerPosition = (int) (this.getWidth() / 2) - (span / 2);
+		
+		Rectangle temp = addIcon(span, centerPosition);
+		
+		return temp;
+	}
+	
 	private Rectangle addIconEndAligned(int span)
 	{
 		int endPosition = empty_space_end - span;
@@ -258,6 +268,40 @@ public class CanvasGenericMenuBar extends PComposite
 		return img2;
 	}
 	
+	public PImage addTextCenterAligned(String text, Font font, CanvasTextButton buttonHandler)
+	{
+		Image img = getTextImage(text,font);
+		
+		int imageSpan = 0;
+		switch (this.position)
+		{
+			case POSITION_TOP:
+			case POSITION_BOTTOM:
+				imageSpan = img.getWidth(null);
+				break;
+			case POSITION_LEFT:
+			case POSITION_RIGHT:
+				imageSpan = img.getHeight(null);
+				break;
+		}
+		Rectangle temp = addIconCenterAligned(imageSpan);
+		
+		PImage img2 = new PImage();
+		
+		img2.setImage(img);
+		
+		img2.setBounds(temp);
+
+		text_rect_array[text_button_array_index] = temp;
+
+		text_button_array[text_button_array_index] = buttonHandler;
+		text_button_array_index++;
+		
+		addChild(0,img2);
+		
+		return img2;
+	}
+	
 	public PImage addTextEndAligned(String text, Font font, CanvasTextButton buttonHandler)
 	{
 		Image img = getTextImage(text,font);
@@ -308,7 +352,17 @@ public class CanvasGenericMenuBar extends PComposite
 	{
 		try
 		{
-			Rectangle temp = (align == ALIGN_START)?addIcon(2):addIconEndAligned(2);
+			Rectangle temp = new Rectangle();
+			
+			switch (align)
+			{
+				case ALIGN_START: temp = addIcon(2);
+								break;
+				case ALIGN_CENTER: temp = addIconCenterAligned(2);
+								break;
+				case ALIGN_END: temp = addIconEndAligned(2);
+								break;
+			}
 			
 			PImage img = new PImage();
 			//this is using a sprite and scaling it
@@ -335,13 +389,16 @@ public class CanvasGenericMenuBar extends PComposite
 	 * They clicked the menu, this should process which button they pushed
 	 * @param point
 	 */
-	public void clickMenu(Point point)
+	public void clickMenu(InputEventInfo event, Point point)
 	{
 		for(int i=0;i<button_array_index;i++)
 		{
 			if(rect_array[i].contains(point))
 			{
-				button_array[i].actionMouseClicked();
+				button_array[i].actionMouseClicked(event);
+				//Backwards compatibility with plugins
+				if (event.getAction() == InputEventInfo.ACTION_RELEASED)
+					button_array[i].actionMouseClicked();
 				return;
 			}
 		}
@@ -350,7 +407,10 @@ public class CanvasGenericMenuBar extends PComposite
 			{
 				if(text_rect_array[i].contains(point))
 				{
-					text_button_array[i].actionMouseClicked(text_rect_array[i]);
+					text_button_array[i].actionMouseClicked(event, text_rect_array[i]);
+					//Backwards compatibility with plugins
+					if (event.getAction() == InputEventInfo.ACTION_RELEASED)
+						text_button_array[i].actionMouseClicked(text_rect_array[i]);
 					return;
 				}
 			}

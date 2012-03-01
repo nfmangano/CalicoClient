@@ -34,6 +34,7 @@ import calico.events.CalicoEventListener;
 import calico.input.CalicoKeyListener;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.MessageObject;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
@@ -320,23 +321,23 @@ public class CCanvas
 	}
 	
 	
-	public void clickMenuBar(Point point)
+	public void clickMenuBar(InputEventInfo event, Point point)
 	{
 		if(this.menuBarLeft.isPointInside(point))
 		{
-			this.menuBarLeft.clickMenu(point);
+			this.menuBarLeft.clickMenu(event, point);
 		}
 		if(this.menuBarRight != null && this.menuBarRight.isPointInside(point))
 		{
-			this.menuBarRight.clickMenu(point);
+			this.menuBarRight.clickMenu(event, point);
 		}
 		if(this.statusBar.isPointInside(point))
 		{
-			this.statusBar.clickMenu(point);
+			this.statusBar.clickMenu(event, point);
 		}
 		else if(this.topMenuBar!=null && this.topMenuBar.isPointInside(point))
 		{
-			this.topMenuBar.clickMenu(point);	
+			this.topMenuBar.clickMenu(event, point);	
 		}
 	}
 	

@@ -24,6 +24,7 @@ public class ListCreateButton extends PieMenuButton
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	long uuidToBeDecorated;
 	long cuid;
+	private boolean isActive = false;
 	
 	
 	public ListCreateButton(long cuid, long uuid)
@@ -39,6 +40,13 @@ public class ListCreateButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
+		if (!CGroupController.exists(uuidToBeDecorated) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
+		
 		super.onPressed(ev);
 	}
 	
@@ -49,7 +57,7 @@ public class ListCreateButton extends PieMenuButton
 		if (CGroupController.exists(this.uuidToBeDecorated))
 		{
 			long listuuid = createList(this.uuidToBeDecorated);
-			CGroupController.show_group_bubblemenu(listuuid, new Point(0,0));
+			CGroupController.show_group_bubblemenu(listuuid);
 		}
 		else if (CStrokeController.exists(this.uuidToBeDecorated))
 		{
@@ -57,9 +65,11 @@ public class ListCreateButton extends PieMenuButton
 			CStrokeController.makeScrap(this.uuidToBeDecorated, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
 			long listuuid = createList(new_uuid);
-			CGroupController.show_group_bubblemenu(listuuid, new Point(0,0));
+			CGroupController.show_group_bubblemenu(listuuid);
 		}
 		ev.stop();
+		
+		isActive = false;
 	}
 	public long createList(long groupToBeDecorated) {
 		long newuuid = Calico.uuid();

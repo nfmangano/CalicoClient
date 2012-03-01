@@ -1,15 +1,14 @@
 package calico.components.piemenu.groups;
 
-import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
-import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 
 public class GroupDropButton extends PieMenuButton
 {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
 	private long group_uuid = 0L;
+	private boolean isActive = false;
 	
 	public GroupDropButton(long uuid)
 	{
@@ -20,6 +19,13 @@ public class GroupDropButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
+		if (!CGroupController.exists(group_uuid) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
+		
 		super.onPressed(ev);
 	}
 	
@@ -28,8 +34,9 @@ public class GroupDropButton extends PieMenuButton
 		//super.onClick(ev);
 		ev.stop();
 		//System.out.println("CLICKED GROUP DROP BUTTON");
-		BubbleMenu.clearMenu();
 		CGroupController.drop(group_uuid);
 		
+		isActive = false;
 	}
+	
 }

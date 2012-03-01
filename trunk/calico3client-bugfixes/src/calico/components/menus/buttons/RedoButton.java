@@ -10,6 +10,7 @@ import calico.components.*;
 import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -37,9 +38,10 @@ public class RedoButton extends CanvasMenuButton
 	{
 		super();
 		cuid = c;
+		iconString = "redo";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("redo"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -49,10 +51,19 @@ public class RedoButton extends CanvasMenuButton
 	}
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
-		Calico.logger.debug("SENDING REDO COMMAND");
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
+			Calico.logger.debug("SENDING REDO COMMAND");
+
+			super.onMouseUp();
+		}
 	}
 	
 }

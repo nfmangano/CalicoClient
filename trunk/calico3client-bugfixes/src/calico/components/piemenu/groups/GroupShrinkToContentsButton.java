@@ -17,6 +17,7 @@ public class GroupShrinkToContentsButton extends PieMenuButton
 
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	long guuid;
+	private boolean isActive = false;
 	
 	public GroupShrinkToContentsButton(long uuid)
 	{
@@ -26,6 +27,13 @@ public class GroupShrinkToContentsButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
+		if (!CGroupController.exists(guuid) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
+		
 		super.onPressed(ev);
 	}
 	
@@ -38,9 +46,6 @@ public class GroupShrinkToContentsButton extends PieMenuButton
 			Rectangle bounds = CGroupController.groupdb.get(guuid).getBoundsOfContents();
 			CGroupController.makeRectangle(guuid, bounds.x, bounds.y, bounds.width, bounds.height);
 //			CGroupController.shrink_to_contents(guuid);
-			
-			Point newPoint = BubbleMenu.lastOpenedPosition;
-			updateMenu(guuid, newPoint);
 		}
 		else if (CStrokeController.exists(guuid))
 		{
@@ -49,20 +54,11 @@ public class GroupShrinkToContentsButton extends PieMenuButton
 			CGroupController.set_permanent(new_uuid, true);
 //			long groupUUID = CStrokeController.makeScrap(guuid);
 //			CGroupController.shrink_to_contents(groupUUID);
-			
-			Point newPoint = BubbleMenu.lastOpenedPosition;
-			updateMenu(new_uuid, newPoint);
 		}
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED SHRINK WRAP BUTTON");
-	}
-	
-	public void updateMenu(long uuid, Point point)
-	{
-		BubbleMenu.clearMenu();
-		
-		CGroupController.show_group_bubblemenu(uuid, point);
+		isActive = false;
 	}
 
 	

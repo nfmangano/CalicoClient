@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 
 import calico.Calico;
 import calico.components.menus.buttons.EmailGridButton;
+import calico.inputhandlers.InputEventInfo;
 
 
 
@@ -66,8 +67,16 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 				"  Exit  ", 
 				new Font("Verdana", Font.BOLD, 12),
 				new CanvasTextButton(cuid) {
-					public void actionMouseClicked(Rectangle boundingBox) {
-						Calico.exit();
+					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+						{
+							isPressed = true;
+						}
+						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+						{
+							isPressed = false;
+							Calico.exit();
+						}
 					}
 				}
 		);

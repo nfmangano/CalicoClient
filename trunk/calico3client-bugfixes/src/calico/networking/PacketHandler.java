@@ -384,7 +384,7 @@ public class PacketHandler
 			UUIDMappings.put(key, new Long(value));
 		}
 		
-		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings);
+		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings, true);
 	}
 	
 	private static void GROUP_START(CalicoPacket p)
@@ -645,6 +645,7 @@ public class PacketHandler
 		{
 			Calico.uuidlist.add( p.getLong() );
 		}
+		Calico.isAllocating = false;
 	}
 	
 	private static void AUTH_OK(CalicoPacket p)

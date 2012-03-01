@@ -4,6 +4,7 @@ import calico.*;
 
 import calico.components.*;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.decorators.CGroupDecorator;
 import calico.components.menus.*;
 import calico.components.piemenu.*;
 import calico.controllers.CArrowController;
@@ -107,19 +108,26 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 						new AnchorPoint(CArrow.TYPE_CANVAS, canvas_uid, pressedPoint),
 						new AnchorPoint(CArrow.TYPE_CANVAS, canvas_uid, e.getPoint())
 					);
-					CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(tempArrow);
+					
+					final CArrow finalArrow = tempArrow;
+					SwingUtilities.invokeLater(
+							new Runnable() { public void run() { 
+								CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(finalArrow);
+							}});
+							
+					//CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(tempArrow);
 					
 					//Highlight the groups that are associated with the points
 					tempGuuidA = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorA().getPoint());
 					tempGuuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorB().getPoint());
 					
-					if (tempGuuidA != 0l)
+					if (tempGuuidA != 0l && !(CGroupController.groupdb.get(tempGuuidA) instanceof CGroupDecorator))
 					{
 						CGroupController.groupdb.get(tempGuuidA).highlight_on();
 						CGroupController.groupdb.get(tempGuuidA).highlight_repaint();
 					}
 					
-					if (tempGuuidA != tempGuuidB && tempGuuidB != 0l)
+					if (tempGuuidA != tempGuuidB && tempGuuidB != 0l && !(CGroupController.groupdb.get(tempGuuidB) instanceof CGroupDecorator))
 					{
 						CGroupController.groupdb.get(tempGuuidB).highlight_on();
 						CGroupController.groupdb.get(tempGuuidB).highlight_repaint();
@@ -131,6 +139,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 					
 					//Change the highlight of the group associated with point B
 					long guuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorB().getPoint());
+
 					if (guuidB != tempGuuidB)
 					{
 						if (tempGuuidB != 0l && tempGuuidB != tempGuuidA)
@@ -138,7 +147,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 							CGroupController.groupdb.get(tempGuuidB).highlight_off();
 							CGroupController.groupdb.get(tempGuuidB).highlight_repaint();
 						}
-						if (guuidB != 0l && guuidB != tempGuuidA)
+						if (guuidB != 0l && guuidB != tempGuuidA && !(CGroupController.groupdb.get(guuidB) instanceof CGroupDecorator))
 						{
 							CGroupController.groupdb.get(guuidB).highlight_on();
 							CGroupController.groupdb.get(guuidB).highlight_repaint();
@@ -186,14 +195,14 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			long guuidA = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorA().getPoint());
 			long guuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), this.tempArrow.getAnchorB().getPoint());
 						
-			if(guuidA!=0L)
+			if(guuidA!=0L && !(CGroupController.groupdb.get(guuidA) instanceof CGroupDecorator))
 			{
 				tempArrow.setAnchorA(new AnchorPoint(CArrow.TYPE_GROUP, tempArrow.getAnchorA().getPoint(), guuidA));
 				CGroupController.groupdb.get(guuidA).highlight_off();
 				CGroupController.groupdb.get(guuidA).highlight_repaint();
 			}
 			
-			if(guuidB!=0L)
+			if(guuidB!=0L && !(CGroupController.groupdb.get(guuidB) instanceof CGroupDecorator))
 			{
 				tempArrow.setAnchorB(new AnchorPoint(CArrow.TYPE_GROUP, tempArrow.getAnchorB().getPoint(), guuidB));
 				CGroupController.groupdb.get(guuidB).highlight_off();
@@ -208,9 +217,10 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			
 			
 			//This line is not thread safe so must invokeLater to prevent exceptions.
+			final CArrow finalArrow = tempArrow;
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
-						CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
+						CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(finalArrow);
 						tempArrow = null;
 						} }
 			);
@@ -225,7 +235,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
 			if (BubbleMenu.activeGroup != guuid && guuid != 0)
 			{
-				CGroupController.show_group_bubblemenu(guuid, new Point(0,0));
+				CGroupController.show_group_bubblemenu(guuid);
 			}
 		}
 		

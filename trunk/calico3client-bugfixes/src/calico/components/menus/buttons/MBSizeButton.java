@@ -12,6 +12,7 @@ import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -41,6 +42,7 @@ public class MBSizeButton extends CanvasMenuButton
 		super();
 		cuid = c;
 		this.thickness = thickness;
+		iconString = iconPath;
 		try
 		{
 			//Color curColor = CalicoOptions.getColor("pen.default_color");
@@ -63,15 +65,23 @@ public class MBSizeButton extends CanvasMenuButton
 	}
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
-		Calico.logger.debug("Pressed Size button "+ thickness);
-		CalicoDataStore.PenThickness = thickness;
-		CalicoDataStore.LastDrawingThickness = thickness;
-		
-		CalicoDataStore.set_Mode(CInputMode.EXPERT);
-		CCanvasController.redrawMenuBars();
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			isPressed = true;
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
+			Calico.logger.debug("Pressed Size button "+ thickness);
+			CalicoDataStore.PenThickness = thickness;
+			CalicoDataStore.LastDrawingThickness = thickness;
+			
+			CalicoDataStore.set_Mode(CInputMode.EXPERT);
+			CCanvasController.redrawMenuBars();
+			isPressed = false;
+		}
 	}
 	
 }
