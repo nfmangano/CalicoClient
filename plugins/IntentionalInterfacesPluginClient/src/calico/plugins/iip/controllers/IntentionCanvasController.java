@@ -8,21 +8,21 @@ import java.util.Comparator;
 import java.util.List;
 
 import calico.CalicoDataStore;
-import calico.components.CCanvas;
 import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
+import calico.plugins.iip.components.canvas.CanvasBadgeRow;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
 import calico.plugins.iip.components.canvas.CanvasLinkBay;
 import calico.plugins.iip.components.graph.NewIdeaButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
+import edu.umd.cs.piccolo.PNode;
 
 public class IntentionCanvasController implements CGroupController.Listener
 {
@@ -44,30 +44,31 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 	private Long2ReferenceArrayMap<CCanvasLinkBadge> badgesByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
 	private Long2ReferenceArrayMap<CCanvasLinkToken> tokensByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkToken>();
+	private Long2ReferenceArrayMap<CanvasBadgeRow> badgeRowsByGroupId = new Long2ReferenceArrayMap<CanvasBadgeRow>();
 
 	private long currentCanvasId = 0L;
 	private final CanvasLinkBay incomingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.INCOMING, new UpperLeftLayout());
 	private final CanvasLinkBay outgoingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.OUTGOING, new LowerRightLayout());
 
 	private Comparator<CCanvasLinkToken> sorter = new DefaultSorter();
-	
+
 	private boolean linksVisible = false;
 
 	private IntentionCanvasController()
 	{
 		CGroupController.addListener(this);
 	}
-	
+
 	public void toggleLinkVisibility()
 	{
 		linksVisible = !linksVisible;
-		
+
 		incomingLinkBay.setVisible(linksVisible);
 		outgoingLinkBay.setVisible(linksVisible);
-		
-		for (CCanvasLinkBadge badge : badgesByAnchorId.values())
+
+		for (CanvasBadgeRow row : badgeRowsByGroupId.values())
 		{
-			badge.setVisible(linksVisible);
+			row.setVisible(linksVisible);
 		}
 	}
 
@@ -101,31 +102,54 @@ public class IntentionCanvasController implements CGroupController.Listener
 		}
 	}
 
+	public void moveLinkAnchor(CCanvasLinkAnchor anchor, long previousCanvasId)
+	{
+		if (anchor.getCanvasId() == previousCanvasId)
+		{
+			return;
+		}
+
+		if (anchor.hasGroup())
+		{
+			badgeRowsByGroupId.get(anchor.getGroupId()).updateBadgeCoordinates();
+		}
+
+		// the "design inside" source anchor can't be moved, so assume anchor.getLink().getLinkType() != DESIGN_INSIDE
+		removeToken(anchor.getId(), previousCanvasId, anchor.getLink().getAnchorA() == anchor);
+		addToken(anchor);
+	}
+
+	public void removeBadgeRow(long groupId)
+	{
+		badgeRowsByGroupId.remove(groupId);
+	}
+
 	private void addBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = new CCanvasLinkBadge(anchor);
 		badgesByAnchorId.put(badge.getLinkAnchor().getId(), badge);
-		badge.setVisible(linksVisible);
 
-		CCanvasController.canvasdb.get(anchor.getCanvasId()).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
-		badge.updatePosition();
+		CanvasBadgeRow row = getBadgeRow(anchor.getGroupId());
+		row.addBadge(badge);
 	}
 
-	public CCanvasLinkBadge getBadgeByAnchorId(long anchor_uuid)
+	private CanvasBadgeRow getBadgeRow(long groupId)
 	{
-		return badgesByAnchorId.get(anchor_uuid);
+		CanvasBadgeRow row = badgeRowsByGroupId.get(groupId);
+		if (row == null)
+		{
+			row = new CanvasBadgeRow(groupId);
+			badgeRowsByGroupId.put(groupId, row);
+			row.setVisible(linksVisible);
+		}
+		return row;
 	}
 
 	private void removeBadge(CCanvasLinkAnchor anchor)
 	{
 		CCanvasLinkBadge badge = badgesByAnchorId.remove(anchor.getId());
-		removeBadgeFromCanvas(badge);
-	}
-
-	private void removeBadgeFromCanvas(CCanvasLinkBadge badge)
-	{
-		CCanvasController.canvasdb.get(badge.getLinkAnchor().getCanvasId()).getLayer(CCanvas.Layer.TOOLS).removeChild(badge.getImage());
-		badge.cleanup();
+		CanvasBadgeRow row = badgeRowsByGroupId.get(anchor.getGroupId());
+		row.removeBadge(badge);
 	}
 
 	private void addToken(CCanvasLinkAnchor anchor)
@@ -133,7 +157,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 		CCanvasLinkToken token = new CCanvasLinkToken(anchor);
 		tokensByAnchorId.put(token.getLinkAnchor().getId(), token);
 
-		if (anchor.getCanvasId() == currentCanvasId)
+		if (CanvasPerspective.getInstance().isActive() && (anchor.getCanvasId() == currentCanvasId))
 		{
 			if (anchor.getLink().getAnchorA() == anchor)
 			{
@@ -148,12 +172,17 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 	private void removeToken(CCanvasLinkAnchor anchor)
 	{
-		tokensByAnchorId.remove(anchor.getId());
-		CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(anchor.getCanvasId()).remove(anchor.getId());
+		removeToken(anchor.getId(), anchor.getCanvasId(), anchor.getLink().getAnchorA() == anchor);
+	}
 
-		if (anchor.getCanvasId() == currentCanvasId)
+	private void removeToken(long anchorId, long canvasId, boolean isAnchorA)
+	{
+		tokensByAnchorId.remove(anchorId);
+		CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasId).remove(anchorId);
+
+		if (CanvasPerspective.getInstance().isActive() && (canvasId == currentCanvasId))
 		{
-			if (anchor.getLink().getAnchorA() == anchor)
+			if (isAnchorA)
 			{
 				outgoingLinkBay.refreshLayout();
 			}
@@ -223,25 +252,29 @@ public class IntentionCanvasController implements CGroupController.Listener
 		incomingLinkBay.moveTo(canvas_uuid);
 		outgoingLinkBay.moveTo(canvas_uuid);
 
-		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
-		{
-			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-			if (!anchor.hasGroup())
+		/**
+		 * <pre> not sure this is necessary anymore, badge rows are sticky items
+			for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 			{
-				// not all anchors have badges
-				continue;
-			}
+				CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+				if (!anchor.hasGroup())
+				{
+					// not all anchors have badges
+					continue;
+				}
 
-			CCanvasLinkBadge badge = badgesByAnchorId.get(anchorId);
-			if (badge == null)
-			{
-				System.out.println("Warning: badge missing for design-inside anchor " + anchorId);
-				continue;
-			}
+				CCanvasLinkBadge badge = badgesByAnchorId.get(anchorId);
+				if (badge == null)
+				{
+					System.out.println("Warning: badge missing for design-inside anchor " + anchorId);
+					continue;
+				}
 
-			CCanvasController.canvasdb.get(canvas_uuid).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
-			badge.updatePosition();
-		}
+				CCanvasController.canvasdb.get(canvas_uuid).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
+				badge.updatePosition();
+			}
+		</pre>
+		 */
 	}
 
 	@Override
@@ -256,23 +289,23 @@ public class IntentionCanvasController implements CGroupController.Listener
 	}
 
 	@Override
-	public void groupMovedBy(long uuid)
+	public void groupMoved(long groupId)
 	{
-		CCanvasLinkBadge badge = getBadgeForGroup(uuid);
-		if ((badge == null) || !isCurrentlyDisplayed(badge))
+		CanvasBadgeRow row = badgeRowsByGroupId.get(groupId);
+		if ((row == null) || !isCurrentlyDisplayed(groupId))
 		{
 			return;
 		}
-		badge.updatePosition();
+		row.refreshDisplay();
 	}
 
-	private boolean isCurrentlyDisplayed(CCanvasLinkBadge badge)
+	private boolean isCurrentlyDisplayed(long groupId)
 	{
 		if (!CanvasPerspective.getInstance().isActive())
 		{
 			return false;
 		}
-		return (badge.getLinkAnchor().getCanvasId() == CCanvasController.getCurrentUUID());
+		return (CGroupController.groupdb.get(groupId).getCanvasUID() == CCanvasController.getCurrentUUID());
 	}
 
 	private CCanvasLinkBadge getBadgeForGroup(long group_uuid)
@@ -300,20 +333,22 @@ public class IntentionCanvasController implements CGroupController.Listener
 	private class UpperLeftLayout implements CanvasLinkBay.Layout
 	{
 		@Override
-		public void updateBounds(Rectangle2D bounds, double width, double height)
+		public void updateBounds(PNode node, double width, double height)
 		{
-			bounds.setRect(CanvasLinkBay.BAY_INSET_X, CanvasLinkBay.BAY_INSET_Y, width, height);
+			node.setBounds(CanvasLinkBay.BAY_INSET_X, CanvasLinkBay.BAY_INSET_Y, width, height);
 		}
 	}
 
 	private class LowerRightLayout implements CanvasLinkBay.Layout
 	{
 		@Override
-		public void updateBounds(Rectangle2D bounds, double width, double height)
+		public void updateBounds(PNode node, double width, double height)
 		{
 			double x = CalicoDataStore.ScreenWidth - (CanvasLinkBay.BAY_INSET_X + width);
 			double y = CalicoDataStore.ScreenHeight - (CanvasLinkBay.BAY_INSET_Y + height);
-			bounds.setRect(x, y, width, height);
+			node.setBounds(x, y, width, height);
+			
+			System.out.println("Positioning link bay at y = " + y);
 		}
 	}
 

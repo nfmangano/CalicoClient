@@ -15,6 +15,8 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 	private final Rectangle zoomSliderBounds;
 	private final IntentionGraphZoomSlider zoomSlider;
 
+	private boolean draggingZoomKnob = false;
+
 	public IntentionGraphMenuBar(int screenPosition)
 	{
 		super(screenPosition, IntentionGraph.getInstance().getBounds());
@@ -42,11 +44,15 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 	{
 		switch (event.getAction())
 		{
+			case InputEventInfo.ACTION_PRESSED:
+				draggingZoomKnob = zoomSliderBounds.contains(event.getGlobalPoint());
+				break;
 			case InputEventInfo.ACTION_RELEASED:
+				draggingZoomKnob = false;
 				clickMenu(event.getGlobalPoint());
 				break;
 			case InputEventInfo.ACTION_DRAGGED:
-				if (zoomSliderBounds.contains(event.getGlobalPoint()))
+				if (draggingZoomKnob && zoomSliderBounds.contains(event.getGlobalPoint()))
 				{
 					zoomSlider.dragTo(event.getGlobalPoint());
 				}

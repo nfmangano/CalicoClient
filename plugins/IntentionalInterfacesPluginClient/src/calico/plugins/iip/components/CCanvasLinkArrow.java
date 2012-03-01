@@ -1,10 +1,12 @@
 package calico.plugins.iip.components;
 
 import java.awt.Color;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import calico.Geometry;
 import calico.components.arrow.AbstractArrow;
+import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -49,11 +51,7 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 	{
 		super.addRenderingElements();
 
-		PText label = new PText(link.getLabel());
-		PBounds bounds = label.computeFullBounds(null);
-		double[] center = Geometry.computePointOnLine(link.getAnchorA().getPoint().getX(), link.getAnchorA().getPoint().getY(), link.getAnchorB().getPoint()
-				.getX(), link.getAnchorB().getPoint().getY(), 0.5);
-		label.setBounds(center[0], center[1], bounds.getWidth(), bounds.getHeight());
+		PText label = IntentionalInterfacesGraphics.createLabelOnSegment(link.getLabel(), link.getAnchorA().getPoint(), link.getAnchorB().getPoint());
 		label.setTextPaint(getColor());
 		addChild(0, label);
 	}

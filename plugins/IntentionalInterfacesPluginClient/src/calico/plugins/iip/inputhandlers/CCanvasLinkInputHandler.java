@@ -9,12 +9,14 @@ import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenu;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.CCanvasLinkArrow;
+import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.components.piemenu.iip.MoveLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
-import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 
 public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
@@ -54,11 +56,19 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	{
 		this.currentLinkId = currentLinkId;
 
-		deleteLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId));
-		setLinkLabelButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId));
-		moveLinkButton.setContext(CCanvasLinkController.getInstance().getLinkById(currentLinkId),
-				CCanvasLinkController.getInstance().isNearestSideA(currentLinkId, point));
-		
+		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(currentLinkId);
+		boolean isNearestSideA = CCanvasLinkController.getInstance().isNearestSideA(currentLinkId, point);
+
+		deleteLinkButton.setContext(link);
+		setLinkLabelButton.setContext(link);
+
+		boolean canMove = (link.getLinkType() != LinkType.DESIGN_INSIDE) || !isNearestSideA;
+		moveLinkButton.setEnabled(canMove);
+		if (moveLinkButton.isEnabled())
+		{
+			moveLinkButton.setContext(link, isNearestSideA);
+		}
+
 		IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(true);
 	}
 
@@ -86,8 +96,6 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 			{
 				state = State.ACTIVATED;
 			}
-			
-			
 
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
 			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
@@ -107,7 +115,12 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		if ((state == State.PIE) && (menu == ContextMenu.PIE_MENU))
 		{
 			state = State.IDLE;
-			IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(false);
+
+			CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId);
+			if (arrow != null)
+			{
+				arrow.setHighlighted(false);
+			}
 		}
 	}
 
@@ -137,7 +150,15 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, moveLinkButton, setLinkLabelButton, deleteLinkButton);
+
+						if (moveLinkButton.isEnabled())
+						{
+							PieMenu.displayPieMenu(point, moveLinkButton, setLinkLabelButton, deleteLinkButton);
+						}
+						else
+						{
+							PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
+						}
 					}
 				}
 			}

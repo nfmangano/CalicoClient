@@ -9,6 +9,7 @@ public class MoveLinkButton extends PieMenuButton
 {
 	private CCanvasLink link = null;
 	private boolean isOnSideA;
+	private boolean enabled;
 
 	public MoveLinkButton()
 	{
@@ -21,6 +22,16 @@ public class MoveLinkButton extends PieMenuButton
 		this.isOnSideA = isOnSideA;
 	}
 	
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+	
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+
 	@Override
 	public void onClick(InputEventInfo event)
 	{

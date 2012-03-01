@@ -19,7 +19,7 @@ public class SetLinkLabelButton extends PieMenuButton
 	{
 		this.link = link;
 	}
-
+	
 	@Override
 	public void onClick()
 	{

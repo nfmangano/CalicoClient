@@ -2,9 +2,11 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import calico.Geometry;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
@@ -14,9 +16,58 @@ import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
+import edu.umd.cs.piccolo.util.PBounds;
 
 public class IntentionGraphController
 {
+	private enum CellEdge
+	{
+		TOP
+		{
+			@Override
+			boolean findIntersection(PBounds cellBounds, double xOpposite, double yOpposite, double[] intersection)
+			{
+				int result = Geometry.findLineSegmentIntersection(cellBounds.getX(), cellBounds.getY(), cellBounds.getX() + cellBounds.getWidth(),
+						cellBounds.getY(), cellBounds.getCenterX(), cellBounds.getCenterY(), xOpposite, yOpposite, intersection);
+				return result == 1;
+			}
+		},
+		RIGHT
+		{
+			@Override
+			boolean findIntersection(PBounds cellBounds, double xOpposite, double yOpposite, double[] intersection)
+			{
+				int result = Geometry.findLineSegmentIntersection(cellBounds.getX(), cellBounds.getY() + cellBounds.getHeight(),
+						cellBounds.getX() + cellBounds.getWidth(), cellBounds.getY() + cellBounds.getHeight(), cellBounds.getCenterX(),
+						cellBounds.getCenterY(), xOpposite, yOpposite, intersection);
+				return result == 1;
+			}
+		},
+		BOTTOM
+		{
+			@Override
+			boolean findIntersection(PBounds cellBounds, double xOpposite, double yOpposite, double[] intersection)
+			{
+				int result = Geometry.findLineSegmentIntersection(cellBounds.getX(), cellBounds.getY(), cellBounds.getX(),
+						cellBounds.getY() + cellBounds.getHeight(), cellBounds.getCenterX(), cellBounds.getCenterY(), xOpposite, yOpposite, intersection);
+				return result == 1;
+			}
+		},
+		LEFT
+		{
+			@Override
+			boolean findIntersection(PBounds cellBounds, double xOpposite, double yOpposite, double[] intersection)
+			{
+				int result = Geometry.findLineSegmentIntersection(cellBounds.getX() + cellBounds.getWidth(), cellBounds.getY(),
+						cellBounds.getX() + cellBounds.getWidth(), cellBounds.getY() + cellBounds.getHeight(), cellBounds.getCenterX(),
+						cellBounds.getCenterY(), xOpposite, yOpposite, intersection);
+				return result == 1;
+			}
+		};
+
+		abstract boolean findIntersection(PBounds cellBounds, double xOpposite, double yOpposite, double[] intersection);
+	}
+
 	public static IntentionGraphController getInstance()
 	{
 		return INSTANCE;
@@ -52,7 +103,7 @@ public class IntentionGraphController
 		{
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId());
 
-			Point2D position = alignAnchorAtCellEdge(cell.getLocation().getX(), cell.getLocation().getY(), getOppositePosition(anchor));
+			Point2D position = alignAnchorAtCellEdge(cell.getLocation().getX(), cell.getLocation().getY(), cell.getSize(), getOppositePosition(anchor));
 			anchor.getPoint().setLocation(position);
 		}
 	}
@@ -107,7 +158,7 @@ public class IntentionGraphController
 		{
 			fromCanvasCenter = CIntentionCellController.getInstance().getCellByCanvasId(fromCanvasId).getCenter();
 		}
-		
+
 		double shortestDistance = Double.MAX_VALUE;
 		long nearestCanvasId = 0L;
 
@@ -154,12 +205,13 @@ public class IntentionGraphController
 
 	public void localUpdateAttachedArrows(long cellId, double x, double y)
 	{
-		long canvasId = CIntentionCellController.getInstance().getCellById(cellId).getCanvasId();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
+		long canvasId = cell.getCanvasId();
 		List<Long> anchorIds = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasId);
 		for (long anchorId : anchorIds)
 		{
 			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-			Point2D edgePosition = alignAnchorAtCellEdge(x, y, getOppositePosition(anchor));
+			Point2D edgePosition = alignAnchorAtCellEdge(x, y, cell.getSize(), getOppositePosition(anchor));
 			anchor.getPoint().setLocation(edgePosition);
 			updateLinkArrow(anchor.getLink());
 		}
@@ -167,12 +219,13 @@ public class IntentionGraphController
 
 	public void updateAttachedArrows(long cellId, double x, double y)
 	{
-		long canvasId = CIntentionCellController.getInstance().getCellById(cellId).getCanvasId();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
+		long canvasId = cell.getCanvasId();
 		List<Long> anchorIds = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasId);
 		for (long anchorId : anchorIds)
 		{
 			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-			Point2D edgePosition = alignAnchorAtCellEdge(x, y, getOppositePosition(anchor));
+			Point2D edgePosition = alignAnchorAtCellEdge(x, y, cell.getSize(), getOppositePosition(anchor));
 
 			CCanvasLinkController.getInstance().moveLinkAnchor(anchor, edgePosition);
 		}
@@ -192,7 +245,7 @@ public class IntentionGraphController
 	public Point2D getArrowAnchorPosition(long canvas_uuid, double xOpposite, double yOpposite)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
-		return alignAnchorAtCellEdge(cell.getLocation().getX(), cell.getLocation().getY(), xOpposite, yOpposite);
+		return alignAnchorAtCellEdge(cell.copyBounds(), xOpposite, yOpposite);
 	}
 
 	private void alignAnchors(CCanvasLink link)
@@ -210,11 +263,11 @@ public class IntentionGraphController
 		{
 			if (toCell == null)
 			{
-				aPosition = alignAnchorAtCellEdge(fromCell.getLocation().getX(), fromCell.getLocation().getY(), link.getAnchorB().getPoint());
+				aPosition = alignAnchorAtCellEdge(fromCell.copyBounds(), link.getAnchorB().getPoint());
 			}
 			else
 			{
-				aPosition = alignAnchorAtCellEdge(fromCell.getLocation().getX(), fromCell.getLocation().getY(), toCell.getCenter());
+				aPosition = alignAnchorAtCellEdge(fromCell.copyBounds(), toCell.getCenter());
 			}
 		}
 
@@ -226,11 +279,11 @@ public class IntentionGraphController
 		{
 			if (fromCell == null)
 			{
-				bPosition = alignAnchorAtCellEdge(toCell.getLocation().getX(), toCell.getLocation().getY(), link.getAnchorA().getPoint());
+				bPosition = alignAnchorAtCellEdge(toCell.copyBounds(), link.getAnchorA().getPoint());
 			}
 			else
 			{
-				bPosition = alignAnchorAtCellEdge(toCell.getLocation().getX(), toCell.getLocation().getY(), fromCell.getCenter());
+				bPosition = alignAnchorAtCellEdge(toCell.copyBounds(), fromCell.getCenter());
 			}
 		}
 
@@ -238,14 +291,29 @@ public class IntentionGraphController
 		link.getAnchorB().getPoint().setLocation(bPosition);
 	}
 
-	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, Point2D opposite)
+	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, Dimension2D cellSize, Point2D opposite)
 	{
-		return alignAnchorAtCellEdge(xCell, yCell, opposite.getX(), opposite.getY());
+		return alignAnchorAtCellEdge(new PBounds(xCell, yCell, cellSize.getWidth(), cellSize.getHeight()), opposite.getX(), opposite.getY());
 	}
 
-	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, double xOpposite, double yOpposite)
+	private Point2D alignAnchorAtCellEdge(PBounds cellBounds, Point2D opposite)
 	{
-		// for now just put the link endpoint in the center of the CIC
-		return new Point2D.Double(xCell + 32, yCell + 32);
+		return alignAnchorAtCellEdge(cellBounds, opposite.getX(), opposite.getY());
+	}
+
+	private Point2D alignAnchorAtCellEdge(PBounds cellBounds, double xOpposite, double yOpposite)
+	{
+		double[] intersection = new double[2];
+		for (CellEdge edge : CellEdge.values())
+		{
+			if (edge.findIntersection(cellBounds, xOpposite, yOpposite, intersection))
+			{
+				return new Point2D.Double(intersection[0], intersection[1]);
+			}
+		}
+
+		System.out.println("Failed to align an arrow to a CIntentionCell edge--can't find the arrow's intersection with the cell!");
+
+		return new Point2D.Double(cellBounds.getCenterX(), cellBounds.getCenterY());
 	}
 }

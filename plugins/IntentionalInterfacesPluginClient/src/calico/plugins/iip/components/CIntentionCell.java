@@ -3,6 +3,7 @@ package calico.plugins.iip.components;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -79,12 +80,12 @@ public class CIntentionCell
 	{
 		return canvas_uuid;
 	}
-	
+
 	public boolean isInUse()
 	{
 		return inUse;
 	}
-	
+
 	public void setInUse(boolean inUse)
 	{
 		this.inUse = inUse;
@@ -108,12 +109,20 @@ public class CIntentionCell
 
 	public void setLocation(double x, double y)
 	{
-		System.out.println("Move cell " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt() + " to " + x + ", " + y);
-
 		location.setLocation(x, y);
 		shell.setBounds(x, y, shell.getBounds().getWidth(), shell.getBounds().getHeight());
 
 		shell.repaint();
+	}
+
+	public Dimension2D getSize()
+	{
+		return shell.getBounds().getSize();
+	}
+
+	public PBounds copyBounds()
+	{
+		return (PBounds) shell.getBounds().clone();
 	}
 
 	public boolean isVisible()
@@ -214,7 +223,8 @@ public class CIntentionCell
 			g.setColor(currentBorderColor());
 			g.translate(bounds.x, bounds.y);
 			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 10, 10);
-			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, bounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT, COORDINATES_COLOR);
+			IntentionalInterfacesGraphics
+					.superimposeCellAddressInCorner(g, canvas_uuid, bounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT, COORDINATES_COLOR);
 
 			g.translate(-bounds.x, -bounds.y);
 			g.setColor(c);
@@ -259,11 +269,6 @@ public class CIntentionCell
 			}
 			else
 			{
-				if (isVisible())
-				{
-					System.out.println("Not updating snapshot for canvas #" + canvas_uuid + " because "
-							+ (shell.showingSnapshot ? "it is not in the graph footprint." : "the snapshot is not showing now."));
-				}
 				isDirty = true;
 			}
 		}

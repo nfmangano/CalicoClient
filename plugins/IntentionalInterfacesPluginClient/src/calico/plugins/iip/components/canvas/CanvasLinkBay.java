@@ -2,7 +2,6 @@ package calico.plugins.iip.components.canvas;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -20,13 +19,14 @@ import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.GoToCanvasButton;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.controllers.IntentionCanvasController;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CanvasLinkBay implements StickyItem
 {
 	public interface Layout
 	{
-		void updateBounds(Rectangle2D bounds, double width, double height);
+		void updateBounds(PNode node, double width, double height);
 	}
 
 	public static final double BAY_INSET_X = 100.0;
@@ -40,7 +40,6 @@ public class CanvasLinkBay implements StickyItem
 	private final CCanvasLink.LinkDirection direction;
 
 	private boolean visible;
-	private final Rectangle2D bounds = new Rectangle2D.Double();
 	private Layout layout;
 	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
 
@@ -71,7 +70,7 @@ public class CanvasLinkBay implements StickyItem
 	@Override
 	public boolean containsPoint(Point p)
 	{
-		return bounds.contains(p);
+		return bay.getBounds().contains(p);
 	}
 
 	public boolean isVisible()
@@ -81,14 +80,21 @@ public class CanvasLinkBay implements StickyItem
 
 	public void setVisible(boolean b)
 	{
+		if (visible == b)
+		{
+			return;
+		}
+
 		visible = b;
 
 		if (b)
 		{
 			refreshLayout();
 		}
-
-		bay.setVisible(b);
+		else
+		{
+			bay.setVisible(false);
+		}
 
 		if (b)
 		{
@@ -132,8 +138,7 @@ public class CanvasLinkBay implements StickyItem
 
 		double width = (tokenCount * (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN)) + TOKEN_MARGIN;
 		double height = CCanvasLinkToken.TOKEN_HEIGHT + (TOKEN_MARGIN * 2);
-		layout.updateBounds(bounds, width, height);
-		bay.setBounds(bounds);
+		layout.updateBounds(bay, width, height);
 		bay.repaint();
 
 		bay.updateTokens();
@@ -157,8 +162,8 @@ public class CanvasLinkBay implements StickyItem
 		@Override
 		protected void layoutChildren()
 		{
-			double x = ((int) bounds.getX()) + TOKEN_MARGIN;
-			double y = ((int) bounds.getY()) + TOKEN_MARGIN;
+			double x = ((int) bay.getBounds().getX()) + TOKEN_MARGIN;
+			double y = ((int) bay.getBounds().getY()) + TOKEN_MARGIN;
 
 			synchronized (tokens)
 			{

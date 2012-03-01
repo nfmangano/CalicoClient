@@ -19,6 +19,7 @@ import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
+import calico.plugins.iip.controllers.IntentionalInterfacesCanvasContributor;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoEventListener
@@ -55,6 +56,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			}
 		}
 
+		IntentionalInterfacesCanvasContributor.initialize();
 		CCanvasLinkController.initialize();
 		CIntentionCellController.initialize();
 		IntentionGraphController.initialize();
@@ -139,16 +141,16 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		boolean wasInUse = cell.isInUse();
 		cell.setInUse(p.getBoolean());
-		
+
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
 
 		IntentionGraphController.getInstance().updateAttachedArrows(cell.getId(), x, y);
-		
+
 		if (wasInUse != cell.isInUse())
 		{
-			CCanvasLinkController.getInstance().notifyContentChanged(cell.getCanvasId());
+			IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
 		}
 	}
 
@@ -183,7 +185,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		}
 
 		anchor.setGroupId(p.getLong());
-		
+
 		return anchor;
 	}
 
