@@ -159,7 +159,7 @@ public class IntentionGraph
 			double xMargin = (contentWidth * (xRatio - scale)) / 2;
 			double yMargin = (contentHeight * (yRatio - scale)) / 2;
 
-			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX + xMargin, minY + yMargin));
+			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(xMargin - minX, yMargin - minY));
 		}
 
 		repaint();
