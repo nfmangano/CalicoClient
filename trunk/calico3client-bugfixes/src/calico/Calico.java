@@ -308,7 +308,9 @@ public class Calico extends JFrame
 			{
 				// System.out.println(e.paramString());
 
-				Dimension dim = e.getComponent().getSize();
+				// must refer to the content pane, because when Calico runs in a window frame, the frame size will
+				// include the fat frame border supplied by the OS, which is not relevant to our coordinate system.
+				Dimension dim = Calico.this.getContentPane().getSize();
 				// System.out.println(e.getComponent().getSize().toString());
 
 				CalicoDataStore.ScreenWidth = dim.width;

@@ -58,7 +58,7 @@ public class CGroupController
 
 	public static interface Listener
 	{
-		void groupMovedBy(long uuid);
+		void groupMoved(long uuid);
 		
 		void groupDeleted(long uuid);
 	}
@@ -86,7 +86,7 @@ public class CGroupController
 	{
 		for (Listener listener : listeners)
 		{
-			listener.groupMovedBy(uuid);
+			listener.groupMoved(uuid);
 		}
 	}
 	
