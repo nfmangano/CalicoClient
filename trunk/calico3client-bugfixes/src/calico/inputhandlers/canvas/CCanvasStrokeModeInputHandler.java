@@ -60,12 +60,12 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		this.setupModeIcon("mode.stroke");
 	}
 
-
+	@Deprecated
 	private void getMenuBarClick(Point point)
 	{
 		if(CCanvasController.canvasdb.get(canvas_uid).isPointOnMenuBar(point))
 		{
-			CCanvasController.canvasdb.get(canvas_uid).clickMenuBar(point);
+			CCanvasController.canvasdb.get(canvas_uid).clickMenuBar(null, point);
 		}
 	}
 

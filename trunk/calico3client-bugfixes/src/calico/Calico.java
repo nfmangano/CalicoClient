@@ -78,7 +78,7 @@ public class Calico extends JFrame
 	private static Calico instance = null;
 
 	private static Ticker ticker = null;
-
+	
 	// MODES
 	// public static final int MODE_EXPERT = 1 << 0;
 	// public static final int MODE_SCRAP = 1 << 1;
@@ -92,6 +92,8 @@ public class Calico extends JFrame
 	public GraphicsConfiguration gConf = null;
 
 	public static LongArrayList uuidlist = new LongArrayList();
+	
+	public static boolean isAllocating = false;
 
 	/**
 	 * This generates a 128-bit unique ID.
@@ -100,11 +102,43 @@ public class Calico extends JFrame
 	 */
 	public static long uuid()
 	{
-		if (uuidlist.size() < 100)
+		if (uuidlist.size() < 300 && !isAllocating)
 		{
 			// Request More
 			Networking.send(NetworkCommand.UUID_GET_BLOCK);
+			isAllocating = true;
 		}
+		
+		if (uuidlist.size() == 0)
+		{
+			System.out.println("Out of UUIDs: Waiting for allocation");
+			int waitTimes = 1000;
+			int count = 0;
+			
+			//Will wait 10 seconds, then resend allocation packet. 
+			//If no uuid_blocks arrive, program will hang here. It can't do anything without uuid's anyways
+			while (true)
+			{
+				if (count >= waitTimes)
+				{
+					Networking.send(NetworkCommand.UUID_GET_BLOCK);
+					isAllocating = true;
+					count = 0;
+				}
+				
+				if (uuidlist.size() > 0)
+				{
+					break;
+				}
+				count++;
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 		return uuidlist.removeLong(0);
 	}
 

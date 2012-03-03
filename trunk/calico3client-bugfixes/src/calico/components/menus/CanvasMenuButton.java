@@ -9,6 +9,7 @@ import java.net.URL;
 import calico.CalicoOptions;
 import calico.CalicoOptions.menu.menubar;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 
 import edu.umd.cs.piccolo.nodes.*;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -27,6 +28,10 @@ public class CanvasMenuButton extends PImage
 	
 	private boolean isSelected = false;
 	
+	protected boolean isPressed = false;
+	protected String iconString;
+	public static CanvasMenuButton activeMenuButton = null;
+	
 	public CanvasMenuButton()
 	{
 		this.background = CalicoIconManager.getIconImage("menu.button_bg");
@@ -44,6 +49,11 @@ public class CanvasMenuButton extends PImage
 	}
 	
 	public void actionMouseClicked()
+	{
+		
+	}
+	
+	public void actionMouseClicked(InputEventInfo ev)
 	{
 		
 	}
@@ -78,6 +88,49 @@ public class CanvasMenuButton extends PImage
 		this.invalidatePaint();
 		//this.foreground.setImage(img);
 	}
+	
+	public void onMouseDown()
+	{
+		activeMenuButton = this;
+		highlight_on();
+	}
+	
+	public void highlight_on()
+	{
+		if (!isPressed)
+		{
+			isPressed = true;
+			setSelected(true);
+			double tempX = this.getX();
+			double tempY = this.getY();
+			setImage(CalicoIconManager.getIconImage(iconString));
+			this.setX(tempX);
+			this.setY(tempY);
+			this.repaintFrom(this.getBounds(), this);
+		}
+	}
+	
+	public void onMouseUp()
+	{
+		activeMenuButton = null;
+		highlight_off();
+	}
+	
+	public void highlight_off()
+	{
+		if (isPressed)
+		{
+			isPressed = false;
+			setSelected(false);
+			double tempX = this.getX();
+			double tempY = this.getY();
+			setImage(CalicoIconManager.getIconImage(iconString));
+			this.setX(tempX);
+			this.setY(tempY);
+			this.repaintFrom(this.getBounds(), this);
+		}
+	}
+	
 	/*
 	public void setBounds(Rectangle rect)
 	{

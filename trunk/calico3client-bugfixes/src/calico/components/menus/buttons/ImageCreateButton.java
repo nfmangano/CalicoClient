@@ -22,9 +22,10 @@ public class ImageCreateButton extends CanvasMenuButton {
 	{
 		super();
 		this.cuid = c;
+		iconString = "group.image";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("canvas.image"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -32,22 +33,30 @@ public class ImageCreateButton extends CanvasMenuButton {
 		}
 	}
 	
-	public void actionMouseClicked()
-	{		
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new ImageFileFilter());
-        int returnVal = fc.showOpenDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent());
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-            Networking.send(CImageController.getImageTransferPacket(Calico.uuid(), CCanvasController.getCurrentUUID(), 
-            		50, 50, file));
+	public void actionMouseClicked(InputEventInfo event)
+	{	
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
 		}
-//		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)
-//		{
-//			CGroupController.move_start(new_uuid);
-//			CGroupController.move_end(new_uuid, ev.getX(), ev.getY());
-//		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			final JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new ImageFileFilter());
+	        int returnVal = fc.showOpenDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent());
+	
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+	            Networking.send(CImageController.getImageTransferPacket(Calico.uuid(), CCanvasController.getCurrentUUID(), 
+	            		50, 50, file));
+			}
+	//		if (this.uuid != 0l && new_uuid != 0l && CGroupController.groupdb.get(new_uuid).getParentUUID() == 0l)
+	//		{
+	//			CGroupController.move_start(new_uuid);
+	//			CGroupController.move_end(new_uuid, ev.getX(), ev.getY());
+	//		}
+	        super.onMouseUp();
+		}
 	}
 	
 	private boolean isImageURL(String text)

@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -40,10 +41,11 @@ public class MBDeveloperButton extends CanvasMenuButton
 		super();
 		cuid = c;
 		this.command = command;
+		iconString = "mode.expert";
 		try
 		{
 			setPaint(Color.BLACK);
-			setImage(CalicoIconManager.getIconImage("mode.expert"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -53,15 +55,22 @@ public class MBDeveloperButton extends CanvasMenuButton
 	}
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		Calico.logger.debug("RUN COMMAND: "+this.command);
-		
-		if(this.command.equals("canvas_clear"))
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			CCanvasController.clear(this.cuid);
+			isPressed = true;
 		}
-		
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			Calico.logger.debug("RUN COMMAND: "+this.command);
+			
+			if(this.command.equals("canvas_clear"))
+			{
+				CCanvasController.clear(this.cuid);
+			}
+			isPressed = false;
+		}
 		
 	}
 	

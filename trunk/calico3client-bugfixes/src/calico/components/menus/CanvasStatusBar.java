@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import calico.Calico;
 import calico.components.menus.buttons.EmailButton;
 import calico.controllers.CCanvasController;
+import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
 import calico.networking.netstuff.NetworkCommand;
 
@@ -44,8 +45,16 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 				"  Exit  ", 
 				new Font("Verdana", Font.BOLD, 12),
 				new CanvasTextButton(cuid) {
-					public void actionMouseClicked(Rectangle boundingBox) {
-						Calico.exit();
+					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+						{
+							isPressed = true;
+						}
+						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+						{
+							isPressed = false;
+							Calico.exit();
+						}
 					}
 				}
 		);
@@ -60,7 +69,7 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 					" reconnect...   ", 
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
+						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
 							//Do nothing
 						}
 					}
@@ -70,7 +79,7 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 					" Attempting to", 
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
+						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
 							//Do nothing
 						}
 					}
@@ -80,7 +89,7 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 					"   Disconnected!", 
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
+						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
 							//Do nothing
 						}
 					}
@@ -90,16 +99,25 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 
 		if (!Networking.synchroized)
 		{
-			addSpacer(ALIGN_END);
-			addTextEndAligned(
+			addSpacer(ALIGN_CENTER);
+			addTextCenterAligned(
 					" LOST SYNC!!  ", 
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(Rectangle boundingBox) {
-							int result = JOptionPane.showOptionDialog(null, "The canvas is not synchronized with the server. Press OK to synchronize", "Out of Sync Alert!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-							if (result == 0)
+						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+							if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 							{
-								Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+								isPressed = true;
+							}
+							else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+							{
+								int result = JOptionPane.showOptionDialog(null, "The canvas is not synchronized with the server. Press OK to synchronize", "Out of Sync Alert!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+								if (result == 0)
+								{
+									Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+								}
+								
+								isPressed = false;
 							}
 						}
 					}

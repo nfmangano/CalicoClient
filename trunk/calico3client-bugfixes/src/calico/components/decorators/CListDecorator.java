@@ -205,19 +205,24 @@ public class CListDecorator extends CGroupDecorator {
 	@Override
 	public CalicoPacket[] getDecoratorUpdatePackets(long uuid, long cuid, long puid, long decorated_uuid, Long2ReferenceArrayMap<Long> subGroupMappings) {
 		CalicoPacket[] superPackets = super.getDecoratorUpdatePackets(uuid, cuid, puid, decorated_uuid, subGroupMappings);
+		long[] keySet = subGroupMappings.keySet().toLongArray();
 		
-		CalicoPacket[] packets = new CalicoPacket[CGroupDecoratorController.groupCheckValues.size() + superPackets.length];
+		CalicoPacket[] packets = new CalicoPacket[keySet.length + superPackets.length];
 		
 		for (int i = 0; i < superPackets.length; i++)
 			packets[i] = superPackets[i];
 		
-		if (subGroupMappings == null)
-			return superPackets;
 		
-		long[] keySet = subGroupMappings.keySet().toLongArray();
 		for (int i = 0; i < keySet.length; i++)
 		{
-			packets[i+superPackets.length] = CalicoPacket.getPacket(NetworkCommand.LIST_CHECK_SET, uuid, cuid, puid, subGroupMappings.get(keySet[i]), CGroupDecoratorController.groupCheckValues.get(keySet[i]).booleanValue());
+			boolean checkValue = false;
+			long subGroupMapping = 0l;
+			if (CGroupDecoratorController.groupCheckValues.get(keySet[i]) != null)
+				checkValue = CGroupDecoratorController.groupCheckValues.get(keySet[i]).booleanValue();
+			if (subGroupMappings.get(keySet[i]) != null)
+				subGroupMapping = subGroupMappings.get(keySet[i]).longValue();
+			
+			packets[i+superPackets.length] = CalicoPacket.getPacket(NetworkCommand.LIST_CHECK_SET, uuid, cuid, puid, subGroupMapping, checkValue);
 		}
 		return packets;
 	}

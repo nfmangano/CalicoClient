@@ -134,7 +134,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			{
 				if (BubbleMenu.activeGroup != uuid && CGroupController.groupdb.get(uuid).isPermanent())
 				{
-					CGroupController.show_group_bubblemenu(uuid, e.getPoint());
+					CGroupController.show_group_bubblemenu(uuid);
 					CCanvasStrokeModeInputHandler.deleteSmudge = true;
 				}
 				CalicoInputManager.rerouteEvent(this.canvas_uid, e);

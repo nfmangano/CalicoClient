@@ -12,6 +12,7 @@ import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -43,9 +44,10 @@ public class UndoButton extends CanvasMenuButton
 	{
 		super();
 		cuid = c;
+		iconString = "undo";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("undo"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -54,19 +56,27 @@ public class UndoButton extends CanvasMenuButton
 		
 	}
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0d, 1d, undoMessage));
-		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, 0.1d, 1d, undoMessage));
-		progressMonitor = new ProgressMonitor(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
-				undoMessage,
-                "something", 0, 100);
-		progressMonitor.setProgress(0);
-		progressMonitor.setMillisToPopup(1);
-		progressMonitor.setMillisToDecideToPopup(1);
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_UNDO, cuid));
-		Calico.logger.debug("SENDING UNDO COMMAND");
-		//StatusMessage.popup("Not yet implemented");
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0d, 1d, undoMessage));
+			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, 0.1d, 1d, undoMessage));
+			progressMonitor = new ProgressMonitor(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
+					undoMessage,
+	                "something", 0, 100);
+			progressMonitor.setProgress(0);
+			progressMonitor.setMillisToPopup(1);
+			progressMonitor.setMillisToDecideToPopup(1);
+			Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_UNDO, cuid));
+			Calico.logger.debug("SENDING UNDO COMMAND");
+			//StatusMessage.popup("Not yet implemented");
+			super.onMouseUp();
+		}
 	}
 	
 }

@@ -171,12 +171,21 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 		setLock(text, new Font("Verdana", Font.BOLD, 12),
 				new CanvasTextButton(cuid) {
-			public void actionMouseClicked(Rectangle boundingBox) {
-				boolean lockValue = CCanvasController.canvasdb.get(cuid).getLockValue();
-				long time = (new Date()).getTime();
-				CCanvasController.lock_canvas(cuid, !lockValue, CalicoDataStore.Username, time);
-//				setLock();
-				CCanvasController.canvasdb.get(cuid).drawMenuBars();
+			public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+				if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+				{
+					isPressed = true;
+				}
+				else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+				{
+					boolean lockValue = CCanvasController.canvasdb.get(cuid).getLockValue();
+					long time = (new Date()).getTime();
+					CCanvasController.lock_canvas(cuid, !lockValue, CalicoDataStore.Username, time);
+	//				setLock();
+					CCanvasController.canvasdb.get(cuid).drawMenuBars();
+					
+					isPressed = false;
+				}
 			}
 		});
 		

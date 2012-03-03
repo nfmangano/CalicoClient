@@ -18,6 +18,7 @@ public class GroupSetPermanentButton extends PieMenuButton
 
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE;
 	long guuid;
+	private boolean isActive = false;
 	
 	public GroupSetPermanentButton(long uuid)
 	{
@@ -27,6 +28,12 @@ public class GroupSetPermanentButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
+		if (!CGroupController.exists(guuid) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
 		super.onPressed(ev);
 	}
 	
@@ -36,30 +43,20 @@ public class GroupSetPermanentButton extends PieMenuButton
 		if (CGroupController.exists(guuid))
 		{
 			CGroupController.set_permanent(guuid, true);
-			
-			Point newPoint = BubbleMenu.lastOpenedPosition;
-			updateMenu(guuid, newPoint);
 		}
 		else if (CStrokeController.exists(guuid))
 		{
 			long new_uuid = Calico.uuid();
 			CStrokeController.makeScrap(guuid, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
-			
-			Point newPoint = BubbleMenu.lastOpenedPosition;
-			updateMenu(new_uuid, newPoint);
 		}
 		
 		
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED GROUP PERM BUTTON");
+		
+		isActive = false;
 	}
 	
-	public void updateMenu(long uuid, Point point)
-	{
-		BubbleMenu.clearMenu();
-		
-		CGroupController.show_group_bubblemenu(uuid, point);
-	}
 }

@@ -29,6 +29,8 @@ public class PieMenuButton
 	public Rectangle bounds = new Rectangle();
 	
 	protected Point buttonPosition = new Point(0,0);
+	
+	public boolean haloEnabled = true;
 		
 	// Set the Icon
 	public PieMenuButton(String str)
@@ -132,6 +134,12 @@ public class PieMenuButton
 		//BubbleMenu.isPerformingBubbleMenuAction =false;
 		
 		
+	}
+	
+	//Terrible implementation
+	public void setHaloEnabled(boolean enable)
+	{
+		haloEnabled = enable;
 	}
 	
 	public final void setPosition(Point point)
