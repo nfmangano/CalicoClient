@@ -47,4 +47,10 @@ public class CCanvasLinkToken extends PImage
 	{
 		return direction;
 	}
+
+	public void updateCanvasCoordinates()
+	{
+		setImage(IntentionalInterfacesGraphics.superimposeCellAddress(link.getLink().getLinkType().image, link.getOpposite().getCanvasId()));
+		repaint();
+	}
 }

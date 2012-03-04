@@ -62,7 +62,7 @@ public class CanvasBadgeRow implements StickyItem
 		row.refreshHighlights();
 	}
 
-	public void updateBadgeCoordinates()
+	public void updateCanvasCoordinates()
 	{
 		for (CCanvasLinkBadge badge : badges)
 		{
@@ -147,8 +147,8 @@ public class CanvasBadgeRow implements StickyItem
 		{
 			removeChild(clickHighlight);
 			removeChild(contextHighlight);
-			addChild(clickHighlight);
 			addChild(contextHighlight);
+			addChild(clickHighlight);
 		}
 
 		void updateContextHighlight()

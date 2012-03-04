@@ -17,10 +17,15 @@ import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 
-class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
+public class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 {
-	private static final double DRAG_THRESHOLD = 3.0;
+	public static CreateIntentionArrowPhase getInstance()
+	{
+		return INSTANCE;
+	}
 
+	private static final double DRAG_THRESHOLD = 3.0;
+	
 	static final CreateIntentionArrowPhase INSTANCE = new CreateIntentionArrowPhase();
 
 	private enum Mode
@@ -48,7 +53,7 @@ class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
 		arrow.setVisible(false);
 	}
 
-	void startMove(CCanvasLink link, boolean moveA)
+	public void startMove(CCanvasLink link, boolean moveA)
 	{
 		this.mode = moveA ? Mode.MOVE_ANCHOR_A : Mode.MOVE_ANCHOR_B;
 		this.link = link;

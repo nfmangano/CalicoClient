@@ -2,7 +2,6 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
-import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -111,7 +110,11 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 		if (anchor.hasGroup())
 		{
-			badgeRowsByGroupId.get(anchor.getGroupId()).updateBadgeCoordinates();
+			badgeRowsByGroupId.get(anchor.getGroupId()).updateCanvasCoordinates();
+		}
+		else
+		{
+			tokensByAnchorId.get(anchor.getOpposite().getId()).updateCanvasCoordinates();
 		}
 
 		// the "design inside" source anchor can't be moved, so assume anchor.getLink().getLinkType() != DESIGN_INSIDE

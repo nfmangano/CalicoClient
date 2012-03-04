@@ -181,8 +181,8 @@ public class CanvasLinkBay implements StickyItem
 				}
 			}
 
-			addChild(clickHighlight);
 			addChild(contextHighlight);
+			addChild(clickHighlight);
 		}
 
 		void highlightClickedToken(int index)
