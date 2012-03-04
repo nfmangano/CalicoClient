@@ -249,6 +249,17 @@ public class IntentionCanvasController implements CGroupController.Listener
 		currentCanvasId = canvas_uuid;
 		CanvasIntentionToolBar.getInstance().moveTo(canvas_uuid);
 
+		CCanvasLinkController.getInstance().showingCanvas(canvas_uuid);
+
+		for (long groupId : CCanvasController.canvasdb.get(canvas_uuid).getChildGroups())
+		{
+			CanvasBadgeRow row = badgeRowsByGroupId.get(groupId);
+			if (row != null)
+			{
+				row.updateContextHighlight();
+			}
+		}
+
 		incomingLinkBay.moveTo(canvas_uuid);
 		outgoingLinkBay.moveTo(canvas_uuid);
 
@@ -347,7 +358,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 			double x = CalicoDataStore.ScreenWidth - (CanvasLinkBay.BAY_INSET_X + width);
 			double y = CalicoDataStore.ScreenHeight - (CanvasLinkBay.BAY_INSET_Y + height);
 			node.setBounds(x, y, width, height);
-			
+
 			System.out.println("Positioning link bay at y = " + y);
 		}
 	}

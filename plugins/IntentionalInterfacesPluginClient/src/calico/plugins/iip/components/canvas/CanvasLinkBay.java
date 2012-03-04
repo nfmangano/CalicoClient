@@ -1,13 +1,15 @@
 package calico.plugins.iip.components.canvas;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import calico.Calico;
+import calico.components.CCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
@@ -16,10 +18,13 @@ import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
-import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PPath;
+import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CanvasLinkBay implements StickyItem
@@ -45,7 +50,8 @@ public class CanvasLinkBay implements StickyItem
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
 	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
-	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
+
+	private boolean initialized = false;
 
 	public CanvasLinkBay(long canvas_uuid, CCanvasLink.LinkDirection direction, Layout layout)
 	{
@@ -59,6 +65,8 @@ public class CanvasLinkBay implements StickyItem
 
 		bay.setPaint(Color.LIGHT_GRAY);
 		bay.setVisible(visible = false);
+
+		initialized = true;
 	}
 
 	@Override
@@ -146,6 +154,21 @@ public class CanvasLinkBay implements StickyItem
 
 	private class Bay extends PComposite
 	{
+		private final Color CLICK_HIGHLIGHT = new Color(0xFFFF30);
+		private final Color CONTEXT_HIGHLIGHT = Color.red;
+
+		private PPath clickHighlight = createHighlight(CLICK_HIGHLIGHT);
+		private PPath contextHighlight = createHighlight(CONTEXT_HIGHLIGHT);
+
+		private PPath createHighlight(Color c)
+		{
+			PPath highlight = new PPath(new Rectangle2D.Double(0, 0, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT));
+			highlight.setStrokePaint(c);
+			highlight.setStroke(new BasicStroke(1f));
+			highlight.setVisible(false);
+			return highlight;
+		}
+
 		void updateTokens()
 		{
 			removeAllChildren();
@@ -157,31 +180,70 @@ public class CanvasLinkBay implements StickyItem
 					addChild(token);
 				}
 			}
+
+			addChild(clickHighlight);
+			addChild(contextHighlight);
+		}
+
+		void highlightClickedToken(int index)
+		{
+			showHighlight(clickHighlight, index);
+			repaint();
+		}
+
+		private void showHighlight(PPath highlight, int index)
+		{
+			PBounds bounds = getBounds();
+			int x = (int) (bounds.getX() + (CCanvasLinkToken.TOKEN_WIDTH * index) + (TOKEN_MARGIN * (index + 1)));
+			int y = (int) (bounds.getY() + TOKEN_MARGIN);
+			highlight.setBounds(x, y, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT);
+			highlight.setVisible(true);
 		}
 
 		@Override
 		protected void layoutChildren()
 		{
+			if (!initialized)
+			{
+				return;
+			}
+
 			double x = ((int) bay.getBounds().getX()) + TOKEN_MARGIN;
 			double y = ((int) bay.getBounds().getY()) + TOKEN_MARGIN;
 
+			long traversedCanvasId = CCanvasLinkController.getInstance().getTraversedLinkSourceCanvas();
+			contextHighlight.setVisible(false);
 			synchronized (tokens)
 			{
 				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
-				for (CCanvasLinkToken token : tokens)
+				for (int i = 0; i < tokens.size(); i++)
 				{
+					CCanvasLinkToken token = tokens.get(i);
+					
 					token.setBounds(x, y, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT);
 					x += (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN);
+					
+					if (token.getLinkAnchor().getOpposite().getCanvasId() == traversedCanvasId)
+					{
+						showHighlight(contextHighlight, i);
+					}
 				}
 			}
 		}
+	}
+
+	private enum InputState
+	{
+		IDLE,
+		PRESSED,
+		PIE
 	}
 
 	private class InputHandler extends CalicoAbstractInputHandler
 	{
 		private final Object stateLock = new Object();
 
-		private boolean pieMenuPending = false;
+		private InputState state = InputState.IDLE;
 		private CCanvasLinkToken clickedToken = null;
 
 		private final PieMenuTimer pieTimer = new PieMenuTimer();
@@ -191,9 +253,14 @@ public class CanvasLinkBay implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				if ((state == InputState.PRESSED) && (clickedToken != null))
+				{
+					CCanvasLinkController.getInstance().traverseLinkToCanvas(clickedToken.getLinkAnchor());
+				}
+				state = InputState.IDLE;
 			}
 
+			bay.clickHighlight.setVisible(false);
 			clickedToken = null;
 
 			CalicoInputManager.unlockHandlerIfMatch(uuid);
@@ -204,7 +271,7 @@ public class CanvasLinkBay implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				state = InputState.IDLE;
 			}
 
 			clickedToken = null;
@@ -215,20 +282,23 @@ public class CanvasLinkBay implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				state = InputState.PRESSED;
 			}
 
 			clickedToken = null;
 			synchronized (tokens)
 			{
 				IntentionCanvasController.getInstance().populateTokens(canvas_uuid, direction, tokens);
-				for (CCanvasLinkToken token : tokens)
+				for (int i = 0; i < tokens.size(); i++)
 				{
+					CCanvasLinkToken token = tokens.get(i);
+
 					if (token.getGlobalBounds().contains(event.getPoint()))
 					{
 						System.out.println("Clicked on a " + token.getLinkAnchor().getArrowEndpointType() + " to canvas #"
 								+ token.getLinkAnchor().getOpposite().getCanvasId());
 						clickedToken = token;
+						bay.highlightClickedToken(i);
 						break;
 					}
 				}
@@ -250,26 +320,35 @@ public class CanvasLinkBay implements StickyItem
 
 				synchronized (stateLock)
 				{
-					pieMenuPending = true;
 					schedule(new Task(), 200L);
 				}
 			}
 
-			private class Task extends TimerTask
+			private class Task extends PieMenuTimerTask
 			{
 				@Override
 				public void run()
 				{
 					synchronized (stateLock)
 					{
-						if (pieMenuPending)
+						if (state == InputState.PRESSED)
 						{
-							pieMenuPending = false;
-							deleteLinkButton.setContext(clickedToken.getLinkAnchor().getLink());
-							setLinkLabelButton.setContext(clickedToken.getLinkAnchor().getLink());
-							goToCanvasButton.setContext(clickedToken.getLinkAnchor().getOpposite().getCanvasId());
-							PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton, goToCanvasButton);
+							startAnimation(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS), point);
 						}
+					}
+				}
+
+				@Override
+				protected void animationCompleted()
+				{
+					if (state == InputState.PRESSED)
+					{
+						bay.clickHighlight.setVisible(false);
+						state = InputState.PIE;
+						
+						deleteLinkButton.setContext(clickedToken.getLinkAnchor().getLink());
+						setLinkLabelButton.setContext(clickedToken.getLinkAnchor().getLink());
+						PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton);
 					}
 				}
 			}

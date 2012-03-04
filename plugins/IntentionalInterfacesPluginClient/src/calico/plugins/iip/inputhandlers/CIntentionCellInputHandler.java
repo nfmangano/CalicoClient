@@ -3,16 +3,17 @@ package calico.plugins.iip.inputhandlers;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenu;
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateNewAlternativeLinkButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewPerspectiveLinkButton;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
@@ -23,6 +24,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	}
 
 	private static final CIntentionCellInputHandler INSTANCE = new CIntentionCellInputHandler();
+
+	private static final double CLICK_DRIFT_LIMIT = 5.0;
 
 	private enum State
 	{
@@ -44,7 +47,6 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 
 	private final CreateNewAlternativeLinkButton newAlternativeButton = new CreateNewAlternativeLinkButton();
 	private final CreateNewPerspectiveLinkButton newPerspectiveButton = new CreateNewPerspectiveLinkButton();
-	private final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
 
 	private CIntentionCellInputHandler()
 	{
@@ -54,8 +56,6 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	public void setCurrentCellId(long currentCellId)
 	{
 		this.currentCellId = currentCellId;
-
-		goToCanvasButton.setContext(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
 
 		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(true);
 	}
@@ -123,11 +123,20 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
-		if (state == State.DRAG)
-		{
-			moveCurrentCell(event.getGlobalPoint(), false);
-		}
 		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
+
+		switch (state)
+		{
+			case DRAG:
+				moveCurrentCell(event.getGlobalPoint(), false);
+				break;
+			case ACTIVATED:
+				if (event.getGlobalPoint().distance(mouseDragAnchor) < CLICK_DRIFT_LIMIT)
+				{
+					CCanvasController.loadCanvas(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
+				}
+				break;
+		}
 
 		state = State.IDLE;
 	}
@@ -158,7 +167,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			schedule(new Task(), 200L);
 		}
 
-		private class Task extends TimerTask
+		private class Task extends PieMenuTimerTask
 		{
 			@Override
 			public void run()
@@ -168,7 +177,19 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					if (state == State.ACTIVATED)
 					{
 						state = State.PIE;
-						PieMenu.displayPieMenu(point, newAlternativeButton, newPerspectiveButton, goToCanvasButton);
+						startAnimation(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), point);
+					}
+				}
+			}
+
+			@Override
+			protected void animationCompleted()
+			{
+				synchronized (stateLock)
+				{
+					if (state == State.PIE)
+					{
+						PieMenu.displayPieMenu(point, newAlternativeButton, newPerspectiveButton);
 					}
 				}
 			}

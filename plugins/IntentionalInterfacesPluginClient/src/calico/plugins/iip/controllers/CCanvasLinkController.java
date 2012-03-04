@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import calico.Calico;
+import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
@@ -41,7 +42,35 @@ public class CCanvasLinkController
 	private static Long2ReferenceArrayMap<CCanvasLink> linksById = new Long2ReferenceArrayMap<CCanvasLink>();
 	private static Long2ReferenceArrayMap<CCanvasLinkAnchor> anchorsById = new Long2ReferenceArrayMap<CCanvasLinkAnchor>();
 	private static Long2ReferenceArrayMap<List<Long>> anchorsIdsByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
+	
+	private long traversedLinkSourceCanvas = 0L;
+	private long traversedLinkDestinationCanvas = 0L;
 
+	public boolean hasTraversedLink()
+	{
+		return traversedLinkSourceCanvas > 0L;
+	}
+	
+	public long getTraversedLinkSourceCanvas()
+	{
+		return traversedLinkSourceCanvas;
+	}
+	
+	public void traverseLinkToCanvas(CCanvasLinkAnchor anchor)
+	{
+		this.traversedLinkSourceCanvas = anchor.getCanvasId();
+		this.traversedLinkDestinationCanvas = anchor.getOpposite().getCanvasId();
+		CCanvasController.loadCanvas(traversedLinkDestinationCanvas);
+	}
+	
+	public void showingCanvas(long canvasId)
+	{
+		if (canvasId != traversedLinkDestinationCanvas)
+		{
+			traversedLinkSourceCanvas = traversedLinkDestinationCanvas = 0L;
+		}
+	}
+	
 	public CCanvasLinkAnchor getAnchor(long uuid)
 	{
 		return anchorsById.get(uuid);

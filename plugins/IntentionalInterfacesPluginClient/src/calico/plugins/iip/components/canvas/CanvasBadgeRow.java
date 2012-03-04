@@ -1,10 +1,12 @@
 package calico.plugins.iip.components.canvas;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import calico.Calico;
 import calico.components.CCanvas;
@@ -18,9 +20,11 @@ import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
-import calico.plugins.iip.components.piemenu.GoToCanvasButton;
+import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
+import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
@@ -28,7 +32,6 @@ public class CanvasBadgeRow implements StickyItem
 {
 	private static final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
 	private static final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
-	private static final GoToCanvasButton goToCanvasButton = new GoToCanvasButton();
 
 	private final long uuid;
 	private final long groupId;
@@ -56,6 +59,7 @@ public class CanvasBadgeRow implements StickyItem
 		badges.add(badge);
 		row.addChild(badge.getImage());
 		row.refreshDisplay();
+		row.refreshHighlights();
 	}
 
 	public void updateBadgeCoordinates()
@@ -66,6 +70,8 @@ public class CanvasBadgeRow implements StickyItem
 			badge.updateImage();
 			row.addChild(badge.getImage());
 		}
+
+		row.refreshHighlights();
 	}
 
 	public void removeBadge(CCanvasLinkBadge badge)
@@ -87,6 +93,11 @@ public class CanvasBadgeRow implements StickyItem
 	{
 		row.setVisible(b);
 		row.repaint();
+	}
+
+	public void updateContextHighlight()
+	{
+		row.updateContextHighlight();
 	}
 
 	private void uninstallFromCanvas()
@@ -117,6 +128,43 @@ public class CanvasBadgeRow implements StickyItem
 
 	private class Row extends PComposite
 	{
+		private final Color CLICK_HIGHLIGHT = new Color(0xFFFF30);
+		private final Color CONTEXT_HIGHLIGHT = Color.red;
+
+		private PPath clickHighlight = createHighlight(CLICK_HIGHLIGHT);
+		private PPath contextHighlight = createHighlight(CONTEXT_HIGHLIGHT);
+
+		private PPath createHighlight(Color c)
+		{
+			PPath highlight = new PPath(new Rectangle2D.Double(0, 0, CCanvasLinkBadge.BADGE_WIDTH, CCanvasLinkBadge.BADGE_HEIGHT));
+			highlight.setStrokePaint(c);
+			highlight.setStroke(new BasicStroke(1f));
+			highlight.setVisible(false);
+			return highlight;
+		}
+
+		void refreshHighlights()
+		{
+			removeChild(clickHighlight);
+			removeChild(contextHighlight);
+			addChild(clickHighlight);
+			addChild(contextHighlight);
+		}
+
+		void updateContextHighlight()
+		{
+			long traversedCanvasId = CCanvasLinkController.getInstance().getTraversedLinkSourceCanvas();
+			contextHighlight.setVisible(false);
+			for (int i = 0; i < badges.size(); i++)
+			{
+				CCanvasLinkBadge badge = badges.get(i);
+				if (badge.getLinkAnchor().getOpposite().getCanvasId() == traversedCanvasId)
+				{
+					showHighlight(contextHighlight, i);
+				}
+			}
+		}
+
 		void refreshDisplay()
 		{
 			CGroup group = CGroupController.groupdb.get(groupId);
@@ -128,11 +176,25 @@ public class CanvasBadgeRow implements StickyItem
 
 			double width = badges.size() * CCanvasLinkBadge.BADGE_WIDTH;
 			double height = CCanvasLinkBadge.BADGE_HEIGHT;
-			double x = group.getBounds().getCenterX() - (width / 2.0);
-			double y = group.getBounds().getCenterY() - (height / 2.0);
-
-			setBounds(x, y, width, height);
+			PBounds groupBounds = group.getBounds();
+			double y = groupBounds.getY() + groupBounds.getHeight() - height;
+			setBounds(groupBounds.getX(), y, width, height);
 			repaint();
+		}
+
+		void highlightClickedBadge(int index)
+		{
+			showHighlight(clickHighlight, index);
+			repaint();
+		}
+
+		private void showHighlight(PPath highlight, int index)
+		{
+			PBounds bounds = getBounds();
+			int x = (int) (bounds.getX() + (CCanvasLinkToken.TOKEN_WIDTH * index));
+			int y = (int) bounds.getY();
+			highlight.setBounds(x, y, CCanvasLinkBadge.BADGE_WIDTH, CCanvasLinkBadge.BADGE_HEIGHT);
+			highlight.setVisible(true);
 		}
 
 		@Override
@@ -148,12 +210,19 @@ public class CanvasBadgeRow implements StickyItem
 		}
 	}
 
+	private enum InputState
+	{
+		IDLE,
+		PRESSED,
+		PIE
+	}
+
 	private class InputHandler extends CalicoAbstractInputHandler
 	{
 		private final Object stateLock = new Object();
 
 		private CCanvasLinkBadge badge = null;
-		private boolean pieMenuPending = false;
+		private InputState state = InputState.IDLE;
 
 		private final PieMenuTimer pieTimer = new PieMenuTimer();
 
@@ -162,8 +231,14 @@ public class CanvasBadgeRow implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				if ((state == InputState.PRESSED) && (badge != null))
+				{
+					CCanvasLinkController.getInstance().traverseLinkToCanvas(badge.getLinkAnchor());
+				}
+				state = InputState.IDLE;
 			}
+
+			row.clickHighlight.setVisible(false);
 
 			CalicoInputManager.unlockHandlerIfMatch(uuid);
 		}
@@ -173,7 +248,7 @@ public class CanvasBadgeRow implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				state = InputState.IDLE;
 			}
 		}
 
@@ -182,15 +257,17 @@ public class CanvasBadgeRow implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				pieMenuPending = false;
+				state = InputState.PRESSED;
 			}
 
 			badge = null;
-			for (CCanvasLinkBadge badge : badges)
+			for (int i = 0; i < badges.size(); i++)
 			{
+				CCanvasLinkBadge badge = badges.get(i);
 				if (badge.getImage().getBounds().contains(event.getGlobalPoint()))
 				{
 					this.badge = badge;
+					row.highlightClickedBadge(i);
 					break;
 				}
 			}
@@ -207,28 +284,36 @@ public class CanvasBadgeRow implements StickyItem
 
 				synchronized (stateLock)
 				{
-					pieMenuPending = true;
 					schedule(new Task(), 200L);
 				}
 			}
 
-			private class Task extends TimerTask
+			private class Task extends PieMenuTimerTask
 			{
 				@Override
 				public void run()
 				{
 					synchronized (stateLock)
 					{
-						if (pieMenuPending)
+						if (state == InputState.PRESSED)
 						{
-							pieMenuPending = false;
-
-							CCanvasLinkAnchor anchor = badge.getLinkAnchor();
-							deleteLinkButton.setContext(anchor.getLink());
-							setLinkLabelButton.setContext(anchor.getLink());
-							goToCanvasButton.setContext(anchor.getOpposite().getCanvasId());
-							PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton, goToCanvasButton);
+							startAnimation(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS), point);
 						}
+					}
+				}
+
+				@Override
+				protected void animationCompleted()
+				{
+					if (state == InputState.PRESSED)
+					{
+						row.clickHighlight.setVisible(false);
+						state = InputState.PIE;
+
+						CCanvasLinkAnchor anchor = badge.getLinkAnchor();
+						deleteLinkButton.setContext(anchor.getLink());
+						setLinkLabelButton.setContext(anchor.getLink());
+						PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton);
 					}
 				}
 			}

@@ -79,6 +79,7 @@ public class IntentionGraph
 		repaint();
 
 		PLayer contentLayer = contentCanvas.getLayer();
+		toolLayer.setParent(contentLayer.getParent());
 		canvas.getCamera().addLayer(Layer.CONTENT.id, contentLayer);
 		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 

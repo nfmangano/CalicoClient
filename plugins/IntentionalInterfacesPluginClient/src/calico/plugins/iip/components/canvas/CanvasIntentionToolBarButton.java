@@ -1,6 +1,7 @@
 package calico.plugins.iip.components.canvas;
 
 import calico.components.menus.CanvasMenuButton;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
 public class CanvasIntentionToolBarButton extends CanvasMenuButton
@@ -31,5 +32,6 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 	public void actionMouseClicked()
 	{
 		CanvasIntentionToolBar.getInstance().setVisible(!CanvasIntentionToolBar.getInstance().isVisible());
+		IntentionCanvasController.getInstance().toggleLinkVisibility();
 	}
 }

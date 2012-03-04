@@ -3,17 +3,17 @@ package calico.plugins.iip.inputhandlers;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenu;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CCanvasLink.LinkType;
+import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
+import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.components.piemenu.iip.MoveLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -140,7 +140,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 			schedule(new Task(), 200L);
 		}
 
-		private class Task extends TimerTask
+		private class Task extends PieMenuTimerTask
 		{
 			@Override
 			public void run()
@@ -151,14 +151,23 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 					{
 						state = State.PIE;
 
-						if (moveLinkButton.isEnabled())
-						{
-							PieMenu.displayPieMenu(point, moveLinkButton, setLinkLabelButton, deleteLinkButton);
-						}
-						else
-						{
-							PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
-						}
+						startAnimation(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), point);
+					}
+				}
+			}
+
+			@Override
+			protected void animationCompleted()
+			{
+				if (state == State.PIE)
+				{
+					if (moveLinkButton.isEnabled())
+					{
+						PieMenu.displayPieMenu(point, moveLinkButton, setLinkLabelButton, deleteLinkButton);
+					}
+					else
+					{
+						PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
 					}
 				}
 			}
