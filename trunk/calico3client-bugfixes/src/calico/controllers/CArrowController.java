@@ -68,7 +68,7 @@ public class CArrowController
 	
 	
 	
-	public static void no_notify_start(long uuid, long cuid, Color color,int type, AnchorPoint anchorA, AnchorPoint anchorB)
+	public static void no_notify_start(final long uuid, final long cuid, Color color,int type, AnchorPoint anchorA, AnchorPoint anchorB)
 	{
 		if (exists(uuid))
 			no_notify_delete(uuid);
@@ -91,7 +91,10 @@ public class CArrowController
 		}
 		
 		// Add the node to the painter
-		CCanvasController.canvasdb.get(cuid).getLayer().addChild(arrows.get(uuid));
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					CCanvasController.canvasdb.get(cuid).getLayer().addChild(arrows.get(uuid));
+				}});
 
 		// Add the input handler
 		CalicoInputManager.addArrowInputHandler(uuid);
@@ -115,7 +118,21 @@ public class CArrowController
 						new Runnable() { public void run() { arrow.removeFromParent(); } }
 				);		
 		//arrow.removeFromParent();
+				
+		// Clear the anchor A
+		if(arrows.get(uuid).getAnchorA().getType()==CArrow.TYPE_GROUP)
+		{
+			CGroupController.no_notify_delete_child_arrow(arrows.get(uuid).getAnchorA().getUUID(), uuid);
+		}
 		
+		// Clear anchor B
+		if(arrows.get(uuid).getAnchorB().getType()==CArrow.TYPE_GROUP)
+		{
+			CGroupController.no_notify_delete_child_arrow(arrows.get(uuid).getAnchorB().getUUID(), uuid);
+		}
+		
+		arrows.remove(uuid);
+				
 		CCanvasController.canvasdb.get(cuid).getLayer().setPaintInvalid(true);
 	}
 	

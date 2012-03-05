@@ -335,7 +335,7 @@ public abstract class CalicoAbstractInputHandler
 				&& !CGroupController.group_contains_stroke(group, potentialScrap)) // and the group must not contain a
 																				   // potential scrap
 		{
-			CGroupController.show_group_bubblemenu(group, point);
+			CGroupController.show_group_bubblemenu(group);
 		}
 		else if (potentialScrap > 0l || (potentialScrap) > 0l)
 		{
@@ -343,7 +343,7 @@ public abstract class CalicoAbstractInputHandler
 			// if (!CGroupController.checkIfLastTempGroupExists())
 			// {
 			long previewScrap = stroke.createTemporaryScrapPreview(deleteStroke);
-			CGroupController.show_group_bubblemenu(previewScrap, point, PieMenuButton.SHOWON_SCRAP_CREATE, true);
+			CGroupController.show_group_bubblemenu(previewScrap, PieMenuButton.SHOWON_SCRAP_CREATE, true);
 			// }
 
 		}

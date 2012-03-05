@@ -272,8 +272,8 @@ public class CGrid
 		return (this.menuBar.isPointInside(point));
 	}
 
-	public void clickMenuBar(Point point) {
-		this.menuBar.clickMenu(point);	
+	public void clickMenuBar(InputEventInfo event, Point point) {
+		this.menuBar.clickMenu(event, point);	
 	}
 	
 	/**

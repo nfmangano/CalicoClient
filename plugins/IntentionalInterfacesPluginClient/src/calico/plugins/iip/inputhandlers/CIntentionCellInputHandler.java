@@ -152,7 +152,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	}
 
 	@Override
-	public void menuDisplayed(ContextMenu menu, Point2D position)
+	public void menuDisplayed(ContextMenu menu)
 	{
 	}
 

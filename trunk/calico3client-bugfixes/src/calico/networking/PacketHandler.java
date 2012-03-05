@@ -2,6 +2,8 @@
 package calico.networking;
 
 import it.unimi.dsi.Util;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 
 import java.io.*;
 import java.nio.*;
@@ -113,11 +115,13 @@ public class PacketHandler
 			case NetworkCommand.GROUP_SCALE:GROUP_SCALE(packet);break;
 			case NetworkCommand.GROUP_CREATE_TEXT_GROUP:GROUP_CREATE_TEXT_GROUP(packet);break;
 			case NetworkCommand.GROUP_MAKE_RECTANGLE:GROUP_MAKE_RECTANGLE(packet);break;
+			case NetworkCommand.GROUP_COPY_WITH_MAPPINGS:GROUP_COPY_WITH_MAPPINGS(packet);break;
 			
 			case NetworkCommand.GRID_SIZE:GRID_SIZE(packet);break;
 			case NetworkCommand.CONSISTENCY_FINISH:CONSISTENCY_FINISH(packet);break;
 			case NetworkCommand.CONSISTENCY_FAILED:CONSISTENCY_FAILED(packet);break;
 			case NetworkCommand.CONSISTENCY_DEBUG:CONSISTENCY_DEBUG(packet);break;
+			case NetworkCommand.CONSISTENCY_RESYNCED:CONSISTENCY_RESYNCED(packet);break;
 			
 			case NetworkCommand.CANVAS_INFO:CANVAS_INFO(packet);break;
 			case NetworkCommand.CANVAS_REDRAW:CANVAS_REDRAW(packet);break;
@@ -366,6 +370,22 @@ public class PacketHandler
 		
 		CGroupController.no_notify_make_rectangle(guuid, x, y, width, height);
 		
+	}
+	
+	public static void GROUP_COPY_WITH_MAPPINGS(CalicoPacket p)
+	{
+		long guuid = p.getLong();
+		
+		Long2ReferenceArrayMap<Long> UUIDMappings = new Long2ReferenceArrayMap<Long>();
+		int mappingSize = p.getInt();
+		for (int i = 0; i < mappingSize; i++)
+		{
+			long key = p.getLong();
+			long value = p.getLong();
+			UUIDMappings.put(key, new Long(value));
+		}
+		
+		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings, true);
 	}
 	
 	private static void GROUP_START(CalicoPacket p)
@@ -626,6 +646,7 @@ public class PacketHandler
 		{
 			Calico.uuidlist.add( p.getLong() );
 		}
+		Calico.isAllocating = false;
 	}
 	
 	private static void AUTH_OK(CalicoPacket p)
@@ -704,6 +725,12 @@ public class PacketHandler
 	private static void CONSISTENCY_FAILED(CalicoPacket p)
 	{
 		Networking.synchroized = false;
+		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
+	}
+	
+	private static void CONSISTENCY_RESYNCED(CalicoPacket p)
+	{
+		Networking.synchroized = true;
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
 	
@@ -1041,7 +1068,6 @@ public class PacketHandler
 			y[i] = p.getInt();
 		}
 		CStrokeController.no_notify_batch_append(uuid, x, y);
-		CStrokeController.strokes.get(uuid).finish();
 		
 		double rotation = p.getDouble();
 		double scaleX = p.getDouble();
@@ -1049,6 +1075,8 @@ public class PacketHandler
 		
 		CStrokeController.strokes.get(uuid).primative_rotate(rotation);
 		CStrokeController.strokes.get(uuid).primative_scale(scaleX, scaleY);
+		
+		CStrokeController.strokes.get(uuid).finish();
 		
 //		CStrokeController.no_notify_finish(uuid);
 		

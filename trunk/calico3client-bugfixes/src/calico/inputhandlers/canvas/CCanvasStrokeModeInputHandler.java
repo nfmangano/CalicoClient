@@ -60,12 +60,12 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		this.setupModeIcon("mode.stroke");
 	}
 
-
+	@Deprecated
 	private void getMenuBarClick(Point point)
 	{
 		if(CCanvasController.canvasdb.get(canvas_uid).isPointOnMenuBar(point))
 		{
-			CCanvasController.canvasdb.get(canvas_uid).clickMenuBar(point);
+			CCanvasController.canvasdb.get(canvas_uid).clickMenuBar(null, point);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		
 		if (e.isLeftButton())
 		{
-			long bguid;  
+			long bguid;
 			boolean isPotentialScrap = false;
 			if(hasStartedBge)
 //			{
@@ -191,13 +191,15 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 			hasStartedBge = false;
 			boolean isSmudge = false;
-			if (deleteSmudge &&
-					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
-					CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+			if (CStrokeController.exists(CStrokeController.getCurrentUUID()))
 			{
-				isSmudge = true;
-				CStrokeController.delete(CStrokeController.getCurrentUUID());
-				deleteSmudge = false;
+				if (deleteSmudge &&
+						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
+						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+				{
+					isSmudge = true;
+					CStrokeController.delete(CStrokeController.getCurrentUUID());
+				}
 			}
 			
 			
@@ -212,6 +214,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			}
 		}
 
+		deleteSmudge = false;
 		hasBeenPressed = false;
 		lastPoint = null;
 		lastPointTime = 0l;

@@ -12,6 +12,7 @@ import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -41,6 +42,7 @@ public class MBColorButton extends CanvasMenuButton
 		super();
 		cuid = c;
 		color = col;
+		iconString = iconPath;
 		try
 		{
 			//Color curColor = CalicoOptions.getColor("pen.default_color");
@@ -63,15 +65,23 @@ public class MBColorButton extends CanvasMenuButton
 	}
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
-		Calico.logger.debug("Pressed Color button "+color.toString());
-		CalicoDataStore.PenColor = color;
-		CalicoDataStore.LastDrawingColor = color;
-		
-		CalicoDataStore.set_Mode(CInputMode.EXPERT);
-		CCanvasController.redrawMenuBars();
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			isPressed = true;
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_REDO, cuid));
+			Calico.logger.debug("Pressed Color button "+color.toString());
+			CalicoDataStore.PenColor = color;
+			CalicoDataStore.LastDrawingColor = color;
+			
+			CalicoDataStore.set_Mode(CInputMode.EXPERT);
+			CCanvasController.redrawMenuBars();
+			isPressed = false;
+		}
 	}
 	
 }

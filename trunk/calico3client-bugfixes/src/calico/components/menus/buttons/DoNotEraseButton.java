@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -47,9 +48,10 @@ public class DoNotEraseButton extends CanvasMenuButton
 	{
 		super();
 		cuid = c;
+		iconString = "grid.canvas.lock";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("grid.canvas.lock"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -58,11 +60,20 @@ public class DoNotEraseButton extends CanvasMenuButton
 		
 	}
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		long time = (new Date()).getTime();
-		CCanvasController.lock_canvas(cuid, true, CalicoDataStore.Username, time);
-		CCanvasController.canvasdb.get(cuid).drawMenuBars();
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			long time = (new Date()).getTime();
+			CCanvasController.lock_canvas(cuid, true, CalicoDataStore.Username, time);
+			CCanvasController.canvasdb.get(cuid).drawMenuBars();
+			
+			super.onMouseUp();
+		}
 	}
 
 	

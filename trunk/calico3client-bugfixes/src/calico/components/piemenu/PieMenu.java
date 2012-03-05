@@ -102,7 +102,7 @@ public class PieMenu
 		
 		for (ContextMenu.Listener listener : listeners)
 		{
-			listener.menuDisplayed(ContextMenu.PIE_MENU, location);
+			listener.menuDisplayed(ContextMenu.PIE_MENU);
 		}
 	}
 	

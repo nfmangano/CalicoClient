@@ -11,6 +11,7 @@ import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.perspectives.GridPerspective;
@@ -34,9 +35,10 @@ public class ReturnToGrid extends CanvasMenuButton
 	public ReturnToGrid()
 	{
 		super();
+		iconString = "grid.return_to";
 		try
 		{
-			setImage( CalicoIconManager.getIconImage("grid.return_to") );
+			setImage( CalicoIconManager.getIconImage(iconString) );
 		}
 		catch(Exception e)
 		{	
@@ -45,30 +47,39 @@ public class ReturnToGrid extends CanvasMenuButton
 	
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		CalicoDataStore.gridObject = CGrid.getInstance();
-		CalicoDataStore.gridObject.refreshCells();
-		CalicoDataStore.calicoObj.getContentPane().removeAll();
-		
-		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
-		
-		CalicoDataStore.gridObject.drawBottomToolbar();
-		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
-		
-		for (int i = 0; i < comps.length; i++)
-			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
-		
-		CalicoDataStore.calicoObj.pack();
-		CalicoDataStore.calicoObj.setVisible(true);
-		CalicoDataStore.calicoObj.repaint();
-		GridPerspective.getInstance().activate();
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			CalicoDataStore.gridObject = CGrid.getInstance();
+			CalicoDataStore.gridObject.refreshCells();
+			CalicoDataStore.calicoObj.getContentPane().removeAll();
+			
+			Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
+			
+			CalicoDataStore.gridObject.drawBottomToolbar();
+			CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
+			
+			for (int i = 0; i < comps.length; i++)
+				CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
+			
+			CalicoDataStore.calicoObj.pack();
+			CalicoDataStore.calicoObj.setVisible(true);
+			CalicoDataStore.calicoObj.repaint();
+			GridPerspective.getInstance().activate();
+
+			super.onMouseUp();
+		}
 		
 	}
-	public void actionMousePressed()
+	/*public void actionMousePressed()
 	{
 		actionMouseClicked();
-	}
+	}*/
 	
 	
 	

@@ -17,6 +17,7 @@ import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.InputEventInfo;
 
+@Deprecated
 public class ArrowButton extends PieMenuButton
 {
 	//Remove from BubbleMenu

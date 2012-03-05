@@ -12,6 +12,7 @@ import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
 import calico.networking.netstuff.CalicoPacket;
@@ -54,30 +55,32 @@ public class MBModeChangeButton extends CanvasMenuButton
 			switch(type)
 			{
 				case ARROW:
-					setImage(CalicoIconManager.getIconImage("mode.arrow"));
+					iconString = "mode.arrow";
 					break;
 					
 				case DELETE:
-					setImage(CalicoIconManager.getIconImage("mode.delete"));
+					iconString = "mode.delete";
 					
 					break;
 					
 				case EXPERT:
-					setImage(CalicoIconManager.getIconImage("mode.expert"));
+					iconString = "mode.expert";
 					break;
 					
 				case SCRAP:
-					setImage(CalicoIconManager.getIconImage("mode.scrap"));
+					iconString = "mode.scrap";
 					break;
 					
 				case STROKE:
-					setImage(CalicoIconManager.getIconImage("mode.stroke"));
+					iconString = "mode.stroke";
 					break;
 					
 				case POINTER:
-					setImage(CalicoIconManager.getIconImage("mode.pointer"));
+					iconString = "mode.pointer";
 					break;
 			}
+			
+			setImage(CalicoIconManager.getIconImage(iconString));
 			
 		}
 		catch(Exception e)
@@ -88,50 +91,58 @@ public class MBModeChangeButton extends CanvasMenuButton
 	}
 	
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		Calico.logger.debug("Changing Mode to "+type);
-		
-		if(type==CInputMode.DELETE)
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getBlobs();
-			//return;
+			isPressed = true;
 		}
-		
-		if(CalicoDataStore.Mode==type)
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			switch(type)
-			{
-				case ARROW:MessageObject.showError("Already in Arrow Mode");break;
-				case DELETE:MessageObject.showError("Already in Eraser Mode");break;
-				case EXPERT:MessageObject.showError("Already in Expert Mode");break;
-				case SCRAP:MessageObject.showError("Already in Scrap Mode");break;
-				case STROKE:MessageObject.showError("Already in Stroke Mode");break;
-				case POINTER:MessageObject.showError("Already in Pointer Mode");break;
-			}
-		}
-		else
-		{
-		
-			//CalicoDataStore.Mode = type;
-			CalicoDataStore.set_Mode(type);
-			CCanvasController.redrawMenuBars();
+			Calico.logger.debug("Changing Mode to "+type);
 			
-			
-			switch(type)
+			if(type==CInputMode.DELETE)
 			{
-				case ARROW:MessageObject.showNotice("Switching to Arrow Mode");break;
-				case DELETE:MessageObject.showNotice("Switching to Eraser Mode");break;
-				case EXPERT:MessageObject.showNotice("Switching to Expert Mode");/*StatusMessage.popup("You are entering expert mode. Be advised.");*/break;
-				case SCRAP:MessageObject.showNotice("Switching to Scrap Mode");break;
-				case STROKE:MessageObject.showNotice("Switching to Stroke Mode");break;
-				case POINTER:MessageObject.showNotice("Switching to Pointer Mode");break;
+				//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getBlobs();
+				//return;
 			}
 			
+			if(CalicoDataStore.Mode==type)
+			{
+				switch(type)
+				{
+					case ARROW:MessageObject.showError("Already in Arrow Mode");break;
+					case DELETE:MessageObject.showError("Already in Eraser Mode");break;
+					case EXPERT:MessageObject.showError("Already in Expert Mode");break;
+					case SCRAP:MessageObject.showError("Already in Scrap Mode");break;
+					case STROKE:MessageObject.showError("Already in Stroke Mode");break;
+					case POINTER:MessageObject.showError("Already in Pointer Mode");break;
+				}
+			}
+			else
+			{
+			
+				//CalicoDataStore.Mode = type;
+				CalicoDataStore.set_Mode(type);
+				CCanvasController.redrawMenuBars();
+				
+				
+				switch(type)
+				{
+					case ARROW:MessageObject.showNotice("Switching to Arrow Mode");break;
+					case DELETE:MessageObject.showNotice("Switching to Eraser Mode");break;
+					case EXPERT:MessageObject.showNotice("Switching to Expert Mode");/*StatusMessage.popup("You are entering expert mode. Be advised.");*/break;
+					case SCRAP:MessageObject.showNotice("Switching to Scrap Mode");break;
+					case STROKE:MessageObject.showNotice("Switching to Stroke Mode");break;
+					case POINTER:MessageObject.showNotice("Switching to Pointer Mode");break;
+				}
+				
+			}
+			
+			isPressed = false;
 		}
+	
 		
 	}
-	
-
 	
 }

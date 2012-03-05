@@ -40,8 +40,8 @@ public class CanvasPerspective extends CalicoPerspective
 	{
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).isPointOnMenuBar(event.getGlobalPoint()))
 		{
-			if (event.getAction() == InputEventInfo.ACTION_RELEASED)
-				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(event.getGlobalPoint());
+			if (event.getAction() == InputEventInfo.ACTION_PRESSED || event.getAction() == InputEventInfo.ACTION_RELEASED)
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).clickMenuBar(event, event.getGlobalPoint());
 
 			return true;
 		}

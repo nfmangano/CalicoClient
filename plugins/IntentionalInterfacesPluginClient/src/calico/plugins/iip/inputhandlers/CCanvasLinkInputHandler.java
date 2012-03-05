@@ -131,7 +131,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	}
 
 	@Override
-	public void menuDisplayed(ContextMenu menu, Point2D position)
+	public void menuDisplayed(ContextMenu menu)
 	{
 	}
 

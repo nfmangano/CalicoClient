@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.ProgressMonitor;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +34,7 @@ import calico.events.CalicoEventListener;
 import calico.input.CalicoKeyListener;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
+import calico.inputhandlers.InputEventInfo;
 import calico.modules.MessageObject;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
@@ -320,23 +322,23 @@ public class CCanvas
 	}
 	
 	
-	public void clickMenuBar(Point point)
+	public void clickMenuBar(InputEventInfo event, Point point)
 	{
 		if(this.menuBarLeft.isPointInside(point))
 		{
-			this.menuBarLeft.clickMenu(point);
+			this.menuBarLeft.clickMenu(event, point);
 		}
 		if(this.menuBarRight != null && this.menuBarRight.isPointInside(point))
 		{
-			this.menuBarRight.clickMenu(point);
+			this.menuBarRight.clickMenu(event, point);
 		}
 		if(this.statusBar.isPointInside(point))
 		{
-			this.statusBar.clickMenu(point);
+			this.statusBar.clickMenu(event, point);
 		}
 		else if(this.topMenuBar!=null && this.topMenuBar.isPointInside(point))
 		{
-			this.topMenuBar.clickMenu(point);	
+			this.topMenuBar.clickMenu(event, point);	
 		}
 	}
 	
@@ -538,7 +540,8 @@ public class CCanvas
 		
 		if(this.menuBarLeft!=null)
 		{
-			canvas.getCamera().removeChild(this.menuBarLeft);
+			//canvas.getCamera().removeChild(this.menuBarLeft);
+			toolLayer.removeChild(this.menuBarLeft);
 			this.menuBarLeft = null;
 		}
 		if(this.menuBarRight!=null)
@@ -573,8 +576,13 @@ public class CCanvas
 	public void drawMenuBars()
 	{		
 //		drawTopMenuBar();
-		drawMenuBar();
-		drawStatusBar();
+		//This may be ugly, but it prevents the menu bars from flickering and disappearing randomly.
+		//In order for all 
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					drawMenuBar();
+					drawStatusBar();
+				}});
 	}
 	
 	public void removeTopMenuBar(){

@@ -22,6 +22,7 @@ import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 
+@Deprecated
 public class ImageCreate extends PieMenuButton {
 
 	public static int SHOWON = PieMenuButton.SHOWON; //PieMenuButton.SHOWON_SCRAP_MENU;

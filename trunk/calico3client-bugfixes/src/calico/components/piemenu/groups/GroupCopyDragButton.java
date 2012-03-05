@@ -10,9 +10,11 @@ import calico.Calico;
 import calico.components.CCanvas;
 import calico.components.CGroup;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.bubblemenu.BubbleMenuButton;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -23,6 +25,8 @@ public class GroupCopyDragButton extends PieMenuButton
 {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	private long guuid = 0L;
+	private long new_guuid = 0L;
+	private boolean isActive = false;
 	
 	public GroupCopyDragButton(long uuid)
 	{
@@ -33,26 +37,30 @@ public class GroupCopyDragButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
-//		ev.stop();
-//
-//		CGroupController.setCopyUUID(guuid);
+		if (!CGroupController.exists(guuid) || isActive)
+		{
+			return;
+		}
 		
-		long canvasUUID = CGroupController.groupdb.get(guuid).getCanvasUID();
+		isActive = true;
+
+		new_guuid = CGroupController.copy_to_canvas(guuid);
 		
-		PImage ghost = new PImage();
 		
-		ghost.setImage(CGroupController.groupdb.get(guuid).getFamilyPicture());
-		ghost.setBounds(CGroupController.groupdb.get(guuid).getBounds().getBounds2D());
-		ghost.scale(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale());
-//			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).repaint(ghost.getBounds());
+			BubbleMenu.activeGroup = new_guuid;
+			CGroupController.groupdb.get(guuid).highlight_off();
+			CGroupController.groupdb.get(guuid).highlight_repaint();
+			if (!CGroupController.groupdb.get(guuid).isPermanent())
+			{
+			CGroupController.drop(guuid);
+			}
+			CGroupController.groupdb.get(new_guuid).highlight_on();
+			CGroupController.groupdb.get(new_guuid).highlight_repaint();
 		
-//		if CViewportCanvas.getInstance().getCanvasIdOfPoint(p)
-//		if (CalicoDataStore.isInViewPort)
 		
-//		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
-		CCanvasController.canvasdb.get(canvasUUID).getCamera().addChild(ghost);
+		long canvasUUID = CGroupController.groupdb.get(new_guuid).getCanvasUID();
 		
-		TranslateMouseListener resizeDragListener = new TranslateMouseListener(ghost, canvasUUID, guuid);
+		TranslateMouseListener resizeDragListener = new TranslateMouseListener(canvasUUID, guuid, new_guuid);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
 		
@@ -60,77 +68,76 @@ public class GroupCopyDragButton extends PieMenuButton
 		resizeDragListener.mousePressed(ev.getPoint());
 		
 		ev.stop();
-//		ev.getMouseEvent().consume();
 		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
-		System.out.println("CLICKED GROUP COPY_DRAG BUTTON");
+		System.out.println("CLICKED GROUP COPY BUTTON");
 		//CGroupController.drop(group_uuid);
-	}
-	
-	private void paste(long guuid, Point mouseUp, Point2D mouseDownPoint, long originUUID, long new_guuid)
-	{
-		Point2D gMidPoint = CGroupController.groupdb.get(guuid).getMidPoint();
-		if (CGroupController.exists(guuid))
-		{
-		
-			CGroup group = CGroupController.groupdb.get(guuid);			
-
-			Point2D center = gMidPoint;
-			long canvasUUID;
-
-			
-			
-			Point2D.Double shiftDelta = new Point2D.Double(
-					gMidPoint.getX() - mouseDownPoint.getX() + mouseUp.getX(),
-					gMidPoint.getY() - mouseDownPoint.getY() + mouseUp.getY());
-			
-			int shift_x = (int)(shiftDelta.getX() - center.getX());
-			int shift_y = (int)(shiftDelta.getY() - center.getY());
-			canvasUUID = CCanvasController.getCurrentUUID();
-			Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_COPY_TO_CANVAS, 
-					guuid,
-					canvasUUID,
-					new_guuid,
-					shift_x,
-					shift_y,
-					(int)mouseUp.getX(),
-					(int)mouseUp.getY()
-				));
-		}
 	}
 		
 	private class TranslateMouseListener implements MouseMotionListener, MouseListener
 	{
-		PImage ghost;
-		Point2D.Double prevPoint, mouseDownPoint, mouseUpPoint;
-		Point2D.Double centerPoint;
-		Point2D.Double scrapOriginPoint;
-		long cuuid, guuid;
+		Point prevPoint, mouseDownPoint;
+		long cuuid, guuid, oguuid; 
 		
-		public TranslateMouseListener(PImage g, long canvasUUID, long groupUUID)  {
-			ghost = g;
-			Point2D cp = CGroupController.groupdb.get(groupUUID).getMidPoint();
-			centerPoint = new Point2D.Double(cp.getX(), cp.getY());
-			prevPoint = new Point2D.Double();
+		public TranslateMouseListener(long canvasUUID, long originalUUID, long groupUUID)  {
+			prevPoint = new Point();
 			cuuid = canvasUUID;
+			oguuid = originalUUID;
 			guuid = groupUUID;
-			Point op = CGroupController.groupdb.get(guuid).getPathReference().getBounds().getLocation();
-			scrapOriginPoint = new Point2D.Double(op.getX(), op.getY());
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
-			double deltaX = scaledPoint.getX() - prevPoint.getX();
-			double deltaY = scaledPoint.getY() - prevPoint.getY();
-			
-			ghost.translate(deltaX, deltaY);
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().validateFullPaint();
-			
-			BubbleMenu.moveIconPositions(ghost.getFullBounds());
-			
-			prevPoint.x = scaledPoint.getX();
-			prevPoint.y = scaledPoint.getY();
-			e.consume();
+			try
+			{
+				if (mouseDownPoint == null)
+				{
+					prevPoint.x = e.getPoint().x;
+					prevPoint.y = e.getPoint().y;
+					mouseDownPoint = e.getPoint();
+					CGroupController.move_start(guuid);
+				}
+				
+				if (BubbleMenu.activeGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_repaint();
+				}
+				CGroupController.move(guuid, (int)(e.getPoint().x - prevPoint.x), e.getPoint().y - prevPoint.y);
+				
+				BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+				
+				long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
+				if (smallestParent != BubbleMenu.highlightedParentGroup)
+				{
+					if (BubbleMenu.highlightedParentGroup != 0l)
+					{
+						CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+						CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+					}
+					if (smallestParent != 0l)
+					{
+						CGroupController.groupdb.get(smallestParent).highlight_on();
+						CGroupController.groupdb.get(smallestParent).highlight_repaint();
+					}
+					BubbleMenu.highlightedParentGroup = smallestParent;
+				}
+				
+				/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
+				{
+					CGroupController.groupdb.get(smallestParent).highlight_on();
+				}*/
+				CGroupController.groupdb.get(guuid).highlight_on();
+				CGroupController.groupdb.get(guuid).highlight_repaint();
+				prevPoint.x = e.getPoint().x;
+				prevPoint.y = e.getPoint().y;
+				e.consume();
+			}
+			catch(NullPointerException ne)
+			{
+				System.out.println("Group disappeared while in use: removing Copy/Drag listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			}
 		}
 		
 
@@ -146,82 +153,69 @@ public class GroupCopyDragButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 		
 		public void mousePressed(Point p) {
-			//BubbleMenu.setSelectedButton(GroupCopyDragButton.class.getName());
-			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(p);
-			
-			prevPoint.x = scaledPoint.getX();
-			prevPoint.y = scaledPoint.getY();
-			mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
-			
+			try
+			{
+				prevPoint.x = 0;
+				prevPoint.y = 0;
+				mouseDownPoint = null;
+			}
+			catch(NullPointerException ne)
+			{
+				System.out.println("Group disappeared while in use: removing Copy/Drag listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			}
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			//BubbleMenu.clearMenu();
-			Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(e.getPoint());
-			
-			mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
-			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			CCanvasController.canvasdb.get(cuuid).getCamera().removeChild(ghost);
-			
-			
-			long new_guuid = Calico.uuid();
-			//System.out.println(guuid + " : " + new_guuid);
-			paste(guuid,  scaledPoint, mouseDownPoint, cuuid, new_guuid);
-			
-			e.consume();
-//			PieMenu.isPerformingPieMenuAction = false;
-			
-			if(!CGroupController.groupdb.get(guuid).isPermanent())
+			try
 			{
-				CGroupController.drop(guuid);
-				Point newPoint = BubbleMenu.lastOpenedPosition;
 				
-				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
-				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
-	
-				//BubbleMenu.clearMenu();
-
-				//temporary solution
-				try {
-					while(!CGroupController.exists(new_guuid))
-					{
-					Thread.sleep(100);
-					}
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if(!CGroupController.groupdb.get(guuid).isPermanent())
+				{
+								
+					CGroupController.setCurrentUUID(guuid);
+					CGroupController.setLastCreatedGroupUUID(guuid);
+					CGroupController.show_group_bubblemenu(guuid, PieMenuButton.SHOWON_SCRAP_CREATE, false);
 				}
-				CGroupController.setCurrentUUID(new_guuid);
-				CGroupController.setLastCreatedGroupUUID(new_guuid);
-				CGroupController.show_group_bubblemenu(new_guuid, newPoint, PieMenuButton.SHOWON_SCRAP_CREATE, false);
-
+				else
+				{
+					CGroupController.show_group_bubblemenu(guuid, false);
+				}
+	
+				if (BubbleMenu.highlightedParentGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+					BubbleMenu.highlightedParentGroup = 0l;
+				}
+				
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+				
+				//This threw a null pointer exception for some reason...
+				if (mouseDownPoint != null)
+					CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
+				
+				//Update the menu location in case it was dropped into a list
+				//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+				
+				e.consume();
+				isActive = false;
 			}
-			else
+			catch(NullPointerException ne)
 			{
-			
-				Point newPoint = BubbleMenu.lastOpenedPosition;
-	
-				newPoint.x += mouseUpPoint.x - mouseDownPoint.x;
-				newPoint.y += mouseUpPoint.y - mouseDownPoint.y;
-	
-				//BubbleMenu.clearMenu();
-				
-				//temporary solution
-				try {
-					while(!CGroupController.exists(new_guuid))
-					{
-					Thread.sleep(100);
-					}
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				CGroupController.show_group_bubblemenu(new_guuid, newPoint, false);
+				System.out.println("Group disappeared while in use: removing Copy/Drag listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			}
 		}
 	}
 	
+	//Leave this empty
+	public void setHaloEnabled(boolean enable)
+	{
+		
+	}
 }

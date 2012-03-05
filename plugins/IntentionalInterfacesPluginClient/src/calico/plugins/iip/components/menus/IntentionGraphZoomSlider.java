@@ -106,7 +106,14 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 			System.out.println("zoom to " + scale);
 		}
 
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+		if (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() == Double.NaN)
+		{
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setGlobalScale(scale);
+		}
+		else
+		{
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+		}
 		IntentionGraph.getInstance().repaint();
 	}
 
@@ -146,7 +153,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		slider.setBounds(bounds.x + buttonSpan, bounds.y, sliderWidth, bounds.height);
 
 		knobInset = sliderWidth * 0.05;
-		
+
 		updateKnobPosition();
 	}
 
@@ -196,7 +203,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		double yOffset = (getBounds().height - knobHeight) / 2.0;
 		knob.setBounds(slider.getBounds().x + knobInset + knobCenter, getBounds().y + yOffset, knobWidth, knobHeight);
 	}
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{

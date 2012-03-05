@@ -11,7 +11,7 @@ import calico.inputhandlers.InputEventInfo;
 public class GroupDeleteButton extends PieMenuButton
 {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
-	
+	private boolean isActive = false;
 	long uuidToBeDeleted;
 	
 	public GroupDeleteButton(long uuid)
@@ -22,15 +22,21 @@ public class GroupDeleteButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
+		if (!CGroupController.exists(uuidToBeDeleted) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
 		super.onPressed(ev);
 	}
 	
 	public void onReleased(InputEventInfo ev)
 	{
-		BubbleMenu.clearMenu();
 		CGroupController.delete(uuidToBeDeleted);
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED GROUP DELETE BUTTON");
+		isActive = false;
 	}
 }
