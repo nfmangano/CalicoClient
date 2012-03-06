@@ -177,7 +177,7 @@ public class CanvasBadgeRow implements StickyItem
 			double width = badges.size() * CCanvasLinkBadge.BADGE_WIDTH;
 			double height = CCanvasLinkBadge.BADGE_HEIGHT;
 			PBounds groupBounds = group.getBounds();
-			double y = groupBounds.getY() + groupBounds.getHeight() - height;
+			double y = groupBounds.getY() + groupBounds.getHeight();
 			setBounds(groupBounds.getX(), y, width, height);
 			repaint();
 		}

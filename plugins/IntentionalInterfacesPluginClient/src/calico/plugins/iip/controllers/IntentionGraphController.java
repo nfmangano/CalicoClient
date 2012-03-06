@@ -191,9 +191,9 @@ public class IntentionGraphController
 		return nearestCanvasId;
 	}
 
-	public void prepareDisplay()
+	public void initializeDisplay()
 	{
-		IntentionGraph.getInstance().fitContents();
+		IntentionGraph.getInstance().initialize();
 	}
 
 	public void updateLinkArrow(CCanvasLink link)

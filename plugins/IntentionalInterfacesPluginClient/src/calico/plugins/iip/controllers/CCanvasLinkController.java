@@ -42,7 +42,7 @@ public class CCanvasLinkController
 	private static Long2ReferenceArrayMap<CCanvasLink> linksById = new Long2ReferenceArrayMap<CCanvasLink>();
 	private static Long2ReferenceArrayMap<CCanvasLinkAnchor> anchorsById = new Long2ReferenceArrayMap<CCanvasLinkAnchor>();
 	private static Long2ReferenceArrayMap<List<Long>> anchorsIdsByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
-	
+
 	private long traversedLinkSourceCanvas = 0L;
 	private long traversedLinkDestinationCanvas = 0L;
 
@@ -50,19 +50,19 @@ public class CCanvasLinkController
 	{
 		return traversedLinkSourceCanvas > 0L;
 	}
-	
+
 	public long getTraversedLinkSourceCanvas()
 	{
 		return traversedLinkSourceCanvas;
 	}
-	
+
 	public void traverseLinkToCanvas(CCanvasLinkAnchor anchor)
 	{
 		this.traversedLinkSourceCanvas = anchor.getCanvasId();
 		this.traversedLinkDestinationCanvas = anchor.getOpposite().getCanvasId();
 		CCanvasController.loadCanvas(traversedLinkDestinationCanvas);
 	}
-	
+
 	public void showingCanvas(long canvasId)
 	{
 		if (canvasId != traversedLinkDestinationCanvas)
@@ -70,7 +70,7 @@ public class CCanvasLinkController
 			traversedLinkSourceCanvas = traversedLinkDestinationCanvas = 0L;
 		}
 	}
-	
+
 	public CCanvasLinkAnchor getAnchor(long uuid)
 	{
 		return anchorsById.get(uuid);
@@ -147,9 +147,18 @@ public class CCanvasLinkController
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR);
 		packet.putLong(anchor.getId());
 		packet.putLong(anchor.getCanvasId());
+
 		packet.putInt(anchor.getArrowEndpointType().ordinal());
-		packet.putInt((int) newPosition.getX());
-		packet.putInt((int) newPosition.getY());
+		if (anchor.getArrowEndpointType() == ArrowEndpointType.FLOATING)
+		{
+			packet.putInt((int) newPosition.getX());
+			packet.putInt((int) newPosition.getY());
+		}
+		else
+		{
+			packet.putInt(0);
+			packet.putInt(0);
+		}
 
 		packet.rewind();
 		PacketHandler.receive(packet);
@@ -269,19 +278,8 @@ public class CCanvasLinkController
 		packet.putLong(anchor.getId());
 		packet.putLong(canvasId);
 		packet.putInt(CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL.ordinal());
-
-		Point2D position;
-		if (anchor.getArrowEndpointType() == ArrowEndpointType.FLOATING)
-		{
-			position = IntentionGraphController.getInstance().getArrowAnchorPosition(canvasId, anchor.getOpposite().getPoint());
-		}
-		else
-		{
-			position = IntentionGraphController.getInstance().getArrowAnchorPosition(canvasId, anchor.getOpposite().getCanvasId());
-		}
-		packet.putInt((int) position.getX());
-		packet.putInt((int) position.getY());
-
+		packet.putInt(0);
+		packet.putInt(0);
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
@@ -354,9 +352,19 @@ public class CCanvasLinkController
 	{
 		packet.putLong(Calico.uuid());
 		packet.putLong(canvas_uuid);
+
 		packet.putInt(type.ordinal());
-		packet.putInt(x);
-		packet.putInt(y);
+		if (type == ArrowEndpointType.FLOATING)
+		{
+			packet.putInt(x);
+			packet.putInt(y);
+		}
+		else
+		{
+			packet.putInt(0);
+			packet.putInt(0);
+		}
+
 		packet.putLong(group_uuid);
 	}
 

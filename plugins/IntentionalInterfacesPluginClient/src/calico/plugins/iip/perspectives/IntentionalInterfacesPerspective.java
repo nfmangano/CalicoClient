@@ -15,12 +15,12 @@ import edu.umd.cs.piccolo.PNode;
 public class IntentionalInterfacesPerspective extends CalicoPerspective
 {
 	private static final IntentionalInterfacesPerspective INSTANCE = new IntentionalInterfacesPerspective();
-	
+
 	public static IntentionalInterfacesPerspective getInstance()
 	{
 		return INSTANCE;
 	}
-	
+
 	private boolean notYetDisplayed = true;
 
 	@Override
@@ -29,9 +29,10 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		if (notYetDisplayed)
 		{
 			notYetDisplayed = false;
-			IntentionGraphController.getInstance().prepareDisplay();
+			IntentionGraphController.getInstance().initializeDisplay();
+			CIntentionCellController.getInstance().initializeDisplay();
 		}
-		
+
 		super.activate();
 	}
 
@@ -62,7 +63,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		{
 			return target_uuid;
 		}
-		
+
 		target_uuid = CCanvasLinkInputHandler.getInstance().getActiveLink();
 		if (target_uuid >= 0L)
 		{
@@ -75,7 +76,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 			CCanvasLinkInputHandler.getInstance().setCurrentLinkId(target_uuid, event.getGlobalPoint());
 			return target_uuid;
 		}
-		
+
 		target_uuid = CIntentionCellController.getInstance().getCellAt(event.getGlobalPoint());
 		if (target_uuid >= 0L)
 		{

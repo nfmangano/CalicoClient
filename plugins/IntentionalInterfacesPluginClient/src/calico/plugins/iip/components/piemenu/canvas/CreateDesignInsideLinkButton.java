@@ -7,7 +7,7 @@ import calico.plugins.iip.controllers.CCanvasLinkController;
 
 public class CreateDesignInsideLinkButton extends PieMenuButton
 {
-	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
+	public static int SHOWON = 0;
 
 	private final long group_uuid;
 

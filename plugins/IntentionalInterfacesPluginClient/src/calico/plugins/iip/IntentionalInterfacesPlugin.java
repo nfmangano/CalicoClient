@@ -1,8 +1,12 @@
 package calico.plugins.iip;
 
+import java.awt.geom.Point2D;
+
 import calico.Calico;
 import calico.CalicoOptions;
+import calico.components.CCanvas;
 import calico.components.CGroup;
+import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
@@ -122,13 +126,29 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		long uuid = p.getLong();
 		long canvas_uuid = p.getLong();
 		boolean inUse = p.getBoolean();
+		boolean hasLocation = p.getBoolean();
 		int x = p.getInt();
 		int y = p.getInt();
 
-		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, inUse, x, y);
+		Point2D location = new Point2D.Double(x, y);
+		if (!hasLocation)
+		{
+			assignGridLocation(canvas_uuid, location);
+		}
+
+		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, inUse, location);
 		CIntentionCellController.getInstance().addCell(cell);
 		cell.setVisible(CCanvasController.hasContent(canvas_uuid));
 		IntentionGraph.getInstance().repaint();
+	}
+
+	private static void assignGridLocation(long canvasId, Point2D location)
+	{
+		CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
+
+		double x = (CGrid.getInstance().getImgw() * canvas.getGridCol()) + CGrid.GRID_EDGE_INSET;
+		double y = (CGrid.getInstance().getImgh() * canvas.getGridRow()) + CGrid.GRID_EDGE_INSET;
+		location.setLocation(x, y);
 	}
 
 	private static void CIC_MOVE(CalicoPacket p)
@@ -200,7 +220,9 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		CCanvasLinkAnchor anchorB = unpackAnchor(p);
 		String label = p.getString();
 		CCanvasLink link = new CCanvasLink(uuid, type, anchorA, anchorB, label);
+
 		CCanvasLinkController.getInstance().addLink(link);
+		IntentionGraphController.getInstance().updateLinkArrow(link);
 	}
 
 	private static void CLINK_RETYPE(CalicoPacket p)

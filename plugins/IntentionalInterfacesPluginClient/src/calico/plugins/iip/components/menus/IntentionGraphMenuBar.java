@@ -39,6 +39,11 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		addSpacer();
 	}
+	
+	public void initialize()
+	{
+		zoomSlider.refreshState();
+	}
 
 	public void processEvent(InputEventInfo event)
 	{
@@ -46,6 +51,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		{
 			case InputEventInfo.ACTION_PRESSED:
 				draggingZoomKnob = zoomSliderBounds.contains(event.getGlobalPoint());
+				clickMenu(event, event.getGlobalPoint());
 				break;
 			case InputEventInfo.ACTION_RELEASED:
 				draggingZoomKnob = false;

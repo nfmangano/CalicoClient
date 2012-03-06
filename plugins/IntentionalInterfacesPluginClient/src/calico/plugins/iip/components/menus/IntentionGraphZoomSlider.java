@@ -37,6 +37,11 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 	}
+	
+	public void refreshState()
+	{
+		updateKnobPosition();
+	}
 
 	public void dragTo(Point point)
 	{

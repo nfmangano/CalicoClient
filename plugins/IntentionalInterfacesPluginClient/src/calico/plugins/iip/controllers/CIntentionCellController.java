@@ -48,6 +48,14 @@ public class CIntentionCellController
 		}
 		return -1L;
 	}
+	
+	public void initializeDisplay()
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.initialize();
+		}
+	}
 
 	// The cells are all created at server startup, so new cells should never be created. If the policy changes at some
 	// point, this method will create a new cell, but until then it should not be used.

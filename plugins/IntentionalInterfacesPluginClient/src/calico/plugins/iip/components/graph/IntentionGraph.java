@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.components.grid.CGrid;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
@@ -164,6 +165,11 @@ public class IntentionGraph
 		}
 
 		repaint();
+	}
+	
+	public void initialize()
+	{
+		menuBar.initialize();
 	}
 
 	public void repaint()

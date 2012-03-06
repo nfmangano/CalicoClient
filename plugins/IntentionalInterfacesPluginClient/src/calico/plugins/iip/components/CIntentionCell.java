@@ -8,7 +8,9 @@ import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import calico.components.CCanvas;
 import calico.components.grid.CGrid;
+import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
@@ -47,16 +49,21 @@ public class CIntentionCell
 
 	private final Shell shell;
 
-	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, double x, double y)
+	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, Point2D location)
 	{
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
 		this.inUse = inUse;
-		this.location = new Point2D.Double(x, y);
+		this.location = location;
 
-		shell = new Shell(x, y);
+		shell = new Shell(location.getX(), location.getY());
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
+	}
+
+	public void initialize()
+	{
+		shell.updateContents();
 	}
 
 	private Color currentBorderColor()
@@ -174,15 +181,14 @@ public class CIntentionCell
 					CalicoIconManager.getIconImage("intention-graph.obscured-intention-cell"), canvas_uuid));
 
 			addChild(canvasAddress);
-			double aspectRatio = CGrid.getInstance().getImgw() / (double) CGrid.getInstance().getImgh();
-			setBounds(x, y, (canvasAddress.getHeight() * aspectRatio) + (2 * BORDER_WIDTH), canvasAddress.getHeight() + (2 * BORDER_WIDTH));
+			setBounds(x, y, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance().getImgh()
+					- (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
 			repaint();
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 		}
 
-		@Override
-		public void propertyChange(PropertyChangeEvent event)
+		void updateContents()
 		{
 			if (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() != lastScale)
 			{
@@ -209,6 +215,12 @@ public class CIntentionCell
 			{
 				canvasSnapshot.contentsChanged();
 			}
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent event)
+		{
+			updateContents();
 		}
 
 		@Override
@@ -275,11 +287,18 @@ public class CIntentionCell
 
 		private void updateSnapshot()
 		{
-			snapshot.setImage(CCanvasController.canvasdb.get(canvas_uuid).getContentCamera().toImage());
+			long start = System.currentTimeMillis();
+
+			CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
+
+			snapshot.setImage(canvas.getContentCamera().toImage());
 			snapshot.setBounds(shell.getBounds());
 			isDirty = false;
 
 			snapshot.repaint();
+
+			System.out.println("CIntentionCell for canvas " + canvas.getGridCoordTxt() + " took a new snapshot in " + (System.currentTimeMillis() - start)
+					+ "ms");
 		}
 	}
 }
