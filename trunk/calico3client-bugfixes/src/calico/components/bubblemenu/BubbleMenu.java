@@ -233,7 +233,7 @@ public class BubbleMenu {
 		{
 			return 9;
 		}
-		else if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
+		else if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
 		{
 		    return 10;
 		}
@@ -241,9 +241,9 @@ public class BubbleMenu {
 		{
 			return 11;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+		else if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
 		{
-			return 10;
+			return 12;
 		}
 		
 		return 0;
