@@ -1,5 +1,6 @@
 package calico.components;
 
+import calico.components.CCanvas.Layer;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -171,9 +172,10 @@ public class CStroke extends PPath
 			for (final PNode path : tempSegments)
 			{
 				//layer.removeChild(path);
-				SwingUtilities.invokeLater(
+				/*SwingUtilities.invokeLater(
 						new Runnable() { public void run() { layer.removeChild(path); } }
-				);
+				);*/
+				CalicoDraw.removeChildFromNode(layer, path);
 			}
 			tempSegments.clear();
 		}
@@ -193,9 +195,10 @@ public class CStroke extends PPath
 		if(CCanvasController.canvas_has_child_stroke_node(this.canvasUID, uuid))
 		{
 			//This line is not thread safe so must invokeLater to prevent eraser artifacts.
-			SwingUtilities.invokeLater(
+			/*SwingUtilities.invokeLater(
 					new Runnable() { public void run() { removeFromParent(); } }
-			);
+			);*/
+			CalicoDraw.removeNodeFromParent(this);
 			//removeFromParent();
 		}
 	}
@@ -218,14 +221,16 @@ public class CStroke extends PPath
 	{
 		this.color = color;
 		setStrokePaint( color );
-		this.setPaintInvalid(true);
+		//this.setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(this, true);
 	}
 	
 	public void setThickness(float t)
 	{
 		this.thickness = t;
 		setStroke( new BasicStroke(t) );
-		this.setPaintInvalid(true);
+		//this.setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(this, true);
 	}
 	
 	public void finish()
@@ -241,12 +246,13 @@ public class CStroke extends PPath
 		for (final PNode path : tempSegments)
 		{
 			//path.setTransparency(0f);
-			SwingUtilities.invokeLater(
+			/*SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
 						path.setTransparency(0f);
 						layer.removeChild(path); 
 						} }
-			);
+			);*/
+			CalicoDraw.removeChildFromNode(layer, path);
 			
 		}
 		tempSegments.clear();
@@ -360,9 +366,11 @@ public class CStroke extends PPath
 		line.setStrokePaint(strokePaint);
 		line.addPoint(0, mousePoints.xpoints[mousePoints.npoints-2], mousePoints.ypoints[mousePoints.npoints-2]);
 		line.addPoint(1, x, y);
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(line);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(line);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), line);
 		this.tempSegments.add(line);
-		line.repaintFrom(line.getBounds(), line);
+		//line.repaintFrom(line.getBounds(), line);
+		CalicoDraw.repaintNode(line);
 		
 		if (!drawTailTarget && Geometry.getPolygonLength(mousePoints) >= CalicoOptions.stroke.min_create_scrap_length
 				&& CalicoDataStore.Mode == CInputMode.EXPERT)
@@ -379,9 +387,11 @@ public class CStroke extends PPath
 		circle.setStrokePaint(Color.white);
 		circle.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
 		BasicStroke.JOIN_MITER, 10.0f, new float[] {10f}, 0.0f));
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(circle);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(circle);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), circle);
 		this.tempSegments.add(circle);
-		circle.invalidatePaint();
+		//circle.invalidatePaint();
+		CalicoDraw.invalidatePaint(circle);
 		CCanvasController.canvasdb.get(canvasUID).getLayer().repaintFrom(circle.getBounds(), circle);
 		drawTailTarget = true;
 //			circle.repaintFrom(circle.getBounds(), circle);
@@ -400,7 +410,8 @@ public class CStroke extends PPath
 		    }
 		};
 		// Must schedule the activity with the root for it to run.
-		circle.getRoot().addActivity(flash);
+		//circle.getRoot().addActivity(flash);
+		CalicoDraw.addActivityToNode(circle, flash);
 	}
 	
 	
@@ -434,7 +445,8 @@ public class CStroke extends PPath
 //		pline.setStroke(new BasicStroke( CalicoOptions.pen.stroke_size ));
 		pline.setStrokePaint(color);
 		//debugObjects.add(pline);
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(pline);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(pline);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), pline);
 	}
 	public void eraseDebugMarks()
 	{
@@ -711,7 +723,9 @@ public class CStroke extends PPath
 //		invalidatePaint();
 		
 //		CCanvasController.canvasdb.get(canvasUID).getCamera().validateFullPaint();
-		CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+
+		//CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getCamera(), new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
 	}
 	
 	public PAffineTransform getPTransform() {
@@ -968,7 +982,6 @@ public class CStroke extends PPath
 		return isTempInk;
 	}
 	
-	@Override
 	public void setTransparency(float f)
 	{
 		if (f > 1.0f)

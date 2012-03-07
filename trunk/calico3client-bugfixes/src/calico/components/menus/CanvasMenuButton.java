@@ -6,6 +6,9 @@ import java.awt.image.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.SwingUtilities;
+
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.CalicoOptions.menu.menubar;
 import calico.iconsets.CalicoIconManager;
@@ -85,7 +88,8 @@ public class CanvasMenuButton extends PImage
 		g.drawImage(unscaledImage.getScaledInstance(width-buttonBorder*2, height-buttonBorder*2, BufferedImage.SCALE_SMOOTH),  buttonBorder, buttonBorder, null);
 		super.setImage((Image)finalImage);
 		
-		this.invalidatePaint();
+		//this.invalidatePaint();
+		CalicoDraw.invalidatePaint(this);
 		//this.foreground.setImage(img);
 	}
 	
@@ -101,12 +105,20 @@ public class CanvasMenuButton extends PImage
 		{
 			isPressed = true;
 			setSelected(true);
-			double tempX = this.getX();
-			double tempY = this.getY();
-			setImage(CalicoIconManager.getIconImage(iconString));
-			this.setX(tempX);
-			this.setY(tempY);
-			this.repaintFrom(this.getBounds(), this);
+			final CanvasMenuButton tempButton = this;
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						double tempX = tempButton.getX();
+						double tempY = tempButton.getY();
+								
+						setImage(CalicoIconManager.getIconImage(iconString));
+						tempButton.setX(tempX);
+						tempButton.setY(tempY);
+					}});
+			//CalicoDraw.setNodeX(this, tempX);
+			//CalicoDraw.setNodeY(this, tempY);
+			//this.repaintFrom(this.getBounds(), this);
+			CalicoDraw.repaintNode(this);
 		}
 	}
 	
@@ -122,12 +134,20 @@ public class CanvasMenuButton extends PImage
 		{
 			isPressed = false;
 			setSelected(false);
-			double tempX = this.getX();
-			double tempY = this.getY();
-			setImage(CalicoIconManager.getIconImage(iconString));
-			this.setX(tempX);
-			this.setY(tempY);
-			this.repaintFrom(this.getBounds(), this);
+			final CanvasMenuButton tempButton = this;
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						double tempX = tempButton.getX();
+						double tempY = tempButton.getY();
+								
+						setImage(CalicoIconManager.getIconImage(iconString));
+						tempButton.setX(tempX);
+						tempButton.setY(tempY);
+					}});
+			//CalicoDraw.setNodeX(this, tempX);
+			//CalicoDraw.setNodeY(this, tempY);
+			//this.repaintFrom(this.getBounds(), this);
+			CalicoDraw.repaintNode(this);
 		}
 	}
 	

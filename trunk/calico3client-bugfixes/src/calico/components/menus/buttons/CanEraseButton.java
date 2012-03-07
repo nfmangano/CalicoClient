@@ -70,7 +70,7 @@ public class CanEraseButton extends CanvasMenuButton
 		{
 			long time = (new Date()).getTime();
 			CCanvasController.lock_canvas(cuid, false, CalicoDataStore.Username, time);
-			CCanvasController.canvasdb.get(cuid).drawMenuBars();
+			//CCanvasController.canvasdb.get(cuid).drawMenuBars();
 			
 			super.onMouseUp();
 		}

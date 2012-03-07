@@ -874,7 +874,8 @@ public class CStrokeController
 		    }
 		};
 		// Must schedule the activity with the root for it to run.
-		strokes.get(uuid).getRoot().addActivity(flash);
+		//strokes.get(uuid).getRoot().addActivity(flash);
+		CalicoDraw.addActivityToNode(strokes.get(uuid), flash);
 		
 	}
 	
@@ -932,7 +933,8 @@ public class CStrokeController
 		};
 		// Must schedule the activity with the root for it to run.
 		if (stroke.getRoot() != null)
-			stroke.getRoot().addActivity(flash);
+			//stroke.getRoot().addActivity(flash);
+			CalicoDraw.addActivityToNode(stroke, flash);
 	}
 	
 	public static void unhideStroke(long uuid)

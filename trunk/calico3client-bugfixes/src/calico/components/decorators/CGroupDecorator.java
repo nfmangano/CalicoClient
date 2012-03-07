@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import javax.swing.SwingUtilities;
 
+import calico.CalicoDraw;
 import calico.components.CGroup;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
@@ -241,11 +242,12 @@ public abstract class CGroupDecorator extends CGroup {
 					CGroupController.groupdb.get(child_groups[i]).delete();
 					if(CCanvasController.canvas_has_child_group_node(CGroupController.groupdb.get(child_groups[i]).getCanvasUID(), child_groups[i]))
 					{
-						final long tempUUID = child_groups[i];
+						/*final long tempUUID = child_groups[i];
 						SwingUtilities.invokeLater(
 								new Runnable() { public void run() { 
 										CGroupController.groupdb.get(tempUUID).removeFromParent();
-								}});
+								}});*/
+						CalicoDraw.removeNodeFromParent(CGroupController.groupdb.get(child_groups[i]));
 					}
 					CGroupController.dq_add(child_groups[i]);
 				}
@@ -259,11 +261,12 @@ public abstract class CGroupDecorator extends CGroup {
 	
 			if(CCanvasController.canvas_has_child_group_node(CGroupController.groupdb.get(this.decoratedGroupUUID).getCanvasUID(), this.decoratedGroupUUID))
 			{
-				final long tempUUID = this.decoratedGroupUUID;
+				/*final long tempUUID = this.decoratedGroupUUID;
 				SwingUtilities.invokeLater(
 						new Runnable() { public void run() { 
 								CGroupController.groupdb.get(tempUUID).removeFromParent();
-						}});
+						}});*/
+				CalicoDraw.removeNodeFromParent(CGroupController.groupdb.get(this.decoratedGroupUUID));
 			}
 			CGroupController.dq_add(this.decoratedGroupUUID);
 			decoratedGroup.clearChildGroups();

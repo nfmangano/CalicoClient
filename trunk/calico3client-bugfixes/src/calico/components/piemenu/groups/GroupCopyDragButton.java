@@ -104,7 +104,7 @@ public class GroupCopyDragButton extends PieMenuButton
 				}
 				CGroupController.move(guuid, (int)(e.getPoint().x - prevPoint.x), e.getPoint().y - prevPoint.y);
 				
-				BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+				//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
 				
 				long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
 				if (smallestParent != BubbleMenu.highlightedParentGroup)
@@ -206,6 +206,7 @@ public class GroupCopyDragButton extends PieMenuButton
 			}
 			catch(NullPointerException ne)
 			{
+				ne.printStackTrace();
 				System.out.println("Group disappeared while in use: removing Copy/Drag listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);

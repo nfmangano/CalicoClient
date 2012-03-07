@@ -11,12 +11,16 @@ import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.SwingUtilities;
+
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
@@ -54,27 +58,31 @@ public class CGridCell extends PImage//PComposite
 
 		//setBounds( (cc*cellWidth)+2, 50+( (rc*cellHeight)+2 ),  cellWidth-5,  cellHeight-5);
 		Rectangle bounds = new Rectangle(xOffset + (cc*cellWidth), yOffset+( (rc*cellHeight) ),  cellWidth-2,  cellHeight-2);
-		setBounds( bounds );
+		CalicoDraw.setNodeBounds(this, bounds);
+		//CalicoDraw.setNodeBounds(this, bounds);
 		//setPaint( CalicoOptions.getColor("grid.item_background") );
 
-		tBounds = getBounds().getBounds();
-
-
-		/*PImage img = new PImage(CCanvasController.image(canvasUID));
-		img.setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
-
-		addChild(0, img );
-
-
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()));//top
-		addChild(drawBorderLine(tBounds.getX()+tBounds.getWidth(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//right
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX(),tBounds.getY()+tBounds.getHeight()));//left
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY()+tBounds.getHeight(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//bottom
-
-		*/
-		render();
-
-		CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					tBounds = getBounds().getBounds();
+			
+			
+					/*PImage img = new PImage(CCanvasController.image(canvasUID));
+					img.setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
+			
+					addChild(0, img );
+			
+			
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()));//top
+					addChild(drawBorderLine(tBounds.getX()+tBounds.getWidth(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//right
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX(),tBounds.getY()+tBounds.getHeight()));//left
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY()+tBounds.getHeight(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//bottom
+			
+					*/
+					render();
+			
+					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+				}});
 
 		
 
@@ -90,27 +98,32 @@ public class CGridCell extends PImage//PComposite
 		cellHeight = h;
 
 		//setBounds( (cc*cellWidth)+2, 50+( (rc*cellHeight)+2 ),  cellWidth-5,  cellHeight-5);
-		setBounds(xOffset + (cc*cellWidth), yOffset + ( (rc*cellHeight) ),  cellWidth-2,  cellHeight-2);
+		//setBounds(xOffset + (cc*cellWidth), yOffset + ( (rc*cellHeight) ),  cellWidth-2,  cellHeight-2);
+		CalicoDraw.setNodeBounds(this, xOffset + (cc*cellWidth), yOffset + ( (rc*cellHeight) ),  cellWidth-2,  cellHeight-2);
 		//setPaint( CalicoOptions.getColor("grid.item_background") );
 
-		tBounds = getBounds().getBounds();
-
-
-		/*PImage img = new PImage(CCanvasController.image(canvasUID));
-		img.setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
-
-		addChild(0, img );
-
-
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()));//top
-		addChild(drawBorderLine(tBounds.getX()+tBounds.getWidth(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//right
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX(),tBounds.getY()+tBounds.getHeight()));//left
-		addChild(drawBorderLine(tBounds.getX(),tBounds.getY()+tBounds.getHeight(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//bottom
-
-		*/
-		render();
-
-		CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+		
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					tBounds = getBounds().getBounds();
+			
+			
+					/*PImage img = new PImage(CCanvasController.image(canvasUID));
+					img.setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
+			
+					addChild(0, img );
+			
+			
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()));//top
+					addChild(drawBorderLine(tBounds.getX()+tBounds.getWidth(),tBounds.getY(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//right
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY(), tBounds.getX(),tBounds.getY()+tBounds.getHeight()));//left
+					addChild(drawBorderLine(tBounds.getX(),tBounds.getY()+tBounds.getHeight(), tBounds.getX()+tBounds.getWidth(),tBounds.getY()+tBounds.getHeight()));//bottom
+			
+					*/
+					render();
+			
+					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+				}});
 
 	}
 	
@@ -138,7 +151,10 @@ public class CGridCell extends PImage//PComposite
 	}
 
 	public void refreshImage() {
-		this.render();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					render();
+				}});
 	}
 	
 
@@ -191,7 +207,9 @@ public class CGridCell extends PImage//PComposite
 		setImage( bimg );
 		//setImage( img );
 		setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
+		//CalicoDraw.setNodeBounds(this, tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
 		repaint();
+		//CalicoDraw.repaint(this);
 		CalicoDataStore.gridObject.repaint();
 		
 		updatePresenceText();
@@ -215,6 +233,8 @@ public class CGridCell extends PImage//PComposite
 		{
 			this.removeChild(presenceText);
 			this.removeChild(presenceTextBackground);
+			//CalicoDraw.removeChildFromNode(this, presenceText);
+			//CalicoDraw.removeChildFromNode(this, presenceTextBackground);
 		}
 		
 		StringBuilder str = new StringBuilder();
@@ -230,14 +250,31 @@ public class CGridCell extends PImage//PComposite
 //		this.presenceText.setText(str.toString());
 //		this.presenceText.repaint();
 		
-		
+		/*final PText tempPresenceText = new PText(str.toString());
+		tempPresenceText.setFont(new Font("Helvetica", Font.BOLD, 12));
+		tempPresenceText.setTextPaint(Color.BLUE);
+		tempPresenceText.setBounds(this.getBounds().getBounds());
+		tempPresenceText.translate(7, 7);*/
 		presenceText = new PText(str.toString());
 		presenceText.setFont(new Font("Helvetica", Font.BOLD, 12));
 		presenceText.setTextPaint(Color.BLUE);
 		presenceText.setBounds(this.getBounds().getBounds());
 		presenceText.translate(7, 7);
+		
 		this.addChild(presenceText);
+		//CalicoDraw.addChildToNode(this, tempPresenceText);
 		presenceText.moveInFrontOf(this);
+		//CalicoDraw.moveNodeInFrontOf(tempPresenceText, this);
+		
+		/*final PNode tempPresenceTextBackground = new PNode()
+		{
+			protected void paint(final PPaintContext paintContext) {
+				final Graphics2D g2 = paintContext.getGraphics();
+				Rectangle bounds = this.getBounds().getBounds();
+				g2.setColor(Color.white);
+				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			}
+		};*/
 		presenceTextBackground = new PNode()
 		{
 			protected void paint(final PPaintContext paintContext) {
@@ -247,33 +284,59 @@ public class CGridCell extends PImage//PComposite
 				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			}
 		};
+		
 		this.addChild(presenceTextBackground);
+		//CalicoDraw.addChildToNode(this, tempPresenceTextBackground);
 		presenceTextBackground.moveInBackOf(presenceText);
+		//CalicoDraw.moveNodeInBackOf(tempPresenceTextBackground, tempPresenceText);
 		this.repaint();
+		//CalicoDraw.repaint(this);
+		
+		/*SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					presenceText = tempPresenceText;
+					presenceTextBackground = tempPresenceTextBackground;
+				}});*/
 	}
 	
 	public void updateCanvasLockIcon()
 	{
-		
 		if (canvasLockedIcon != null && canvasLockedIcon.getParent() == this)
 		{
 			this.removeChild(canvasLockedIcon);
+			//CalicoDraw.removeChildFromNode(this, canvasLockedIcon);
+			//CalicoDraw.repaint(this);
 		}
 		if (!CCanvasController.canvasdb.get(canvasUID).getLockValue())
 			return;
-		
+		//(new Exception()).printStackTrace();
 		Image img = CalicoIconManager.getIconImage("grid.donoterase");
 //		this.presenceText.setText(str.toString());
 //		this.presenceText.repaint();
 		
-		
 		canvasLockedIcon = new PImage(img);
 		Rectangle cellBounds = this.getBounds().getBounds();
 		Rectangle bounds = new Rectangle(cellBounds.x + cellBounds.width / 10 * 9 - 5, cellBounds.y + cellBounds.height / 10 * 9 - 10, 16, 16);
+		//final CGridCell tempGridCell = this;
+		
+		//final Rectangle cellBounds;
+		//final Rectangle bounds;
+		/*SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					Rectangle cellBounds = tempGridCell.getBounds().getBounds();
+					Rectangle bounds = new Rectangle(cellBounds.x + cellBounds.width / 10 * 9 - 5, cellBounds.y + cellBounds.height / 10 * 9 - 10, 16, 16);
+					canvasLockedIcon.setBounds(bounds);
+					System.out.println("locked" + " " + tempGridCell.getCanvasUID() + " " + bounds.toString());
+				}});*/
+		
 		canvasLockedIcon.setBounds(bounds);
+		//CalicoDraw.setNodeBounds(canvasLockedIcon, bounds);
 		this.addChild(canvasLockedIcon);
+		//CalicoDraw.addChildToNode(this, canvasLockedIcon);
 		canvasLockedIcon.moveInFrontOf(this);
+		//CalicoDraw.moveNodeInFrontOf(canvasLockedIcon, this);
 		this.repaint();
+		//CalicoDraw.repaint(this);
 	}
 	
 //	public void updateCanvasLockIcon()

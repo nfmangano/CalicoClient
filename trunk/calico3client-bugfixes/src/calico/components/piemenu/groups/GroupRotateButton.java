@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
 import calico.components.CCanvas;
@@ -43,10 +44,12 @@ public class GroupRotateButton extends PieMenuButton
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
 		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
-		ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		//ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		CalicoDraw.setNodeBounds(ghost, CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
 //		ghost.scale(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale());
 		
-		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		//CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUUID).getLayer(), ghost);
 		
 		RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, uuid);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
@@ -107,7 +110,8 @@ public class GroupRotateButton extends PieMenuButton
 				double scale = newScale/oldScale;
 				ghost.scaleAboutPoint(scale, centerPoint);*/
 	
-				ghost.repaintFrom(ghost.getBounds(), ghost);
+				//ghost.repaintFrom(ghost.getBounds(), ghost);
+				CalicoDraw.repaintNode(ghost);
 	
 				BubbleMenu.moveIconPositions(ghost.getFullBounds());
 				
@@ -121,7 +125,8 @@ public class GroupRotateButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Rotate listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		
@@ -172,7 +177,8 @@ public class GroupRotateButton extends PieMenuButton
 				mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 				
 				//Turn off highlighter before rotate to make sure it does not leave artifacts. 
 				CGroupController.groupdb.get(guuid).highlight_off();
@@ -206,7 +212,8 @@ public class GroupRotateButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Rotate listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		

@@ -342,8 +342,7 @@ public class Calico extends JFrame
 			{
 				// System.out.println(e.paramString());
 
-				Dimension dim = e.getComponent().getSize();
-				// System.out.println(e.getComponent().getSize().toString());
+				Dimension dim = ((JFrame)e.getComponent()).getContentPane().getSize();
 
 				CalicoDataStore.ScreenWidth = dim.width;
 				CalicoDataStore.ScreenHeight = dim.height;

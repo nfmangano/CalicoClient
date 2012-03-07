@@ -607,10 +607,9 @@ public class CalicoInputManager
 			leftClickIcon.setBounds(p.getX()-16, p.getY()-16, 16, 16);
 //			leftClickIcon.setPaintInvalid(true);
 			
-			SwingUtilities.invokeLater(
-					new Runnable() { public void run() { 
-						CCanvasController.canvasdb.get( cuuid ).getLayer().addChild(leftClickIcon);
-					}});
+			//CCanvasController.canvasdb.get( cuuid ).getLayer().addChild(leftClickIcon);
+			CalicoDraw.addChildToNode(CCanvasController.canvasdb.get( cuuid ).getLayer(), leftClickIcon);
+			
 //			CCanvasController.canvasdb.get( cuuid ).getLayer().repaint();
 			
 			CalicoInputManager.RemoveCursorImageListener mouseListener = (new CalicoInputManager()).new RemoveCursorImageListener(cuuid, leftClickIcon);
@@ -639,10 +638,11 @@ public class CalicoInputManager
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			e.consume();
-			SwingUtilities.invokeLater(
+			/*SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
 						CCanvasController.canvasdb.get( cuuid ).getLayer().removeChild(icon);
-					}});
+					}});*/
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), icon);
 //			CCanvasController.canvasdb.get( cuuid ).getLayer().repaint();
 		}
 
@@ -663,7 +663,8 @@ public class CalicoInputManager
 
 			
 			e.consume();
-			CCanvasController.canvasdb.get( cuuid ).getLayer().removeChild(icon);
+			//CCanvasController.canvasdb.get( cuuid ).getLayer().removeChild(icon);
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), icon);
 //			CCanvasController.canvasdb.get( cuuid ).getLayer().repaint();
 			
 		}		

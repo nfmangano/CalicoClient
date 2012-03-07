@@ -19,6 +19,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.ArrayUtils;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
@@ -87,12 +88,14 @@ public class CListDecorator extends CGroupDecorator {
 				{
 					g2.setColor(Color.blue);
 					g2.draw(getNearestLine());
-					this.repaintFrom(this.getBounds(), this);
+					//this.repaintFrom(this.getBounds(), this);
+					CalicoDraw.repaintNode(this);
 				}
 			}
 		}
 		
 		long[] childGroups = this.getChildGroups();
+		
 		Image checkImage;
 		if (childGroups != null)
 		{
@@ -172,8 +175,10 @@ public class CListDecorator extends CGroupDecorator {
 ////			this.groupImages.remove(guuid);
 //			setIcon(guuid, bounds.x, bounds.y);
 //		}
-		this.invalidatePaint();
-		this.repaint();
+		//this.invalidatePaint();
+		CalicoDraw.invalidatePaint(this);
+		//this.repaint();
+		CalicoDraw.repaint(this);
 	}
 	
 	public boolean isChecked(long guuid)
@@ -242,9 +247,12 @@ public class CListDecorator extends CGroupDecorator {
 			CGroupController.no_notify_make_rectangle(getDecoratedUUID(), newBounds.x, newBounds.y, newBounds.width, newBounds.height);
 			
 			
-			this.invalidatePaint();
-			this.repaint();
-			getDecoratedGroup().repaint();
+			//this.invalidatePaint();
+			CalicoDraw.invalidatePaint(this);
+			//this.repaint();
+			CalicoDraw.repaint(this);
+			//getDecoratedGroup().repaint();
+			CalicoDraw.repaint(getDecoratedGroup());
 		}
 		super.recomputeBounds();
 	}
@@ -302,7 +310,8 @@ public class CListDecorator extends CGroupDecorator {
 				continue;
 			bounds = icon.getBounds().getBounds();
 			bounds.translate(x, y);
-			icon.setBounds(bounds);
+			//icon.setBounds(bounds);
+			CalicoDraw.setNodeBounds(icon, bounds);
 		}
 	}
 	
@@ -541,6 +550,12 @@ public class CListDecorator extends CGroupDecorator {
 
 	private long[] orderByYAxis(long[] listItems)
 	{
+		//When deleting lists, the paint may occur after the list items have been deleted.
+		//If this happens we just return an empty array;
+		if (listItems == null)
+		{
+			return null;
+		}
 		int[] yValues = new int[listItems.length];
 		
 		//copy Y values to array to sort

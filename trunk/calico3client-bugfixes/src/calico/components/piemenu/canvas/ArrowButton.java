@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.components.AnchorPoint;
 import calico.components.CArrow;
 import calico.components.CCanvas;
@@ -78,7 +79,8 @@ public class ArrowButton extends PieMenuButton
 					new AnchorPoint(CArrow.TYPE_CANVAS, cuuid, scaledStartPoint),
 					new AnchorPoint(CArrow.TYPE_CANVAS, cuuid, scaledPoint)
 				);
-				CCanvasController.canvasdb.get(cuuid).getLayer().addChild(tempArrow);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().addChild(tempArrow);
+				CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuuid).getLayer(), tempArrow);
 			}
 			else
 			{
@@ -145,7 +147,8 @@ public class ArrowButton extends PieMenuButton
 					tempArrow.getAnchorB()
 				);
 				
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(tempArrow);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(tempArrow);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), tempArrow);
 				
 				tempArrow = null;
 			}

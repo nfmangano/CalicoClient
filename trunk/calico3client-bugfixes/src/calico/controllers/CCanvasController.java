@@ -17,10 +17,12 @@ import org.apache.log4j.Logger;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CArrow;
 import calico.components.CCanvas;
 import calico.components.CCanvas.ContentContributor;
+import calico.components.CCanvas.Layer;
 import calico.components.CCanvasWatermark;
 import calico.components.CGroup;
 import calico.components.CStroke;
@@ -125,7 +127,8 @@ public class CCanvasController
 		{
 			for (int i = 0; i < strokes.length; i++)
 			{
-				CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CStrokeController.strokes.get(strokes[i]));
 				CStrokeController.no_notify_delete(strokes[i]);
 			}
 		}
@@ -134,7 +137,8 @@ public class CCanvasController
 		{
 			for (int i = 0; i < arrows.length; i++)
 			{
-				CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CArrowController.arrows.get(arrows[i]));
 				CGroupController.no_notify_delete(arrows[i]);
 			}
 		}
@@ -395,7 +399,8 @@ public class CCanvasController
 		// add to the painter
 		if (addToPiccolo)
 		{
-			canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+			//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+			CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CStrokeController.strokes.get(uuid));
 		}
 	}
 
@@ -435,21 +440,24 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildStroke(((CStroke) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 				else if (childobj instanceof CGroup)
 				{
 					if (!canvasdb.get(cuids[i]).hasChildGroup(((CGroup) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 				else if (childobj instanceof CArrow)
 				{
 					if (!canvasdb.get(cuids[i]).hasChildArrow(((CArrow) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 
@@ -661,8 +669,8 @@ public class CCanvasController
 
 		void notifyContentChanged(ContentContributor changeContributor, long canvas_uuid)
 		{
-			System.out.println("Content changed on canvas " + canvasdb.get(canvas_uuid).getGridCoordTxt() + "; it is "
-					+ (CCanvasController.hasContent(canvas_uuid) ? "not empty" : "now empty"));
+			//System.out.println("Content changed on canvas " + canvasdb.get(canvas_uuid).getGridCoordTxt() + "; it is "
+					//+ (CCanvasController.hasContent(canvas_uuid) ? "not empty" : "now empty"));
 
 			synchronized (changedCanvasIds)
 			{

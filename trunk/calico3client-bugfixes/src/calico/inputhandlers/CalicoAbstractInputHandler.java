@@ -91,9 +91,11 @@ public abstract class CalicoAbstractInputHandler
 				final PPath arc = new PPath(arcShape);
 				arc.setStroke(new BasicStroke(3.0f));
 				arc.setStrokePaint(CalicoOptions.pen.press_and_hold_menu_animation_color);
-				arc.setTransparency(0.7f);
+				//arc.setTransparency(0.7f);
+				CalicoDraw.setNodeTransparency(arc, 0.7f);
 				
-				canvasToPaintTo.addChild(arc);
+				//canvasToPaintTo.addChild(arc);
+				CalicoDraw.addChildToNode(canvasToPaintTo, arc);
 				PActivity flash = new PActivity(CalicoOptions.pen.press_and_hold_menu_animation_duration, CalicoOptions.pen.press_and_hold_menu_animation_tick_rate, System.currentTimeMillis()) {
 					long step = 0;
 		      
@@ -144,7 +146,8 @@ public abstract class CalicoAbstractInputHandler
 				    }
 				};
 				// Must schedule the activity with the root for it to run.
-				arc.getRoot().addActivity(flash);
+				//arc.getRoot().addActivity(flash);
+				CalicoDraw.addActivityToNode(arc, flash);
 	
 				return false;
 			}
@@ -193,8 +196,10 @@ public abstract class CalicoAbstractInputHandler
 		{
 			this.modeIconLocation = new Point(showLocation.x, showLocation.y); 
 			this.modeIcon.setBounds(showLocation.getX()-16, showLocation.getY()-16, 16, 16);
-			this.modeIcon.setPaintInvalid(true);
-			CCanvasController.canvasdb.get(this.canvas_uid).getLayer().addChild(this.modeIcon);
+			//this.modeIcon.setPaintInvalid(true);
+			CalicoDraw.setNodePaintInvalid(this.modeIcon, true);
+			//CCanvasController.canvasdb.get(this.canvas_uid).getLayer().addChild(this.modeIcon);
+			CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(this.canvas_uid).getLayer(), this.modeIcon);
 //			CCanvasController.canvasdb.get(this.canvas_uid).getLayer().repaint();
 			this.isModeIconShowing = true;
 		}
@@ -211,7 +216,8 @@ public abstract class CalicoAbstractInputHandler
 		{
 			return;
 		}	
-		this.modeIcon.removeFromParent();
+		//this.modeIcon.removeFromParent();
+		CalicoDraw.removeNodeFromParent(this.modeIcon);
 		this.isModeIconShowing = false;
 	}
 	

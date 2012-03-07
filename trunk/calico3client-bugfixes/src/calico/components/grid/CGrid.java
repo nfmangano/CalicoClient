@@ -16,6 +16,7 @@ import java.util.Date;
 import javax.swing.JComponent;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.components.menus.GridBottomMenuBar;
@@ -186,7 +187,8 @@ public class CGrid
 			headerIcon.setTextPaint(Color.BLACK);
 			Rectangle textBounds = Geometry.getTextBounds(headerIcon.getText(), headerIcon.getFont());
 			headerIcon.setBounds(leftHeaderIconWidth + imgw*(i+1) - imgw/2 - textBounds.width/2,5,textBounds.width,textBounds.height);
-			getLayer().addChild(0,headerIcon);	
+			//getLayer().addChild(0,headerIcon);	
+			CalicoDraw.addChildToNode(getLayer(), headerIcon, 0);
 		}
 		
 		for (int i = 0; i < CalicoDataStore.GridRows; i++)
@@ -197,7 +199,8 @@ public class CGrid
 			headerIcon.setTextPaint(Color.BLACK);
 			Rectangle textBounds = Geometry.getTextBounds(headerIcon.getText(), headerIcon.getFont());
 			headerIcon.setBounds(5,topHeaderIconHeight + imgh*(i+1) - imgh/2 - textBounds.width/2,textBounds.width,textBounds.height);
-			getLayer().addChild(0,headerIcon);	
+			//getLayer().addChild(0,headerIcon);	
+			CalicoDraw.addChildToNode(getLayer(), headerIcon, 0);
 		}
 
 		//sets the initial sizes of the viewports in the viewport controller
@@ -205,27 +208,32 @@ public class CGrid
 
 		long[] canvasuids = CCanvasController.getCanvasIDList();
 		cellLayer = new PLayer();	
-		for(int can=0;can<canvasuids.length;can++)
+
+		/*for(int can=0;can<canvasuids.length;can++)
 		{
 			long canuuid = canvasuids[can];
 			CGridCell img = new CGridCell(canuuid, cellindex,30,30,imgw,imgh);
 			cellLayer.addChild(img);
 			cells.put(canuuid, img);			
 			cellindex++;
-		}
-		getLayer().addChild(cellLayer);
+		}*/
+		//getLayer().addChild(cellLayer);
+		
+		//Frankly, there is no need to add this one grid cell right now because they all get added later. 
+		//Some other code above is useless but this takes care of what the user sees.
+		//CalicoDraw.addChildToNode(getLayer(), cellLayer);
 		repaint();
 	}
 	
 	
 	public void refreshCells(){
 		cells = new Long2ReferenceOpenHashMap<CGridCell>();
-		getLayer().removeChild(cellLayer);
+		//getLayer().removeChild(cellLayer);
+		CalicoDraw.removeChildFromNode(getLayer(), cellLayer);
 		cellLayer = new PLayer();
 		int cellindex = 0;
 
 		long[] canvasuids = CCanvasController.getCanvasIDList();
-			
 		for(int can=0;can<canvasuids.length;can++)
 		{
 			long canuuid = canvasuids[can];
@@ -234,7 +242,8 @@ public class CGrid
 			cells.put(canuuid, img);;
 			cellindex++;
 		}
-		getLayer().addChild(cellLayer);
+		//getLayer().addChild(cellLayer);
+		CalicoDraw.addChildToNode(getLayer(), cellLayer);
 		//drawBottomToolbar();
 		repaint();
 	}
@@ -242,11 +251,13 @@ public class CGrid
 	public void drawBottomToolbar()
 	{		
 		GridBottomMenuBar temp = new GridBottomMenuBar(1L);
-		getCamera().addChild(temp);
+		//getCamera().addChild(temp);
+		CalicoDraw.addChildToNode(getCamera(), temp);
 		
 		if(this.menuBar!=null)
 		{
-			getCamera().removeChild(this.menuBar);
+			//getCamera().removeChild(this.menuBar);
+			CalicoDraw.removeChildFromNode(getCamera(), this.menuBar);
 			this.menuBar = null;
 		}
 		
@@ -324,8 +335,10 @@ public class CGrid
 			pressedCellMainImage =  new PImage(img);
 			
 			pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);
-			pressedCellMainImage.setTransparency(CalicoOptions.group.background_transparency);
-			getLayer().addChild(pressedCellMainImage);
+			//pressedCellMainImage.setTransparency(CalicoOptions.group.background_transparency);
+			CalicoDraw.setNodeTransparency(pressedCellMainImage, CalicoOptions.group.background_transparency);
+			//getLayer().addChild(pressedCellMainImage);
+			CalicoDraw.addChildToNode(getLayer(), pressedCellMainImage);
 			cuidDraggedCanvas=cuid;			
 		}
 	}
@@ -335,7 +348,8 @@ public class CGrid
 	 */
 	public void removeDraggedCell(){
 		if(pressedCellMainImage!=null){
-			getLayer().removeChild(pressedCellMainImage);
+			//getLayer().removeChild(pressedCellMainImage);
+			CalicoDraw.removeChildFromNode(getLayer(), pressedCellMainImage);
 			pressedCellMainImage=null;
 			draggingCell=false;
 			cuidDraggedCanvas=0l;
@@ -349,7 +363,8 @@ public class CGrid
 	 * @param y the new y point to drag to
 	 */
 	public void moveDraggedCell(int x, int y){
-		pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);		
+		//pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);		
+		CalicoDraw.setNodeBounds(pressedCellMainImage, x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);
 	}
 
 
@@ -409,7 +424,8 @@ public class CGrid
 	public void drawClientList(Rectangle boundingBox) {
 		
 		if(this.clientListPopup!=null) {
-			this.clientListPopup.removeFromParent();
+			//this.clientListPopup.removeFromParent();
+			CalicoDraw.removeNodeFromParent(this.clientListPopup);
 			CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
 			this.clientListPopup = null;
 			return;
@@ -486,9 +502,11 @@ public class CGrid
 		this.clientListPopup.setBounds(bounds);
 		
 
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		CalicoDraw.addChildToNode(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera(), this.clientListPopup, 0);
 		CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().repaint();
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().repaint();
+		CalicoDraw.repaint(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera());
 		
 		Rectangle newBounds = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height+padding);
 	}
@@ -507,7 +525,7 @@ public class CGrid
 	public static void loadGrid()
 	{
 		CalicoDataStore.gridObject = CGrid.getInstance();
-		CalicoDataStore.gridObject.refreshCells();
+		//CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();

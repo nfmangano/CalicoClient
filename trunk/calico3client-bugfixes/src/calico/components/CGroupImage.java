@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 
 import sun.java2d.pipe.AlphaColorPipe;
 
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.controllers.CImageController;
 import calico.networking.netstuff.CalicoPacket;
@@ -144,7 +145,8 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		// redrawAll();
 		// this.setPaintInvalid(true);
 		// CCanvasController.canvasdb.get(cuid).repaint();
-		repaint();
+		//repaint();
+		CalicoDraw.repaint(this);
 		return x == 0 || y == 0;
 	}
 

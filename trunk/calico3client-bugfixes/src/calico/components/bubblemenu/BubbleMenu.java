@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
@@ -74,7 +75,6 @@ public class BubbleMenu {
 	private static void drawBubbleMenu(boolean fade)//, PieMenuButton[] buttons)
 	{
 		bubbleContainer = new BubbleMenuContainer();
-		//bubbleContainer.setTransparency(0);
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
@@ -94,11 +94,11 @@ public class BubbleMenu {
 		    }
 		    
 		    protected void activityFinished() {
-		    		bubbleContainer.setTransparency(1.0f);
+		    	bubbleContainer.setTransparency(1.0f);
 		    }
 		};
 
-		final boolean tempfade = fade;
+		/*final boolean tempfade = fade;
 		final PActivity tempActivity = fadeActivity;
 		final BubbleMenuContainer tempContainer = bubbleContainer;
 		final BubbleMenuHighlighter tempHighlighter = bubbleHighlighter;
@@ -120,7 +120,22 @@ public class BubbleMenu {
 							tempContainer.repaintFrom(tempContainer.getBounds(), tempContainer);
 						}
 					}
-		}});
+		}});*/
+		
+		if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
+			// Must schedule the activity with the root for it to run.
+			if (fade)
+			{
+				//bubbleContainer.getRoot().addActivity(fadeActivity);
+				CalicoDraw.addActivityToNode(bubbleContainer, fadeActivity);
+			}
+			else
+			{
+				//bubbleContainer.setTransparency(1.0f);
+				CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
+				CalicoDraw.repaintNode(bubbleContainer);
+			}
+		}
 	}	
 	
 	public static void moveIconPositions(PBounds groupBounds)
@@ -130,22 +145,25 @@ public class BubbleMenu {
 			Point pos = getButtonPointFromPosition(buttonPosition[i], groupBounds);
 			buttonList.get(i).setPosition(pos);
 
-			bubbleContainer.getChild(i).setBounds(pos.getX(), pos.getY(),
-					bubbleContainer.getChild(i).getWidth(), bubbleContainer.getChild(i).getHeight());	
+			//bubbleContainer.getChild(i).setBounds(pos.getX(), pos.getY(), CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
+			CalicoDraw.setNodeBounds(bubbleContainer.getChild(i), pos.getX(), pos.getY(), CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
 			
 		}
 		updateHighlighterPosition(selectedButtonIndex);
 		updateContainerBounds();
-		bubbleContainer.repaintFrom(BubbleMenu.getContainerBounds(), bubbleContainer);
-		bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), bubbleHighlighter);
+		
+		CalicoDraw.repaintNode(bubbleHighlighter);
+		CalicoDraw.repaintNode(bubbleContainer);
 	}
 	
 	private static void updateHighlighterPosition(int buttonNumber)
 	{
 		if (buttonNumber != -1)
 		{
-			bubbleHighlighter.setX(buttonList.get(buttonNumber).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2));
-			bubbleHighlighter.setY(buttonList.get(buttonNumber).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2));
+			//bubbleHighlighter.setX(buttonList.get(buttonNumber).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2));
+			//bubbleHighlighter.setY(buttonList.get(buttonNumber).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2));
+			CalicoDraw.setNodeX(bubbleHighlighter, buttonList.get(buttonNumber).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2));
+			CalicoDraw.setNodeY(bubbleHighlighter, buttonList.get(buttonNumber).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2));
 		}
 	}
 	
@@ -171,7 +189,7 @@ public class BubbleMenu {
 				updateHighlighterPosition(selectedButtonIndex);
 				
 			}
-			bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), null);
+			CalicoDraw.repaintNode(bubbleHighlighter);
 		}
 	}
 	
@@ -387,15 +405,15 @@ public class BubbleMenu {
 			fadeActivity.terminate();
 		}
 		
-		final BubbleMenuContainer tempContainer = bubbleContainer;
-		final BubbleMenuHighlighter tempHighlighter = bubbleHighlighter;
-		
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
 					tempContainer.removeAllChildren();
 					tempContainer.removeFromParent();
 					tempHighlighter.removeFromParent();
-				}});
+				}});*/
+		CalicoDraw.removeAllChildrenFromNode(bubbleContainer);
+		CalicoDraw.removeNodeFromParent(bubbleContainer);
+		CalicoDraw.removeNodeFromParent(bubbleHighlighter);
 		buttonList.clear();
 		buttonPosition = null;
 		bubbleContainer = null;
@@ -437,7 +455,8 @@ public class BubbleMenu {
 		}
 		
 		
-		bubbleContainer.setBounds(new Rectangle2D.Double(lowX, lowY, highX - lowX, highY - lowY));
+		//bubbleContainer.setBounds(new Rectangle2D.Double(lowX, lowY, highX - lowX, highY - lowY));
+		CalicoDraw.setNodeBounds(bubbleContainer, new Rectangle2D.Double(lowX, lowY, highX - lowX, highY - lowY));
 	}
 
 	public static boolean checkIfCoordIsOnBubbleMenu(Point point)
@@ -531,7 +550,7 @@ public class BubbleMenu {
 	public static void setHaloEnabled(boolean enable)
 	{
 		getButton(selectedButtonIndex).setHaloEnabled(enable);
-		bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), bubbleHighlighter);
+		CalicoDraw.repaintNode(bubbleHighlighter);
 	}
 	
 	public static Ellipse2D.Double getButtonHalo(int buttonIndex)

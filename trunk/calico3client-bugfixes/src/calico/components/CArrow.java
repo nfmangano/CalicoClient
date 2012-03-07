@@ -49,9 +49,9 @@ public class CArrow extends PComposite
 	private AnchorPoint anchorA = null;
 	private AnchorPoint anchorB = null;
 	
-	private PPath arrowHeadA = null;
-	private PPath arrowHeadB = null;
-	private PLine arrowLine = null;
+	//private PPath arrowHeadA = null;
+	//private PPath arrowHeadB = null;
+	//private PLine arrowLine = null;
 
 	private int arrowType = TYPE_NORM_HEAD_B;
 	
@@ -313,9 +313,10 @@ public class CArrow extends PComposite
 		CCanvasController.canvasdb.get(canvasUID).removeChildArrow(uuid);
 		
 		//This line is not thread safe so must invokeLater to prevent eraser artifacts.
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { removeFromParent(); } }
-		);
+		);*/
+		CalicoDraw.removeNodeFromParent(this);
 		//removeFromParent();
 	}
 	
@@ -341,63 +342,82 @@ public class CArrow extends PComposite
 	}
 	public void redraw(boolean repaint)
 	{
-		this.removeAllChildren();
-
+		//this.removeAllChildren();
+		CalicoDraw.removeAllChildrenFromNode(this);
+		
+		final PPath arrowHeadA = new PPath();
+		final PPath arrowHeadB = new PPath();
+		final PLine arrowLine = new PLine();
+		final Color arrowColor = this.color;
 		
 		if(arrowType==CArrow.TYPE_NORM_HEAD_AB || arrowType==CArrow.TYPE_NORM_HEAD_A)
 		{
-			arrowHeadA = null;
-			
-			int[] apoints = Geometry.createArrow(
+			final int[] apoints = Geometry.createArrow(
 					anchorB.getPoint().x, anchorB.getPoint().y, 
 					anchorA.getPoint().x, anchorA.getPoint().y,
 					CalicoOptions.arrow.length, CalicoOptions.arrow.angle, CalicoOptions.arrow.inset);
 			
 			
-			arrowHeadA = new PPath();
-			arrowHeadA.moveTo((float)apoints[0], (float)apoints[1]);
-			for(int i=2;i<apoints.length;i=i+2)
-			{
-				arrowHeadA.lineTo((float)apoints[i], (float)apoints[i+1]);
-			}
-			arrowHeadA.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
-			arrowHeadA.setStrokePaint(this.color);
-			arrowHeadA.setPaint(this.color);
+			//arrowHeadA = new PPath();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						arrowHeadA.moveTo((float)apoints[0], (float)apoints[1]);
+						for(int i=2;i<apoints.length;i=i+2)
+						{
+							arrowHeadA.lineTo((float)apoints[i], (float)apoints[i+1]);
+						}
+						arrowHeadA.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
+						arrowHeadA.setStrokePaint(arrowColor);
+						arrowHeadA.setPaint(arrowColor);
+					}});
 			
-			this.addChild(0,arrowHeadA);
+			//this.addChild(0,arrowHeadA);
+			CalicoDraw.addChildToNode(this, arrowHeadA, 0);
 		}
 		if(arrowType==CArrow.TYPE_NORM_HEAD_AB || arrowType==CArrow.TYPE_NORM_HEAD_B)
 		{
-			int[] bpoints = Geometry.createArrow(
+			final int[] bpoints = Geometry.createArrow(
 					anchorA.getPoint().x, anchorA.getPoint().y, 
 					anchorB.getPoint().x, anchorB.getPoint().y,
 					CalicoOptions.arrow.length, CalicoOptions.arrow.angle, CalicoOptions.arrow.inset);
 			
-			arrowHeadB = new PPath();
-			arrowHeadB.moveTo((float)bpoints[0], (float)bpoints[1]);
-			for(int i=2;i<bpoints.length;i=i+2)
-			{
-				arrowHeadB.lineTo((float)bpoints[i], (float)bpoints[i+1]);
-			}
-			arrowHeadB.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
-			arrowHeadB.setStrokePaint(this.color);
-			arrowHeadB.setPaint(this.color);
-			this.addChild(0,arrowHeadB);
+			//arrowHeadB = new PPath();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						arrowHeadB.moveTo((float)bpoints[0], (float)bpoints[1]);
+						for(int i=2;i<bpoints.length;i=i+2)
+						{
+							arrowHeadB.lineTo((float)bpoints[i], (float)bpoints[i+1]);
+						}
+						arrowHeadB.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
+						arrowHeadB.setStrokePaint(arrowColor);
+						arrowHeadB.setPaint(arrowColor);
+					}});
+			//this.addChild(0,arrowHeadB);
+			CalicoDraw.addChildToNode(this, arrowHeadB, 0);
 		}
 	
-		arrowLine = new PLine();
-		arrowLine.addPoint(0, anchorA.getPoint().x, anchorA.getPoint().y);
-		arrowLine.addPoint(1, anchorB.getPoint().x, anchorB.getPoint().y);
-		arrowLine.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
-		arrowLine.setStrokePaint(this.color);
-		arrowLine.setPaint(this.color);
+		//arrowLine = new PLine();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					arrowLine.addPoint(0, anchorA.getPoint().x, anchorA.getPoint().y);
+					arrowLine.addPoint(1, anchorB.getPoint().x, anchorB.getPoint().y);
+					arrowLine.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
+					arrowLine.setStrokePaint(arrowColor);
+					arrowLine.setPaint(arrowColor);
+				}});
 		
-		this.addChild(0,arrowLine);
+		//this.addChild(0,arrowLine);
+		CalicoDraw.addChildToNode(this, arrowLine, 0);
 		
-		this.repaint();
+		//this.repaint();
+		//CalicoDraw.repaint(this);
+		
 		if(repaint)
 		{
-			this.setPaintInvalid(true);
+			//CalicoDraw.repaintNode(this);
+			//this.setPaintInvalid(true);
+			//CalicoDraw.setNodePaintInvalid(this, true);
 			//CCanvasController.canvasdb.get(canvasUID).repaint();
 		}
 		//createPointPath();
