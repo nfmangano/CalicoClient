@@ -3,6 +3,8 @@ package calico.inputhandlers.canvas;
 import calico.*;
 
 import calico.components.*;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.menus.*;

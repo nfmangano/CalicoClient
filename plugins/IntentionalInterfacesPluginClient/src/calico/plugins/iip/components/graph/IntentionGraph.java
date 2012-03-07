@@ -4,17 +4,20 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import javax.swing.JComponent;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.components.grid.CGrid;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
+import calico.plugins.iip.components.menus.IntentionGraphZoomSlider;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -23,17 +26,31 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 public class IntentionGraph
 {
+	public enum Layer
+	{
+		CONTENT(0),
+		TOOLS(1);
+
+		public final int id;
+
+		private Layer(int id)
+		{
+			this.id = id;
+		}
+	}
+
 	public static IntentionGraph getInstance()
 	{
 		if (INSTANCE == null)
 		{
 			new IntentionGraph();
 		}
-		INSTANCE.repaint();
 		return INSTANCE;
 	}
 
 	private static IntentionGraph INSTANCE;
+
+	private final PLayer toolLayer = new PLayer();
 
 	private final ContainedCanvas canvas = new ContainedCanvas();
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
@@ -62,7 +79,10 @@ public class IntentionGraph
 
 		repaint();
 
-		canvas.getCamera().addChild(contentCanvas.getLayer());
+		PLayer contentLayer = contentCanvas.getLayer();
+		toolLayer.setParent(contentLayer.getParent());
+		canvas.getCamera().addLayer(Layer.CONTENT.id, contentLayer);
+		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 
 		drawMenuBar();
 	}
@@ -72,9 +92,17 @@ public class IntentionGraph
 		return uuid;
 	}
 
-	public PLayer getLayer()
+	public PLayer getLayer(Layer layer)
 	{
-		return contentCanvas.getLayer();
+		switch (layer)
+		{
+			case CONTENT:
+				return contentCanvas.getLayer();
+			case TOOLS:
+				return toolLayer;
+			default:
+				throw new IllegalArgumentException("Unknown layer " + layer);
+		}
 	}
 
 	public JComponent getComponent()
@@ -118,19 +146,30 @@ public class IntentionGraph
 
 		if (visibleCount < 2)
 		{
-			return;
+			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX, minY));
+		}
+		else
+		{
+			Dimension canvasSize = contentCanvas.getBounds().getSize();
+			double xRatio = canvasSize.width / (maxX - minX);
+			double yRatio = canvasSize.height / (maxY - minY);
+
+			double scale = Math.min(xRatio, yRatio) * 0.9;
+			contentCanvas.getLayer().setScale(scale);
+			double contentWidth = maxX - minX;
+			double contentHeight = maxY - minY;
+			double xMargin = (contentWidth * (xRatio - scale)) / 2;
+			double yMargin = (contentHeight * (yRatio - scale)) / 2;
+
+			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(xMargin - minX, yMargin - minY));
 		}
 
-		Rectangle contentBounds = contentCanvas.getBounds();
-		double xRatio = contentBounds.width / (maxX - minX);
-		double yRatio = contentBounds.height / (maxY - minY);
-
-		double scale = Math.min(xRatio, yRatio) * 0.9;
-		contentCanvas.getLayer().setScale(scale);
-		contentBounds = contentCanvas.getBounds();
-		Point2D center = new Point2D.Double(minX + ((maxX - minX) / 2), minY + ((maxY - minY) / 2));
-		Point2D origin = new Point2D.Double((center.getX() * scale) - (contentBounds.width / 2), (center.getY() * scale) - (contentBounds.height / 2));
-		contentCanvas.getLayer().translate(-origin.getX(), -origin.getY());
+		repaint();
+	}
+	
+	public void initialize()
+	{
+		menuBar.initialize();
 	}
 
 	public void repaint()
@@ -142,6 +181,14 @@ public class IntentionGraph
 	public Rectangle getBounds()
 	{
 		return canvas.getBounds();
+	}
+
+	public Rectangle getLocalBounds(Layer layer)
+	{
+		Rectangle globalBounds = canvas.getBounds();
+		Point2D localPoint = getLayer(layer).globalToLocal(globalBounds.getLocation());
+		Dimension2D localSize = getLayer(layer).globalToLocal(globalBounds.getSize());
+		return new Rectangle((int) localPoint.getX(), (int) localPoint.getY(), (int) localSize.getWidth(), (int) localSize.getHeight());
 	}
 
 	public void setBounds(int x, int y, int w, int h)

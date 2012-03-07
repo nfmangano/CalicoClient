@@ -6,6 +6,8 @@ import calico.*;
 import calico.networking.*;
 import calico.networking.netstuff.*;
 import calico.components.*;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.inputhandlers.CalicoInputManager;
 import calico.modules.*;
 

@@ -56,6 +56,8 @@ import org.shodor.util11.PolygonUtils;
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.CalicoUtils;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.piemenu.PieMenu;

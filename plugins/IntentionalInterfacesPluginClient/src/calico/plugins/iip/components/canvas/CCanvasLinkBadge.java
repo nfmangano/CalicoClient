@@ -1,26 +1,32 @@
 package calico.plugins.iip.components.canvas;
 
 import calico.Calico;
-import calico.components.CGroupImage;
-import calico.iconsets.CalicoIconManager;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
-import calico.plugins.iip.components.CCanvasLink.LinkDirection;
+import calico.plugins.iip.util.IntentionalInterfacesGraphics;
+import edu.umd.cs.piccolo.nodes.PImage;
 
-public class CCanvasLinkBadge extends CGroupImage
+public class CCanvasLinkBadge
 {
 	public static final double BADGE_WIDTH = 30.0;
 	public static final double BADGE_HEIGHT = 30.0;
-	
-	private final CCanvasLinkAnchor link;
+
+	private final long uuid;
+
+	private final CCanvasLinkAnchor anchor;
 	private final CCanvasLink.LinkDirection direction;
 
-	public CCanvasLinkBadge(CCanvasLinkAnchor link)
-	{ 
-		super(Calico.uuid(), link.getCanvasId(), link.getLink().getLinkType().image);
-		
-		this.link = link;
-		if (link.getCanvasId() == link.getLink().getAnchorA().getCanvasId())
+	private PImage image;
+
+	public CCanvasLinkBadge(CCanvasLinkAnchor anchor)
+	{
+		uuid = Calico.uuid();
+
+		this.anchor = anchor;
+
+		updateImage();
+
+		if (anchor.getCanvasId() == anchor.getLink().getAnchorA().getCanvasId())
 		{
 			direction = CCanvasLink.LinkDirection.OUTGOING;
 		}
@@ -29,19 +35,29 @@ public class CCanvasLinkBadge extends CGroupImage
 			direction = CCanvasLink.LinkDirection.INCOMING;
 		}
 	}
-	
+
 	public long getId()
 	{
-		return getUUID();
+		return uuid;
 	}
-	
-	public CCanvasLinkAnchor getLink()
+
+	public CCanvasLinkAnchor getLinkAnchor()
 	{
-		return link;
+		return anchor;
 	}
-	
+
 	public CCanvasLink.LinkDirection getDirection()
 	{
 		return direction;
+	}
+
+	public PImage getImage()
+	{
+		return image;
+	}
+
+	public void updateImage()
+	{
+		image = new PImage(IntentionalInterfacesGraphics.superimposeCellAddress(anchor.getLink().getLinkType().image, anchor.getOpposite().getCanvasId()));
 	}
 }

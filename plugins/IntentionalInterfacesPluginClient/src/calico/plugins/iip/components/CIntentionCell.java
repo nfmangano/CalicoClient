@@ -1,15 +1,18 @@
 package calico.plugins.iip.components;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import calico.components.CCanvas;
+import calico.components.grid.CGrid;
+import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
@@ -21,22 +24,58 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 public class CIntentionCell
 {
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
+	private static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
+	private static final Color COORDINATES_COLOR = Color.blue;
+
+	private enum BorderColor
+	{
+		PLAIN(Color.black),
+		HIGHLIGHTED(new Color(0xFFFF30));
+
+		Color color;
+
+		private BorderColor(Color color)
+		{
+			this.color = color;
+		}
+	}
 
 	long uuid;
 	long canvas_uuid;
 	Point2D location;
+	boolean inUse;
+
+	private boolean highlighted = false;
 
 	private final Shell shell;
 
-	public CIntentionCell(long uuid, long canvas_uuid, double x, double y)
+	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, Point2D location)
 	{
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
-		this.location = new Point2D.Double(x, y);
+		this.inUse = inUse;
+		this.location = location;
 
-		shell = new Shell(x, y);
+		shell = new Shell(location.getX(), location.getY());
 
-		IntentionGraph.getInstance().getLayer().addChild(shell);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
+	}
+
+	public void initialize()
+	{
+		shell.updateContents();
+	}
+
+	private Color currentBorderColor()
+	{
+		if (highlighted)
+		{
+			return BorderColor.HIGHLIGHTED.color;
+		}
+		else
+		{
+			return BorderColor.PLAIN.color;
+		}
 	}
 
 	public long getId()
@@ -49,10 +88,20 @@ public class CIntentionCell
 		return canvas_uuid;
 	}
 
-	public boolean contains(Point point)
+	public boolean isInUse()
+	{
+		return inUse;
+	}
+
+	public void setInUse(boolean inUse)
+	{
+		this.inUse = inUse;
+	}
+
+	public boolean contains(Point2D point)
 	{
 		PBounds bounds = shell.getGlobalBounds();
-		return ((point.x > bounds.x) && (point.y > bounds.y) && ((point.x - bounds.x) < bounds.width) && (point.y - bounds.y) < bounds.height);
+		return ((point.getX() > bounds.x) && (point.getY() > bounds.y) && ((point.getX() - bounds.x) < bounds.width) && (point.getY() - bounds.y) < bounds.height);
 	}
 
 	public Point2D getLocation()
@@ -60,14 +109,27 @@ public class CIntentionCell
 		return shell.getBounds().getOrigin();
 	}
 
+	public Point2D getCenter()
+	{
+		return shell.getBounds().getCenter2D();
+	}
+
 	public void setLocation(double x, double y)
 	{
-		System.out.println("Move cell " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt() + " to " + x + ", " + y);
-
 		location.setLocation(x, y);
 		shell.setBounds(x, y, shell.getBounds().getWidth(), shell.getBounds().getHeight());
 
 		shell.repaint();
+	}
+
+	public Dimension2D getSize()
+	{
+		return shell.getBounds().getSize();
+	}
+
+	public PBounds copyBounds()
+	{
+		return (PBounds) shell.getBounds().clone();
 	}
 
 	public boolean isVisible()
@@ -78,13 +140,18 @@ public class CIntentionCell
 	public void setVisible(boolean b)
 	{
 		shell.setVisible(b);
+		shell.repaint();
+	}
 
-		System.out.println((b ? "Showing" : "Hiding") + " a CIC: " + CIntentionCellController.getInstance().listVisibleCellAddresses());
+	public void setHighlighted(boolean highlighted)
+	{
+		this.highlighted = highlighted;
+		shell.repaint();
 	}
 
 	public boolean isInGraphFootprint()
 	{
-		return IntentionGraph.getInstance().getBounds().intersects(shell.getBounds());
+		return IntentionGraph.getInstance().getLocalBounds(IntentionGraph.Layer.CONTENT).intersects(shell.getBounds());
 	}
 
 	public void contentsChanged()
@@ -94,7 +161,7 @@ public class CIntentionCell
 
 	private boolean scaleAllowsSnapshot()
 	{
-		return IntentionGraph.getInstance().getLayer().getScale() >= MINIMUM_SNAPSHOT_SCALE;
+		return IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() >= MINIMUM_SNAPSHOT_SCALE;
 	}
 
 	private static final int BORDER_WIDTH = 1;
@@ -114,19 +181,18 @@ public class CIntentionCell
 					CalicoIconManager.getIconImage("intention-graph.obscured-intention-cell"), canvas_uuid));
 
 			addChild(canvasAddress);
-			setBounds(x, y, canvasAddress.getWidth() + (2 * BORDER_WIDTH), canvasAddress.getHeight() + (2 * BORDER_WIDTH));
-			// canvasAddress.setBounds(shell.getBounds());
+			setBounds(x, y, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance().getImgh()
+					- (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
 			repaint();
 
-			IntentionGraph.getInstance().getLayer().addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 		}
 
-		@Override
-		public void propertyChange(PropertyChangeEvent event)
+		void updateContents()
 		{
-			if (IntentionGraph.getInstance().getLayer().getScale() != lastScale)
+			if (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() != lastScale)
 			{
-				lastScale = IntentionGraph.getInstance().getLayer().getScale();
+				lastScale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 
 				if (showingSnapshot != scaleAllowsSnapshot())
 				{
@@ -152,6 +218,12 @@ public class CIntentionCell
 		}
 
 		@Override
+		public void propertyChange(PropertyChangeEvent event)
+		{
+			updateContents();
+		}
+
+		@Override
 		protected void paint(PPaintContext paintContext)
 		{
 			super.paint(paintContext);
@@ -160,11 +232,12 @@ public class CIntentionCell
 			Color c = g.getColor();
 			PBounds bounds = getBounds();
 
-			g.setColor(Color.black);
+			g.setColor(currentBorderColor());
 			g.translate(bounds.x, bounds.y);
-			g.drawRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1);
-			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, 16);
-			
+			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 10, 10);
+			IntentionalInterfacesGraphics
+					.superimposeCellAddressInCorner(g, canvas_uuid, bounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT, COORDINATES_COLOR);
+
 			g.translate(-bounds.x, -bounds.y);
 			g.setColor(c);
 		}
@@ -214,11 +287,18 @@ public class CIntentionCell
 
 		private void updateSnapshot()
 		{
-			snapshot.setImage(CCanvasController.canvasdb.get(canvas_uuid).getContentCamera().toImage());
+			long start = System.currentTimeMillis();
+
+			CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
+
+			snapshot.setImage(canvas.getContentCamera().toImage());
 			snapshot.setBounds(shell.getBounds());
 			isDirty = false;
-			
+
 			snapshot.repaint();
+
+			System.out.println("CIntentionCell for canvas " + canvas.getGridCoordTxt() + " took a new snapshot in " + (System.currentTimeMillis() - start)
+					+ "ms");
 		}
 	}
 }
