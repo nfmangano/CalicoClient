@@ -6,6 +6,7 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.modules.StatusMessage;
 import calico.components.*;
+import calico.components.arrow.CArrow;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;

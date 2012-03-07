@@ -38,6 +38,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.HttpEntity;
@@ -55,6 +56,8 @@ import org.shodor.util11.PolygonUtils;
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.CalicoUtils;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.piemenu.PieMenu;
@@ -204,9 +207,9 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
-		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
+		//pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class);
-		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
+		//pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
 		return pieMenuButtons;
 	}
 	
@@ -229,9 +232,9 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
-		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
+		//pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
-		pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
+		//pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
 		return pieMenuButtons;
 	}
 
@@ -2024,14 +2027,13 @@ public class CGroup extends PPath implements Serializable {
 		long[] grouparr = CCanvasController.canvasdb.get(cuid).getChildGroups();
 		if (grouparr.length > 0) {
 			for (int i = 0; i < grouparr.length; i++) {
-				if (!CGroupController.exists(grouparr[i]))
+				if (!CGroupController.exists(grouparr[i]) || !CGroupController.groupdb.get(grouparr[i]).isPermanent())
 					continue;
 				if (grouparr[i] != this.uuid
-						&& smallestGroupArea > CGroupController.groupdb.get(
-								grouparr[i]).getArea()
-						&& CGroupController.canParentChild(grouparr[i], this.uuid, x, y)) {
-					smallestGroupArea = CGroupController.groupdb
-							.get(grouparr[i]).getArea();
+						&& smallestGroupArea > CGroupController.groupdb.get(grouparr[i]).getArea()
+						&& CGroupController.canParentChild(grouparr[i], this.uuid, x, y)) 
+				{
+					smallestGroupArea = CGroupController.groupdb.get(grouparr[i]).getArea();
 					smallestGUID = grouparr[i];
 				}
 			}
@@ -2132,24 +2134,45 @@ public class CGroup extends PPath implements Serializable {
 		moveInFrontOfInternal();
 		
 		long[] cgroups = this.childGroups.toLongArray();
+		
+		final PNode tempNode = this;
+		
 		for (int i = 0; i < childGroups.size(); i++)
 		{
 			if (CGroupController.exists(cgroups[i]))
-				CGroupController.groupdb.get(cgroups[i]).moveInFrontOf(this);
+			{
+				final CGroup tempGroup = CGroupController.groupdb.get(cgroups[i]);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							tempGroup.moveInFrontOf(tempNode);
+						}});
+			}
 		}
 		
 		long[] cstrokes = this.childStrokes.toLongArray();
 		for (int i = 0; i < childStrokes.size(); i++)
 		{
 			if (CStrokeController.exists(cstrokes[i]))
-				CStrokeController.strokes.get(cstrokes[i]).moveInFrontOf(this);
+			{
+				final CStroke tempStroke = CStrokeController.strokes.get(cstrokes[i]);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							tempStroke.moveInFrontOf(tempNode);
+						}});
+			}
 		}
 		
 		long[] carrows = this.childArrows.toLongArray();
 		for (int i = 0; i < childArrows.size(); i++)
 		{
 			if (CArrowController.exists(carrows[i]))
-				CArrowController.arrows.get(carrows[i]).moveInFrontOf(this);
+			{
+				final CArrow tempArrow = CArrowController.arrows.get(carrows[i]);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							tempArrow.moveInFrontOf(tempNode);
+						}});
+			}
 		}
 	}
 	

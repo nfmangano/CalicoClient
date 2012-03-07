@@ -914,6 +914,7 @@ public class CStroke extends PPath
 					continue;
 				
 				if(smallestArea > CGroupController.groupdb.get(groupList[i]).getArea() 
+					&& CGroupController.groupdb.get(groupList[i]).isPermanent()
 					//&& isContainedInPath(CGroupController.groupdb.get(groupList[i]).getPathReference()
 					&& CGroupController.groupdb.get(groupList[i]).canParentChild(this.uuid, (int)Geometry.getMidPoint2D(mousePoints).getX(), (int)Geometry.getMidPoint2D(mousePoints).getY())
 					)

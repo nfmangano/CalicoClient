@@ -6,12 +6,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
+import calico.components.menus.ContextMenu;
 import calico.CalicoOptions;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CGroupController;
@@ -32,6 +35,7 @@ public class BubbleMenu {
 	//worst piece of programming right here --v 
 	public static boolean isPerformingBubbleMenuAction = false;
 	public static long activeGroup = 0l;
+	@Deprecated
 	public static Point lastOpenedPosition = null;
 	
 	//bounds of the active group
@@ -42,7 +46,19 @@ public class BubbleMenu {
 	
 	private static PActivity fadeActivity;
 	
-	public static void displayBubbleMenu(Point location, Long uuid, boolean fade, PieMenuButton... buttons)
+	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
+
+	public static void addListener(ContextMenu.Listener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	public static void removeListener(ContextMenu.Listener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	public static void displayBubbleMenu(Long uuid, boolean fade, PieMenuButton... buttons)
 	{
 		if(bubbleContainer!=null)
 		{
@@ -52,9 +68,9 @@ public class BubbleMenu {
 		activeGroup = uuid;
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
 		CGroupController.groupdb.get(activeGroup).highlight_on();
+		CGroupController.groupdb.get(activeGroup).highlight_repaint();
 		
 		//displayBubbleMenuArray(location, buttons);
-		lastOpenedPosition = location;
 		
 		buttonList.addElements(0, buttons, 0, buttons.length);
 		buttonPosition = new int[buttonList.size()];
@@ -62,6 +78,11 @@ public class BubbleMenu {
 		getIconPositions();
 		
 		drawBubbleMenu(fade);
+		
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuDisplayed(ContextMenu.BUBBLE_MENU);
+		}
 	}
 	
 	/*public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
@@ -77,42 +98,49 @@ public class BubbleMenu {
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
 		
-		final boolean tempFade = fade;
+		fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
+			long step = 0;
+      
+		    protected void activityStep(long time) {
+		            super.activityStep(time);
+
+		            bubbleContainer.setTransparency(1.0f * step/5);
+		            
+//		            repaint();
+		            step++;
+		            
+		            if (step > 5)
+		            	terminate();
+		    }
+		    
+		    protected void activityFinished() {
+		    		bubbleContainer.setTransparency(1.0f);
+		    }
+		};
+
+		final boolean tempfade = fade;
+		final PActivity tempActivity = fadeActivity;
+		final BubbleMenuContainer tempContainer = bubbleContainer;
+		final BubbleMenuHighlighter tempHighlighter = bubbleHighlighter;
+		
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
-		
-				if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
-					fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
-						long step = 0;
-			      
-					    protected void activityStep(long time) {
-					            super.activityStep(time);
-		
-					            bubbleContainer.setTransparency(1.0f * step/5);
-					            
-			//		            repaint();
-					            step++;
-					            
-					            if (step > 5)
-					            	terminate();
-					    }
-					    
-					    protected void activityFinished() {
-					    		bubbleContainer.setTransparency(1.0f);
-					    }
-					};
-					// Must schedule the activity with the root for it to run.
-					if (tempFade)
-					{
-						bubbleContainer.getRoot().addActivity(fadeActivity);
+					tempContainer.setTransparency(0);
+					if(CalicoPerspective.Active.showBubbleMenu(tempHighlighter, tempContainer)){
+						// Must schedule the activity with the root for it to run.
+						if (tempfade)
+						{
+							tempContainer.getRoot().addActivity(tempActivity);
+						}
+						else
+						{
+							//updateContainerBounds();
+							//bubbleContainer.setTransparency(100);
+							tempContainer.setTransparency(1.0f);
+							tempContainer.repaintFrom(tempContainer.getBounds(), tempContainer);
+						}
 					}
-					else
-					{
-						updateContainerBounds();
-						bubbleContainer.repaintFrom(bubbleContainer.getBounds(), bubbleContainer);
-					}
-				}
-				}});
+		}});
 	}	
 	
 	public static void moveIconPositions(PBounds groupBounds)
@@ -179,7 +207,7 @@ public class BubbleMenu {
 		}
 		else if (className.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
 		{
-			return 3;
+			return 12;
 		}
 		else if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
 		{
@@ -205,15 +233,15 @@ public class BubbleMenu {
 		{
 			return 9;
 		}
-		//else if (className.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
-		/*{
+		else if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+		{
 		    return 10;
-		}*/
+		}
 		else if (className.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
 		{
 			return 11;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+		else if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
 		{
 			return 12;
 		}
@@ -328,12 +356,12 @@ public class BubbleMenu {
 				maxX = screenWidth - screenX - iconSize - small - large;
 				maxY = screenHeight - screenYBottom - iconSize;
 			break;
-		case 10: //x = (int)groupBounds.getMinX() - startX + large;
-				 //y = (int)groupBounds.getMaxY() + startY + small;
-				minX = screenX + small + large;
-				minY = screenYTop + farSideDistance + large + small;
-				maxX = screenWidth - screenX - iconSize - farSideDistance;
-				maxY = screenHeight - screenYBottom - iconSize;
+		case 10: x = (int)groupBounds.getMinX() - startX + large;
+				 y = (int)groupBounds.getMaxY() + startY + small;
+				 minX = screenX + small + large;
+				 minY = screenYTop + farSideDistance + large + small;
+				 maxX = screenWidth - screenX - iconSize - farSideDistance;
+				 maxY = screenHeight - screenYBottom - iconSize;
 			break;
 		case 11: x = (int)groupBounds.getMinX() - startX - centerOffset;
 				 y = (int)groupBounds.getMaxY() + startY - centerOffset;
@@ -378,9 +406,16 @@ public class BubbleMenu {
 		{
 			fadeActivity.terminate();
 		}
-		bubbleContainer.removeAllChildren();
-		bubbleContainer.removeFromParent();
-		bubbleHighlighter.removeFromParent();
+		
+		final BubbleMenuContainer tempContainer = bubbleContainer;
+		final BubbleMenuHighlighter tempHighlighter = bubbleHighlighter;
+		
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					tempContainer.removeAllChildren();
+					tempContainer.removeFromParent();
+					tempHighlighter.removeFromParent();
+				}});
 		buttonList.clear();
 		buttonPosition = null;
 		bubbleContainer = null;
@@ -400,6 +435,11 @@ public class BubbleMenu {
 			
 			//		}});
 			activeGroup = 0l;
+		}
+
+		for (ContextMenu.Listener listener : listeners)
+		{
+			listener.menuCleared(ContextMenu.BUBBLE_MENU);
 		}
 	}
 	
@@ -488,7 +528,7 @@ public class BubbleMenu {
 			{
 				
 				//if (getIconSliceBounds(menuRadius, numOfPositions, i).contains(point))
-				if(getButton(i).checkWithinBounds(point) && i == selectedButtonIndex)
+				if(getButtonHalo(i).contains(point) && i == selectedButtonIndex)
 				{
 					getButton(i).onReleased(ev);
 					
@@ -511,6 +551,12 @@ public class BubbleMenu {
 		ev.stop();
 //		ev.getMouseEvent().consume();
 		
+	}
+	
+	public static void setHaloEnabled(boolean enable)
+	{
+		getButton(selectedButtonIndex).setHaloEnabled(enable);
+		bubbleHighlighter.repaintFrom(bubbleHighlighter.getBounds(), bubbleHighlighter);
 	}
 	
 	public static Ellipse2D.Double getButtonHalo(int buttonIndex)

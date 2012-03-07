@@ -19,6 +19,7 @@ public class GroupMoveButton extends PieMenuButton
 	
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
 	private long guuid = 0L;
+	public boolean isActive = false;
 	
 	public GroupMoveButton(long uuid)
 	{
@@ -28,16 +29,12 @@ public class GroupMoveButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
-		//Preemptively delete the original stroke or else bad things will happen.
-		//Race condition?
-		if (CGroupController.originalStroke != 0)
+		if (!CGroupController.exists(guuid) || isActive)
 		{
-			CStrokeController.delete(CGroupController.originalStroke);
-			CGroupController.originalStroke = 0l;
+			return;
 		}
-//		ev.stop();
-//
-//		CGroupController.setCopyUUID(guuid);
+		
+		isActive = true;
 		
 		long canvasUUID = CGroupController.groupdb.get(guuid).getCanvasUID();
 		
@@ -89,48 +86,58 @@ public class GroupMoveButton extends PieMenuButton
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (mouseDownPoint == null)
+			try
 			{
-				prevPoint.x = e.getPoint().x;
-				prevPoint.y = e.getPoint().y;
-				mouseDownPoint = e.getPoint();
-				CGroupController.move_start(guuid);
-			}
-			
-			if (BubbleMenu.activeGroup != 0l)
-			{
-				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_off();
-				CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_repaint();
-			}
-			CGroupController.move(guuid, (int)(e.getPoint().x - prevPoint.x), e.getPoint().y - prevPoint.y);
-			
-			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
-			
-			long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
-			if (smallestParent != BubbleMenu.highlightedParentGroup)
-			{
-				if (BubbleMenu.highlightedParentGroup != 0l)
+				
+				if (mouseDownPoint == null)
 				{
-					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
-					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+					prevPoint.x = e.getPoint().x;
+					prevPoint.y = e.getPoint().y;
+					mouseDownPoint = e.getPoint();
+					CGroupController.move_start(guuid);
 				}
-				if (smallestParent != 0l)
+				
+				if (BubbleMenu.activeGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.activeGroup).highlight_repaint();
+				}
+				CGroupController.move(guuid, (int)(e.getPoint().x - prevPoint.x), e.getPoint().y - prevPoint.y);
+				
+				//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+				
+				long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y);
+				if (smallestParent != BubbleMenu.highlightedParentGroup)
+				{
+					if (BubbleMenu.highlightedParentGroup != 0l)
+					{
+						CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+						CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+					}
+					if (smallestParent != 0l)
+					{
+						CGroupController.groupdb.get(smallestParent).highlight_on();
+						CGroupController.groupdb.get(smallestParent).highlight_repaint();
+					}
+					BubbleMenu.highlightedParentGroup = smallestParent;
+				}
+				
+				/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
 				{
 					CGroupController.groupdb.get(smallestParent).highlight_on();
-					CGroupController.groupdb.get(smallestParent).highlight_repaint();
-				}
-				BubbleMenu.highlightedParentGroup = smallestParent;
+				}*/
+				CGroupController.groupdb.get(guuid).highlight_on();
+				CGroupController.groupdb.get(guuid).highlight_repaint();
+				prevPoint.x = e.getPoint().x;
+				prevPoint.y = e.getPoint().y;
+				e.consume();
 			}
-			
-			/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
+			catch(NullPointerException ne)
 			{
-				CGroupController.groupdb.get(smallestParent).highlight_on();
-			}*/
-			CGroupController.groupdb.get(guuid).highlight_on();
-			CGroupController.groupdb.get(guuid).highlight_repaint();
-			prevPoint.x = e.getPoint().x;
-			prevPoint.y = e.getPoint().y;
-			e.consume();
+				System.out.println("Group disappeared while in use: removing Move listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			}
 		}
 		
 
@@ -146,41 +153,67 @@ public class GroupMoveButton extends PieMenuButton
 		public void mousePressed(MouseEvent e) { e.consume(); }
 		
 		public void mousePressed(Point p) {
-			prevPoint.x = 0;
-			prevPoint.y = 0;
-			mouseDownPoint = null;
-			
+			try
+			{
+				
+				prevPoint.x = 0;
+				prevPoint.y = 0;
+				mouseDownPoint = null;
+			}
+			catch(NullPointerException ne)
+			{
+				System.out.println("Group disappeared while in use: removing Move listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+			}
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (BubbleMenu.highlightedParentGroup != 0l)
+			try
 			{
-				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
-				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
-				BubbleMenu.highlightedParentGroup = 0l;
+				if (BubbleMenu.highlightedParentGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+					BubbleMenu.highlightedParentGroup = 0l;
+				}
+	
+				//if (BubbleMenu.highlightedGroup != 0l)
+					//CGroupController.groupdb.get(BubbleMenu.highlightedGroup).highlight_off();
+				
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
+				
+				//This threw a null pointer exception for some reason...
+				if (mouseDownPoint != null)
+					CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
+				
+				//Update the menu location in case it was dropped into a list
+				//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+				
+				e.consume();
+	//			PieMenu.isPerformingPieMenuAction = false;
+				
+				if(!CGroupController.groupdb.get(guuid).isPermanent())
+				{
+					//CGroupController.drop(guuid);
+				}
+				
+				isActive = false;
 			}
-
-			//if (BubbleMenu.highlightedGroup != 0l)
-				//CGroupController.groupdb.get(BubbleMenu.highlightedGroup).highlight_off();
-			
-			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
-			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			
-			//This threw a null pointer exception for some reason...
-			if (mouseDownPoint != null)
-				CGroupController.move_end(this.guuid, e.getX(), e.getY()); 
-			
-			//Update the menu location in case it was dropped into a list
-			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
-			
-			e.consume();
-//			PieMenu.isPerformingPieMenuAction = false;
-			
-			if(!CGroupController.groupdb.get(guuid).isPermanent())
+			catch(NullPointerException ne)
 			{
-				//CGroupController.drop(guuid);
+				System.out.println("Group disappeared while in use: removing Move listeners");
+				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
+				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			}
 		}
+	}
+	
+	//Leave this empty
+	public void setHaloEnabled(boolean enable)
+	{
+		
 	}
 }

@@ -59,6 +59,8 @@ public class CalicoDataStore
 	public static Color LastDrawingColor = Color.BLACK;
 	public static Color PointingColor = Color.ORANGE;
 	
+	public static float LastDrawingThickness = CalicoOptions.pen.stroke_size;
+	
 	
 	// This is used to see when the last mouse/keyboard/finger/whatever was inputted
 	// We will probably use this thing for running tasks after a certain amount of time.
@@ -94,12 +96,16 @@ public class CalicoDataStore
 		if (mode == CInputMode.EXPERT)
 		{
 			PenColor = LastDrawingColor;
-			PenThickness = 1.0f;
+			PenThickness = LastDrawingThickness;
 		}
 		if (mode == CInputMode.POINTER)
 		{
 			PenColor = PointingColor;
 			PenThickness = 4.0f;
+		}
+		if (mode == CInputMode.ARROW)
+		{
+			PenColor = LastDrawingColor;
 		}
 		
 		Mode = mode;

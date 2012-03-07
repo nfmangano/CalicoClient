@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import calico.*;
 import calico.components.*;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.menus.CanvasMenuButton;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.*;
 import calico.events.CalicoEventHandler;
@@ -21,6 +22,8 @@ import calico.perspectives.CalicoPerspective;
 
 import java.awt.*;
 import java.util.ArrayList;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -169,6 +172,15 @@ public class CalicoInputManager
 			lockInputHandler = uuid;
 	}
 
+	public static void perspectiveChanged()
+	{
+		// unlock the active input handler and clear the bubble menu
+		lockInputHandler = 0L;
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
+		}
+	}
 
 
 	public static void determineObjectsAtPoint(long canvasuid, Point2D p)
@@ -368,6 +380,28 @@ public class CalicoInputManager
 			BubbleMenu.isPerformingBubbleMenuAction = false;
 			lockInputHandler = 0l;
 		}
+		
+		if(CanvasMenuButton.activeMenuButton != null)
+		{
+			if(ev.getAction()==InputEventInfo.ACTION_DRAGGED)
+			{
+				if (CanvasMenuButton.activeMenuButton.getBounds().contains(ev.getGlobalPoint()))
+				{
+					CanvasMenuButton.activeMenuButton.highlight_on();
+				}
+				else
+				{
+					CanvasMenuButton.activeMenuButton.highlight_off();
+				}
+				return;
+			}
+			else if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
+			{
+				CalicoPerspective.Active.processToolEvent(ev);
+				CanvasMenuButton.activeMenuButton = null;
+				return;
+			}
+		}
 
 		// This means we have a menu open, so we give that priority!
 		if(PieMenu.isPieMenuActive())
@@ -407,66 +441,82 @@ public class CalicoInputManager
 			return;
 		}
 
-		else if (BubbleMenu.isBubbleMenuActive() && ev.getAction()!=InputEventInfo.ACTION_DRAGGED)
+		else if (BubbleMenu.isBubbleMenuActive())
 		{
 			// We are from a pie menu. PIGGYBACK FROM PIEMENU FLAG FOR NOW
 			ev.setFlag(InputEventInfo.FLAG_IS_FROM_PIEMENU);
 			
-			// Was it actually on the thing?
-			if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
-			{				
-				//Make sure did not land on it from a stroke
-				if (BubbleMenu.performingBubbleMenuAction() || ev.getAction()==InputEventInfo.ACTION_PRESSED)
+			if (ev.getAction() == InputEventInfo.ACTION_DRAGGED && BubbleMenu.selectedButtonIndex != -1)
+			{
+				if (BubbleMenu.getButtonHalo(BubbleMenu.selectedButtonIndex).contains(ev.getGlobalPoint()))
 				{
-				
-					// Did we press the button?
-					if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
+					BubbleMenu.setHaloEnabled(true);
+				}
+				else
+				{
+					BubbleMenu.setHaloEnabled(false);
+				}
+				lockInputHandler = 0;
+				return;
+			}
+			else
+			{
+				// Was it actually on the thing?
+				if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
+				{				
+					//Make sure did not land on it from a stroke
+					if (BubbleMenu.performingBubbleMenuAction() || ev.getAction()==InputEventInfo.ACTION_PRESSED)
+					{
+					
+						// Did we press the button?
+						if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
+						{
+							BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+						}
+						//No bubblemenu on grid currently
+						/*if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
+						{
+							PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
+						}*/
+						if (CalicoPerspective.Active.hasPhasicPieMenuActions())
+						{
+							lockInputHandler = 0l;
+							BubbleMenu.isPerformingBubbleMenuAction = true;
+						}
+						return;
+					}
+				}
+				else if (BubbleMenu.performingBubbleMenuAction())
+				{
+					if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
 					{
 						BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
 					}
-					//No bubblemenu on grid currently
-					/*if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
-					{
-						PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
-					}*/
-					if (CalicoPerspective.Active.hasPhasicPieMenuActions())
-					{
-						lockInputHandler = 0l;
-						BubbleMenu.isPerformingBubbleMenuAction = true;
-					}
+					lockInputHandler = 0l;
 					return;
 				}
-			}
-			else if (BubbleMenu.performingBubbleMenuAction())
-			{
-				if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
-				{
-					BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
-				}
-				lockInputHandler = 0l;
-				return;
-			}
-			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
-			{				
-				// Now just kill it.
-				
-				//Need this if else in case group does not exist
-				if (BubbleMenu.isBubbleMenuActive())
-				{
-					if (!CGroupController.exists(BubbleMenu.activeGroup))
+				else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
+				{				
+					// Now just kill it.
+					
+					//Need this if else in case group does not exist
+					if (BubbleMenu.isBubbleMenuActive())
 					{
-						BubbleMenu.clearMenu();
-						CCanvasStrokeModeInputHandler.deleteSmudge = true;
+						if (!CGroupController.exists(BubbleMenu.activeGroup))
+						{
+							BubbleMenu.clearMenu();
+							CCanvasStrokeModeInputHandler.deleteSmudge = true;
+						}
+						else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
+								|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+						{
+							BubbleMenu.clearMenu();
+							CCanvasStrokeModeInputHandler.deleteSmudge = true;
+							
+						}
 					}
-					else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
-							|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
-					{
-						BubbleMenu.clearMenu();
-						CCanvasStrokeModeInputHandler.deleteSmudge = true;
-						
-					}
+					//return;// Dont return, we should let this one thru!
 				}
-				//return;// Dont return, we should let this one thru!
 			}
 		}
 		else if (BubbleMenu.performingBubbleMenuAction())
@@ -479,7 +529,7 @@ public class CalicoInputManager
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
 		// Are they clicking the menu bar?
-		else if(CalicoPerspective.Active.processToolEvent(ev)) 
+		if(CalicoPerspective.Active.processToolEvent(ev)) 
 		{
 			return;
 		}		
@@ -556,17 +606,20 @@ public class CalicoInputManager
 		sendEventOut(newItemUUID, ev);
 	}
 	
-	public static void drawCursorImage(long cuuid, Image iconImage, Point p)
+	public static void drawCursorImage(final long cuuid, Image iconImage, Point p)
 	{
 		try
 		{
-			PImage leftClickIcon = new PImage();
+			final PImage leftClickIcon = new PImage();
 			leftClickIcon.setImage(iconImage);
 			
 			leftClickIcon.setBounds(p.getX()-16, p.getY()-16, 16, 16);
 //			leftClickIcon.setPaintInvalid(true);
 			
-			CCanvasController.canvasdb.get( cuuid ).getLayer().addChild(leftClickIcon);
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						CCanvasController.canvasdb.get( cuuid ).getLayer().addChild(leftClickIcon);
+					}});
 //			CCanvasController.canvasdb.get( cuuid ).getLayer().repaint();
 			
 			CalicoInputManager.RemoveCursorImageListener mouseListener = (new CalicoInputManager()).new RemoveCursorImageListener(cuuid, leftClickIcon);
@@ -595,7 +648,10 @@ public class CalicoInputManager
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
 			
 			e.consume();
-			CCanvasController.canvasdb.get( cuuid ).getLayer().removeChild(icon);
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						CCanvasController.canvasdb.get( cuuid ).getLayer().removeChild(icon);
+					}});
 //			CCanvasController.canvasdb.get( cuuid ).getLayer().repaint();
 		}
 

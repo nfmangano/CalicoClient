@@ -13,6 +13,7 @@ import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 
+@Deprecated
 public class DeleteAreaButton extends PieMenuButton {
 
 	private long uuid = 0L;

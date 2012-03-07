@@ -27,6 +27,9 @@ public class CGridCell extends PImage//PComposite
 {
 	private static final long serialVersionUID = 1L;
 
+	public static final int ROUNDED_RECTANGLE_OVERFLOW = 4;
+	public static final int CELL_MARGIN = 6;
+
 	private int cellId = 0;
 	private int cellWidth = 0;
 	private int cellHeight = 0;
@@ -53,7 +56,7 @@ public class CGridCell extends PImage//PComposite
 
 
 		//setBounds( (cc*cellWidth)+2, 50+( (rc*cellHeight)+2 ),  cellWidth-5,  cellHeight-5);
-		Rectangle bounds = new Rectangle(xOffset + (cc*cellWidth), yOffset+( (rc*cellHeight) ),  cellWidth-2,  cellHeight-2);
+		Rectangle bounds = new Rectangle(xOffset + (cc*cellWidth), yOffset+( (rc*cellHeight) ),  cellWidth-CELL_MARGIN,  cellHeight-CELL_MARGIN);
 		setBounds( bounds );
 		//setPaint( CalicoOptions.getColor("grid.item_background") );
 
@@ -149,14 +152,14 @@ public class CGridCell extends PImage//PComposite
 		this.last_signature = CCanvasController.get_signature(canvasUID);
 
 		Rectangle rect = new Rectangle(0, 0, tBounds.width, tBounds.height);
-		RoundRectangle2D rRect = new RoundRectangle2D.Double(2, 2, tBounds.width - 4, tBounds.height - 4, 8, 8);
+		RoundRectangle2D rRect = new RoundRectangle2D.Double(2, 2, tBounds.width-ROUNDED_RECTANGLE_OVERFLOW, tBounds.height-ROUNDED_RECTANGLE_OVERFLOW, 8, 8);
 		Area border = new Area(rect);
 		border.subtract(new Area(rRect));
 
 		BufferedImage bimg = new BufferedImage(tBounds.width, tBounds.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D)bimg.createGraphics();
 		g.setComposite(AlphaComposite.Src);
-		g.drawImage(img, 2, 2, tBounds.width - 4, tBounds.height - 4,null);
+		g.drawImage(img, 2, 2, tBounds.width, tBounds.height,null);
 		g.setColor(Color.green);
 		g.fill(border);
 		g.setColor(new Color(100,100,100));
@@ -170,8 +173,8 @@ public class CGridCell extends PImage//PComposite
 		g.setColor(Color.black);
 		g.drawRoundRect(	2,//new Double(getBounds().x).intValue() + 2,
 							2,//new Double(getBounds().y).intValue() + 2,
-							tBounds.width - 4,
-							tBounds.height - 4,
+							tBounds.width - ROUNDED_RECTANGLE_OVERFLOW,
+							tBounds.height - ROUNDED_RECTANGLE_OVERFLOW,
 							10,
 							10);
 		g.dispose();
@@ -190,7 +193,7 @@ public class CGridCell extends PImage//PComposite
 		
 		setImage( bimg );
 		//setImage( img );
-		setBounds( tBounds.getX()+2,tBounds.getY()+2,tBounds.getWidth()-4,tBounds.getHeight()-4);
+		setBounds( tBounds.getX(),tBounds.getY(),tBounds.getWidth(),tBounds.getHeight());
 		repaint();
 		CalicoDataStore.gridObject.repaint();
 		

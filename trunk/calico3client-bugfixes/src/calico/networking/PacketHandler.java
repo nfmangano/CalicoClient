@@ -11,6 +11,7 @@ import java.net.*;
 import java.util.*;
 
 import calico.components.*;
+import calico.components.arrow.AnchorPoint;
 import calico.components.grid.*;
 import calico.components.menus.buttons.UndoButton;
 import calico.controllers.*;
@@ -384,7 +385,7 @@ public class PacketHandler
 			UUIDMappings.put(key, new Long(value));
 		}
 		
-		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings);
+		CGroupController.no_notify_copy(guuid, 0l, UUIDMappings, true);
 	}
 	
 	private static void GROUP_START(CalicoPacket p)
@@ -645,6 +646,7 @@ public class PacketHandler
 		{
 			Calico.uuidlist.add( p.getLong() );
 		}
+		Calico.isAllocating = false;
 	}
 	
 	private static void AUTH_OK(CalicoPacket p)

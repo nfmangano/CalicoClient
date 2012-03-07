@@ -15,7 +15,8 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CIC_MOVE = Command.CIC_MOVE.id;
 	public static final int CLINK_CREATE = Command.CLINK_CREATE.id;
 	public static final int CLINK_RETYPE = Command.CLINK_RETYPE.id;
-	public static final int CLINK_MOVE = Command.CLINK_MOVE.id;
+	public static final int CLINK_MOVE_ANCHOR = Command.CLINK_MOVE_ANCHOR.id;
+	public static final int CLINK_LABEL = Command.CLINK_LABEL.id;
 	public static final int CLINK_DELETE = Command.CLINK_DELETE.id;
 
 	public enum Command
@@ -25,7 +26,7 @@ public class IntentionalInterfacesNetworkCommands
 		 */
 		CIC_CREATE,
 		/**
-		 * Move a CIntentionCell's (x,y) position
+		 * Move a CIntentionCell's (x,y) position and set its inUse flag
 		 */
 		CIC_MOVE,
 		/**
@@ -43,7 +44,11 @@ public class IntentionalInterfacesNetworkCommands
 		/**
 		 * Move one enpoint of a CCanvasLink
 		 */
-		CLINK_MOVE,
+		CLINK_MOVE_ANCHOR,
+		/**
+		 * Set the label of a CCanvasLink
+		 */
+		CLINK_LABEL,
 		/**
 		 * Delete a CCanvasLink
 		 */

@@ -142,8 +142,8 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 			return false;
 		}
 		if(CGrid.getInstance().isPointOnMenuBar(ev.getPoint())) {
-			if (mousePressed != 0)
-				getMenuBarClick(ev.getPoint());
+			//if (mousePressed != 0)
+			getMenuBarClick(ev, ev.getPoint());
 			return false;
 		}
 		
@@ -167,11 +167,11 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		currentAction = 0;
 	}
 	
-	private void getMenuBarClick(Point point)
+	private void getMenuBarClick(InputEventInfo event, Point point)
 	{
 		if(CGrid.getInstance().isPointOnMenuBar(point))
 		{
-			CGrid.getInstance().clickMenuBar(point);
+			CGrid.getInstance().clickMenuBar(event, point);
 		}
 	}
 	
