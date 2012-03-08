@@ -91,6 +91,7 @@ public class PacketHandler
 			case NetworkCommand.GROUP_DROP:GROUP_DROP(packet);break;
 			case NetworkCommand.GROUP_MOVE:GROUP_MOVE(packet);break;
 			case NetworkCommand.GROUP_MOVE_END:GROUP_MOVE_END(packet);break;
+			case NetworkCommand.GROUP_MOVE_START:GROUP_MOVE_START(packet);break;
 			case NetworkCommand.GROUP_SET_PERM:GROUP_SET_PERM(packet);break;
 			case NetworkCommand.GROUP_CHILDREN_COLOR:GROUP_CHILDREN_COLOR(packet);break;
 //			case NetworkCommand.GROUP_RECTIFY:GROUP_RECTIFY(packet);break;
@@ -422,6 +423,14 @@ public class PacketHandler
 		int y = p.getInt();
 		CGroupController.no_notify_move(uuid, x, y);
 	}
+	
+	public static void GROUP_MOVE_START(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+
+		CGroupController.no_notify_move_start(uuid);
+	}
+	
 	public static void GROUP_MOVE_END(CalicoPacket p)
 	{
 		long uuid = p.getLong();
@@ -1075,9 +1084,9 @@ public class PacketHandler
 		CStrokeController.strokes.get(uuid).primative_rotate(rotation);
 		CStrokeController.strokes.get(uuid).primative_scale(scaleX, scaleY);
 		
-		CStrokeController.strokes.get(uuid).finish();
+		//CStrokeController.strokes.get(uuid).finish();
 		
-//		CStrokeController.no_notify_finish(uuid);
+		CStrokeController.no_notify_finish(uuid);
 		
 	}
 	

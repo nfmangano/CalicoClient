@@ -85,6 +85,7 @@ public class BubbleMenu {
 		            super.activityStep(time);
 
 		            bubbleContainer.setTransparency(1.0f * step/5);
+		            //CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f * step/5);
 		            
 //		            repaint();
 		            step++;
@@ -95,6 +96,7 @@ public class BubbleMenu {
 		    
 		    protected void activityFinished() {
 		    	bubbleContainer.setTransparency(1.0f);
+		    	//CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
 		    }
 		};
 
@@ -400,6 +402,7 @@ public class BubbleMenu {
 	
 	public static void clearMenu()
 	{
+		System.out.println("Clear on Thread: " + Thread.currentThread().getName());
 		if (fadeActivity.isStepping())
 		{
 			fadeActivity.terminate();
@@ -555,9 +558,12 @@ public class BubbleMenu {
 	
 	public static Ellipse2D.Double getButtonHalo(int buttonIndex)
 	{
-		return new Ellipse2D.Double(buttonList.get(buttonIndex).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2),
+		synchronized(buttonList)
+		{
+			return new Ellipse2D.Double(buttonList.get(buttonIndex).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2),
 									buttonList.get(buttonIndex).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2),
 									BubbleMenuHighlighter.halo_size, BubbleMenuHighlighter.halo_size);
+		}
 	}
 	
 	public static PBounds getContainerBounds()

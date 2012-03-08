@@ -156,8 +156,8 @@ public class CGroup extends PPath implements Serializable {
 	public CGroup(long uuid, long cuid, long puid, boolean isperm) {
 		this.uuid = uuid;
 		this.cuid = cuid;
-		setParentUUID(puid);
-//		this.puid = puid;
+		//setParentUUID(puid);
+		this.puid = puid;
 		this.isPermanent = isperm;
 		
 		setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
@@ -379,8 +379,30 @@ public class CGroup extends PPath implements Serializable {
 	public long getParentUUID() {
 		return this.puid;
 	}
+	
+	public void setParentUUID(long u) {
+		if (u == this.puid)
+			return;
+		
+		if (puid == this.uuid)
+			puid = 0l;
+		
+		logger.trace("Changing parent for " + uuid + ": " + this.puid + " -> " + u);
+		this.puid = u;
+		if (CGroupController.exists(u))
+		{
+			CGroup parent = CGroupController.groupdb.get(u);
+			if (!parent.hasChildGroup(this.uuid))
+			{
+				Point2D midPoint = getMidPoint();
+				parent.addChildGroup(this.uuid, (int)midPoint.getX(), (int)midPoint.getY());
+			}
+			resetViewOrder();
+		}
 
-	public void setParentUUID(long puid) {
+	}
+
+	/*public void setParentUUID(long puid) {
 		if (puid == this.puid)
 			return;
 		
@@ -404,7 +426,7 @@ public class CGroup extends PPath implements Serializable {
 			}
 			resetViewOrder();
 		}
-	}
+	}*/
 
 	public double getArea() {
 		return this.groupArea;
@@ -1801,7 +1823,11 @@ public class CGroup extends PPath implements Serializable {
             paintContext.pushTransparency(getTransparency());
 
             if (!getOccluded()) {
+            	System.out.println("fullpaint");
+            	SwingUtilities.invokeLater(
+        				new Runnable() { public void run() { 
                 paint(paintContext);
+        				}});
             }
 
             for (long s : childStrokes)
@@ -2132,7 +2158,7 @@ public class CGroup extends PPath implements Serializable {
 			
 		CGroupController.no_notify_add_child_group(smallestGUID, this.uuid, x, y);
 
-//		CGroupController.no_notify_set_parent(this.uuid, smallestGUID);
+		CGroupController.no_notify_set_parent(this.uuid, smallestGUID);
 	}
 	
 	public void moveGroupInFrontOf(PNode node)

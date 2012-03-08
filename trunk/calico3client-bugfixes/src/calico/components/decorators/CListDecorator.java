@@ -88,8 +88,8 @@ public class CListDecorator extends CGroupDecorator {
 				{
 					g2.setColor(Color.blue);
 					g2.draw(getNearestLine());
-					//this.repaintFrom(this.getBounds(), this);
-					CalicoDraw.repaintNode(this);
+					this.repaintFrom(this.getBounds(), this);
+					//CalicoDraw.repaintNode(this);
 				}
 			}
 		}
@@ -161,6 +161,7 @@ public class CListDecorator extends CGroupDecorator {
 		
 		recomputeBounds();
 		recomputeValues();
+
 		Calico.logger.debug("Group removed from list: " + grpUUID);
 	}
 	
@@ -263,7 +264,8 @@ public class CListDecorator extends CGroupDecorator {
 		if (getDecoratedGroup() == null)
 			return;
 		
-		long[] childGroups = getChildGroups();
+		long[] childGroups = getDecoratedGroup().getChildGroups();
+
 		for (int i = 0; i < childGroups.length; i++)
 		{
 			if (CGroupController.groupdb.get(childGroups[i]) instanceof CListDecorator)
@@ -550,9 +552,7 @@ public class CListDecorator extends CGroupDecorator {
 
 	private long[] orderByYAxis(long[] listItems)
 	{
-		//When deleting lists, the paint may occur after the list items have been deleted.
-		//If this happens we just return an empty array;
-		if (listItems == null)
+		if (getDecoratedGroup() == null)
 		{
 			return null;
 		}

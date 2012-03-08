@@ -111,7 +111,7 @@ public class Calico extends JFrame
 		
 		if (uuidlist.size() == 0)
 		{
-			System.out.println("Out of UUIDs: Waiting for allocation");
+			System.out.println("UUID Allocation: Pending");
 			int waitTimes = 1000;
 			int count = 0;
 			
@@ -128,6 +128,7 @@ public class Calico extends JFrame
 				
 				if (uuidlist.size() > 0)
 				{
+					System.out.println("UUID Allocation: Complete");
 					break;
 				}
 				count++;
@@ -138,7 +139,7 @@ public class Calico extends JFrame
 				}
 			}
 		}
-		
+
 		return uuidlist.removeLong(0);
 	}
 
