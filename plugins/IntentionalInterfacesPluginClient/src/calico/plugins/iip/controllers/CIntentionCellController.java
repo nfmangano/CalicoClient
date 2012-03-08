@@ -3,6 +3,7 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,6 +48,14 @@ public class CIntentionCellController
 		}
 		return -1L;
 	}
+	
+	public void initializeDisplay()
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.initialize();
+		}
+	}
 
 	// The cells are all created at server startup, so new cells should never be created. If the policy changes at some
 	// point, this method will create a new cell, but until then it should not be used.
@@ -66,12 +75,36 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-
-	public void moveCell(long uuid, double x, double y)
+	
+	public void moveCellLocal(long cellId, double x, double y)
+	{
+		cells.get(cellId).setLocation(x, y);
+		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
+	}
+	
+	public void setInUse(long cellId, boolean inUse)
+	{
+		CIntentionCell cell = cells.get(cellId);
+		
+		if (cell.isInUse() == inUse)
+		{
+			return;
+		}
+		
+		moveCell(cellId, inUse, cell.getLocation().getX(), cell.getLocation().getY());
+	}
+	
+	public void moveCell(long cellId, double x, double y)
+	{
+		moveCell(cellId, true, x, y);
+	}
+	
+	private void moveCell(long cellId, boolean inUse, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
-		packet.putLong(uuid);
+		packet.putLong(cellId);
+		packet.putBoolean(inUse);
 		packet.putInt((int) x);
 		packet.putInt((int) y);
 

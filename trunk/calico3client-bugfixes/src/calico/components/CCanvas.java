@@ -124,6 +124,7 @@ public class CCanvas
 	public CCanvas(long uuid, String crs, int gr, int gc)
 	{
 		PLayer contentLayer = canvas.getCamera().removeLayer(0);
+		toolLayer.setParent(contentLayer.getParent());
 		canvas.getCamera().addLayer(Layer.WATERMARK.id, WATERMARK_PLACEHOLDER);
 		canvas.getCamera().addLayer(Layer.CONTENT.id, contentLayer);
 		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
@@ -1457,11 +1458,14 @@ public class CCanvas
 			//getCamera().getLayer(Layer.CONTENT.id).setBounds(x, y, w, h);
 			CalicoDraw.setNodeBounds(getCamera().getLayer(Layer.CONTENT.id),x, y, w, h);
 			
-			toolLayer.setBounds(x, y, w , h);
-			contentCamera.setBounds(x, y, w, h);
+			//toolLayer.setBounds(x, y, w , h);
+			CalicoDraw.setNodeBounds(toolLayer, x, y, w , h);
+			//contentCamera.setBounds(x, y, w, h);
+			CalicoDraw.setNodeBounds(contentCamera, x, y, w , h);
 			if (CCanvas.this.watermarkLayer != null)
 			{
-				CCanvas.this.watermarkLayer.setBounds(x, y, w, h);
+				//CCanvas.this.watermarkLayer.setBounds(x, y, w, h);
+				CalicoDraw.setNodeBounds(CCanvas.this.watermarkLayer, x, y, w , h);
 			}
 		}
 

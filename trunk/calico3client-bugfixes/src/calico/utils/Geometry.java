@@ -39,6 +39,13 @@ public class Geometry {
         return angle;
     }	
     
+	public static double angle(double xVertex, double yVertex, double xVector1, double yVector1, double xVector2, double yVector2)
+	{
+		double angle1 = Math.atan2(yVertex - yVector1, xVertex - xVector1);
+		double angle2 = Math.atan2(yVertex - yVector2, xVertex - xVector2);
+		return angle1 - angle2;
+	}
+
 	public static Point2D getMidPoint2D(Polygon p)
 	{
 		Point2D ret;

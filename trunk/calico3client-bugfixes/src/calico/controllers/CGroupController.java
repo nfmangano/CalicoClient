@@ -16,6 +16,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.SwingUtilities;
@@ -25,8 +26,8 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.CalicoOptions.arrow;
-import calico.components.AnchorPoint;
-import calico.components.CArrow;
+import calico.components.arrow.AnchorPoint;
+import calico.components.arrow.CArrow;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
@@ -60,9 +61,14 @@ public class CGroupController
 	public static boolean restoreOriginalStroke = false;
 	public static long originalStroke = 0l;
 	
-	
+	private static List<Listener> listeners = new ArrayList<Listener>();
 
-	
+	public static interface Listener
+	{
+		void groupMoved(long uuid);
+		
+		void groupDeleted(long uuid);
+	}
 	
 	public static void setCopyUUID(long u)
 	{
@@ -73,7 +79,23 @@ public class CGroupController
 		return group_copy_uuid;
 	}
 	
+	public static void addListener(Listener listener)
+	{
+		listeners.add(listener);
+	}
 	
+	public static void removeListener(Listener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	private static void informListenersOfMove(long uuid)
+	{
+		for (Listener listener : listeners)
+		{
+			listener.groupMoved(uuid);
+		}
+	}
 	
 	public static boolean dq_add(long uuid)
 	{
@@ -278,6 +300,7 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).move(x, y);
+		informListenersOfMove(uuid);
 		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
@@ -330,7 +353,7 @@ public class CGroupController
 		/*SwingUtilities.invokeLater(
 			new Runnable() { 
 				public void run() {*/
-					
+
 		if(!exists(uuid))
 		{
 			//Even if we get this warning it should be ok. 
@@ -347,6 +370,11 @@ public class CGroupController
 				groupdb.remove(uuid);
 	
 				dq_add(uuid);
+			}
+			
+			for (Listener listener : listeners)
+			{
+				listener.groupDeleted(uuid);
 			}
 		}
 	
@@ -1567,9 +1595,9 @@ public class CGroupController
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
+		
+		informListenersOfMove(uuid);
 	}
-	
-
 
 	public static void no_notify_scale(long uuid, double scaleX, double scaleY) 
 	{
@@ -1582,6 +1610,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).scale(scaleX, scaleY);
 		
+		informListenersOfMove(uuid);
 		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());

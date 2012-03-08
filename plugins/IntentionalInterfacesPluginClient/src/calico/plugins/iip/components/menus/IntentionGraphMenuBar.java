@@ -7,11 +7,15 @@ import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ReturnToGrid;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.graph.NewIdeaButton;
+import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 {
 	private final Rectangle zoomSliderBounds;
 	private final IntentionGraphZoomSlider zoomSlider;
+
+	private boolean draggingZoomKnob = false;
 
 	public IntentionGraphMenuBar(int screenPosition)
 	{
@@ -20,6 +24,10 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
 		addIcon(new ReturnToGrid());
+		addSpacer();
+		addIcon(new ZoomToExtent());
+		addSpacer();
+		addIcon(new NewIdeaButton());
 
 		addSpacer();
 
@@ -31,16 +39,26 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		addSpacer();
 	}
+	
+	public void initialize()
+	{
+		zoomSlider.refreshState();
+	}
 
 	public void processEvent(InputEventInfo event)
 	{
 		switch (event.getAction())
 		{
+			case InputEventInfo.ACTION_PRESSED:
+				draggingZoomKnob = zoomSliderBounds.contains(event.getGlobalPoint());
+				clickMenu(event, event.getGlobalPoint());
+				break;
 			case InputEventInfo.ACTION_RELEASED:
-				clickMenu(event.getGlobalPoint());
+				draggingZoomKnob = false;
+				clickMenu(event, event.getGlobalPoint());
 				break;
 			case InputEventInfo.ACTION_DRAGGED:
-				if (zoomSliderBounds.contains(event.getGlobalPoint()))
+				if (draggingZoomKnob && zoomSliderBounds.contains(event.getGlobalPoint()))
 				{
 					zoomSlider.dragTo(event.getGlobalPoint());
 				}
@@ -49,7 +67,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 	}
 
 	@Override
-	public void clickMenu(Point point)
+	public void clickMenu(InputEventInfo event, Point point)
 	{
 		if (zoomSliderBounds.contains(point))
 		{
@@ -57,7 +75,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		}
 		else
 		{
-			super.clickMenu(point);
+			super.clickMenu(event, point);
 		}
 	}
 }

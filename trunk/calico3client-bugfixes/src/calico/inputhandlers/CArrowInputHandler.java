@@ -4,6 +4,7 @@ import java.awt.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.arrow.CArrow;
 import calico.components.piemenu.*;
 import calico.components.piemenu.arrows.ArrowDeleteButton;
 import calico.components.piemenu.arrows.ChangeArrowColorButton;

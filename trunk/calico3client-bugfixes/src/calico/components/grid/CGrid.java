@@ -48,6 +48,8 @@ public class CGrid
 {
 	private static final long serialVersionUID = 1L;
 	
+	public static final int GRID_EDGE_INSET = 30;
+	
 	//public static final int MODE_NONE = 0;
 	//public static final int MODE_VIEWPORT = 1;
 	
@@ -84,12 +86,12 @@ public class CGrid
 	public static int moveDelta=1;
 	public static int moveDelay=100;
 	
-	public static CGrid getInstance(){
+	public static synchronized CGrid getInstance(){
 		if(instance==null){
 			instance = new CGrid();
 		}
 		//instance.drawBottomToolbar();
-		instance.repaint();
+//		instance.repaint();
 		return instance;
 	}
 	
@@ -212,7 +214,7 @@ public class CGrid
 		/*for(int can=0;can<canvasuids.length;can++)
 		{
 			long canuuid = canvasuids[can];
-			CGridCell img = new CGridCell(canuuid, cellindex,30,30,imgw,imgh);
+			CGridCell img = new CGridCell(canuuid, cellindex,GRID_EDGE_INSET,GRID_EDGE_INSET,imgw,imgh);
 			cellLayer.addChild(img);
 			cells.put(canuuid, img);			
 			cellindex++;
@@ -237,7 +239,7 @@ public class CGrid
 		for(int can=0;can<canvasuids.length;can++)
 		{
 			long canuuid = canvasuids[can];
-			CGridCell img = new CGridCell(canuuid, cellindex,30,30,imgw,imgh);
+			CGridCell img = new CGridCell(canuuid, cellindex,GRID_EDGE_INSET,GRID_EDGE_INSET,imgw,imgh);
 			cellLayer.addChild(img);
 			cells.put(canuuid, img);;
 			cellindex++;

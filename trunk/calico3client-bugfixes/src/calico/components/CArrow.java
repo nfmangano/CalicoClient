@@ -1,6 +1,7 @@
 package calico.components;
 
 import calico.*;
+import calico.components.arrow.AnchorPoint;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.CalicoInputManager;

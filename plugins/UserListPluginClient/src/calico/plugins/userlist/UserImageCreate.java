@@ -43,7 +43,7 @@ public class UserImageCreate extends PieMenuButton //ImageCreate
 	{
 		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new ImageFileFilter());
-        int returnVal = fc.showOpenDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()));
+        int returnVal = fc.showOpenDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent());
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {

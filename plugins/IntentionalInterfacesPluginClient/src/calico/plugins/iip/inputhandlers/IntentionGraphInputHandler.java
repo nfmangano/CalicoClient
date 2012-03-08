@@ -39,13 +39,13 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		double xMouseDelta = event.getGlobalPoint().x - lastMouse.x;
 		double yMouseDelta = event.getGlobalPoint().y - lastMouse.y;
 		
-		double scale = IntentionGraph.getInstance().getLayer().getScale();
+		double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
 		
 		xMouseDelta /= scale;
 		yMouseDelta /= scale;
 		
 		lastMouse = event.getGlobalPoint();
 
-		IntentionGraph.getInstance().getLayer().translate(xMouseDelta, yMouseDelta);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).translate(xMouseDelta, yMouseDelta);
 	}
 }

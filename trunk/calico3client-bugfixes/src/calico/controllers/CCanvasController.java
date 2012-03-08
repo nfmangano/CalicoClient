@@ -19,13 +19,13 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
-import calico.components.CArrow;
 import calico.components.CCanvas;
 import calico.components.CCanvas.ContentContributor;
 import calico.components.CCanvas.Layer;
 import calico.components.CCanvasWatermark;
 import calico.components.CGroup;
 import calico.components.CStroke;
+import calico.components.arrow.CArrow;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
@@ -325,11 +325,12 @@ public class CCanvasController
 			canvas.setCamera(CCanvasController.canvasCameras.get(uuid));
 		}
 		// end of bug fix
-		cal.getContentPane().add(canvas.getComponent());
 
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
 
+		cal.getContentPane().add(canvas.getComponent());
+		
 		cal.setJMenuBar(null);
 		cal.pack();
 		initializeCanvas(uuid);
@@ -669,9 +670,6 @@ public class CCanvasController
 
 		void notifyContentChanged(ContentContributor changeContributor, long canvas_uuid)
 		{
-			//System.out.println("Content changed on canvas " + canvasdb.get(canvas_uuid).getGridCoordTxt() + "; it is "
-					//+ (CCanvasController.hasContent(canvas_uuid) ? "not empty" : "now empty"));
-
 			synchronized (changedCanvasIds)
 			{
 				changedCanvasIds.add(canvas_uuid);
