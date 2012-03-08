@@ -3,6 +3,8 @@ package calico.plugins.userlist;
 import java.awt.Color;
 
 import calico.CalicoDataStore;
+import calico.CalicoOptions;
+import calico.CalicoOptions.menu.menubar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.events.CalicoEventHandler;
@@ -26,7 +28,7 @@ public class UserList implements CalicoEventListener
 	private static boolean visible = false;
 	private static int height;
 	private static final int defaultSize = 64;
-	private static final int offset = 10; // screen offset
+	private static final int offset = 10 + (CalicoOptions.menu.menubar.defaultIconDimension+CalicoOptions.menu.menubar.iconBuffer*2); // screen offset
 	private static final int buffer = 5;
 
 	public UserList()

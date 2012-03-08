@@ -33,6 +33,6 @@
 	<classpathentry kind="lib" path="lib/pop3.jar"/>
 	<classpathentry kind="lib" path="lib/shodor.jar"/>
 	<classpathentry kind="lib" path="lib/smtp.jar"/>
-	<classpathentry kind="lib" path="lib/calico3client.jar" sourcepath="/calico3client-nopen"/>
+	<classpathentry kind="lib" path="lib/calico3client.jar" sourcepath="/calico3client-bugfixes"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
