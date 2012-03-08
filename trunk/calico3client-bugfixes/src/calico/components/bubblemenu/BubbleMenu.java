@@ -246,6 +246,11 @@ public class BubbleMenu {
 			return 12;
 		}
 		
+		else if (className.compareTo("calico.plugins.userlist.UserImageCreate") == 0)
+		{
+			return 11;
+		}
+		
 		return 0;
 		
 	}

@@ -64,6 +64,19 @@ public class UserImage extends CGroupImage
 		return pieMenuButtons;
 	}
 	
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
+		
+		if (this.uuid == UserListPlugin.getUUID())
+		{
+			pieMenuButtons.add(calico.plugins.userlist.UserImageCreate.class);
+			pieMenuButtons.add(calico.plugins.userlist.UserImageDelete.class);
+			pieMenuButtons.add(calico.plugins.userlist.MuteAudio.class);
+		}
+		
+		return pieMenuButtons;
+	}
 	
 	// fix
 	public void setImage(String imgURL)
