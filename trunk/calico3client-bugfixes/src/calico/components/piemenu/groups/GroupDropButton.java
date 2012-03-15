@@ -7,19 +7,18 @@ import calico.inputhandlers.InputEventInfo;
 public class GroupDropButton extends PieMenuButton
 {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
-	private long group_uuid = 0L;
 	private boolean isActive = false;
 	
 	public GroupDropButton(long uuid)
 	{
 		super("group.drop");
 
-		group_uuid = uuid;
+		guuid = uuid;
 	}
 	
 	public void onPressed(InputEventInfo ev)
 	{
-		if (!CGroupController.exists(group_uuid) || isActive)
+		if (!CGroupController.exists(guuid) || isActive)
 		{
 			return;
 		}
@@ -34,7 +33,7 @@ public class GroupDropButton extends PieMenuButton
 		//super.onClick(ev);
 		ev.stop();
 		//System.out.println("CLICKED GROUP DROP BUTTON");
-		CGroupController.drop(group_uuid);
+		CGroupController.drop(guuid);
 		
 		isActive = false;
 	}

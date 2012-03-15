@@ -8,9 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-
 import calico.CalicoDataStore;
-import calico.components.CViewportCanvas;
 import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.plugins.palette.iconsets.CalicoIconManager;

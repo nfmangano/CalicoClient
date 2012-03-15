@@ -18,12 +18,15 @@ public class GroupMoveButton extends PieMenuButton
 {
 	
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;	
-	private long guuid = 0L;
+	private long cuuid;
 	public boolean isActive = false;
+	
+	Point prevPoint, mouseDownPoint;
 	
 	public GroupMoveButton(long uuid)
 	{
 		super("group.move");
+		draggable = true;
 		guuid = uuid;
 	}
 	
@@ -36,42 +39,91 @@ public class GroupMoveButton extends PieMenuButton
 		
 		isActive = true;
 		
-		long canvasUUID = CGroupController.groupdb.get(guuid).getCanvasUID();
+		prevPoint = new Point();
 		
-//		PImage ghost = new PImage();
-//		
-//		if (CalicoDataStore.isInViewPort)
-//		{
-//			ghost.setImage(CViewportController.getScaledGroupImage(guuid));
-//			ghost.setBounds(CViewportController.getScaledGroupBounds(guuid));
-//		}
-//		else
-//		{
-//			ghost.setImage(CGroupController.groupdb.get(guuid).getFamilyPicture());
-//			ghost.setBounds(CGroupController.groupdb.get(guuid).getBounds().getBounds2D());
-//		}
-
+		cuuid = CGroupController.groupdb.get(guuid).getCanvasUID();
 		
-		
-		
-//		if CViewportCanvas.getInstance().getCanvasIdOfPoint(p)
-//		if (CalicoDataStore.isInViewPort)
-		
-//		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
-//		CCanvasController.canvasdb.get(canvasUUID).getCamera().addChild(ghost);
-		
-		TranslateMouseListener resizeDragListener = new TranslateMouseListener(canvasUUID, guuid);
-		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
-		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
+		//TranslateMouseListener resizeDragListener = new TranslateMouseListener(canvasUUID, guuid);
+		//CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
+		//CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(resizeDragListener);
 		
 		//pass click event on to this listener since it will miss it
-		resizeDragListener.mousePressed(ev.getPoint());
+		//resizeDragListener.mousePressed(ev.getPoint());
+		
+		prevPoint.x = 0;
+		prevPoint.y = 0;
+		mouseDownPoint = null;
 		
 		ev.stop();
 		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		System.out.println("CLICKED GROUP MOVE BUTTON");
 		//CGroupController.drop(group_uuid);
+	}
+	
+	public void onDragged(InputEventInfo ev)
+	{
+		if (mouseDownPoint == null)
+		{
+			prevPoint.x = ev.getPoint().x;
+			prevPoint.y = ev.getPoint().y;
+			mouseDownPoint = ev.getPoint();
+			CGroupController.move_start(guuid);
+		}
+
+		CGroupController.move(guuid, (int)(ev.getPoint().x - prevPoint.x), ev.getPoint().y - prevPoint.y);
+		
+		long smallestParent = CGroupController.groupdb.get(guuid).calculateParent(ev.getPoint().x, ev.getPoint().y);
+		if (smallestParent != BubbleMenu.highlightedParentGroup)
+		{
+			if (BubbleMenu.highlightedParentGroup != 0l)
+			{
+				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+				CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+			}
+			if (smallestParent != 0l)
+			{
+				CGroupController.groupdb.get(smallestParent).highlight_on();
+				CGroupController.groupdb.get(smallestParent).highlight_repaint();
+			}
+			BubbleMenu.highlightedParentGroup = smallestParent;
+		}
+		
+		/*if ((smallestParent = CGroupController.groupdb.get(guuid).calculateParent(e.getPoint().x, e.getPoint().y)) != 0l)
+		{
+			CGroupController.groupdb.get(smallestParent).highlight_on();
+		}*/
+		
+		prevPoint.x = ev.getPoint().x;
+		prevPoint.y = ev.getPoint().y;
+		ev.stop();
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
+		if (BubbleMenu.highlightedParentGroup != 0l)
+		{
+			CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+			CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+			BubbleMenu.highlightedParentGroup = 0l;
+		}
+
+		//This threw a null pointer exception for some reason...
+		if (mouseDownPoint != null)
+			CGroupController.move_end(this.guuid, ev.getX(), ev.getY()); 
+		
+		//Update the menu location in case it was dropped into a list
+		//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+		
+		ev.stop();
+//			PieMenu.isPerformingPieMenuAction = false;
+		
+		if(!CGroupController.groupdb.get(guuid).isPermanent())
+		{
+			//CGroupController.drop(guuid);
+		}
+		
+		isActive = false;
 	}
 		
 	private class TranslateMouseListener implements MouseMotionListener, MouseListener
@@ -211,9 +263,4 @@ public class GroupMoveButton extends PieMenuButton
 		}
 	}
 	
-	//Leave this empty
-	public void setHaloEnabled(boolean enable)
-	{
-		
-	}
 }

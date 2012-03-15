@@ -46,6 +46,7 @@ public class BubbleMenu {
 	public static int selectedButtonIndex = -1;
 	
 	private static PActivity fadeActivity;
+	private static boolean isBubbleMenuActive = false;
 	
 	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
 
@@ -61,10 +62,15 @@ public class BubbleMenu {
 	
 	public static void displayBubbleMenu(Long uuid, boolean fade, PieMenuButton... buttons)
 	{
-		if(bubbleContainer!=null)
+		//if(bubbleContainer!=null)
+		boolean fadeIn = fade;
+		if (isBubbleMenuActive())
 		{
 			// Clear out the old one, then try this again
 			clearMenu();
+			//Don't fade in if menu was already active.
+			System.out.println("tes");
+			fadeIn = false;
 		}
 		activeGroup = uuid;
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
@@ -73,12 +79,13 @@ public class BubbleMenu {
 		
 		//displayBubbleMenuArray(location, buttons);
 		
+		buttonList.clear();
 		buttonList.addElements(0, buttons, 0, buttons.length);
 		buttonPosition = new int[buttonList.size()];
 		
 		getIconPositions();
 		
-		drawBubbleMenu(fade);
+		drawBubbleMenu(fadeIn);
 		
 		for (ContextMenu.Listener listener : listeners)
 		{
@@ -95,30 +102,12 @@ public class BubbleMenu {
 	private static void drawBubbleMenu(boolean fade)//, PieMenuButton[] buttons)
 	{
 		bubbleContainer = new BubbleMenuContainer();
+		bubbleContainer.setTransparency(0f);
 		bubbleHighlighter = new BubbleMenuHighlighter();
 		updateContainerBounds();
+		isBubbleMenuActive = true;
 		
-		fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
-			long step = 0;
-      
-		    protected void activityStep(long time) {
-		            super.activityStep(time);
-
-		            bubbleContainer.setTransparency(1.0f * step/5);
-		            //CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f * step/5);
-		            
-//		            repaint();
-		            step++;
-		            
-		            if (step > 5)
-		            	terminate();
-		    }
-		    
-		    protected void activityFinished() {
-		    	bubbleContainer.setTransparency(1.0f);
-		    	//CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
-		    }
-		};
+		
 
 		/*final boolean tempfade = fade;
 		final PActivity tempActivity = fadeActivity;
@@ -148,6 +137,30 @@ public class BubbleMenu {
 			// Must schedule the activity with the root for it to run.
 			if (fade)
 			{
+				
+				fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
+					long step = 0;
+		      
+				    protected void activityStep(long time) {
+				            super.activityStep(time);
+
+				            bubbleContainer.setTransparency(1.0f * step/5);
+				            //CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f * step/5);
+				            
+//				            repaint();
+				            step++;
+				            
+				            if (step > 5)
+				            	terminate();
+				    }
+				    
+				    protected void activityFinished() {
+				    	bubbleContainer.setTransparency(1.0f);
+				    	//CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
+				    }
+				};
+				
+						
 				//bubbleContainer.getRoot().addActivity(fadeActivity);
 				CalicoDraw.addActivityToNode(bubbleContainer, fadeActivity);
 			}
@@ -159,6 +172,17 @@ public class BubbleMenu {
 			}
 		}
 	}	
+	
+	public static void updateGroupUUID(long uuid)
+	{
+		for(int i=0;i<buttonList.size();i++)
+		{
+			activeGroup = uuid;
+			activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+			buttonList.get(i).updateGroupUUID(uuid);
+			moveIconPositions(activeGroupBounds);
+		}
+	}
 	
 	public static void moveIconPositions(PBounds groupBounds)
 	{
@@ -381,8 +405,8 @@ public class BubbleMenu {
 				maxX = screenWidth - screenX - iconSize - small - large;
 				maxY = screenHeight - screenYBottom - iconSize;
 			break;
-		case 10: x = (int)groupBounds.getMinX() - startX + large;
-				 y = (int)groupBounds.getMaxY() + startY + small;
+		case 10: x = (int)groupBounds.getMinX() - startX - centerOffset + large;
+				 y = (int)groupBounds.getMaxY() + startY - centerOffset + small;
 				 minX = screenX + small + large;
 				 minY = screenYTop + farSideDistance + large + small;
 				 maxX = screenWidth - screenX - iconSize - farSideDistance;
@@ -427,10 +451,7 @@ public class BubbleMenu {
 	
 	public static void clearMenu()
 	{
-		if (fadeActivity.isStepping())
-		{
-			fadeActivity.terminate();
-		}
+		fadeActivity.terminate(PActivity.TERMINATE_WITHOUT_FINISHING);
 		
 		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
@@ -441,21 +462,21 @@ public class BubbleMenu {
 		CalicoDraw.removeAllChildrenFromNode(bubbleContainer);
 		CalicoDraw.removeNodeFromParent(bubbleContainer);
 		CalicoDraw.removeNodeFromParent(bubbleHighlighter);
-		buttonList.clear();
-		buttonPosition = null;
-		bubbleContainer = null;
-		bubbleHighlighter = null;
+		//buttonList.clear();
+		//buttonPosition = null;
+		isBubbleMenuActive = false;
+		//bubbleContainer = null;
+		//bubbleHighlighter = null;
 		selectedButtonIndex = -1;
 		isPerformingBubbleMenuAction = false;
 		if (activeGroup != 0l)
 		{
-			final long tempActiveGroup = activeGroup;
 			//SwingUtilities.invokeLater(
 			//		new Runnable() { public void run() { 
-			if (CGroupController.exists(tempActiveGroup))
+			if (CGroupController.exists(activeGroup))
 			{
-				CGroupController.groupdb.get(tempActiveGroup).highlight_off();
-				CGroupController.groupdb.get(tempActiveGroup).highlight_repaint();
+				CGroupController.groupdb.get(activeGroup).highlight_off();
+				CGroupController.groupdb.get(activeGroup).highlight_repaint();
 			}
 			
 			//		}});
@@ -493,7 +514,8 @@ public class BubbleMenu {
 
 	public static boolean checkIfCoordIsOnBubbleMenu(Point point)
 	{
-		if(bubbleContainer==null)
+		//if(bubbleContainer==null)
+		if (!isBubbleMenuActive())
 		{
 			return false;
 		}		
@@ -515,34 +537,29 @@ public class BubbleMenu {
 		return false;
 	}
 	
-	public static void clickBubbleMenuButton(Point point, InputEventInfo ev)
+	public static void handleButtonInput(Point point, InputEventInfo ev)
 	{		
 		if(buttonList.size()==0)
 		{
 			return;
 		}
 		
-		int numOfPositions = buttonList.size();
-		//int menuRadius = getMinimumRadius(DEFAULT_MENU_RADIUS,numOfPositions) + 1;
 		if(ev.getAction()==InputEventInfo.ACTION_PRESSED)
 		{
+			BubbleMenu.isPerformingBubbleMenuAction = true;
 			for(int i=0;i<buttonList.size();i++)
 			{
-				
-				//if (getIconSliceBounds(menuRadius, numOfPositions, i).contains(point))
-				//if(getButton(i).checkWithinBounds(point))
 				if(getButtonHalo(i).contains(point))
 				{
 					CGroupController.restoreOriginalStroke = false;
 					
 					setSelectedButton(i);
+					BubbleMenu.setHaloEnabled(true);
 					getButton(i).onPressed(ev);
 					
 					//For compatibility with plugin buttons until they are modified
 					getButton(i).onClick(ev);
 					
-					//setSelectedButton(0);
-					//clearMenu();
 					//cancel stroke restore now that the user completed an action
 					return;
 				}
@@ -550,26 +567,37 @@ public class BubbleMenu {
 		}
 		else if (ev.getAction()==InputEventInfo.ACTION_RELEASED)
 		{
-			for(int i=0;i<buttonList.size();i++)
+			if(selectedButtonIndex != -1 && (getButton(selectedButtonIndex).draggable || getButtonHalo(selectedButtonIndex).contains(point)) )
 			{
-				
-				//if (getIconSliceBounds(menuRadius, numOfPositions, i).contains(point))
-				if(getButtonHalo(i).contains(point) && i == selectedButtonIndex)
-				{
-					getButton(i).onReleased(ev);
-					
-				}
+				getButton(selectedButtonIndex).onReleased(ev);
 			}
+
 			setSelectedButton(-1);
-		}
-		
-		
-		// This allows the menus on a HOLD (so they dont go away when you release your hold)
-		if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
-		{
-			logger.trace("BubbleMenu: Ignorning mouse event because it is a RELEASE event.");
+			BubbleMenu.isPerformingBubbleMenuAction = false;
 			return;
 		}
+		else if (ev.getAction()==InputEventInfo.ACTION_DRAGGED)
+		{
+			if(selectedButtonIndex != -1)
+			{
+				if (getButton(selectedButtonIndex).draggable)
+				{
+					getButton(selectedButtonIndex).onDragged(ev);
+				}
+				else if (getButtonHalo(selectedButtonIndex).contains(point))
+				{
+					BubbleMenu.setHaloEnabled(true);
+				}
+				else
+				{
+					BubbleMenu.setHaloEnabled(false);
+				}
+				
+			}
+			return;
+		}
+		
+
 		
 		// TODO: If we get to this point... should we just kill the menu?
 		clearMenu();
@@ -587,12 +615,9 @@ public class BubbleMenu {
 	
 	public static Ellipse2D.Double getButtonHalo(int buttonIndex)
 	{
-		synchronized(buttonList)
-		{
 			return new Ellipse2D.Double(buttonList.get(buttonIndex).getBounds().getMinX() - (BubbleMenuHighlighter.halo_buffer / 2),
 									buttonList.get(buttonIndex).getBounds().getMinY() - (BubbleMenuHighlighter.halo_buffer / 2),
 									BubbleMenuHighlighter.halo_size, BubbleMenuHighlighter.halo_size);
-		}
 	}
 	
 	public static PBounds getContainerBounds()
@@ -602,7 +627,8 @@ public class BubbleMenu {
 	
 	public static boolean isBubbleMenuActive()
 	{
-		return (bubbleContainer!=null);
+		//return (bubbleContainer!=null);
+		return isBubbleMenuActive;
 	}
 	
 	static int getButtonCount()

@@ -80,7 +80,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		hasBeenPressed = true;
 		long uuid = 0l;
 		
-		if(e.isLeftButtonPressed())
+		if(e.isLeftButton())
 		{
 			int x = e.getX();
 			int y = e.getY();
@@ -113,10 +113,10 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			mouseMoved = true;
 
 		}
-		if(PieMenu.isPieMenuActive())
+		/*if(BubbleMenu.isBubbleMenuActive())
 		{
 			return;
-		}
+		}*/
 		
 //		this.hideModeIcon(e.getPoint());
 
@@ -150,10 +150,10 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionReleased(InputEventInfo e)
 	{
-		if(PieMenu.isPieMenuActive())
+		/*if(BubbleMenu.isBubbleMenuActive())
 		{
 			return;
-		}
+		}*/
 		mouseUp = e.getPoint();
 //		this.hideModeIcon();
 		

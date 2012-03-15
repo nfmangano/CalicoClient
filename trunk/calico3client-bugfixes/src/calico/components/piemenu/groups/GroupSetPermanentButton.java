@@ -17,7 +17,6 @@ public class GroupSetPermanentButton extends PieMenuButton
 {
 
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE;
-	long guuid;
 	private boolean isActive = false;
 	
 	public GroupSetPermanentButton(long uuid)
@@ -39,7 +38,6 @@ public class GroupSetPermanentButton extends PieMenuButton
 	
 	public void onReleased(InputEventInfo ev)
 	{
-		//super.onClick(ev);
 		if (CGroupController.exists(guuid))
 		{
 			CGroupController.set_permanent(guuid, true);

@@ -349,6 +349,10 @@ public class CalicoInputManager
 
 	public static void handleDeviceInput(InputEventInfo ev)
 	{
+		//Only allow left mouse button events right now
+		if (!ev.isLeftButton())
+			return;
+		
 		// Update the "last action" thing
 		CalicoDataStore.touch_input();
 		CalicoInputManager.mostRecentPoint = ev.getPoint();
@@ -443,11 +447,11 @@ public class CalicoInputManager
 
 		else if (BubbleMenu.isBubbleMenuActive())
 		{
+			
 			// We are from a pie menu. PIGGYBACK FROM PIEMENU FLAG FOR NOW
 			ev.setFlag(InputEventInfo.FLAG_IS_FROM_PIEMENU);
 			
-			if (ev.getAction() == InputEventInfo.ACTION_DRAGGED && BubbleMenu.selectedButtonIndex != -1)
-			{
+				/*BubbleMenu.handleButtonInput(ev.getPoint(), ev);
 				if (BubbleMenu.getButtonHalo(BubbleMenu.selectedButtonIndex).contains(ev.getGlobalPoint()))
 				{
 					BubbleMenu.setHaloEnabled(true);
@@ -457,66 +461,55 @@ public class CalicoInputManager
 					BubbleMenu.setHaloEnabled(false);
 				}
 				lockInputHandler = 0;
+				return;*/
+
+			if (BubbleMenu.performingBubbleMenuAction())
+			{
+				if(ev.getAction()==InputEventInfo.ACTION_RELEASED || ev.getAction()==InputEventInfo.ACTION_DRAGGED)
+				{
+					BubbleMenu.handleButtonInput(ev.getGlobalPoint(), ev);
+				}
+				lockInputHandler = 0l;
 				return;
 			}
-			else
-			{
-				// Was it actually on the thing?
-				if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
-				{				
-					//Make sure did not land on it from a stroke
-					if (BubbleMenu.performingBubbleMenuAction() || ev.getAction()==InputEventInfo.ACTION_PRESSED)
-					{
-					
-						// Did we press the button?
-						if(ev.getAction()==InputEventInfo.ACTION_PRESSED || ev.getAction()==InputEventInfo.ACTION_RELEASED)
-						{
-							BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
-						}
-						//No bubblemenu on grid currently
-						/*if(CalicoDataStore.isViewingGrid && ev.getAction()==InputEventInfo.ACTION_PRESSED)
-						{
-							PieMenu.clickPieMenuButton(ev.getGlobalPoint(), ev);
-						}*/
-						if (CalicoPerspective.Active.hasPhasicPieMenuActions())
-						{
-							lockInputHandler = 0l;
-							BubbleMenu.isPerformingBubbleMenuAction = true;
-						}
-						return;
-					}
-				}
-				else if (BubbleMenu.performingBubbleMenuAction())
+			// Was it actually on the thing?
+			else if(BubbleMenu.checkIfCoordIsOnBubbleMenu(ev.getGlobalPoint()))
+			{				
+				//Make sure did not land on it from a stroke
+				if (BubbleMenu.performingBubbleMenuAction() || ev.getAction()==InputEventInfo.ACTION_PRESSED)
 				{
-					if(ev.getAction()==InputEventInfo.ACTION_RELEASED)
+				
+					// Did we press the button?
+					if(ev.getAction()==InputEventInfo.ACTION_PRESSED)
 					{
-						BubbleMenu.clickBubbleMenuButton(ev.getGlobalPoint(), ev);
+						BubbleMenu.handleButtonInput(ev.getGlobalPoint(), ev);
 					}
+
 					lockInputHandler = 0l;
 					return;
 				}
-				else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
-				{				
-					// Now just kill it.
-					
-					//Need this if else in case group does not exist
-					if (BubbleMenu.isBubbleMenuActive())
+			}
+			
+			else if (ev.getAction() == InputEventInfo.ACTION_PRESSED)
+			{				
+				// Now just kill it.
+				//Need this if else in case group does not exist
+				if (BubbleMenu.isBubbleMenuActive())
+				{
+					if (!CGroupController.exists(BubbleMenu.activeGroup))
 					{
-						if (!CGroupController.exists(BubbleMenu.activeGroup))
-						{
-							BubbleMenu.clearMenu();
-							CCanvasStrokeModeInputHandler.deleteSmudge = true;
-						}
-						else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
-								|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
-						{
-							BubbleMenu.clearMenu();
-							CCanvasStrokeModeInputHandler.deleteSmudge = true;
-							
-						}
+						BubbleMenu.clearMenu();
+						CCanvasStrokeModeInputHandler.deleteSmudge = true;
 					}
-					//return;// Dont return, we should let this one thru!
+					else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
+							|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+					{
+						BubbleMenu.clearMenu();
+						CCanvasStrokeModeInputHandler.deleteSmudge = true;
+						
+					}
 				}
+				//return;// Dont return, we should let this one thru!
 			}
 		}
 		else if (BubbleMenu.performingBubbleMenuAction())

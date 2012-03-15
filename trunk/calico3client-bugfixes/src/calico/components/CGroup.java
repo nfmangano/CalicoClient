@@ -318,8 +318,8 @@ public class CGroup extends PPath implements Serializable {
 				&& CCanvasController.exists(cuid)) {
 //			this.setPaintInvalid(true);
 //			 CCanvasController.canvasdb.get(this.cuid).repaint(this.getBounds());
-			/*a*/
-			CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(this.getBounds(), this);
+			
+			//CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(this.getBounds(), this);
 			CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getCamera(), this.getBounds(), this);
 		}
 	}
@@ -2253,9 +2253,10 @@ public class CGroup extends PPath implements Serializable {
 	public void highlight_repaint()
 	{
 		Rectangle bounds = getBounds().getBounds();
-		double buffer = 10;
+		double buffer = 20;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
-		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getLayer(), bufferBounds, this);
 	}
 	
 	public void highlight_on() {
