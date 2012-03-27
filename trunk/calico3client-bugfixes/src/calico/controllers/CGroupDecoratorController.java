@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CGroup;
 import calico.components.decorators.CListDecorator;
@@ -31,7 +32,8 @@ public class CGroupDecoratorController {
 		{
 			CGroupController.logger.debug("Need to delete group "+uuid);
 			// WHOAA WE NEED TO DELETE THIS SHIT
-			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(CGroupController.groupdb.get(uuid));
+			//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(CGroupController.groupdb.get(uuid));
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), CGroupController.groupdb.get(uuid));
 //			CCanvasController.canvasdb.get(cuuid).getCamera().repaint();
 		}
 		
@@ -40,7 +42,8 @@ public class CGroupDecoratorController {
 		
 		CCanvasController.canvasdb.get(cuuid).addChildGroup(groupToLoad.getUUID());
 		
-		CCanvasController.canvasdb.get(cuuid).getLayer().addChild(CGroupController.groupdb.get(groupToLoad.getUUID()));
+		//CCanvasController.canvasdb.get(cuuid).getLayer().addChild(CGroupController.groupdb.get(groupToLoad.getUUID()));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuuid).getLayer(), CGroupController.groupdb.get(groupToLoad.getUUID()));
 		
 		CalicoInputManager.addGroupInputHandler(uuid);
 		

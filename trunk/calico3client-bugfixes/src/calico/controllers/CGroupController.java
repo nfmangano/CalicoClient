@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions.arrow;
 import calico.components.arrow.AnchorPoint;
 import calico.components.arrow.CArrow;
@@ -244,7 +245,8 @@ public class CGroupController
 		{
 			logger.debug("Need to delete group "+uuid);
 			// WHOAA WE NEED TO DELETE THIS SHIT
-			CCanvasController.canvasdb.get(cuid).getLayer().removeChild(groupdb.get(uuid));
+			//CCanvasController.canvasdb.get(cuid).getLayer().removeChild(groupdb.get(uuid));
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 //			CCanvasController.canvasdb.get(cuid).getCamera().repaint();
 		}
 		
@@ -253,7 +255,8 @@ public class CGroupController
 		
 		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);
 		
-		CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 		
 		groupdb.get(uuid).drawPermTemp(true);
 		
@@ -347,34 +350,35 @@ public class CGroupController
 		//CCanvasController.canvasdb.get(groupdb.get(uuid).getCanvasUID()).getLayer().removeChild(groupdb.get(uuid));
 		
 		//This ain't pretty, but its needed for thread safety.
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 			new Runnable() { 
-				public void run() {
-					
-					if(!exists(uuid))
-					{
-						//Even if we get this warning it should be ok. 
-						//It means the AWT eventqueue did not process this remove and a duplicate delete request came.
-						//The rest of the code in this method should deal with it ok and the code in here deals with it through this warning
-						logger.warn("DELETE for non-existant group "+uuid);
-					}
-					else
-					{
-						if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
-						{
-							groupdb.get(uuid).removeFromParent();
-							groupdb.remove(uuid);
-				
-							dq_add(uuid);
-						}
-						
-						for (Listener listener : listeners)
-						{
-							listener.groupDeleted(uuid);
-						}
-					}
+				public void run() {*/
+
+		if(!exists(uuid))
+		{
+			//Even if we get this warning it should be ok. 
+			//It means the AWT eventqueue did not process this remove and a duplicate delete request came.
+			//The rest of the code in this method should deal with it ok and the code in here deals with it through this warning
+			logger.warn("DELETE for non-existant group "+uuid);
+		}
+		else
+		{
+			if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
+			{
+				//groupdb.get(uuid).removeFromParent();
+				CalicoDraw.removeNodeFromParent(groupdb.get(uuid));
+				groupdb.remove(uuid);
 	
-				} } );
+				dq_add(uuid);
+			}
+			
+			for (Listener listener : listeners)
+			{
+				listener.groupDeleted(uuid);
+			}
+		}
+	
+				//} } );
 		
 	}
 	
@@ -1503,11 +1507,12 @@ public class CGroupController
 		
 		group.setShapeToRoundedRectangle(rect);
 		
-		group.repaint();
+		//group.repaint();
+		CalicoDraw.repaint(group);
 
 		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == guuid)
 		{
-			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+			BubbleMenu.moveIconPositions(group.getBounds());
 		}
 	}
 	
@@ -1557,7 +1562,8 @@ public class CGroupController
 		
 		groupdb.put(uuid, new CGroupImage(uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH));		
 		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);		
-		CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));		
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));	
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 		groupdb.get(uuid).drawPermTemp(true);
 		CGroupController.no_notify_finish(uuid, false);
 		
@@ -1670,6 +1676,7 @@ public class CGroupController
 	
 	public static void move_end(long uuid, int x, int y) {		no_notify_move_end(uuid, x, y);
 		CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()).moveInFrontOf(null);
+		//CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()), null);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_MOVE_END, uuid, x, y));
 	}
 
@@ -1681,8 +1688,10 @@ public class CGroupController
 	
 	public static void no_notify_move_start(long guuid) {
 		no_notify_set_parent(guuid, 0);
-		CGroupController.groupdb.get(guuid).moveToFront();
-		CGroupController.groupdb.get(guuid).moveInFrontOf(null);
+		//CGroupController.groupdb.get(guuid).moveToFront();
+		CalicoDraw.moveNodeToFront(CGroupController.groupdb.get(guuid));
+		//CGroupController.groupdb.get(guuid).moveInFrontOf(null);
+		CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(guuid), null);
 		CalicoInputManager.group = guuid;
 	}
 	

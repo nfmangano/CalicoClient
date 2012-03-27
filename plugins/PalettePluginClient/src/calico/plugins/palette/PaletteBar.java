@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import calico.CalicoDataStore;
-import calico.components.CViewportCanvas;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;

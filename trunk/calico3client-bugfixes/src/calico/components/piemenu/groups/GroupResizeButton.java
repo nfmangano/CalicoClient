@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.CGroup;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
@@ -20,46 +21,144 @@ import edu.umd.cs.piccolo.nodes.PImage;
 public class GroupResizeButton extends PieMenuButton
 {
 	
-	long uuid;
+	PImage ghost;
+	Point2D.Double prevPoint, mouseDownPoint, mouseUpPoint;
+	Point2D.Double centerPoint;
+	long cuuid;
+	boolean isListItem;
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
 	
 	public GroupResizeButton(long u)
 	{
 		super("group.resize");
-		uuid = u;
+		draggable = true;
+		guuid = u;
 	}
 	
 	public void onPressed(InputEventInfo ev)
 	{	
-		if (!CGroupController.exists(uuid) || isActive)
+		super.onPressed(ev);
+		if (!CGroupController.exists(guuid) || isActive)
 		{
 			return;
 		}
 		
 		isActive = true;
 		
-		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
-		PImage ghost = new PImage();
-		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
-		ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		cuuid = CGroupController.groupdb.get(guuid).getCanvasUID();
+		ghost = new PImage();
+		ghost.setImage(CGroupController.groupdb.get(guuid).getFamilyPicture());
+		//ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		CalicoDraw.setNodeBounds(ghost, CGroupController.groupdb.get(guuid).getBounds().getBounds2D());
 //		ghost.scale(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale());
 		
-		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		//CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 		
-		RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, uuid);
-		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
-		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
+		Point2D cp = CGroupController.groupdb.get(guuid).getMidPoint();
+		centerPoint = new Point2D.Double(cp.getX(), cp.getY());
+		prevPoint = new Point2D.Double();
+		
+		isListItem = false;
+		CGroup cGroup = CGroupController.groupdb.get(guuid);
+		while(cGroup.getParentUUID() != 0l)
+		{
+			cGroup = CGroupController.groupdb.get(cGroup.getParentUUID());
+			if (cGroup instanceof CListDecorator)
+			{
+				isListItem = true;
+				break;
+			}
+		}
+		
+		//BubbleMenu.setSelectedButton(GroupRotateButton.class.getName());
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());
+		
+		prevPoint.x = scaledPoint.getX();
+		prevPoint.y = scaledPoint.getY();
+		mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
+		
+		if (!isListItem)
+		{
+			CGroupController.move_start(guuid);
+		}
+		
+		
+		/*RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, cuuid, guuid);
+		CCanvasController.canvasdb.get(cuuid).addMouseListener(rotateDragListener);
+		CCanvasController.canvasdb.get(cuuid).addMouseMotionListener(rotateDragListener);
 
 		
 		//pass click event on to this listener since it will miss it
-		rotateDragListener.mousePressed(ev.getPoint());
+		rotateDragListener.mousePressed(ev.getPoint());*/
 		
 		ev.stop();
-		BubbleMenu.isPerformingBubbleMenuAction = true;
+		//BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		
 		Calico.logger.debug("CLICKED GROUP ROTATE BUTTON");
+	}
+	
+	public void onDragged(InputEventInfo ev)
+	{
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());
+		
+		Point2D.Double p = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
+		/*double angle = getAngle(prevPoint, p, centerPoint);
+		ghost.rotateAboutPoint(angle, centerPoint);*/
+		
+		double oldScale = getScaleMP(prevPoint);
+		double newScale = getScaleMP(p);
+		double scale = newScale/oldScale;
+		ghost.scaleAboutPoint(scale, centerPoint);
+
+		//ghost.repaintFrom(ghost.getBounds(), ghost);
+		CalicoDraw.repaintNode(ghost);
+
+		BubbleMenu.moveIconPositions(ghost.getFullBounds());
+		
+		
+		prevPoint.x = scaledPoint.getX();
+		prevPoint.y = scaledPoint.getY();
+		ev.stop();
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());
+		
+		mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
+
+		//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+		CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
+		
+		/*double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
+		CGroupController.rotate(guuid, angle);*/
+		
+		//Turn off highlighter before resize to make sure it does not leave artifacts. 
+		CGroupController.groupdb.get(guuid).highlight_off();
+		CGroupController.groupdb.get(guuid).highlight_repaint();
+		
+		double scale = getScaleMP(mouseUpPoint);
+		CGroupController.scale(guuid, scale, scale);
+		if (!isListItem)
+		{
+			CGroupController.move_end(this.guuid, ev.getX(), ev.getY()); 
+		}
+		
+		//Turn highlighter back on for resized version
+		CGroupController.groupdb.get(guuid).highlight_on();
+		
+		ev.stop();
+//			PieMenu.isPerformingPieMenuAction = false;
+		
+		if(!CGroupController.groupdb.get(guuid).isPermanent())
+		{
+			//CGroupController.drop(guuid);
+		}
+		
+		isActive = false;
 	}
 	
 	private class RotateMouseListener implements MouseMotionListener, MouseListener
@@ -106,7 +205,8 @@ public class GroupResizeButton extends PieMenuButton
 				double scale = newScale/oldScale;
 				ghost.scaleAboutPoint(scale, centerPoint);
 	
-				ghost.repaintFrom(ghost.getBounds(), ghost);
+				//ghost.repaintFrom(ghost.getBounds(), ghost);
+				CalicoDraw.repaintNode(ghost);
 	
 				BubbleMenu.moveIconPositions(ghost.getFullBounds());
 				
@@ -120,7 +220,8 @@ public class GroupResizeButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Resize listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		
@@ -172,7 +273,8 @@ public class GroupResizeButton extends PieMenuButton
 				mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 				
 				/*double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
 				CGroupController.rotate(guuid, angle);*/
@@ -206,7 +308,8 @@ public class GroupResizeButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Resize listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		
@@ -256,9 +359,14 @@ public class GroupResizeButton extends PieMenuButton
 
 	}
 	
-	//Leave this empty
-	public void setHaloEnabled(boolean enable)
+	private double getScaleMP(Point2D.Double p)
 	{
+		double originalDistance = Math.sqrt(Math.pow(mouseDownPoint.getY() - centerPoint.getY(), 2) 
+										+ Math.pow(mouseDownPoint.getX() - centerPoint.getX(), 2));
+		double newDistance = Math.sqrt(Math.pow(p.getY() - centerPoint.getY(), 2) 
+				+ Math.pow(p.getX() - centerPoint.getX(), 2));
 		
+		return newDistance / originalDistance;
 	}
+	
 }

@@ -16,7 +16,6 @@ public class GroupShrinkToContentsButton extends PieMenuButton
 {
 
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
-	long guuid;
 	private boolean isActive = false;
 	
 	public GroupShrinkToContentsButton(long uuid)

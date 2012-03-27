@@ -7,6 +7,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import calico.CalicoDraw;
 import calico.input.CInputMode;
 import calico.utils.ImageUtils;
 import edu.umd.cs.piccolo.PLayer;
@@ -91,19 +92,24 @@ public class CCanvasWatermark extends PLayer
 				}
 			}
 
-			removeAllChildren();
+			//removeAllChildren();
+			CalicoDraw.removeAllChildrenFromNode(this);
+			
 			int y = tileFrequency / 2;
 			for (int yIndex = 0; yIndex < yTileCount; yIndex++)
 			{
 				int x = tileFrequency / 2;
 				List<PImage> row = tiles.get(yIndex);
 				
-				addChildren(row);
+				//addChildren(row);
+				CalicoDraw.addChildrenToNode(this, row);
 				
 				for (PImage tile : row)
 				{
-					tile.setX(x);
-					tile.setY(y);
+					//tile.setX(x);
+					//tile.setY(y);
+					CalicoDraw.setNodeX(tile, x);
+					CalicoDraw.setNodeY(tile, y);
 					
 					x += tileFrequency;
 				}

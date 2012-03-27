@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
@@ -33,8 +34,10 @@ public class GroupIncreaseSizeButton extends PieMenuButton
 		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
 		PImage ghost = new PImage();
 		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
-		ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
-		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		//ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		CalicoDraw.setNodeBounds(ghost, CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		//CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUUID).getLayer(), ghost);
 		
 		ResizeMouseListener resizeDragListener = new ResizeMouseListener(ghost, canvasUUID, uuid);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(resizeDragListener);
@@ -101,7 +104,8 @@ public class GroupIncreaseSizeButton extends PieMenuButton
 		public void mouseReleased(MouseEvent e) {
 			CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 			CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-			CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+			//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			
 			double scale = getScaleMP(getPoint2D(e.getPoint()));
 			double newScale = scale * CGroupController.groupdb.get(guuid).getScale();

@@ -54,6 +54,7 @@ import org.apache.log4j.Logger;
 import org.shodor.util11.PolygonUtils;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.CalicoUtils;
 import calico.components.arrow.AnchorPoint;
@@ -157,8 +158,8 @@ public class CGroup extends PPath implements Serializable {
 	public CGroup(long uuid, long cuid, long puid, boolean isperm) {
 		this.uuid = uuid;
 		this.cuid = cuid;
-		setParentUUID(puid);
-//		this.puid = puid;
+		//setParentUUID(puid);
+		this.puid = puid;
 		this.isPermanent = isperm;
 		
 		setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
@@ -167,7 +168,8 @@ public class CGroup extends PPath implements Serializable {
 		setStrokePaint(CalicoOptions.group.stroke_color);
 
 		drawPermTemp(false);
-		this.setTransparency(0f);
+		//this.setTransparency(0f);
+		CalicoDraw.setNodeTransparency(this, 0f);
 		
 //		setPieMenuButtons();
 	}
@@ -316,7 +318,9 @@ public class CGroup extends PPath implements Serializable {
 				&& CCanvasController.exists(cuid)) {
 //			this.setPaintInvalid(true);
 //			 CCanvasController.canvasdb.get(this.cuid).repaint(this.getBounds());
-			CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(this.getBounds(), this);
+			
+			//CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(this.getBounds(), this);
+			CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getCamera(), this.getBounds(), this);
 		}
 	}
 
@@ -377,8 +381,30 @@ public class CGroup extends PPath implements Serializable {
 	public long getParentUUID() {
 		return this.puid;
 	}
+	
+	public void setParentUUID(long u) {
+		if (u == this.puid)
+			return;
+		
+		if (puid == this.uuid)
+			puid = 0l;
+		
+		logger.trace("Changing parent for " + uuid + ": " + this.puid + " -> " + u);
+		this.puid = u;
+		if (CGroupController.exists(u))
+		{
+			CGroup parent = CGroupController.groupdb.get(u);
+			if (!parent.hasChildGroup(this.uuid))
+			{
+				Point2D midPoint = getMidPoint();
+				parent.addChildGroup(this.uuid, (int)midPoint.getX(), (int)midPoint.getY());
+			}
+			resetViewOrder();
+		}
 
-	public void setParentUUID(long puid) {
+	}
+
+	/*public void setParentUUID(long puid) {
 		if (puid == this.puid)
 			return;
 		
@@ -402,7 +428,7 @@ public class CGroup extends PPath implements Serializable {
 			}
 			resetViewOrder();
 		}
-	}
+	}*/
 
 	public double getArea() {
 		return this.groupArea;
@@ -696,6 +722,7 @@ public class CGroup extends PPath implements Serializable {
 			    protected void activityStep(long time) {
 			            super.activityStep(time);
 			            setTransparency(1.0f * step/5 * transparency);
+			            //CalicoDraw.setNodeTransparency(CGroup.this, 1.0f * step/5 * transparency);
 	//		            repaint();
 			            step++;
 			            
@@ -706,13 +733,16 @@ public class CGroup extends PPath implements Serializable {
 			    protected void activityFinished() {
 			    	if (getTransparency() != transparency)
 			    		setTransparency(transparency);
+			    		//CalicoDraw.setNodeTransparency(CGroup.this, transparency);
 			    }
 			};
 			// Must schedule the activity with the root for it to run.
-			getRoot().addActivity(flash);
+			//getRoot().addActivity(flash);
+			CalicoDraw.addActivityToNode(this, flash);
 		}
 		else
-			setTransparency(transparency);
+			//setTransparency(transparency);
+			CalicoDraw.setNodeTransparency(this, transparency);
 	}
 
 	public void setText(String text) {
@@ -873,7 +903,7 @@ public class CGroup extends PPath implements Serializable {
 			}
 		}
 	}
-
+	@Override
 	public void repaint() {
 		super.repaint();
 //		Rectangle bounds = getPathReference().getBounds();
@@ -1121,7 +1151,8 @@ public class CGroup extends PPath implements Serializable {
 		scaleY = 1.0d;
 		rotation = 0.0d;
 		
-		this.setPaintInvalid(true);
+		//this.setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(this, true);
 	}
 
 	// public void shrinkToConvexHull() {
@@ -1676,7 +1707,8 @@ public class CGroup extends PPath implements Serializable {
 		this.setPathTo(p);
 		if (p.getBounds().width == 0 || p.getBounds().height == 0)
 		{
-			this.setBounds(new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
+			//this.setBounds(new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
+			CalicoDraw.setNodeBounds(this, new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
 		}
 		else
 		{
@@ -1685,8 +1717,10 @@ public class CGroup extends PPath implements Serializable {
 		this.groupArea = PolygonUtils.PolygonArea(Geometry.getPolyFromPath(p.getPathIterator(null)));
 		
 //		CCanvasController.canvasdb.get(cuid).getCamera().validateFullPaint();
-		CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
-		this.repaint();
+		/*a*/
+		//CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+		//this.repaint();
+		CalicoDraw.repaintNode(this);
 	}
 	
 	public PAffineTransform getPTransform() {
@@ -2122,30 +2156,31 @@ public class CGroup extends PPath implements Serializable {
 			
 		CGroupController.no_notify_add_child_group(smallestGUID, this.uuid, x, y);
 
-//		CGroupController.no_notify_set_parent(this.uuid, smallestGUID);
+		CGroupController.no_notify_set_parent(this.uuid, smallestGUID);
+	}
+	
+	public void moveGroupInFrontOf(PNode node)
+	{
+		super.moveInFrontOf(node);
 	}
 	
 	@Override
 	public void moveInFrontOf(PNode node)
 	{
 		if (node != null)
-			super.moveInFrontOf(node);
+			//super.moveInFrontOf(node);
+			CalicoDraw.moveGroupInFrontOf(this, node);
+			
 		
 		moveInFrontOfInternal();
 		
 		long[] cgroups = this.childGroups.toLongArray();
 		
-		final PNode tempNode = this;
-		
 		for (int i = 0; i < childGroups.size(); i++)
 		{
 			if (CGroupController.exists(cgroups[i]))
 			{
-				final CGroup tempGroup = CGroupController.groupdb.get(cgroups[i]);
-				SwingUtilities.invokeLater(
-						new Runnable() { public void run() { 
-							tempGroup.moveInFrontOf(tempNode);
-						}});
+				CGroupController.groupdb.get(cgroups[i]).moveInFrontOf(this);
 			}
 		}
 		
@@ -2154,11 +2189,8 @@ public class CGroup extends PPath implements Serializable {
 		{
 			if (CStrokeController.exists(cstrokes[i]))
 			{
-				final CStroke tempStroke = CStrokeController.strokes.get(cstrokes[i]);
-				SwingUtilities.invokeLater(
-						new Runnable() { public void run() { 
-							tempStroke.moveInFrontOf(tempNode);
-						}});
+				//CStrokeController.strokes.get(cstrokes[i]).moveInFrontOf(this);
+				CalicoDraw.moveNodeInFrontOf(CStrokeController.strokes.get(cstrokes[i]), this);
 			}
 		}
 		
@@ -2167,11 +2199,8 @@ public class CGroup extends PPath implements Serializable {
 		{
 			if (CArrowController.exists(carrows[i]))
 			{
-				final CArrow tempArrow = CArrowController.arrows.get(carrows[i]);
-				SwingUtilities.invokeLater(
-						new Runnable() { public void run() { 
-							tempArrow.moveInFrontOf(tempNode);
-						}});
+				//CArrowController.arrows.get(carrows[i]).moveInFrontOf(this);
+				CalicoDraw.moveNodeInFrontOf(CArrowController.arrows.get(carrows[i]), this);
 			}
 		}
 	}
@@ -2189,6 +2218,7 @@ public class CGroup extends PPath implements Serializable {
 		long topUUID = getTopmostParent();
 		if (CGroupController.exists(topUUID))
 			CGroupController.groupdb.get(topUUID).moveInFrontOf(null);
+			//CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(topUUID), null);
 	}
 	
 	public long getTopmostParent()
@@ -2223,9 +2253,10 @@ public class CGroup extends PPath implements Serializable {
 	public void highlight_repaint()
 	{
 		Rectangle bounds = getBounds().getBounds();
-		double buffer = 10;
+		double buffer = 20;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
-		CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getLayer(), bufferBounds, this);
 	}
 	
 	public void highlight_on() {
@@ -2276,7 +2307,8 @@ public class CGroup extends PPath implements Serializable {
 		long[] cgroups = getChildGroups();
 		for (int i = 0; i < cgroups.length; i++)
 			if (CGroupController.exists(cgroups[i]))
-				CGroupController.groupdb.get(cgroups[i]).setTransparency(t);
+				//CGroupController.groupdb.get(cgroups[i]).setTransparency(t);
+				CalicoDraw.setNodeTransparency(CGroupController.groupdb.get(cgroups[i]), t);
 		
 		//Scraps will always be slightly more transparent than the strokes on them, so strokes need to be compensated for a little bit
 		long[] cstrokes = getChildStrokes();
@@ -2286,13 +2318,16 @@ public class CGroup extends PPath implements Serializable {
 				float trans = 1 / CalicoOptions.group.background_transparency * t;
 				if (trans > 1f)
 					trans = 1f;
-				CStrokeController.strokes.get(cstrokes[i]).setTransparency(trans);
+				//CStrokeController.strokes.get(cstrokes[i]).setTransparency(trans);
+				CalicoDraw.setNodeTransparency(CStrokeController.strokes.get(cstrokes[i]), trans);
 			}
 		
 		if (t > CalicoOptions.group.background_transparency)
-			super.setTransparency(CalicoOptions.group.background_transparency);
+			//super.setTransparency(CalicoOptions.group.background_transparency);
+			CalicoDraw.setNodeTransparency((PNode) super.clone(), CalicoOptions.group.background_transparency);
 		else
-			super.setTransparency(t);
+			//super.setTransparency(t);
+			CalicoDraw.setNodeTransparency(this, t);
 		
 	}
 	

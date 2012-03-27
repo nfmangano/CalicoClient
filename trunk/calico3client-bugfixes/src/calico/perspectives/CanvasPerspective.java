@@ -3,6 +3,7 @@ package calico.perspectives;
 import java.awt.Point;
 import java.awt.event.MouseListener;
 
+import calico.CalicoDraw;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -20,14 +21,17 @@ public class CanvasPerspective extends CalicoPerspective
 
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleHighlighter);
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleContainer);
+		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleHighlighter);
+		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleContainer);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera(), bubbleHighlighter);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera(), bubbleContainer);
 		return true;
 	}
 
 	protected void drawPieMenu(PNode pieCrust)
 	{
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(pieCrust);
+		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(pieCrust);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera(), pieCrust);
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).repaint();
 	}
 

@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import javax.swing.JOptionPane;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.menus.buttons.EmailButton;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.InputEventInfo;
@@ -143,7 +144,8 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 			e.printStackTrace();
 		}
 		
-		this.invalidatePaint();
+		//this.invalidatePaint();
+		CalicoDraw.invalidatePaint(this);
 	}
 	
 	public static void addMenuButton(Class<?> button)

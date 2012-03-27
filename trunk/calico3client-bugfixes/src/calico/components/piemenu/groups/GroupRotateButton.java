@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
 import calico.components.CCanvas;
@@ -21,46 +22,141 @@ import edu.umd.cs.piccolo.nodes.PImage;
 public class GroupRotateButton extends PieMenuButton
 {
 	
-	long uuid;
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
+	PImage ghost;
+	Point2D.Double prevPoint, mouseDownPoint, mouseUpPoint;
+	Point2D.Double centerPoint;
+	long cuuid;
+	boolean isListItem;
 	
 	public GroupRotateButton(long u)
 	{
 		super("group.rotate");
-		uuid = u;
+		draggable = true;
+		guuid = u;
 	}
 	
 	public void onPressed(InputEventInfo ev)
 	{	
-		if (!CGroupController.exists(uuid) || isActive)
+		if (!CGroupController.exists(guuid) || isActive)
 		{
 			return;
 		}
 		
 		isActive = true;
 		
-		long canvasUUID = CGroupController.groupdb.get(uuid).getCanvasUID();
-		PImage ghost = new PImage();
-		ghost.setImage(CGroupController.groupdb.get(uuid).getFamilyPicture());
-		ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		long canvasUUID = CGroupController.groupdb.get(guuid).getCanvasUID();
+		ghost = new PImage();
+		ghost.setImage(CGroupController.groupdb.get(guuid).getFamilyPicture());
+		//ghost.setBounds(CGroupController.groupdb.get(uuid).getBounds().getBounds2D());
+		CalicoDraw.setNodeBounds(ghost, CGroupController.groupdb.get(guuid).getBounds().getBounds2D());
 //		ghost.scale(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().getScale());
 		
-		CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		//CCanvasController.canvasdb.get(canvasUUID).getLayer().addChild(ghost);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUUID).getLayer(), ghost);
 		
-		RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, uuid);
+		/*RotateMouseListener rotateDragListener = new RotateMouseListener(ghost, canvasUUID, guuid);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseListener(rotateDragListener);
 		CCanvasController.canvasdb.get(canvasUUID).addMouseMotionListener(rotateDragListener);
 
 		
 		//pass click event on to this listener since it will miss it
-		rotateDragListener.mousePressed(ev.getPoint());
+		rotateDragListener.mousePressed(ev.getPoint());*/
+		
+		Point2D cp = CGroupController.groupdb.get(guuid).getMidPoint();
+		centerPoint = new Point2D.Double(cp.getX(), cp.getY());
+		prevPoint = new Point2D.Double();
+		cuuid = canvasUUID;
+		
+		isListItem = false;
+		CGroup cGroup = CGroupController.groupdb.get(guuid);
+		while(cGroup.getParentUUID() != 0l)
+		{
+			cGroup = CGroupController.groupdb.get(cGroup.getParentUUID());
+			if (cGroup instanceof CListDecorator)
+			{
+				isListItem = true;
+				break;
+			}
+		}
+		
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());
+		
+		prevPoint.x = scaledPoint.getX();
+		prevPoint.y = scaledPoint.getY();
+		mouseDownPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY()); 
+		
+		if (!isListItem)
+		{
+			CGroupController.move_start(guuid);
+		}
 		
 		ev.stop();
 		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		
 		Calico.logger.debug("CLICKED GROUP ROTATE BUTTON");
+	}
+	
+	public void onDragged(InputEventInfo ev)
+	{
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());
+		
+		Point2D.Double p = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
+		double angle = getAngle(prevPoint, p, centerPoint);
+		ghost.rotateAboutPoint(angle, centerPoint);
+		
+		/*double oldScale = getScaleMP(prevPoint);
+		double newScale = getScaleMP(p);
+		double scale = newScale/oldScale;
+		ghost.scaleAboutPoint(scale, centerPoint);*/
+
+		//ghost.repaintFrom(ghost.getBounds(), ghost);
+		CalicoDraw.repaintNode(ghost);
+
+		BubbleMenu.moveIconPositions(ghost.getFullBounds());
+		
+		
+		prevPoint.x = scaledPoint.getX();
+		prevPoint.y = scaledPoint.getY();
+		ev.stop();
+	}
+	
+	public void onReleased(InputEventInfo ev)
+	{
+		Point scaledPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getUnscaledPoint(ev.getPoint());		
+		
+		mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
+		//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+		CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
+		
+		//Turn off highlighter before rotate to make sure it does not leave artifacts. 
+		CGroupController.groupdb.get(guuid).highlight_off();
+		CGroupController.groupdb.get(guuid).highlight_repaint();
+		
+		double angle = getAngle(mouseDownPoint, mouseUpPoint, centerPoint);
+		CGroupController.rotate(guuid, angle);
+		if (!isListItem)
+		{
+			CGroupController.move_end(this.guuid, ev.getX(), ev.getY()); 
+		}
+		
+		//Turn highlighter back on for rotated version
+		CGroupController.groupdb.get(guuid).highlight_on();
+		
+		/*double scale = getScaleMP(mouseUpPoint);
+		CGroupController.scale(guuid, scale, scale);*/
+
+		ev.stop();
+//			PieMenu.isPerformingPieMenuAction = false;
+		
+		if(!CGroupController.groupdb.get(guuid).isPermanent())
+		{
+			//CGroupController.drop(guuid);
+		}
+		
+		isActive = false;
 	}
 	
 	private class RotateMouseListener implements MouseMotionListener, MouseListener
@@ -107,7 +203,8 @@ public class GroupRotateButton extends PieMenuButton
 				double scale = newScale/oldScale;
 				ghost.scaleAboutPoint(scale, centerPoint);*/
 	
-				ghost.repaintFrom(ghost.getBounds(), ghost);
+				//ghost.repaintFrom(ghost.getBounds(), ghost);
+				CalicoDraw.repaintNode(ghost);
 	
 				BubbleMenu.moveIconPositions(ghost.getFullBounds());
 				
@@ -121,7 +218,8 @@ public class GroupRotateButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Rotate listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		
@@ -172,7 +270,8 @@ public class GroupRotateButton extends PieMenuButton
 				mouseUpPoint = new Point2D.Double(scaledPoint.getX(), scaledPoint.getY());
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 				
 				//Turn off highlighter before rotate to make sure it does not leave artifacts. 
 				CGroupController.groupdb.get(guuid).highlight_off();
@@ -206,7 +305,8 @@ public class GroupRotateButton extends PieMenuButton
 				System.out.println("Group disappeared while in use: removing Rotate listeners");
 				CCanvasController.canvasdb.get(cuuid).removeMouseListener(this);
 				CCanvasController.canvasdb.get(cuuid).removeMouseMotionListener(this);
-				CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				//CCanvasController.canvasdb.get(cuuid).getLayer().removeChild(ghost);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuuid).getLayer(), ghost);
 			}
 		}
 		
@@ -256,9 +356,38 @@ public class GroupRotateButton extends PieMenuButton
 
 	}
 	
-	//Leave this empty
-	public void setHaloEnabled(boolean enable)
-	{
-		
-	}
+	//gets angle between two points with respect to the third point
+			double getAngle(Point2D point1, Point2D point2, Point2D midPoint)
+			{
+				Point2D adjustedPoint1 = new Point2D.Double(point1.getX() - midPoint.getX(), point1.getY() - midPoint.getY());
+				double point1Angle = getAngle(adjustedPoint1, new Point(0,0));
+				
+				Point2D adjustedPoint2 = new Point2D.Double(point2.getX() - midPoint.getX(), point2.getY() - midPoint.getY());
+				double point2Angle = getAngle(adjustedPoint2, new Point(0,0));
+				
+				double angle = point1Angle - point2Angle;
+				
+				return angle;			
+			}
+			
+			//taken from: http://bytes.com/topic/c/answers/452165-finding-angle-between-two-points#post1728631
+			double getAngle(Point2D point1, Point2D point2 )
+			{
+				double theta;
+				if ( point2.getX() - point1.getX() == 0 )
+					if ( point2.getY() > point1.getY() )
+						theta = 0;
+					else
+						theta = Math.PI;
+				else
+				{
+					theta = Math.atan( (point2.getY() - point1.getY()) / (point2.getX() - point1.getX()) );
+					if ( point2.getX() > point1.getX() )
+						theta = Math.PI / 2.0f - theta;
+					else
+						theta = Math.PI * 1.5f - theta;
+				};
+				return theta;
+			}
+	
 }

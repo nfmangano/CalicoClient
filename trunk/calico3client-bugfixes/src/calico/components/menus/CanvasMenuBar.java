@@ -160,7 +160,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		}
 		
 		
-		this.invalidatePaint();
+		//this.invalidatePaint();
+		CalicoDraw.invalidatePaint(this);
 	}
 	
 	private void setLock()
@@ -204,7 +205,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 		if (lockButton != null)
 		{
-			removeChild(lockButton);
+			//removeChild(lockButton);
+			CalicoDraw.removeChildFromNode(this, lockButton);
 		}
 		
 		Image img = getTextImage(text,font);
@@ -235,7 +237,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 
 		text_button_array[setLock_button_array_index] = buttonHandler;
 		
-		addChild(0,lockButton);
+		//addChild(0,lockButton);
+		CalicoDraw.addChildToNode(this, lockButton, 0);
 	}
 	
 	private void changeLock()
@@ -267,8 +270,10 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		newClients.setImage(getTextImage(CCanvasController.canvasdb.get(cuid).getClients().length+" clients", 
 				new Font("Verdana", Font.BOLD, 12)));
 		newClients.setBounds(bounds);
-		addChild(0, newClients);
-		removeChild(clients);
+		//addChild(0, newClients);
+		CalicoDraw.addChildToNode(this, newClients, 0);
+		//removeChild(clients);
+		CalicoDraw.removeChildFromNode(this, clients);
 		
 		clients = newClients;
 		

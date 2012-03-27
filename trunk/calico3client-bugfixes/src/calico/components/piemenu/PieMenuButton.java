@@ -31,6 +31,10 @@ public class PieMenuButton
 	protected Point buttonPosition = new Point(0,0);
 	
 	public boolean haloEnabled = true;
+	public boolean draggable = false;
+	//If the button affects a group, this should be set to the group's UUID
+	//Otherwise, it should remain 0;
+	protected long guuid = 0l;
 		
 	// Set the Icon
 	public PieMenuButton(String str)
@@ -67,13 +71,14 @@ public class PieMenuButton
 	 * If you do not override this, then we just call the onclick with nothing
 	 * @param event
 	 */
+	@Deprecated
 	public void onClick(InputEventInfo event)
 	{
 		// This should be implemented
 		onClick();
 		BubbleMenu.isPerformingBubbleMenuAction =true;
 		
-		MouseListener mouseListener = new MouseListener()
+		/*MouseListener mouseListener = new MouseListener()
 		{
 
 			@Override
@@ -94,7 +99,7 @@ public class PieMenuButton
 			}
 			
 		};
-		CalicoPerspective.Active.addMouseListener(mouseListener);
+		CalicoPerspective.Active.addMouseListener(mouseListener);*/
 //		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
@@ -103,7 +108,7 @@ public class PieMenuButton
 
 		BubbleMenu.isPerformingBubbleMenuAction =true;
 		
-		MouseListener mouseListener = new MouseListener()
+		/*MouseListener mouseListener = new MouseListener()
 		{
 
 			@Override
@@ -124,16 +129,26 @@ public class PieMenuButton
 			}
 			
 		};
-		CalicoPerspective.Active.addMouseListener(mouseListener);
+		CalicoPerspective.Active.addMouseListener(mouseListener);*/
 //		System.out.println("//////////// Removing pie menu event handler");
 	}
 	
 	public void onReleased(InputEventInfo event)
 	{
 
-		//BubbleMenu.isPerformingBubbleMenuAction =false;
+		BubbleMenu.isPerformingBubbleMenuAction =false;
 		
 		
+	}
+	
+	public void onDragged(InputEventInfo event)
+	{
+		
+	}
+	
+	public void updateGroupUUID(long uuid)
+	{
+		guuid = uuid;
 	}
 	
 	//Terrible implementation
