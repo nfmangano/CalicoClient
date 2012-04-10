@@ -168,7 +168,7 @@ public class CalicoOptions
 	{
 		public static Color[] colorlist = {Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.MAGENTA};
 		public static String[] colorlist_icons = {"color.black", "color.red", "color.green", "color.blue", "color.silver", "color.orange", "color.yellow", "color.purple"};
-		public static float[] pensize = {1.0f, 2.0f, 3.0f};
+		public static float[] pensize = {1.0f, 3.0f, 5.0f};
 		public static String[] pensize_icons = {"size.small", "size.medium", "size.large"};
 		public static int icon_size = 24;
 		public static float icon_tooltip_dist_threshold = 5.0f;

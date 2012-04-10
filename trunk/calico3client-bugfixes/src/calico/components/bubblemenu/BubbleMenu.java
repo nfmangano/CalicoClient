@@ -39,13 +39,18 @@ public class BubbleMenu {
 	@Deprecated
 	public static Point lastOpenedPosition = null;
 	
-	//bounds of the active group
+	//UUID of parent to highlight when moving
 	public static long highlightedParentGroup = 0l;
+	//bounds of the active group
 	public static PBounds activeGroupBounds;
 	
+	//Index of highlighted button
 	public static int selectedButtonIndex = -1;
 	
+	//Reference to activity for fading in the menu
 	private static PActivity fadeActivity;
+	
+	//Is the bubble menu visible
 	private static boolean isBubbleMenuActive = false;
 	
 	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
@@ -60,6 +65,7 @@ public class BubbleMenu {
 		listeners.remove(listener);
 	}
 	
+	//Displays the bubble menu given the scrap UUID and the buttons to add.
 	public static void displayBubbleMenu(Long uuid, boolean fade, PieMenuButton... buttons)
 	{
 		//if(bubbleContainer!=null)
@@ -69,22 +75,24 @@ public class BubbleMenu {
 			// Clear out the old one, then try this again
 			clearMenu();
 			//Don't fade in if menu was already active.
-			System.out.println("tes");
 			fadeIn = false;
 		}
 		activeGroup = uuid;
 		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+		
+		//Highlight the active group
 		CGroupController.groupdb.get(activeGroup).highlight_on();
 		CGroupController.groupdb.get(activeGroup).highlight_repaint();
 		
-		//displayBubbleMenuArray(location, buttons);
-		
+		//Reset buttons
 		buttonList.clear();
 		buttonList.addElements(0, buttons, 0, buttons.length);
 		buttonPosition = new int[buttonList.size()];
 		
-		getIconPositions();
+		//Set canvas position for the icons and listeners
+		setIconPositions();
 		
+		//add Menu to canvas 
 		drawBubbleMenu(fadeIn);
 		
 		for (ContextMenu.Listener listener : listeners)
@@ -92,22 +100,23 @@ public class BubbleMenu {
 			listener.menuDisplayed(ContextMenu.BUBBLE_MENU);
 		}
 	}
-	
-	/*public static void displayBubbleMenuArray(Point location, PieMenuButton[] buttons)
+
+	//Makes the menu visible by adding it to the canvas
+	private static void drawBubbleMenu(boolean fade)
 	{
-		
-		
-	}*/
-	
-	private static void drawBubbleMenu(boolean fade)//, PieMenuButton[] buttons)
-	{
+		//Initialize container
 		bubbleContainer = new BubbleMenuContainer();
+		//Makes the container invisible in case a fade in is required
 		bubbleContainer.setTransparency(0f);
+		//Initialize the highlighter
 		bubbleHighlighter = new BubbleMenuHighlighter();
+		
+		//Update the bounds of the menu
 		updateContainerBounds();
+		
 		isBubbleMenuActive = true;
 		
-		
+		fade = false;
 
 		/*final boolean tempfade = fade;
 		final PActivity tempActivity = fadeActivity;
@@ -134,10 +143,11 @@ public class BubbleMenu {
 		}});*/
 		
 		if(CalicoPerspective.Active.showBubbleMenu(bubbleHighlighter, bubbleContainer)){
-			// Must schedule the activity with the root for it to run.
+			
+			//Check if a fade in is required
 			if (fade)
 			{
-				
+				// Must schedule the activity with the root for it to run.
 				fadeActivity = new PActivity(500,70, System.currentTimeMillis()) {
 					long step = 0;
 		      
@@ -155,6 +165,7 @@ public class BubbleMenu {
 				    }
 				    
 				    protected void activityFinished() {
+				    	//When finished make sure the menu is fully opaque
 				    	bubbleContainer.setTransparency(1.0f);
 				    	//CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
 				    }
@@ -164,8 +175,10 @@ public class BubbleMenu {
 				//bubbleContainer.getRoot().addActivity(fadeActivity);
 				CalicoDraw.addActivityToNode(bubbleContainer, fadeActivity);
 			}
+			//Simply show the menu otherwise
 			else
 			{
+				fadeActivity = null;
 				//bubbleContainer.setTransparency(1.0f);
 				CalicoDraw.setNodeTransparency(bubbleContainer, 1.0f);
 				CalicoDraw.repaintNode(bubbleContainer);
@@ -173,6 +186,9 @@ public class BubbleMenu {
 		}
 	}	
 	
+	//Change which group the menu affects without closing and reopening the menu
+	//Currently only used with copy/drag scrap. 
+	//Must check for completeness before additional usage
 	public static void updateGroupUUID(long uuid)
 	{
 		for(int i=0;i<buttonList.size();i++)
@@ -184,6 +200,7 @@ public class BubbleMenu {
 		}
 	}
 	
+	//Update the icon buttons and listeners to fit the new bounds
 	public static void moveIconPositions(PBounds groupBounds)
 	{
 		for(int i=0;i<buttonList.size();i++)
@@ -202,6 +219,7 @@ public class BubbleMenu {
 		CalicoDraw.repaintNode(bubbleContainer);
 	}
 	
+	//Update the highlighter location based on the current position of the button
 	private static void updateHighlighterPosition(int buttonNumber)
 	{
 		if (buttonNumber != -1)
@@ -213,7 +231,8 @@ public class BubbleMenu {
 		}
 	}
 	
-	private static void getIconPositions()
+	//Sets the initial button and listener positions
+	private static void setIconPositions()
 	{
 		for(int i=0;i<buttonList.size();i++)
 		{
@@ -225,6 +244,7 @@ public class BubbleMenu {
 		
 	}
 	
+	//Sets the button to be highlighted
 	public static void setSelectedButton(int buttonNumber)
 	{
 		selectedButtonIndex = buttonNumber;
@@ -239,6 +259,8 @@ public class BubbleMenu {
 		}
 	}
 	
+	//Gets the button position for each button
+	//Determines where the button is placed around the group
 	private static int getButtonPosition(String className)
 	{		
 		if (className.compareTo("calico.components.piemenu.groups.GroupSetPermanentButton") == 0)
@@ -299,6 +321,9 @@ public class BubbleMenu {
 		
 	}
 	
+	//Determines the location of a button 
+	//Called for each button any time the active group bounds changes
+	//Should account for screen borders and any other restrictions for button positioning
 	private static Point getButtonPointFromPosition(int position, PBounds groupBounds)
 	{
 		//Minimum screen position. T
@@ -448,10 +473,11 @@ public class BubbleMenu {
 		);
 	}
 	
-	
+	//Removes the menu
 	public static void clearMenu()
 	{
-		fadeActivity.terminate(PActivity.TERMINATE_WITHOUT_FINISHING);
+		if (fadeActivity != null)
+			fadeActivity.terminate(PActivity.TERMINATE_WITHOUT_FINISHING);
 		
 		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
@@ -489,6 +515,7 @@ public class BubbleMenu {
 		}
 	}
 	
+	//Updates the bounds of the menu
 	public static void updateContainerBounds()
 	{
 		double lowX = java.lang.Double.MAX_VALUE, lowY = java.lang.Double.MAX_VALUE, highX = java.lang.Double.MIN_VALUE, highY = java.lang.Double.MIN_VALUE;
@@ -512,6 +539,7 @@ public class BubbleMenu {
 		CalicoDraw.setNodeBounds(bubbleContainer, new Rectangle2D.Double(lowX, lowY, highX - lowX, highY - lowY));
 	}
 
+	//Check if the point overlaps with a button's hit zone
 	public static boolean checkIfCoordIsOnBubbleMenu(Point point)
 	{
 		//if(bubbleContainer==null)
@@ -537,6 +565,7 @@ public class BubbleMenu {
 		return false;
 	}
 	
+	//Pass the event to the button
 	public static void handleButtonInput(Point point, InputEventInfo ev)
 	{		
 		if(buttonList.size()==0)
@@ -606,6 +635,7 @@ public class BubbleMenu {
 //		ev.getMouseEvent().consume();
 		
 	}
+	
 	
 	public static void setHaloEnabled(boolean enable)
 	{
