@@ -194,8 +194,8 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			if (CStrokeController.exists(CStrokeController.getCurrentUUID()))
 			{
 				if (deleteSmudge &&
-						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
-						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 10 &&
+						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 10)
 				{
 					isSmudge = true;
 					CStrokeController.delete(CStrokeController.getCurrentUUID());

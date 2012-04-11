@@ -1707,8 +1707,8 @@ public class CGroup extends PPath implements Serializable {
 		this.setPathTo(p);
 		if (p.getBounds().width == 0 || p.getBounds().height == 0)
 		{
-			//this.setBounds(new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
-			CalicoDraw.setNodeBounds(this, new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
+			this.setBounds(new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
+			//CalicoDraw.setNodeBounds(this, new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
 		}
 		else
 		{
@@ -2132,7 +2132,6 @@ public class CGroup extends PPath implements Serializable {
 
 	public void recheckParentAfterMove(int x, int y) {
 		// This checks to make sure we havent moved the group In
-
 		long oldParentUUID = getParentUUID();
 		
 		//decorators will remove children manually

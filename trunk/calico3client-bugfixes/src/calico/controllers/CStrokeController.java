@@ -719,9 +719,9 @@ public class CStrokeController
 	}
 	*/
 	
+	
 	public static boolean isPotentialScrap(long strokeUUID)
 	{
-		
 		float DISTANCE_PERCENT = 0.025f;//0.0125f;
 		
 		int maxDistance = (int) (CalicoDataStore.ScreenWidth * DISTANCE_PERCENT);//10;
@@ -736,8 +736,9 @@ public class CStrokeController
 			return false;
 		
 		Polygon strokePoly = stroke.getRawPolygon();
+
 //		Polygon strokePoly = stroke.getPolygon();
-		double headTailDistance = Point2D.distance(strokePoly.xpoints[0], strokePoly.ypoints[0], 
+		double headTailDistance = Point2D.distance(stroke.circlePoint.x, stroke.circlePoint.y, 
 				stroke.getPolygon().xpoints[strokePoly.npoints-1], stroke.getPolygon().ypoints[strokePoly.npoints-1]);
 		
 //		logger.debug("Stroke length: " + stroke.getLength());

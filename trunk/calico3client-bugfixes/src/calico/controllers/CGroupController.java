@@ -1624,8 +1624,8 @@ public class CGroupController
 		CGroupController.setCurrentUUID(uuid);
 		CGroupController.no_notify_append(uuid, x, y);
 		CGroupController.no_notify_set_text(uuid, text);
-		CGroupController.no_notify_finish(uuid, false);
-		CGroupController.no_notify_set_permanent(uuid, true);
+		CGroupController.no_notify_finish(uuid, false, false, true);
+		//CGroupController.no_notify_set_permanent(uuid, true);
 		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
 		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
 		CGroupController.recheck_parent(uuid);
