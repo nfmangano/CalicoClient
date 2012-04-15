@@ -1,22 +1,18 @@
 package calico;
 
-import java.awt.Graphics;
 import java.awt.event.InputEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 import javax.swing.SwingUtilities;
 
-import calico.components.CCanvas;
 import calico.components.CGroup;
 
 import edu.umd.cs.piccolo.PCamera;
-import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.PRoot;
 import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.util.PBounds;
-import edu.umd.cs.piccolo.util.PPaintContext;
 
 public class CalicoDraw {
 

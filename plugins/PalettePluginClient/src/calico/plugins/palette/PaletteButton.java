@@ -2,6 +2,7 @@ package calico.plugins.palette;
 
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
+import calico.inputhandlers.InputEventInfo;
 import calico.plugins.palette.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.PCamera;
 
@@ -19,10 +20,10 @@ public class PaletteButton extends CanvasMenuButton {
 		cuid = c;
 		
 
-		
+		iconString = "palette.menubar";
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("palette.menubar"));
+			setImage(CalicoIconManager.getIconImage(iconString));
 		}
 		catch(Exception e)
 		{
@@ -31,9 +32,17 @@ public class PaletteButton extends CanvasMenuButton {
 		
 	}
 	
-	public void actionMouseClicked()
+	public void actionMouseClicked(InputEventInfo event)
 	{
-		PalettePlugin.togglePaletteBar();
+		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+		{
+			super.onMouseDown();
+		}
+		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+		{
+			PalettePlugin.togglePaletteBar();
+			super.onMouseUp();
+		}
 			
 	}
 	

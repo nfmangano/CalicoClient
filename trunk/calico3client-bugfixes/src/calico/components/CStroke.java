@@ -82,6 +82,8 @@ public class CStroke extends PPath
 	
 	public boolean hiding = false;
 	
+	public Point circlePoint = new Point(0,0);
+	
 	public CStroke(long u, long canvas, long puid)
 	{
 		this(u, canvas, puid, CalicoDataStore.PenColor, CalicoDataStore.PenThickness);
@@ -381,8 +383,24 @@ public class CStroke extends PPath
 	}
 	
 	private void drawHitCircle() {
+		double totalLen = 0f, previousLen = 0f;
+		for (int i = 1; i < mousePoints.npoints; i++)
+		{
+			previousLen = totalLen;
+			totalLen += Point.distance(mousePoints.xpoints[i-1], mousePoints.ypoints[i-1], mousePoints.xpoints[i], mousePoints.ypoints[i]);
+			if (totalLen >= 50)
+			{
+				double ratio = (50 - previousLen) / ((50 - previousLen) +(totalLen - 50));
+				circlePoint.x = (int) (((mousePoints.xpoints[i] - mousePoints.xpoints[i-1]) * ratio) + mousePoints.xpoints[i-1]);
+				circlePoint.y = (int) (((mousePoints.ypoints[i] - mousePoints.ypoints[i-1]) * ratio) + mousePoints.ypoints[i-1]);
+				break;
+			}
+		}
+		
+		
 		double radius = CalicoOptions.stroke.max_head_to_heal_distance;
-		Ellipse2D.Double hitTarget = new Ellipse2D.Double(mousePoints.xpoints[0] - radius, mousePoints.ypoints[0] - radius, radius*2, radius*2);
+		Ellipse2D.Double hitTarget = new Ellipse2D.Double(circlePoint.x - radius, circlePoint.y - radius, radius*2, radius*2);
+		//Ellipse2D.Double hitTarget = new Ellipse2D.Double(mousePoints.xpoints[0] - radius, mousePoints.ypoints[0] - radius, radius*2, radius*2);
 		final PPath circle = new PPath(hitTarget);
 		circle.setStrokePaint(Color.white);
 		circle.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,

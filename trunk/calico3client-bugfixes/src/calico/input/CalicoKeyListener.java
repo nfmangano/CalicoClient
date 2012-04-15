@@ -139,12 +139,13 @@ public class CalicoKeyListener extends KeyAdapter {
 	private void createTextScrap()
 	{
 		int xPos = CalicoDataStore.ScreenWidth/3, yPos = CalicoDataStore.ScreenHeight/3;
-		
+		boolean updateBubbleIcons = false;
 		if (BubbleMenu.activeGroup != 0l && CGroupController.groupdb.get(BubbleMenu.activeGroup) instanceof CListDecorator)
 		{
 			xPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().x + 50;
 			yPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().y
 					+ CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().height - 10;
+			updateBubbleIcons = true;
 		}
 		else
 		{
@@ -158,21 +159,21 @@ public class CalicoKeyListener extends KeyAdapter {
 				  "Please enter text",
 				  JOptionPane.QUESTION_MESSAGE);
 		
-		if (response.length() < 1)
-			return;
-		
 		long new_uuid = 0l;
-		if (response != null)
+		if (response != null && response.length() > 0)
 		{
 			if (isImageURL(response))
 			{
 				new_uuid = Calico.uuid();
-				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), 50, 50));
+				Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_DOWNLOAD, new_uuid, CCanvasController.getCurrentUUID(), response, 50, 50));
 			}
 			else
 			{
 				new_uuid = Calico.uuid();
 				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, xPos, yPos);
+				
+				if (updateBubbleIcons)
+					BubbleMenu.moveIconPositions(CGroupController.groupdb.get(BubbleMenu.activeGroup).getBounds());
 			}
 		}
 //		CGroupController.move_start(new_uuid);

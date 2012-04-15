@@ -80,24 +80,26 @@ public class EmailButton extends CanvasMenuButton
 					  "Please enter the email address(es) you wish to send this canvas to",
 					  "Email Canvas",
 					  JOptionPane.QUESTION_MESSAGE);
-			
-			try
+			if (response != null)
 			{
-				Calendar cal = new GregorianCalendar();
-				
-				// Get the components of the time
-				int hour12 = cal.get(Calendar.HOUR);            // 0..11
-				int min = cal.get(Calendar.MINUTE);             // 0..59
-				int ampm = cal.get(Calendar.AM_PM);             // 0=AM, 1=PM
-				String time = "" + hour12 + ":" + min + " " + ((ampm==0)?"AM":"PM") + ", " + cal.get(Calendar.MONTH)+1 + "/" + cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.YEAR);
-				
-				// Send a test message
-		        send("smtp.gmail.com", 465, CalicoDataStore.Username + " <ucicalicodev@gmail.com>", response,
-		             "Calico Canvas " + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getGridCoordTxt() + " - " + time, "Screenshot of Calico Canvas\n\n");
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
+				try
+				{
+					Calendar cal = new GregorianCalendar();
+					
+					// Get the components of the time
+					int hour12 = cal.get(Calendar.HOUR);            // 0..11
+					int min = cal.get(Calendar.MINUTE);             // 0..59
+					int ampm = cal.get(Calendar.AM_PM);             // 0=AM, 1=PM
+					String time = "" + hour12 + ":" + min + " " + ((ampm==0)?"AM":"PM") + ", " + cal.get(Calendar.MONTH)+1 + "/" + cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.YEAR);
+					
+					// Send a test message
+			        send("smtp.gmail.com", 465, CalicoDataStore.Username + " <ucicalicodev@gmail.com>", response,
+			             "Calico Canvas " + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getGridCoordTxt() + " - " + time, "Screenshot of Calico Canvas\n\n");
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 			super.onMouseUp();
 		}
