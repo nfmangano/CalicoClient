@@ -36,7 +36,7 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 		boolean newVisibility = !CanvasIntentionToolBar.getInstance().isVisible();
 
 		CanvasIntentionToolBar.getInstance().setVisible(newVisibility);
-		IntentionCanvasController.getInstance().toggleLinkVisibility();
+		IntentionCanvasController.getInstance().toggleTagVisibility();
 
 		if (newVisibility)
 		{

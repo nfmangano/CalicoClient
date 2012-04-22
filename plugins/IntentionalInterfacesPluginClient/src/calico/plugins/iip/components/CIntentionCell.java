@@ -7,11 +7,14 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import calico.components.CCanvas;
 import calico.components.grid.CGrid;
 import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
+import calico.inputhandlers.CCanvasInputHandler;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
@@ -40,10 +43,12 @@ public class CIntentionCell
 		}
 	}
 
-	long uuid;
-	long canvas_uuid;
-	Point2D location;
-	boolean inUse;
+	private long uuid;
+	private long canvas_uuid;
+	private Point2D location;
+	private boolean inUse;
+	private String title;
+	private final List<CIntentionType> intentionTypes = new ArrayList<CIntentionType>();
 
 	private boolean highlighted = false;
 
@@ -55,6 +60,7 @@ public class CIntentionCell
 		this.canvas_uuid = canvas_uuid;
 		this.inUse = inUse;
 		this.location = location;
+		title = "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt();
 
 		shell = new Shell(location.getX(), location.getY());
 
@@ -96,6 +102,31 @@ public class CIntentionCell
 	public void setInUse(boolean inUse)
 	{
 		this.inUse = inUse;
+	}
+	
+	public String getTitle()
+	{
+		return title;
+	}
+	
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+	
+	public void addIntentionType(CIntentionType type)
+	{
+		intentionTypes.add(type);
+	}
+	
+	public boolean hasIntentionType(CIntentionType type)
+	{
+		return intentionTypes.contains(type);
+	}
+	
+	public void removeIntentionType(CIntentionType type)
+	{
+		intentionTypes.remove(type);
 	}
 
 	public boolean contains(Point2D point)

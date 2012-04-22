@@ -17,22 +17,25 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CCanvasLink;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
-import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
-public class CanvasLinkBay implements StickyItem
+public class CanvasLinkPanel implements StickyItem
 {
-	public interface Layout
+	public static CanvasLinkPanel getInstance()
 	{
-		void updateBounds(PNode node, double width, double height);
+		return INSTANCE;
 	}
+
+	private static CanvasLinkPanel INSTANCE = new CanvasLinkPanel();
 
 	public static final double BAY_INSET_X = 100.0;
 	public static final double BAY_INSET_Y = 50.0;
@@ -42,10 +45,11 @@ public class CanvasLinkBay implements StickyItem
 
 	private final long uuid;
 	private long canvas_uuid;
-	private final CCanvasLink.LinkDirection direction;
+	// remove this
+	private final CCanvasLink.LinkDirection direction = CCanvasLink.LinkDirection.INCOMING;
 
 	private boolean visible;
-	private Layout layout;
+	private IntentionPanelLayout layout;
 	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
@@ -53,15 +57,12 @@ public class CanvasLinkBay implements StickyItem
 
 	private boolean initialized = false;
 
-	public CanvasLinkBay(long canvas_uuid, CCanvasLink.LinkDirection direction, Layout layout)
+	private CanvasLinkPanel()
 	{
 		uuid = Calico.uuid();
-		this.direction = direction;
-		this.canvas_uuid = canvas_uuid;
+		canvas_uuid = 0L;
 
 		CalicoInputManager.addCustomInputHandler(uuid, new InputHandler());
-
-		this.layout = layout;
 
 		bay.setPaint(Color.LIGHT_GRAY);
 		bay.setVisible(visible = false);
@@ -127,6 +128,42 @@ public class CanvasLinkBay implements StickyItem
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(bay);
 	}
 
+	public void addLink(CCanvasLink link)
+	{
+
+	}
+
+	public void removeLink(CCanvasLink link)
+	{
+
+	}
+
+	public void moveLinkAnchor(CCanvasLinkAnchor anchor, long previousCanvasId)
+	{
+		if (anchor.getCanvasId() == previousCanvasId)
+		{
+			return;
+		}
+
+		/**
+		 * update ***
+		 * 
+		 * <pre>
+		if (anchor.hasGroup())
+		{
+			badgeRowsByGroupId.get(anchor.getGroupId()).updateCanvasCoordinates();
+		}
+		else
+		{
+			tokensByAnchorId.get(anchor.getOpposite().getId()).updateCanvasCoordinates();
+		}
+
+		// the "design inside" source anchor can't be moved, so assume anchor.getLink().getLinkType() != DESIGN_INSIDE
+		removeToken(anchor.getId(), previousCanvasId, anchor.getLink().getAnchorA() == anchor);
+		addToken(anchor);
+		 */
+	}
+
 	public void refreshLayout()
 	{
 		if (!visible)
@@ -150,6 +187,11 @@ public class CanvasLinkBay implements StickyItem
 		bay.repaint();
 
 		bay.updateTokens();
+	}
+
+	public void setLayout(IntentionPanelLayout layout)
+	{
+		this.layout = layout;
 	}
 
 	private class Bay extends PComposite
@@ -219,10 +261,10 @@ public class CanvasLinkBay implements StickyItem
 				for (int i = 0; i < tokens.size(); i++)
 				{
 					CCanvasLinkToken token = tokens.get(i);
-					
+
 					token.setBounds(x, y, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT);
 					x += (CCanvasLinkToken.TOKEN_WIDTH + TOKEN_MARGIN);
-					
+
 					if (token.getLinkAnchor().getOpposite().getCanvasId() == traversedCanvasId)
 					{
 						showHighlight(contextHighlight, i);
@@ -345,7 +387,7 @@ public class CanvasLinkBay implements StickyItem
 					{
 						bay.clickHighlight.setVisible(false);
 						state = InputState.PIE;
-						
+
 						deleteLinkButton.setContext(clickedToken.getLinkAnchor().getLink());
 						setLinkLabelButton.setContext(clickedToken.getLinkAnchor().getLink());
 						PieMenu.displayPieMenu(point, deleteLinkButton, setLinkLabelButton);

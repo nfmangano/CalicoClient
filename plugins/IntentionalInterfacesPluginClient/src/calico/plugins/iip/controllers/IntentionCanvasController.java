@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -13,12 +14,14 @@ import calico.controllers.CGroupController;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CIntentionType;
+import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasBadgeRow;
-import calico.plugins.iip.components.canvas.CanvasIntentionToolBar;
 import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
-import calico.plugins.iip.components.canvas.CanvasLinkBay;
+import calico.plugins.iip.components.canvas.CanvasLinkPanel;
+import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.graph.NewIdeaButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import edu.umd.cs.piccolo.PNode;
@@ -34,6 +37,8 @@ public class IntentionCanvasController implements CGroupController.Listener
 	{
 		INSTANCE = new IntentionCanvasController();
 
+		INSTANCE.initializeComponents();
+		
 		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(NewIdeaButton.class);
@@ -41,85 +46,72 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 	private static IntentionCanvasController INSTANCE;
 
-	private Long2ReferenceArrayMap<CCanvasLinkBadge> badgesByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
-	private Long2ReferenceArrayMap<CCanvasLinkToken> tokensByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkToken>();
-	private Long2ReferenceArrayMap<CanvasBadgeRow> badgeRowsByGroupId = new Long2ReferenceArrayMap<CanvasBadgeRow>();
+	// populate these from the server 
+	// server initializes them at startup
+	private final List<CIntentionType> activeIntentionTypes = new ArrayList<CIntentionType>();
+
+	// remove these
+	// need tokens for 
+	private final Long2ReferenceArrayMap<CCanvasLinkBadge> badgesByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkBadge>();
+	private final Long2ReferenceArrayMap<CCanvasLinkToken> tokensByAnchorId = new Long2ReferenceArrayMap<CCanvasLinkToken>();
+	private final Long2ReferenceArrayMap<CanvasBadgeRow> badgeRowsByGroupId = new Long2ReferenceArrayMap<CanvasBadgeRow>();
 
 	private long currentCanvasId = 0L;
-	private final CanvasLinkBay incomingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.INCOMING, new UpperLeftLayout());
-	private final CanvasLinkBay outgoingLinkBay = new CanvasLinkBay(currentCanvasId, CCanvasLink.LinkDirection.OUTGOING, new LowerRightLayout());
 
 	private Comparator<CCanvasLinkToken> sorter = new DefaultSorter();
 
-	private boolean linksVisible = false;
+	private boolean tagPanelVisible = false;
+	private boolean linkPanelVisible = false;
 
 	private IntentionCanvasController()
 	{
 		CGroupController.addListener(this);
+
+		// temporary ***
+		activeIntentionTypes.add(new CIntentionType("New Perspective", CIntentionType.AVAILABLE_COLORS[0]));
+		activeIntentionTypes.add(new CIntentionType("New Alternative", CIntentionType.AVAILABLE_COLORS[1]));
+		activeIntentionTypes.add(new CIntentionType("New Idea", CIntentionType.AVAILABLE_COLORS[2]));
+		activeIntentionTypes.add(new CIntentionType("Design Inside", CIntentionType.AVAILABLE_COLORS[3]));
+	}
+	
+	private void initializeComponents()
+	{
+		CanvasTagPanel.getInstance().setLayout(new LowerLeftLayout());
+		CanvasTagPanel.getInstance().updateIntentionTypes();
+		
+		CanvasLinkPanel.getInstance().setLayout(new LowerLeftLayout());
+	}
+
+	public void toggleTagVisibility()
+	{
+		tagPanelVisible = !tagPanelVisible;
+		CanvasTagPanel.getInstance().setVisible(tagPanelVisible);
 	}
 
 	public void toggleLinkVisibility()
 	{
-		linksVisible = !linksVisible;
-
-		incomingLinkBay.setVisible(linksVisible);
-		outgoingLinkBay.setVisible(linksVisible);
-
-		for (CanvasBadgeRow row : badgeRowsByGroupId.values())
-		{
-			row.setVisible(linksVisible);
-		}
+		linkPanelVisible = !linkPanelVisible;
+		CanvasLinkPanel.getInstance().setVisible(linkPanelVisible);
+	}
+	
+	public List<CIntentionType> getActiveIntentionTypes()
+	{
+		return activeIntentionTypes;
 	}
 
 	public void addLink(CCanvasLink link)
 	{
-		switch (link.getLinkType())
-		{
-			case DESIGN_INSIDE:
-				addBadge(link.getAnchorA());
-				addToken(link.getAnchorB());
-				break;
-			default:
-				addToken(link.getAnchorA());
-				addToken(link.getAnchorB());
-				break;
-		}
+		CanvasLinkPanel.getInstance().addLink(link);
 	}
 
 	public void removeLink(CCanvasLink link)
 	{
-		switch (link.getLinkType())
-		{
-			case DESIGN_INSIDE:
-				removeBadge(link.getAnchorA());
-				removeToken(link.getAnchorB());
-				break;
-			default:
-				removeToken(link.getAnchorA());
-				removeToken(link.getAnchorB());
-				break;
-		}
+		CanvasLinkPanel.getInstance().removeLink(link);
 	}
 
 	public void moveLinkAnchor(CCanvasLinkAnchor anchor, long previousCanvasId)
 	{
-		if (anchor.getCanvasId() == previousCanvasId)
-		{
-			return;
-		}
-
-		if (anchor.hasGroup())
-		{
-			badgeRowsByGroupId.get(anchor.getGroupId()).updateCanvasCoordinates();
-		}
-		else
-		{
-			tokensByAnchorId.get(anchor.getOpposite().getId()).updateCanvasCoordinates();
-		}
-
-		// the "design inside" source anchor can't be moved, so assume anchor.getLink().getLinkType() != DESIGN_INSIDE
-		removeToken(anchor.getId(), previousCanvasId, anchor.getLink().getAnchorA() == anchor);
-		addToken(anchor);
+		CanvasLinkPanel.getInstance().moveLinkAnchor(anchor, previousCanvasId);
 	}
 
 	public void removeBadgeRow(long groupId)
@@ -143,7 +135,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 		{
 			row = new CanvasBadgeRow(groupId);
 			badgeRowsByGroupId.put(groupId, row);
-			row.setVisible(linksVisible);
+			row.setVisible(tagPanelVisible);
 		}
 		return row;
 	}
@@ -162,14 +154,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 		if (CanvasPerspective.getInstance().isActive() && (anchor.getCanvasId() == currentCanvasId))
 		{
-			if (anchor.getLink().getAnchorA() == anchor)
-			{
-				outgoingLinkBay.refreshLayout();
-			}
-			else
-			{
-				incomingLinkBay.refreshLayout();
-			}
+			// add to link panel
 		}
 	}
 
@@ -185,14 +170,7 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 		if (CanvasPerspective.getInstance().isActive() && (canvasId == currentCanvasId))
 		{
-			if (isAnchorA)
-			{
-				outgoingLinkBay.refreshLayout();
-			}
-			else
-			{
-				incomingLinkBay.refreshLayout();
-			}
+			// remove from link panel
 		}
 	}
 
@@ -250,45 +228,24 @@ public class IntentionCanvasController implements CGroupController.Listener
 	public void canvasChanged(long canvas_uuid)
 	{
 		currentCanvasId = canvas_uuid;
-		CanvasIntentionToolBar.getInstance().moveTo(canvas_uuid);
+		CanvasTagPanel.getInstance().moveTo(canvas_uuid);
+		CanvasLinkPanel.getInstance().moveTo(canvas_uuid);
 
 		CCanvasLinkController.getInstance().showingCanvas(canvas_uuid);
 
 		for (long groupId : CCanvasController.canvasdb.get(canvas_uuid).getChildGroups())
 		{
+			/**
+			 * *** update this ***
+			 * 
+			 * <pre>
 			CanvasBadgeRow row = badgeRowsByGroupId.get(groupId);
 			if (row != null)
 			{
 				row.updateContextHighlight();
 			}
+			 */
 		}
-
-		incomingLinkBay.moveTo(canvas_uuid);
-		outgoingLinkBay.moveTo(canvas_uuid);
-
-		/**
-		 * <pre> not sure this is necessary anymore, badge rows are sticky items
-			for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
-			{
-				CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-				if (!anchor.hasGroup())
-				{
-					// not all anchors have badges
-					continue;
-				}
-
-				CCanvasLinkBadge badge = badgesByAnchorId.get(anchorId);
-				if (badge == null)
-				{
-					System.out.println("Warning: badge missing for design-inside anchor " + anchorId);
-					continue;
-				}
-
-				CCanvasController.canvasdb.get(canvas_uuid).getLayer(CCanvas.Layer.TOOLS).addChild(badge.getImage());
-				badge.updatePosition();
-			}
-		</pre>
-		 */
 	}
 
 	@Override
@@ -334,35 +291,16 @@ public class IntentionCanvasController implements CGroupController.Listener
 		return null;
 	}
 
-	public CanvasLinkBay getIncomingLinkBay()
-	{
-		return incomingLinkBay;
-	}
-
-	public CanvasLinkBay getOutgoingLinkBay()
-	{
-		return outgoingLinkBay;
-	}
-
-	private class UpperLeftLayout implements CanvasLinkBay.Layout
+	private class LowerLeftLayout implements IntentionPanelLayout
 	{
 		@Override
 		public void updateBounds(PNode node, double width, double height)
 		{
-			node.setBounds(CanvasLinkBay.BAY_INSET_X, CanvasLinkBay.BAY_INSET_Y, width, height);
-		}
-	}
-
-	private class LowerRightLayout implements CanvasLinkBay.Layout
-	{
-		@Override
-		public void updateBounds(PNode node, double width, double height)
-		{
-			double x = CalicoDataStore.ScreenWidth - (CanvasLinkBay.BAY_INSET_X + width);
-			double y = CalicoDataStore.ScreenHeight - (CanvasLinkBay.BAY_INSET_Y + height);
+			double x = CanvasLinkPanel.BAY_INSET_X;
+			double y = CalicoDataStore.ScreenHeight - (CanvasLinkPanel.BAY_INSET_Y + height);
 			node.setBounds(x, y, width, height);
 
-			System.out.println("Positioning link bay at y = " + y);
+			System.out.println("Positioning panel at y = " + y);
 		}
 	}
 
