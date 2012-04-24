@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 
 import sun.java2d.pipe.AlphaColorPipe;
 
+import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.controllers.CImageController;
@@ -59,8 +60,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		Rectangle bounds = new Rectangle(imgX, imgY, imageWidth, imageHeight);
 		setShapeToRoundedRectangle(bounds, 0);
 //		image.getWidth(this);
-		
-		Runnable runnable = new LoadImageThread(this, img);
+		Runnable runnable = new LoadImageThread(this, "http://" + CalicoDataStore.ServerHost + img);
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
@@ -102,7 +102,6 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 	public void setImage() {	
 		try {
-			System.out.println("image loaded: " + uuid);
 			
 			if (CImageController.imageExists(uuid))
 				image = ImageIO.read(new File(CImageController
@@ -126,7 +125,6 @@ public class CGroupImage extends CGroup implements ImageObserver {
 	
 	public void unloadImage()
 	{
-		System.out.println("image unloaded: " + uuid);
 		if (image != null)
 		{
 			image.flush();

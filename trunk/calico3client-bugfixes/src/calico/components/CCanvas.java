@@ -642,11 +642,13 @@ public class CCanvas
 //			getCamera().removeChild(menuBarRight);
 //			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
-			CCanvasController.loadCanvasImages(uuid);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.loadCanvasImages(uuid);
 				
 			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
 			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
-			CCanvasController.unloadCanvasImages(uuid);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.unloadCanvasImages(uuid);
 			
 //			getCamera().addChild(menuBarLeft);
 //			if (menuBarRight != null)
