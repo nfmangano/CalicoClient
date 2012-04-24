@@ -59,7 +59,8 @@ public class CGroupController
 	
 	private static long group_copy_uuid = 0L;
 	public static boolean restoreOriginalStroke = false;
-	public static long originalStroke = 0l;
+	//public static long originalStroke = 0l;
+	public static CalicoPacket originalStroke = null;
 	
 	private static List<Listener> listeners = new ArrayList<Listener>();
 
@@ -316,22 +317,20 @@ public class CGroupController
 			return;
 		}
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
-		{
-			BubbleMenu.clearMenu();
-		}
 		
-		if (restoreOriginalStroke && CStrokeController.exists(originalStroke))
+		if (restoreOriginalStroke && originalStroke != null && uuid == lastGroupUUID)
 		{
-			CStrokeController.unhideStroke(originalStroke);
-			originalStroke = 0l;
+			//CStrokeController.unhideStroke(originalStroke);
+			batchReceive(new CalicoPacket[]{originalStroke});
+			Networking.send(originalStroke);
+			originalStroke = null;
 			restoreOriginalStroke = false;
 		}
-		else if (originalStroke != 0l)
+		/*else if (originalStroke != null)
 		{
-			CStrokeController.delete(originalStroke);
-			originalStroke = 0l;
-		}
+			//CStrokeController.delete(originalStroke);
+			originalStroke = null;
+		}*/
 		
 		//The purpose of this block is to achieve smoother drawing, but it is not thread safe
 		/*groupdb.get(uuid).setTransparency(0f);
@@ -376,6 +375,11 @@ public class CGroupController
 			{
 				listener.groupDeleted(uuid);
 			}
+		}
+		
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		{
+			BubbleMenu.clearMenu();
 		}
 	
 				//} } );

@@ -333,7 +333,10 @@ public class CGrid
 			PCamera canvasCam =canvas.getContentCamera();		
 //			canvasCam.removeChild(canvas.menuBar);
 //			canvasCam.removeChild(canvas.topMenuBar);
-			Image img = canvasCam.toImage(imgw-16, imgh-16, Color.YELLOW);			
+			CCanvasController.loadCanvasImages(cuid);
+			Image img = canvasCam.toImage(imgw-16, imgh-16, Color.YELLOW);	
+			CCanvasController.unloadCanvasImages(cuid);
+			
 			pressedCellMainImage =  new PImage(img);
 			
 			pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);
@@ -526,6 +529,10 @@ public class CGrid
 	
 	public static void loadGrid()
 	{
+		CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
+		Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
+		CCanvasController.setCurrentUUID(0l);
+		
 		CalicoDataStore.gridObject = CGrid.getInstance();
 		//CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();

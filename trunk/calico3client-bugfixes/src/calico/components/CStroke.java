@@ -388,9 +388,10 @@ public class CStroke extends PPath
 		{
 			previousLen = totalLen;
 			totalLen += Point.distance(mousePoints.xpoints[i-1], mousePoints.ypoints[i-1], mousePoints.xpoints[i], mousePoints.ypoints[i]);
-			if (totalLen >= 50)
+			int offsetLength = 25;
+			if (totalLen >= offsetLength)
 			{
-				double ratio = (50 - previousLen) / ((50 - previousLen) +(totalLen - 50));
+				double ratio = (offsetLength - previousLen) / ((offsetLength - previousLen) +(totalLen - offsetLength));
 				circlePoint.x = (int) (((mousePoints.xpoints[i] - mousePoints.xpoints[i-1]) * ratio) + mousePoints.xpoints[i-1]);
 				circlePoint.y = (int) (((mousePoints.ypoints[i] - mousePoints.ypoints[i-1]) * ratio) + mousePoints.ypoints[i-1]);
 				break;
@@ -789,7 +790,8 @@ public class CStroke extends PPath
 	public long createTemporaryScrapPreview(final boolean delete) {
 		
 		long tempUUID = Calico.uuid();
-		CGroupController.no_notify_start(tempUUID, this.canvasUID, getParentUUID(), false);
+		CGroupController.no_notify_start(tempUUID, this.canvasUID, 0l, false);
+
 		int[] x = new int[mousePoints.npoints];
 		int[] y = new int[mousePoints.npoints];
 		for (int i = 0; i < mousePoints.npoints; i++)
@@ -799,7 +801,7 @@ public class CStroke extends PPath
 		}
 		
 		CGroupController.no_notify_append(tempUUID, x, y);
-		CGroupController.no_notify_finish(tempUUID, true);
+		CGroupController.no_notify_finish(tempUUID, true, false, true);
 		
 //		System.out.println("Creating temporary group: " + tempUUID);
 		
@@ -808,10 +810,13 @@ public class CStroke extends PPath
 		CGroupController.setCurrentUUID(tempUUID);
 		CGroupController.setLastCreatedGroupUUID(tempUUID);
 
-		CStrokeController.hideStroke(this.uuid, delete);
+		//CStrokeController.hideStroke(this.uuid, delete);
+		
 		
 		CGroupController.restoreOriginalStroke = true;
-		CGroupController.originalStroke = uuid;
+		CGroupController.originalStroke = getUpdatePackets()[0];
+		
+		CStrokeController.delete(this.uuid);
 		
 		return tempUUID;
 	}

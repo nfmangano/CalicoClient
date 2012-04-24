@@ -118,11 +118,11 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			addIcon(new MBSizeButton(cuid, CalicoOptions.menu.pensize[i], CalicoOptions.menu.pensize_icons[i], rect_default));
 		}
+		addIcon(new MBModeChangeButton(cuid, CInputMode.ARROW));
 		addSpacer();
 		
 		// Mode buttons
 		addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
-		addIcon(new MBModeChangeButton(cuid, CInputMode.ARROW));
 
 //		addIcon(new MBModeChangeButton(cuid, CInputMode.EXPERT));
 		addIcon(new MBModeChangeButton(cuid, CInputMode.POINTER));

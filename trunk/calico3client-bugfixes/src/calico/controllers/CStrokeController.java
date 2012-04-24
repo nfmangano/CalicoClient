@@ -133,7 +133,6 @@ public class CStrokeController
 		{
 			logger.warn("Attempting to load stroke " + suuid + " which does not exist!");
 			//System.err.println("Attempting to load a stroke that does not exist!");
-			//(new Exception()).printStackTrace();
 			return;
 		}
 		CalicoPacket[] packets = strokes.get(suuid).getUpdatePackets();
@@ -299,8 +298,8 @@ public class CStrokeController
 		
 		strokes.get(uuid).delete();
 		strokes.remove(uuid);
-		CGroupController.originalStroke = 0l;
-		CGroupController.restoreOriginalStroke = false;
+		//CGroupController.originalStroke = null;
+		//CGroupController.restoreOriginalStroke = false;
 
 		dq_add(uuid);
 		
@@ -880,6 +879,7 @@ public class CStrokeController
 		
 	}
 	
+	@Deprecated
 	public static void hideStroke(long uuid, boolean delete)
 	{
 		if (!exists(uuid))
@@ -891,6 +891,7 @@ public class CStrokeController
 		no_notify_hide_stroke(uuid, delete);
 	}
 	
+	@Deprecated
 	public static void no_notify_hide_stroke(final long uuid, final boolean delete)
 	{
 		if (!exists(uuid))
@@ -938,6 +939,7 @@ public class CStrokeController
 			CalicoDraw.addActivityToNode(stroke, flash);
 	}
 	
+	@Deprecated
 	public static void unhideStroke(long uuid)
 	{
 		if (!exists(uuid))
@@ -949,7 +951,7 @@ public class CStrokeController
 		Networking.send(NetworkCommand.STROKE_UNHIDE, uuid);
 	}
 
-
+	@Deprecated
 	public static void no_notify_unhide_stroke(long uuid) {
 		if (!exists(uuid))
 			return;
@@ -958,12 +960,13 @@ public class CStrokeController
 		
 		strokes.get(tempUUID).hiding = false;
 		//This line is not thread safe so must invokeLater to prevent exceptions.
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
 					
 					strokes.get(tempUUID).setTransparency(1.0f);
 					} }
-		);
+		);*/
+		CalicoDraw.setNodeTransparency(strokes.get(tempUUID), 1.0f);
 		
 		//strokes.get(uuid).hiding = false;
 		//strokes.get(uuid).setTransparency(1.0f);

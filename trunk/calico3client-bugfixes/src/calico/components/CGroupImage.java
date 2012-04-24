@@ -92,29 +92,46 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		return getUpdatePackets(this.uuid, this.cuid, this.puid, 0, 0,
 				captureChildren);
 	}
+	
+	public void downloadImage(String imgURL)
+	{
+		//Always download the image first
+		if (imgURL.length() > 0)
+			CImageController.download_image_no_exception(uuid, imgURL);
+	}
 
-	public void setImage(String imgURL) {
-
-		boolean imageExistsLocally = CImageController.imageExists(uuid);
-			
+	public void setImage() {	
 		try {
-			if (imageExistsLocally)
+			System.out.println("image loaded: " + uuid);
+			
+			if (CImageController.imageExists(uuid))
 				image = ImageIO.read(new File(CImageController
 						.getImagePath(uuid)));
-			else
+			/*else
 			{
 				URL url = new URL(imgURL);
 				image = ImageIO.read(url);
-			}
+			}*/
 //				image = Toolkit.getDefaultToolkit().createImage(image);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
 		}
-		if (imgURL.length() > 0)
-			CImageController.download_image_no_exception(uuid, imgURL);
+		
 		// image =
 		// Toolkit.getDefaultToolkit().createImage(CImageController.getImagePath(uuid));
 
+	}
+	
+	public void unloadImage()
+	{
+		System.out.println("image unloaded: " + uuid);
+		if (image != null)
+		{
+			image.flush();
+			image = null;
+		}
 	}
 
 	protected void paint(final PPaintContext paintContext) {
@@ -166,7 +183,10 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 		@Override
 		public void run() {
-			group.setImage(imgURL);	
+			group.downloadImage(imgURL);
+			//If the image group is on a different canvas than the one being viewed, don't load it
+			if (group.cuid == CCanvasController.getCurrentUUID())
+				group.setImage();	
 			group.repaint();
 		}
 		

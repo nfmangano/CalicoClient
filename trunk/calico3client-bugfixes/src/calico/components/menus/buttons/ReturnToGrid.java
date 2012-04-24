@@ -7,13 +7,16 @@ import java.util.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.grid.*;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.modules.*;
 import calico.networking.*;
+import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.GridPerspective;
 
 import edu.umd.cs.piccolo.*;
@@ -55,6 +58,11 @@ public class ReturnToGrid extends CanvasMenuButton
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
+			
+			CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
+			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
+			CCanvasController.setCurrentUUID(0l);
+			
 			CalicoDataStore.gridObject = CGrid.getInstance();
 			CalicoDataStore.gridObject.refreshCells();
 			CalicoDataStore.calicoObj.getContentPane().removeAll();

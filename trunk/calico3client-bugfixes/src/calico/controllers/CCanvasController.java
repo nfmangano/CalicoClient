@@ -24,8 +24,10 @@ import calico.components.CCanvas.ContentContributor;
 import calico.components.CCanvas.Layer;
 import calico.components.CCanvasWatermark;
 import calico.components.CGroup;
+import calico.components.CGroupImage;
 import calico.components.CStroke;
 import calico.components.arrow.CArrow;
+import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
@@ -59,6 +61,8 @@ public class CCanvasController
 	public static CGroup currentGroup = null;
 
 	static long currentCanvasUUID = 0L;
+	
+	static long lastActiveCanvasUUID = 0L;
 
 	// Does nothing right now
 	public static void setup()
@@ -191,6 +195,16 @@ public class CCanvasController
 	public static void setCurrentUUID(long u)
 	{
 		currentCanvasUUID = u;
+	}
+	
+	public static long getLastActiveUUID()
+	{
+		return lastActiveCanvasUUID;
+	}
+	
+	public static void setLastActiveUUID(long u)
+	{
+		lastActiveCanvasUUID = u;
 	}
 
 	public static void windowResized()
@@ -334,6 +348,7 @@ public class CCanvasController
 		cal.setJMenuBar(null);
 		cal.pack();
 		initializeCanvas(uuid);
+		loadCanvasImages(uuid);
 		cal.setVisible(true);
 		cal.repaint();
 
@@ -350,9 +365,20 @@ public class CCanvasController
 
 			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), uuid);
 		}
-		Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, uuid);
-		Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
+		
+		long tempUUID = getLastActiveUUID();
+		CCanvasController.setLastActiveUUID(uuid);
+		if (tempUUID != 0L)
+		{
+			CGrid.getInstance().updateCell(tempUUID);			
+		}
+		
 		CCanvasController.setCurrentUUID(uuid);
+		
+		Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, uuid);
+		
+		//Why was this even here? -Wayne
+		//Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
 
 		CArrowController.setOutstandingAnchorPoint(null);
 		// calico.events.CalicoEventHandler.getInstance().fireEvent(NetworkCommand.PRESENCE_CANVAS_USERS,
@@ -366,6 +392,40 @@ public class CCanvasController
 		// canvas.menuBar.invalidateFullBounds();
 
 		MessageObject.showNotice("Viewing canvas " + CCanvasController.canvasdb.get(uuid).getGridCoordTxt());
+	}
+	
+	//Load all images in the canvas to memory to they are visible
+	public static void loadCanvasImages(long uuid)
+	{
+		if (uuid != 0)
+		{
+			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
+			for (int i = 0; i < groups.length; i++)
+			{
+				CGroup temp = CGroupController.groupdb.get(groups[i]);
+				if (temp instanceof CGroupImage)
+				{
+					((CGroupImage) temp).setImage();
+				}
+			}
+		}
+	}
+	
+	//Remove all image in the canvas from memory as they are not needed right now
+	public static void unloadCanvasImages(long uuid)
+	{
+		if (uuid != 0)
+		{
+			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
+			for (int i = 0; i < groups.length; i++)
+			{
+				CGroup temp = CGroupController.groupdb.get(groups[i]);
+				if (temp instanceof CGroupImage)
+				{
+					((CGroupImage) temp).unloadImage();
+				}
+			}
+		}
 	}
 
 	/**

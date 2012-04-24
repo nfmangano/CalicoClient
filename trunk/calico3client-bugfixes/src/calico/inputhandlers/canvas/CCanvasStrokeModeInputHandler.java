@@ -73,6 +73,16 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionPressed(InputEventInfo e)
 	{
+		//Tablets might not get the released event if the stylus is moved off the edge.
+		//Make sure any previous stroke is finished before starting the next
+		if (hasBeenPressed)
+		{
+			InputEventInfo lastEvent = new InputEventInfo();
+			lastEvent.setPoint(lastPoint);
+			lastEvent.setButton(InputEventInfo.BUTTON_LEFT);
+			actionReleased(lastEvent);
+		}
+		
 		mouseMoved = false;
 //		CalicoInputManager.drawCursorImage(canvas_uid,
 //				CalicoIconManager.getIconImage("mode.stroke"), e.getPoint());

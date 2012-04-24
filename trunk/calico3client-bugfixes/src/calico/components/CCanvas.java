@@ -629,6 +629,12 @@ public class CCanvas
 
 	public Image toImage()
 	{
+		Color backgroundColor;
+		if (CCanvasController.getLastActiveUUID() == this.uuid)
+			backgroundColor = new Color(200,200,200);
+		else
+			backgroundColor = CCanvasController.getActiveCanvasBackgroundColor();
+		
 		if (!isEmpty())
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
@@ -636,8 +642,12 @@ public class CCanvas
 //			getCamera().removeChild(menuBarRight);
 //			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
-			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
-
+			CCanvasController.loadCanvasImages(uuid);
+				
+			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
+			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
+			CCanvasController.unloadCanvasImages(uuid);
+			
 //			getCamera().addChild(menuBarLeft);
 //			if (menuBarRight != null)
 //				getCamera().addChild(menuBarRight);
@@ -652,7 +662,7 @@ public class CCanvas
 			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = (Graphics2D)bimg.createGraphics();
 			g.setComposite(AlphaComposite.Src);
-			g.setColor(CCanvasController.getActiveCanvasBackgroundColor());
+			g.setColor(backgroundColor);
 			g.fill(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.draw(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.dispose();
@@ -1005,6 +1015,8 @@ public class CCanvas
 	 */
 	public void clear()
 	{
+		CGroupController.restoreOriginalStroke = false;
+		
 		if(this.groups.size()>0)
 		{
 			long guuids[] = this.groups.toLongArray();

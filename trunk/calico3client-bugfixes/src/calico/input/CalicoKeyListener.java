@@ -67,7 +67,7 @@ public class CalicoKeyListener extends KeyAdapter {
 		int gridy = CalicoDataStore.GridRows-1;
 				
 		// Canvas Coords
-		long cuuid = CCanvasController.getCurrentUUID();
+		long cuuid = CCanvasController.getLastActiveUUID();
 		int xpos = CCanvasController.canvasdb.get(cuuid).getGridCol();
 		int ypos = CCanvasController.canvasdb.get(cuuid).getGridRow();
     	
@@ -132,7 +132,7 @@ public class CalicoKeyListener extends KeyAdapter {
 			// Error
 			return;
 		}
-		
+		CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
 		CCanvasController.loadCanvas(cuid);
 	}
 	

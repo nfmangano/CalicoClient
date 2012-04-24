@@ -494,7 +494,7 @@ public class BubbleMenu {
 		//bubbleContainer = null;
 		//bubbleHighlighter = null;
 		selectedButtonIndex = -1;
-		isPerformingBubbleMenuAction = false;
+		
 		if (activeGroup != 0l)
 		{
 			//SwingUtilities.invokeLater(
@@ -503,11 +503,16 @@ public class BubbleMenu {
 			{
 				CGroupController.groupdb.get(activeGroup).highlight_off();
 				CGroupController.groupdb.get(activeGroup).highlight_repaint();
+				if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+				{
+					CGroupController.drop(BubbleMenu.activeGroup);
+				}
 			}
 			
 			//		}});
 			activeGroup = 0l;
 		}
+		isPerformingBubbleMenuAction = false;
 
 		for (ContextMenu.Listener listener : listeners)
 		{
