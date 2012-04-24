@@ -296,7 +296,6 @@ public class CCanvasController
 
 	public static void loadCanvas(long uuid)
 	{
-
 		// if (CCanvasController.getCurrentUUID() == uuid)
 		// return;
 		//
@@ -347,8 +346,8 @@ public class CCanvasController
 		
 		cal.setJMenuBar(null);
 		cal.pack();
-		initializeCanvas(uuid);
 		loadCanvasImages(uuid);
+		initializeCanvas(uuid);
 		cal.setVisible(true);
 		cal.repaint();
 
@@ -397,6 +396,7 @@ public class CCanvasController
 	//Load all images in the canvas to memory to they are visible
 	public static void loadCanvasImages(long uuid)
 	{
+		//System.out.println("loading canvas: " + uuid);
 		if (uuid != 0)
 		{
 			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
@@ -414,6 +414,7 @@ public class CCanvasController
 	//Remove all image in the canvas from memory as they are not needed right now
 	public static void unloadCanvasImages(long uuid)
 	{
+		//System.out.println("unloading canvas: " + uuid);
 		if (uuid != 0)
 		{
 			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
