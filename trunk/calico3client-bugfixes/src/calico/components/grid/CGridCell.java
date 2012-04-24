@@ -245,7 +245,8 @@ public class CGridCell extends PImage//PComposite
 		StringBuilder str = new StringBuilder();
 		int[] clients = CCanvasController.canvasdb.get(this.canvasUID).getClients();
 		for(int i=0;i<clients.length;i++) {
-			if(CalicoDataStore.clientInfo.containsKey(clients[i])) {
+			if(CalicoDataStore.clientInfo.containsKey(clients[i]) 
+					&& !CalicoDataStore.clientInfo.get(clients[i]).equals(CalicoDataStore.Username)) {
 				str.append(CalicoDataStore.clientInfo.get(clients[i]) + "\n");
 			} else {
 //				str.append("Unknown ("+clients[i]+")" + "\n");

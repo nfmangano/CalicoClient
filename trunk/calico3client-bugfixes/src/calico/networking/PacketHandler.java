@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.*;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import org.apache.log4j.Logger;
@@ -204,7 +205,8 @@ public class PacketHandler
 //				CCanvasController.redrawToolbar_clients(cuid);
 			
 			if (CCanvasController.exists(cuid) && CalicoDataStore.gridObject != null &&
-					origNumClients != CCanvasController.canvasdb.get(cuid).getClients().length)
+					origNumClients != CCanvasController.canvasdb.get(cuid).getClients().length
+					&& 0 == CCanvasController.getCurrentUUID())
 				CalicoDataStore.gridObject.updateCell(cuid);
 			
 			if (cuid == CCanvasController.getCurrentUUID())
@@ -297,6 +299,16 @@ public class PacketHandler
 		p.rewind();
 		p.getInt();
 		long uuid = p.getLong();
+		
+		//This is pretty ugly. The proper way to handle it is to create a new packet. However this is the quick and dirty solution until we decide on exactly how to handle large images.
+		if (uuid == 0l)
+		{
+			JOptionPane.showMessageDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
+			"The maximum image size is 1920W x 1080H",
+			"Image Error",
+			JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		long cuid = p.getLong();
 		long puid = p.getLong();
 		String url = p.getString();
@@ -331,6 +343,8 @@ public class PacketHandler
 		CGroupController.no_notify_create_image_group(uuid, cuid, puid, url, imgX, imgY, imgW, imgH);
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
+		
+		
 	}
 	
 	private static void GROUP_ROTATE(CalicoPacket p)
@@ -1088,7 +1102,6 @@ public class PacketHandler
 		//CStrokeController.strokes.get(uuid).finish();
 		
 		CStrokeController.no_notify_finish(uuid);
-		
 	}
 	
 	private static void STROKE_MAKE_SCRAP(CalicoPacket p)

@@ -288,11 +288,11 @@ public class CGroup extends PPath implements Serializable {
 
 		drawPermTemp();
 		
-		if (temp
+		/*if (temp
 				&& CStrokeController.exists(CGroupController.originalStroke))
 		{
 			CStrokeController.delete(CGroupController.originalStroke);
-		}
+		}*/
 	}
 
 	public void drawPermTemp() {
@@ -497,8 +497,12 @@ public class CGroup extends PPath implements Serializable {
 	
 	public boolean containsShape(Shape shape)
 	{
+		if (shape == null)
+			return false;
 		Polygon polygon = Geometry.getPolyFromPath(shape.getPathIterator(null));
 		GeneralPath containerGroup = getPathReference();
+		if (containerGroup == null)
+			return false;
 		int totalNotContained = 0;
 		for(int i=0;i<polygon.npoints;i++)
 		{
@@ -830,11 +834,10 @@ public class CGroup extends PPath implements Serializable {
 		if (grouparr.length > 0) {
 			for (int i = 0; i < grouparr.length; i++) {
 				if (CGroupController.canParentChild(this.uuid, grouparr[i], x, y)
-						&& CGroupController.group_contains_group(this.uuid,
-								grouparr[i])) {
+						&& CGroupController.group_contains_group(this.uuid, grouparr[i])) 
+				{
 					// it is contained in the group, so set it's parent
-					CGroupController.no_notify_set_parent(grouparr[i],
-							this.uuid);
+					CGroupController.no_notify_set_parent(grouparr[i], this.uuid);
 				}
 			}
 		}
@@ -846,17 +849,17 @@ public class CGroup extends PPath implements Serializable {
 				// something else
 				// then we check to see if it contained in this group
 				if (CGroupController.canParentChild(this.uuid, bgearr[i], x, y)
-						&& CGroupController.group_contains_stroke(this.uuid,
-								bgearr[i])) {
+						&& CGroupController.group_contains_stroke(this.uuid, bgearr[i])) {
 					// it is contained in the group, so set it's parent
 					// CStrokeController.no_notify_set_parent(bgearr[i],
 					// this.uuid);
 					// changed by Nick
 					CStrokeController.no_notify_set_parent(bgearr[i], this.uuid);
-				} else if (/*CStrokeController.strokes.get(bgearr[i])
+				} 
+				else if (/*CStrokeController.strokes.get(bgearr[i])
 						.getParentUUID() != 0L
-						&&*/ CGroupController.group_contains_stroke(this.uuid,
-								bgearr[i])) {
+						&&*/ CGroupController.group_contains_stroke(this.uuid, bgearr[i])) 
+				{
 					// Check to see if the current parent group is larger than
 					// this one.
 					long pguid = CStrokeController.strokes.get(bgearr[i])
@@ -865,8 +868,7 @@ public class CGroup extends PPath implements Serializable {
 					if (CGroupController.group_contains_group(pguid, this.uuid)
 							|| !CGroupController.group_contains_stroke(pguid, bgearr[i])) {
 						// it is contained in the group, so set it's parent
-						CStrokeController.no_notify_set_parent(bgearr[i],
-								this.uuid);
+						CStrokeController.no_notify_set_parent(bgearr[i], this.uuid);
 					}
 
 				}
@@ -2061,7 +2063,7 @@ public class CGroup extends PPath implements Serializable {
 		long[] grouparr = CCanvasController.canvasdb.get(cuid).getChildGroups();
 		if (grouparr.length > 0) {
 			for (int i = 0; i < grouparr.length; i++) {
-				if (!CGroupController.exists(grouparr[i]) || !CGroupController.groupdb.get(grouparr[i]).isPermanent())
+				if (!CGroupController.exists(grouparr[i]) || !CGroupController.groupdb.get(grouparr[i]).isPermanent() || !this.isPermanent())
 					continue;
 				if (grouparr[i] != this.uuid
 						&& smallestGroupArea > CGroupController.groupdb.get(grouparr[i]).getArea()
@@ -2113,7 +2115,11 @@ public class CGroup extends PPath implements Serializable {
 				 return false;
 			 //the parent must completely contain the child
 			 if (!CGroupController.group_contains_group(this.uuid, child))
+				 return false;		 
+			 //The child should not be a temp scrap
+			 if (!CGroupController.groupdb.get(child).isPermanent())
 				 return false;
+			 
 			child_parent = CGroupController.groupdb.get(child).getParentUUID();
 		}
 		
