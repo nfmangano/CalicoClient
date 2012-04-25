@@ -48,19 +48,19 @@ public class CIntentionCell
 	private Point2D location;
 	private boolean inUse;
 	private String title;
-	private final List<CIntentionType> intentionTypes = new ArrayList<CIntentionType>();
+	private final List<Long> intentionTypeIds = new ArrayList<Long>();
 
 	private boolean highlighted = false;
 
 	private final Shell shell;
 
-	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, Point2D location)
+	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, Point2D location, String title)
 	{
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
 		this.inUse = inUse;
 		this.location = location;
-		title = "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt();
+		this.title = title;
 
 		shell = new Shell(location.getX(), location.getY());
 
@@ -114,19 +114,19 @@ public class CIntentionCell
 		this.title = title;
 	}
 	
-	public void addIntentionType(CIntentionType type)
+	public void addIntentionType(long typeId)
 	{
-		intentionTypes.add(type);
+		intentionTypeIds.add(typeId);
 	}
 	
-	public boolean hasIntentionType(CIntentionType type)
+	public boolean hasIntentionType(long typeId)
 	{
-		return intentionTypes.contains(type);
+		return intentionTypeIds.contains(typeId);
 	}
 	
-	public void removeIntentionType(CIntentionType type)
+	public void removeIntentionType(long typeId)
 	{
-		intentionTypes.remove(type);
+		intentionTypeIds.remove(typeId);
 	}
 
 	public boolean contains(Point2D point)

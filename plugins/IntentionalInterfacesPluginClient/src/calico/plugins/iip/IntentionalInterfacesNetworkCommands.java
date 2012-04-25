@@ -13,6 +13,13 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CIC_DELETE = Command.CIC_DELETE.id;
 
 	public static final int CIC_MOVE = Command.CIC_MOVE.id;
+	public static final int CIC_SET_TITLE = Command.CIC_SET_TITLE.id;
+	public static final int CIC_TAG = Command.CIC_TAG.id;
+	public static final int CIC_UNTAG = Command.CIC_UNTAG.id;
+	public static final int CIT_CREATE = Command.CIT_CREATE.id;
+	public static final int CIT_RENAME = Command.CIT_RENAME.id;
+	public static final int CIT_SET_COLOR = Command.CIT_SET_COLOR.id;
+	public static final int CIT_DELETE = Command.CIT_DELETE.id;
 	public static final int CLINK_CREATE = Command.CLINK_CREATE.id;
 	public static final int CLINK_RETYPE = Command.CLINK_RETYPE.id;
 	public static final int CLINK_MOVE_ANCHOR = Command.CLINK_MOVE_ANCHOR.id;
@@ -30,9 +37,37 @@ public class IntentionalInterfacesNetworkCommands
 		 */
 		CIC_MOVE,
 		/**
+		 * Set the title of a CIntentionCell
+		 */
+		CIC_SET_TITLE,
+		/**
+		 * Tag a CIntentionCell with a CIntentionType
+		 */
+		CIC_TAG,
+		/**
+		 * Untag a CIntentionCell with a CIntentionType
+		 */
+		CIC_UNTAG,
+		/**
 		 * Delete a CIntentionCell
 		 */
 		CIC_DELETE,
+		/**
+		 * Create a new CIntentionType
+		 */
+		CIT_CREATE,
+		/**
+		 * Rename a new CIntentionType
+		 */
+		CIT_RENAME,
+		/**
+		 * Set the color of a new CIntentionType
+		 */
+		CIT_SET_COLOR,
+		/**
+		 * Delete a CIntentionType
+		 */
+		CIT_DELETE,
 		/**
 		 * Create a new CCanvasLink
 		 */

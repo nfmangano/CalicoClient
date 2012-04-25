@@ -48,12 +48,20 @@ public class CIntentionCellController
 		}
 		return -1L;
 	}
-	
+
 	public void initializeDisplay()
 	{
 		for (CIntentionCell cell : cells.values())
 		{
 			cell.initialize();
+		}
+	}
+	
+	public void removeIntentionTypeReferences(long typeId)
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.removeIntentionType(typeId);
 		}
 	}
 
@@ -75,30 +83,30 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
+
 	public void moveCellLocal(long cellId, double x, double y)
 	{
 		cells.get(cellId).setLocation(x, y);
 		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
 	}
-	
+
 	public void setInUse(long cellId, boolean inUse)
 	{
 		CIntentionCell cell = cells.get(cellId);
-		
+
 		if (cell.isInUse() == inUse)
 		{
 			return;
 		}
-		
+
 		moveCell(cellId, inUse, cell.getLocation().getX(), cell.getLocation().getY());
 	}
-	
+
 	public void moveCell(long cellId, double x, double y)
 	{
 		moveCell(cellId, true, x, y);
 	}
-	
+
 	private void moveCell(long cellId, boolean inUse, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -107,6 +115,30 @@ public class CIntentionCellController
 		packet.putBoolean(inUse);
 		packet.putInt((int) x);
 		packet.putInt((int) y);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+
+	public void setCellTitle(long cellId, String title)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE);
+		packet.putLong(cellId);
+		packet.putString(title);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+
+	public void toggleCellIntentionType(long cellId, long typeId, boolean add)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(add ? IntentionalInterfacesNetworkCommands.CIC_TAG : IntentionalInterfacesNetworkCommands.CIC_UNTAG);
+		packet.putLong(cellId);
+		packet.putLong(typeId);
 
 		packet.rewind();
 		PacketHandler.receive(packet);

@@ -6,7 +6,7 @@ import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
-public class CanvasIntentionToolBarButton extends CanvasMenuButton
+public class TagPanelToolBarButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
 
@@ -15,13 +15,13 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 	/**
 	 * Instantiated via reflection in CanvasStatusBar
 	 */
-	public CanvasIntentionToolBarButton(long canvas_uuid)
+	public TagPanelToolBarButton(long canvas_uuid)
 	{
 		this.canvas_uuid = canvas_uuid;
 
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("intention.canvas-menubar"));
+			setImage(CalicoIconManager.getIconImage("intention.tag-panel"));
 		}
 		catch (Exception e)
 		{
@@ -33,18 +33,6 @@ public class CanvasIntentionToolBarButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		boolean newVisibility = !CanvasIntentionToolBar.getInstance().isVisible();
-
-		CanvasIntentionToolBar.getInstance().setVisible(newVisibility);
-		IntentionCanvasController.getInstance().toggleTagVisibility();
-
-		if (newVisibility)
-		{
-			CreateDesignInsideLinkButton.SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
-		}
-		else
-		{
-			CreateDesignInsideLinkButton.SHOWON = 0;
-		}
+		IntentionCanvasController.getInstance().toggleTagPanelVisibility();
 	}
 }

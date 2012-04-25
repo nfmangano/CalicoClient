@@ -2,16 +2,21 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.networking.Networking;
+import calico.networking.PacketHandler;
+import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CanvasPerspective;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionType;
@@ -19,9 +24,10 @@ import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CCanvasLinkBadge;
 import calico.plugins.iip.components.canvas.CCanvasLinkToken;
 import calico.plugins.iip.components.canvas.CanvasBadgeRow;
-import calico.plugins.iip.components.canvas.CanvasIntentionToolBarButton;
 import calico.plugins.iip.components.canvas.CanvasLinkPanel;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
+import calico.plugins.iip.components.canvas.LinkPanelToolBarButton;
+import calico.plugins.iip.components.canvas.TagPanelToolBarButton;
 import calico.plugins.iip.components.graph.NewIdeaButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import edu.umd.cs.piccolo.PNode;
@@ -39,16 +45,15 @@ public class IntentionCanvasController implements CGroupController.Listener
 
 		INSTANCE.initializeComponents();
 		
-		CanvasStatusBar.addMenuButtonRightAligned(CanvasIntentionToolBarButton.class);
+		CanvasStatusBar.addMenuButtonRightAligned(TagPanelToolBarButton.class);
+		CanvasStatusBar.addMenuButtonRightAligned(LinkPanelToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(NewIdeaButton.class);
 	}
 
 	private static IntentionCanvasController INSTANCE;
 
-	// populate these from the server 
-	// server initializes them at startup
-	private final List<CIntentionType> activeIntentionTypes = new ArrayList<CIntentionType>();
+	private final Long2ReferenceArrayMap<CIntentionType> activeIntentionTypes = new Long2ReferenceArrayMap<CIntentionType>();
 
 	// remove these
 	// need tokens for 
@@ -66,52 +71,129 @@ public class IntentionCanvasController implements CGroupController.Listener
 	private IntentionCanvasController()
 	{
 		CGroupController.addListener(this);
-
-		// temporary ***
-		activeIntentionTypes.add(new CIntentionType("New Perspective", CIntentionType.AVAILABLE_COLORS[0]));
-		activeIntentionTypes.add(new CIntentionType("New Alternative", CIntentionType.AVAILABLE_COLORS[1]));
-		activeIntentionTypes.add(new CIntentionType("New Idea", CIntentionType.AVAILABLE_COLORS[2]));
-		activeIntentionTypes.add(new CIntentionType("Design Inside", CIntentionType.AVAILABLE_COLORS[3]));
 	}
 	
 	private void initializeComponents()
 	{
 		CanvasTagPanel.getInstance().setLayout(new LowerLeftLayout());
-		CanvasTagPanel.getInstance().updateIntentionTypes();
-		
 		CanvasLinkPanel.getInstance().setLayout(new LowerLeftLayout());
 	}
-
-	public void toggleTagVisibility()
+	
+	public void localAddIntentionType(CIntentionType type)
 	{
+		activeIntentionTypes.put(type.getId(), type);
+
+		CanvasTagPanel.getInstance().updateIntentionTypes();
+		CanvasLinkPanel.getInstance().updateIntentionTypes();
+	}
+
+	public void localRenameIntentionType(long typeId, String name)
+	{
+		activeIntentionTypes.get(typeId).setName(name);
+
+		CanvasTagPanel.getInstance().updateIntentionTypes();
+		CanvasLinkPanel.getInstance().updateIntentionTypes();
+	}
+
+	public void localSetIntentionTypeColor(long typeId, int colorIndex)
+	{
+		activeIntentionTypes.get(typeId).setColorIndex(colorIndex);
+
+		if (CanvasPerspective.getInstance().isActive())
+		{
+			CanvasTagPanel.getInstance().refresh();
+			CanvasLinkPanel.getInstance().refresh();
+		}
+	}
+
+	public void localRemoveIntentionType(long typeId)
+	{
+		activeIntentionTypes.remove(typeId);
+
+		CanvasTagPanel.getInstance().updateIntentionTypes();
+		CanvasLinkPanel.getInstance().updateIntentionTypes();
+	}
+	
+	public void addIntentionType(String name)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_CREATE);
+		packet.putLong(Calico.uuid());
+		packet.putString(name);
+
+		packet.rewind();
+		Networking.send(packet);
+	}
+	
+	public void renameIntentionType(long typeId, String name)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_RENAME);
+		packet.putLong(typeId);
+		packet.putString(name);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+	
+	public void setIntentionTypeColorIndex(long typeId, int colorIndex)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_SET_COLOR);
+		packet.putLong(typeId);
+		packet.putInt(colorIndex);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+	
+	public void removeIntentionType(long typeId)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_DELETE);
+		packet.putLong(typeId);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+
+	public void toggleTagPanelVisibility()
+	{
+		CanvasLinkPanel.getInstance().setVisible(linkPanelVisible = false);
+		
 		tagPanelVisible = !tagPanelVisible;
 		CanvasTagPanel.getInstance().setVisible(tagPanelVisible);
 	}
 
-	public void toggleLinkVisibility()
+	public void toggleLinkPanelVisibility()
 	{
+		CanvasTagPanel.getInstance().setVisible(tagPanelVisible = false);
+		
 		linkPanelVisible = !linkPanelVisible;
 		CanvasLinkPanel.getInstance().setVisible(linkPanelVisible);
 	}
 	
-	public List<CIntentionType> getActiveIntentionTypes()
+	public Collection<CIntentionType> getActiveIntentionTypes()
 	{
-		return activeIntentionTypes;
+		return activeIntentionTypes.values();
 	}
 
 	public void addLink(CCanvasLink link)
 	{
-		CanvasLinkPanel.getInstance().addLink(link);
+		CanvasLinkPanel.getInstance().updateLinks();
 	}
 
 	public void removeLink(CCanvasLink link)
 	{
-		CanvasLinkPanel.getInstance().removeLink(link);
+		CanvasLinkPanel.getInstance().updateLinks();
 	}
 
 	public void moveLinkAnchor(CCanvasLinkAnchor anchor, long previousCanvasId)
 	{
-		CanvasLinkPanel.getInstance().moveLinkAnchor(anchor, previousCanvasId);
+		CanvasLinkPanel.getInstance().updateLinks();
 	}
 
 	public void removeBadgeRow(long groupId)
@@ -296,8 +378,8 @@ public class IntentionCanvasController implements CGroupController.Listener
 		@Override
 		public void updateBounds(PNode node, double width, double height)
 		{
-			double x = CanvasLinkPanel.BAY_INSET_X;
-			double y = CalicoDataStore.ScreenHeight - (CanvasLinkPanel.BAY_INSET_Y + height);
+			double x = CanvasLinkPanel.PANEL_INSET_X;
+			double y = CalicoDataStore.ScreenHeight - (CanvasLinkPanel.PANEL_INSET_Y + height);
 			node.setBounds(x, y, width, height);
 
 			System.out.println("Positioning panel at y = " + y);
