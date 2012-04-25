@@ -27,8 +27,8 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 public class CIntentionCell
 {
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
-	private static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
-	private static final Color COORDINATES_COLOR = Color.blue;
+	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
+	public static final Color COORDINATES_COLOR = Color.blue;
 
 	private enum BorderColor
 	{

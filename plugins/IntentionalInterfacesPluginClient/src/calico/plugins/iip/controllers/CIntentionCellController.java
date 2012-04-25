@@ -57,6 +57,19 @@ public class CIntentionCellController
 		}
 	}
 	
+	public int countIntentionTypeUsage(long typeId)
+	{
+		int count = 0;
+		for (CIntentionCell cell : cells.values())
+		{
+			if (cell.hasIntentionType(typeId))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	public void removeIntentionTypeReferences(long typeId)
 	{
 		for (CIntentionCell cell : cells.values())

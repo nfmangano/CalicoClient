@@ -381,8 +381,6 @@ public class IntentionCanvasController implements CGroupController.Listener
 			double x = CanvasLinkPanel.PANEL_INSET_X;
 			double y = CalicoDataStore.ScreenHeight - (CanvasLinkPanel.PANEL_INSET_Y + height);
 			node.setBounds(x, y, width, height);
-
-			System.out.println("Positioning panel at y = " + y);
 		}
 	}
 

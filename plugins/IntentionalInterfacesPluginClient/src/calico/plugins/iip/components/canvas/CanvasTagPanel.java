@@ -9,9 +9,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.CalicoDataStore;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -310,6 +312,19 @@ public class CanvasTagPanel implements StickyItem
 					}
 						break;
 					case REMOVE:
+						int count = CIntentionCellController.getInstance().countIntentionTypeUsage(type.getId());
+						if (count > 0)
+						{
+							int userOption = JOptionPane.showConfirmDialog(CalicoDataStore.calicoObj, "<html>The intention tag '" + type.getName()
+									+ "' is currently assigned to " + count + " whiteboards.<br>Are you sure you want to delete it?</html>",
+									"Warning - intention tag in use", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+							
+							if (userOption != JOptionPane.YES_OPTION)
+							{
+								break;
+							}
+						}
+
 						IntentionCanvasController.getInstance().removeIntentionType(type.getId());
 						break;
 				}
@@ -562,8 +577,6 @@ public class CanvasTagPanel implements StickyItem
 			{
 				return;
 			}
-
-			System.out.println("PanelNode.layoutChildren() on thread " + Thread.currentThread().getName());
 
 			PBounds bounds = panel.getBounds();
 			double y = bounds.y;

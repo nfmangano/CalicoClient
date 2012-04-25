@@ -17,6 +17,9 @@ import java.util.TimerTask;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.components.CCanvas;
+import calico.components.grid.CGrid;
+import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -52,14 +55,16 @@ public class CanvasLinkPanel implements StickyItem
 
 	public static final double PANEL_INSET_X = 100.0;
 	public static final double PANEL_INSET_Y = 50.0;
-	public static final double PANEL_COMPONENT_INSET = 3.0;
+	public static final double PREVIEW_X_SPACER = 10.0;
 
+	public static final double PANEL_COMPONENT_INSET = 3.0;
 	public static final double TABLE_UNIT_SPAN = 20.0;
 	public static final double ROW_TEXT_INSET = 1.0;
 
 	private static final Color PREVIEW_ROW_BACKGROUND = new Color(0xEAEAEA);
 
-	final PanelNode panel = new PanelNode();
+	private final PanelNode panel = new PanelNode();
+	private final CanvasThumbnail thumbnail = new CanvasThumbnail();
 
 	private final long uuid;
 	private long canvas_uuid;
@@ -74,7 +79,8 @@ public class CanvasLinkPanel implements StickyItem
 	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 
 	private final Image checkmarkImage;
-	private final Image linkFrameImage;
+	private final Image incomingLinkFrameImage;
+	private final Image outgoingLinkFrameImage;
 	private final Dimension tableCheckmarkInset = new Dimension();
 
 	private boolean initialized = false;
@@ -87,7 +93,8 @@ public class CanvasLinkPanel implements StickyItem
 		CalicoInputManager.addCustomInputHandler(uuid, new InputHandler());
 
 		checkmarkImage = CalicoIconManager.getIconImage("intention.checkmark");
-		linkFrameImage = CalicoIconManager.getIconImage("intention.link-frame");
+		incomingLinkFrameImage = CalicoIconManager.getIconImage("intention.incoming-link-frame");
+		outgoingLinkFrameImage = CalicoIconManager.getIconImage("intention.outgoing-link-frame");
 		tableCheckmarkInset.width = (int) ((TABLE_UNIT_SPAN - checkmarkImage.getWidth(null)) / 2.0);
 		tableCheckmarkInset.height = (int) ((TABLE_UNIT_SPAN - checkmarkImage.getHeight(null)) / 2.0);
 
@@ -151,8 +158,13 @@ public class CanvasLinkPanel implements StickyItem
 		{
 			panel.getParent().removeChild(panel);
 		}
+		if (thumbnail.getParent() != null)
+		{
+			thumbnail.getParent().removeChild(thumbnail);
+		}
 		updateLinks();
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
+		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(thumbnail);
 	}
 
 	public void refresh()
@@ -276,6 +288,15 @@ public class CanvasLinkPanel implements StickyItem
 		{
 			this.linkOppositeAnchor = linkOppositeAnchor;
 
+			Image linkFrameImage;
+			if (linkOppositeAnchor.getCanvasId() == linkOppositeAnchor.getLink().getAnchorA().getCanvasId())
+			{
+				linkFrameImage = incomingLinkFrameImage;
+			}
+			else
+			{
+				linkFrameImage = outgoingLinkFrameImage;
+			}
 			headerCell = new PImage(IntentionalInterfacesGraphics.superimposeCellAddress(linkFrameImage, linkOppositeAnchor.getCanvasId()));
 			headerCell.setBounds(0.0, 0.0, TABLE_UNIT_SPAN, TABLE_UNIT_SPAN);
 		}
@@ -564,7 +585,7 @@ public class CanvasLinkPanel implements StickyItem
 
 			border.setBounds(bounds);
 		}
-		
+
 		@Override
 		protected void paint(PPaintContext paintContext)
 		{
@@ -577,6 +598,67 @@ public class CanvasLinkPanel implements StickyItem
 			g.setColor(PREVIEW_ROW_BACKGROUND);
 			g.fillRect((int) bounds.x, previewRow.y, (int) bounds.width, (int) TABLE_UNIT_SPAN);
 
+			g.setColor(c);
+		}
+	}
+
+	private static final int BORDER_WIDTH = 1;
+
+	private class CanvasThumbnail extends PComposite
+	{
+		private final PImage snapshot = new PImage();
+		private long currentCanvasId;
+
+		public CanvasThumbnail()
+		{
+			setBounds(0.0, 0.0, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance().getImgh()
+					- (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
+			setPaint(Color.white);
+			
+			snapshot.setBounds(getBounds());
+			addChild(snapshot);
+
+			hide();
+		}
+
+		void displayThumbnail(long canvasId)
+		{
+			currentCanvasId = canvasId;
+
+			PBounds bounds = panel.getBounds();
+			setX(bounds.x + bounds.width + PREVIEW_X_SPACER);
+			setY(bounds.y);
+
+			CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
+			snapshot.setImage(canvas.getContentCamera().toImage());
+			snapshot.setBounds(getBounds());
+			
+			moveToFront();
+			setVisible(true);
+			repaint();
+		}
+
+		void hide()
+		{
+			setVisible(false);
+		}
+
+		@Override
+		protected void paint(PPaintContext paintContext)
+		{
+			super.paint(paintContext);
+
+			Graphics2D g = paintContext.getGraphics();
+			Color c = g.getColor();
+			PBounds bounds = getBounds();
+
+			g.setColor(Color.black);
+			g.translate(bounds.x, bounds.y);
+			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 10, 10);
+			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, currentCanvasId, bounds.width - (2 * BORDER_WIDTH),
+					CIntentionCell.COORDINATES_FONT, CIntentionCell.COORDINATES_COLOR);
+
+			g.translate(-bounds.x, -bounds.y);
 			g.setColor(c);
 		}
 	}
@@ -604,7 +686,11 @@ public class CanvasLinkPanel implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				if ((state == InputState.PRESSED) && (clickedPreviewCell != null))
+				if (state == InputState.THUMBNAIL)
+				{
+					thumbnail.hide();
+				}
+				else if ((state == InputState.PRESSED) && (clickedPreviewCell != null))
 				{
 					CCanvasLinkController.getInstance().traverseLinkToCanvas(clickedPreviewCell.linkOppositeAnchor.getOpposite());
 				}
@@ -622,6 +708,10 @@ public class CanvasLinkPanel implements StickyItem
 		{
 			synchronized (stateLock)
 			{
+				if (state == InputState.THUMBNAIL)
+				{
+					thumbnail.hide();
+				}
 				state = InputState.IDLE;
 			}
 
@@ -671,7 +761,7 @@ public class CanvasLinkPanel implements StickyItem
 					{
 						if (state == InputState.PRESSED)
 						{
-							System.out.println("Show thumbnail for canvas " + clickedPreviewCell.linkOppositeAnchor.getCanvasId());
+							thumbnail.displayThumbnail(clickedPreviewCell.linkOppositeAnchor.getCanvasId());
 
 							state = InputState.THUMBNAIL;
 						}
