@@ -11,7 +11,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -59,8 +58,7 @@ public class LinkLabelDialog
 
 		action = Action.CANCEL;
 
-		panel.prefix.setText(link.getLinkType().labelPrefix);
-		panel.entry.setText(link.getUserLabel());
+		panel.entry.setText(link.getLabel());
 		panel.entry.grabFocus();
 		panel.entry.selectAll();
 		dialog.setVisible(true);
@@ -98,7 +96,6 @@ public class LinkLabelDialog
 		private final JPanel dialogPanel;
 
 		private final JPanel entryPanel;
-		private final JLabel prefix;
 		private final JTextField entry;
 
 		private final JPanel buttonPanel;
@@ -112,14 +109,12 @@ public class LinkLabelDialog
 
 			entryPanel = new JPanel(new BorderLayout(4, 0));
 			entryPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
-			prefix = new JLabel(CCanvasLink.LinkType.NEW_ALTERNATIVE.labelPrefix);
 			entry = new JTextField(20);
 
 			buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 			ok = new JButton("OK");
 			cancel = new JButton("Cancel");
 
-			entryPanel.add(prefix, BorderLayout.WEST);
 			entryPanel.add(entry, BorderLayout.CENTER);
 
 			buttonPanel.add(ok);

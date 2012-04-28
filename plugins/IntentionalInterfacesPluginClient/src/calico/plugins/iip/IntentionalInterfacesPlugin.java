@@ -21,7 +21,6 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
@@ -43,7 +42,6 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	public void onPluginStart()
 	{
 		// register for palette events
-		CGroup.registerPieMenuButton(CreateDesignInsideLinkButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
@@ -118,9 +116,6 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 				break;
 			case CLINK_CREATE:
 				CLINK_CREATE(p);
-				break;
-			case CLINK_RETYPE:
-				CLINK_RETYPE(p);
 				break;
 			case CLINK_MOVE_ANCHOR:
 				CLINK_MOVE_ANCHOR(p);
@@ -231,6 +226,11 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		{
 			CanvasTagPanel.getInstance().refresh();
 		}
+		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+//		if (IntentionalInterfacesPerspective.getInstance().isActive())
+//		{
+//			IntentionGraph.getInstance().repaint();
+//		}
 	}
 
 	private static void CIC_UNTAG(CalicoPacket p)
@@ -248,6 +248,11 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		{
 			CanvasTagPanel.getInstance().refresh();
 		}
+		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+//		if (IntentionalInterfacesPerspective.getInstance().isActive())
+//		{
+//			IntentionGraph.getInstance().repaint();
+//		}
 	}
 
 	private static void CIC_DELETE(CalicoPacket p)
@@ -289,6 +294,11 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		int colorIndex = p.getInt();
 
 		IntentionCanvasController.getInstance().localSetIntentionTypeColor(uuid, colorIndex);
+
+		if (IntentionalInterfacesPerspective.getInstance().isActive())
+		{
+			IntentionGraph.getInstance().repaint();
+		}
 	}
 
 	private static void CIT_DELETE(CalicoPacket p)
@@ -300,6 +310,11 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 
 		IntentionCanvasController.getInstance().localRemoveIntentionType(uuid);
 		CIntentionCellController.getInstance().removeIntentionTypeReferences(uuid);
+
+		if (IntentionalInterfacesPerspective.getInstance().isActive())
+		{
+			IntentionGraph.getInstance().repaint();
+		}
 	}
 
 	private static CCanvasLinkAnchor unpackAnchor(CalicoPacket p)
@@ -334,26 +349,13 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		IntentionalInterfacesNetworkCommands.Command.CLINK_CREATE.verify(p);
 
 		long uuid = p.getLong();
-		CCanvasLink.LinkType type = CCanvasLink.LinkType.values()[p.getInt()];
 		CCanvasLinkAnchor anchorA = unpackAnchor(p);
 		CCanvasLinkAnchor anchorB = unpackAnchor(p);
 		String label = p.getString();
-		CCanvasLink link = new CCanvasLink(uuid, type, anchorA, anchorB, label);
+		CCanvasLink link = new CCanvasLink(uuid, anchorA, anchorB, label);
 
 		CCanvasLinkController.getInstance().addLink(link);
 		IntentionGraphController.getInstance().updateLinkArrow(link);
-	}
-
-	private static void CLINK_RETYPE(CalicoPacket p)
-	{
-		p.rewind();
-		IntentionalInterfacesNetworkCommands.Command.CLINK_RETYPE.verify(p);
-
-		long uuid = p.getLong();
-		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(uuid);
-
-		CCanvasLink.LinkType type = CCanvasLink.LinkType.values()[p.getInt()];
-		link.setLinkType(type);
 	}
 
 	private static void CLINK_MOVE_ANCHOR(CalicoPacket p)

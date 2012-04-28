@@ -18,6 +18,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
 public class CIntentionCellController
@@ -75,6 +76,16 @@ public class CIntentionCellController
 		for (CIntentionCell cell : cells.values())
 		{
 			cell.removeIntentionType(typeId);
+		}
+	}
+	
+	public void activateIconifyMode(boolean b)
+	{
+		IntentionGraph.getInstance().activateIconifyMode(b);
+		
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.updateIconification();
 		}
 	}
 

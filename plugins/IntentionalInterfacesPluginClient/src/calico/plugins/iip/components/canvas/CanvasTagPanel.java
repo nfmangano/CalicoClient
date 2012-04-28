@@ -63,10 +63,6 @@ public class CanvasTagPanel implements StickyItem
 
 	private boolean visible;
 	private IntentionPanelLayout layout;
-	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
-
-	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
-	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 
 	private boolean initialized = false;
 
@@ -318,7 +314,7 @@ public class CanvasTagPanel implements StickyItem
 							int userOption = JOptionPane.showConfirmDialog(CalicoDataStore.calicoObj, "<html>The intention tag '" + type.getName()
 									+ "' is currently assigned to " + count + " whiteboards.<br>Are you sure you want to delete it?</html>",
 									"Warning - intention tag in use", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-							
+
 							if (userOption != JOptionPane.YES_OPTION)
 							{
 								break;
@@ -340,6 +336,11 @@ public class CanvasTagPanel implements StickyItem
 
 		void activateEditMode(IntentionTypeRowEditMode mode)
 		{
+			if (editMode == mode)
+			{
+				mode = IntentionTypeRowEditMode.NONE;
+			}
+
 			this.editMode = mode;
 
 			if (mode == IntentionTypeRowEditMode.NONE)
@@ -602,9 +603,11 @@ public class CanvasTagPanel implements StickyItem
 		private final Object stateLock = new Object();
 
 		private final long tapDuration = 500L;
+		private final double dragThreshold = 10.0;
 
 		private InputState state = InputState.IDLE;
 		private long pressTime = 0L;
+		private Point pressAnchor;
 
 		@Override
 		public void actionReleased(InputEventInfo event)
@@ -628,10 +631,12 @@ public class CanvasTagPanel implements StickyItem
 		{
 			synchronized (stateLock)
 			{
-				state = InputState.IDLE;
+				if ((state == InputState.PRESSED) && (pressAnchor.distance(event.getGlobalPoint()) > dragThreshold))
+				{
+					state = InputState.IDLE;
+					pressTime = 0L;
+				}
 			}
-
-			pressTime = 0L;
 		}
 
 		@Override
@@ -642,6 +647,7 @@ public class CanvasTagPanel implements StickyItem
 				state = InputState.PRESSED;
 
 				pressTime = System.currentTimeMillis();
+				pressAnchor = event.getGlobalPoint();
 			}
 		}
 	}

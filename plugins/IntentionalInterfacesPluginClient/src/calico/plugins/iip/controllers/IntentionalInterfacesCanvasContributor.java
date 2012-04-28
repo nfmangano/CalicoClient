@@ -31,7 +31,7 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 	@Override
 	public boolean hasContent(long canvas_uuid)
 	{
-		if (CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).isInUse())
+		if (CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).hasContent())
 		{
 			return true;
 		}
@@ -48,7 +48,7 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 			return;
 		}
 
-		if ((!CCanvasController.canvasdb.get(canvas_uuid).isEmpty()) && !cell.isInUse())
+		if (CCanvasController.hasContent(canvas_uuid) && !cell.isInUse())
 		{
 			CIntentionCellController.getInstance().setInUse(cell.getId(), true);
 		}

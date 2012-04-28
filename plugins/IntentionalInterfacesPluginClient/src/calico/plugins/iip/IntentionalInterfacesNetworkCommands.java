@@ -21,7 +21,6 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CIT_SET_COLOR = Command.CIT_SET_COLOR.id;
 	public static final int CIT_DELETE = Command.CIT_DELETE.id;
 	public static final int CLINK_CREATE = Command.CLINK_CREATE.id;
-	public static final int CLINK_RETYPE = Command.CLINK_RETYPE.id;
 	public static final int CLINK_MOVE_ANCHOR = Command.CLINK_MOVE_ANCHOR.id;
 	public static final int CLINK_LABEL = Command.CLINK_LABEL.id;
 	public static final int CLINK_DELETE = Command.CLINK_DELETE.id;
@@ -72,10 +71,6 @@ public class IntentionalInterfacesNetworkCommands
 		 * Create a new CCanvasLink
 		 */
 		CLINK_CREATE,
-		/**
-		 * Change the type of a CCanvasLink
-		 */
-		CLINK_RETYPE,
 		/**
 		 * Move one enpoint of a CCanvasLink
 		 */

@@ -1,8 +1,6 @@
 package calico.plugins.iip.components.canvas;
 
 import calico.components.menus.CanvasMenuButton;
-import calico.components.piemenu.PieMenuButton;
-import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 

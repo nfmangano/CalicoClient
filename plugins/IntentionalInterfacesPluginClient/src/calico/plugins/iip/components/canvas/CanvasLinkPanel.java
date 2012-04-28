@@ -73,10 +73,6 @@ public class CanvasLinkPanel implements StickyItem
 
 	private boolean visible;
 	private IntentionPanelLayout layout;
-	private final List<CCanvasLinkToken> tokens = new ArrayList<CCanvasLinkToken>();
-
-	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
-	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 
 	private final Image checkmarkImage;
 	private final Image incomingLinkFrameImage;
@@ -417,7 +413,7 @@ public class CanvasLinkPanel implements StickyItem
 
 		private PPath createHighlight(Color c)
 		{
-			PPath highlight = new PPath(new Rectangle2D.Double(0, 0, CCanvasLinkToken.TOKEN_WIDTH, CCanvasLinkToken.TOKEN_HEIGHT));
+			PPath highlight = new PPath(new Rectangle2D.Double(0, 0, TABLE_UNIT_SPAN, TABLE_UNIT_SPAN));
 			highlight.setStrokePaint(c);
 			highlight.setStroke(new BasicStroke(1f));
 			highlight.setVisible(false);
@@ -614,7 +610,7 @@ public class CanvasLinkPanel implements StickyItem
 			setBounds(0.0, 0.0, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance().getImgh()
 					- (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
 			setPaint(Color.white);
-			
+
 			snapshot.setBounds(getBounds());
 			addChild(snapshot);
 
@@ -632,7 +628,7 @@ public class CanvasLinkPanel implements StickyItem
 			CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
 			snapshot.setImage(canvas.getContentCamera().toImage());
 			snapshot.setBounds(getBounds());
-			
+
 			moveToFront();
 			setVisible(true);
 			repaint();

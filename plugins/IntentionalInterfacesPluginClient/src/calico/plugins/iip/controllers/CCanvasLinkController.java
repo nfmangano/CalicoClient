@@ -19,7 +19,6 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -219,9 +218,9 @@ public class CCanvasLinkController
 		}
 	}
 
-	public void createLinkToEmptyCanvas(long fromCanvasId, CCanvasLink.LinkType type, double xLinkEndpoint, double yLinkEndpoint)
+	public void createLinkToEmptyCanvas(long fromCanvasId, double xLinkEndpoint, double yLinkEndpoint, boolean copy)
 	{
-		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId, type);
+		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId, copy);
 		if (toCanvasId == 0L)
 		{
 			return;
@@ -233,17 +232,17 @@ public class CCanvasLinkController
 				yLinkEndpoint);
 	}
 
-	public long createLinkToEmptyCanvas(long fromCanvasId, CCanvasLink.LinkType type)
+	public long createLinkToEmptyCanvas(long fromCanvasId, boolean copy)
 	{
 		long toCanvasId = IntentionGraphController.getInstance().getNearestEmptyCanvas(fromCanvasId);
 		if (toCanvasId == 0L)
 		{
-			System.out.println("Can't create a link to a new canvas of type " + type + " because there are no more empty canvases!");
+			System.out.println("Can't create a link to a new canvas because there are no more empty canvases!");
 			return 0L;
 		}
 
-		createLink(fromCanvasId, toCanvasId, type);
-		if (type == LinkType.NEW_ALTERNATIVE)
+		createLink(fromCanvasId, toCanvasId);
+		if (copy)
 		{
 			copyCanvas(fromCanvasId, toCanvasId);
 		}
@@ -251,7 +250,7 @@ public class CCanvasLinkController
 		return toCanvasId;
 	}
 
-	private void copyCanvas(long sourceCanvasId, long targetCanvasId)
+	public void copyCanvas(long sourceCanvasId, long targetCanvasId)
 	{
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_COPY, sourceCanvasId, targetCanvasId));
 	}
@@ -285,12 +284,11 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
-	public void createOrphanedLink(long fromCanvasId, CCanvasLink.LinkType type, double x, double y)
+	public void createOrphanedLink(long fromCanvasId, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
-		packet.putInt(type.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, x, y));
 		packAnchor(packet, 0L, CCanvasLinkAnchor.ArrowEndpointType.FLOATING, (int) x, (int) y);
 		packet.putString(""); // empty label
@@ -300,12 +298,11 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
-	public void createLink(long fromCanvasId, long toCanvasId, CCanvasLink.LinkType type)
+	public void createLink(long fromCanvasId, long toCanvasId)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
-		packet.putInt(type.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId));
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
 		packet.putString(""); // empty label
@@ -323,7 +320,6 @@ public class CCanvasLinkController
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
-		packet.putInt(CCanvasLink.LinkType.DESIGN_INSIDE.ordinal());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId), group_uuid);
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
 		packet.putString(""); // empty label

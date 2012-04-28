@@ -144,6 +144,8 @@ public class IntentionGraphController
 		{
 			CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).setVisible(hasContent);
 		}
+		
+		IntentionGraph.getInstance().repaint();
 	}
 
 	public long getNearestEmptyCanvas()

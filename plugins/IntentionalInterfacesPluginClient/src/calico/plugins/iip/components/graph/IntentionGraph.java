@@ -55,6 +55,8 @@ public class IntentionGraph
 	private final ContainedCanvas canvas = new ContainedCanvas();
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
 	private IntentionGraphMenuBar menuBar;
+	
+	private boolean iconifyMode = true;
 
 	private final long uuid;
 
@@ -109,7 +111,17 @@ public class IntentionGraph
 	{
 		return canvas;
 	}
+	
+	public void activateIconifyMode(boolean b)
+	{
+		iconifyMode = b;
+	}
 
+	public boolean getIconifyMode()
+	{
+		return iconifyMode;
+	}
+	
 	public void fitContents()
 	{
 		double minX = Double.MAX_VALUE;
