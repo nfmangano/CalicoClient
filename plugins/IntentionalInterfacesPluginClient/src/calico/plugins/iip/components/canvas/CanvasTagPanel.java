@@ -226,7 +226,7 @@ public class CanvasTagPanel implements StickyItem
 			if (action == Action.OK)
 			{
 				CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-						CanvasTitleDialog.getInstance().getText());
+						CanvasTitleDialog.getInstance().getText(), false);
 			}
 		}
 
@@ -330,7 +330,7 @@ public class CanvasTagPanel implements StickyItem
 			else
 			{
 				CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-						type.getId(), !selected);
+						type.getId(), !selected, false);
 			}
 		}
 

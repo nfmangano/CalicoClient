@@ -18,6 +18,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
@@ -38,6 +39,23 @@ public class CIntentionCellController
 	private static Long2ReferenceArrayMap<CIntentionCell> cells = new Long2ReferenceArrayMap<CIntentionCell>();
 	private static Long2ReferenceArrayMap<CIntentionCell> cellsByCanvasId = new Long2ReferenceArrayMap<CIntentionCell>();
 
+	public void clearCell(long cellId)
+	{
+		CIntentionCell cell = cells.get(cellId);
+		for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
+		{
+			if (cell.hasIntentionType(type.getId()))
+			{
+				toggleCellIntentionType(cellId, type.getId(), false, true);
+			}
+		}
+		
+		if (cell.hasUserTitle())
+		{
+			setCellTitle(cellId, CIntentionCell.DEFAULT_TITLE, true);
+		}
+	}
+
 	public long getCellAt(Point point)
 	{
 		for (CIntentionCell cell : cells.values())
@@ -57,7 +75,7 @@ public class CIntentionCellController
 			cell.initialize();
 		}
 	}
-	
+
 	public int countIntentionTypeUsage(long typeId)
 	{
 		int count = 0;
@@ -70,7 +88,7 @@ public class CIntentionCellController
 		}
 		return count;
 	}
-	
+
 	public void removeIntentionTypeReferences(long typeId)
 	{
 		for (CIntentionCell cell : cells.values())
@@ -78,11 +96,11 @@ public class CIntentionCellController
 			cell.removeIntentionType(typeId);
 		}
 	}
-	
+
 	public void activateIconifyMode(boolean b)
 	{
 		IntentionGraph.getInstance().activateIconifyMode(b);
-		
+
 		for (CIntentionCell cell : cells.values())
 		{
 			cell.updateIconification();
@@ -108,13 +126,7 @@ public class CIntentionCellController
 		Networking.send(packet);
 	}
 
-	public void moveCellLocal(long cellId, double x, double y)
-	{
-		cells.get(cellId).setLocation(x, y);
-		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
-	}
-
-	public void setInUse(long cellId, boolean inUse)
+	public void setInUse(long cellId, boolean inUse, boolean local)
 	{
 		CIntentionCell cell = cells.get(cellId);
 
@@ -123,20 +135,30 @@ public class CIntentionCellController
 			return;
 		}
 
-		moveCell(cellId, inUse, cell.getLocation().getX(), cell.getLocation().getY());
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MARK_IN_USE);
+		packet.putLong(cellId);
+		packet.putBoolean(inUse);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		if (!local)
+		{
+			Networking.send(packet);
+		}
+	}
+
+	public void moveCellLocal(long cellId, double x, double y)
+	{
+		cells.get(cellId).setLocation(x, y);
+		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
 	}
 
 	public void moveCell(long cellId, double x, double y)
 	{
-		moveCell(cellId, true, x, y);
-	}
-
-	private void moveCell(long cellId, boolean inUse, double x, double y)
-	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MOVE);
 		packet.putLong(cellId);
-		packet.putBoolean(inUse);
 		packet.putInt((int) x);
 		packet.putInt((int) y);
 
@@ -145,7 +167,7 @@ public class CIntentionCellController
 		Networking.send(packet);
 	}
 
-	public void setCellTitle(long cellId, String title)
+	public void setCellTitle(long cellId, String title, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE);
@@ -154,10 +176,13 @@ public class CIntentionCellController
 
 		packet.rewind();
 		PacketHandler.receive(packet);
-		Networking.send(packet);
+		if (!local)
+		{
+			Networking.send(packet);
+		}
 	}
 
-	public void toggleCellIntentionType(long cellId, long typeId, boolean add)
+	public void toggleCellIntentionType(long cellId, long typeId, boolean add, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(add ? IntentionalInterfacesNetworkCommands.CIC_TAG : IntentionalInterfacesNetworkCommands.CIC_UNTAG);
@@ -166,7 +191,10 @@ public class CIntentionCellController
 
 		packet.rewind();
 		PacketHandler.receive(packet);
-		Networking.send(packet);
+		if (!local)
+		{
+			Networking.send(packet);
+		}
 	}
 
 	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become

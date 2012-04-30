@@ -39,9 +39,7 @@ public class NewCanvasButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId, true);
-		// CIntentionCellController.getInstance().setInUse(CIntentionCellController.getInstance().getCellByCanvasId(newCanvas).getId(),
-		// true);
+		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId, false);
 
 		if (CanvasPerspective.getInstance().isActive())
 		{

@@ -226,10 +226,10 @@ public class CCanvasLinkController
 			return;
 		}
 
-		// TODO: adjust (xLinkEndpoint, yLinkEndpoint) position the cell such that the arrowhead stays at
-		// (xLinkEndpoint, yLinkEndpoint)
-		CIntentionCellController.getInstance().moveCell(CIntentionCellController.getInstance().getCellByCanvasId(toCanvasId).getId(), xLinkEndpoint,
-				yLinkEndpoint);
+		Point2D cellOrigin = IntentionGraphController.getInstance().alignCellEdgeAtLinkEndpoint(fromCanvasId, xLinkEndpoint, yLinkEndpoint);
+
+		CIntentionCellController.getInstance().moveCell(CIntentionCellController.getInstance().getCellByCanvasId(toCanvasId).getId(), cellOrigin.getX(),
+				cellOrigin.getY());
 	}
 
 	public long createLinkToEmptyCanvas(long fromCanvasId, boolean copy)
@@ -376,7 +376,7 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
-	public void deleteLink(long uuid)
+	public void deleteLink(long uuid, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_DELETE);
@@ -384,7 +384,10 @@ public class CCanvasLinkController
 
 		packet.rewind();
 		PacketHandler.receive(packet);
-		Networking.send(packet);
+		if (!local)
+		{
+			Networking.send(packet);
+		}
 	}
 
 	boolean hasLinks(long canvas_uuid)
@@ -414,7 +417,7 @@ public class CCanvasLinkController
 
 		for (long linkId : linkIdsToDelete)
 		{
-			deleteLink(linkId);
+			deleteLink(linkId, true);
 		}
 	}
 }

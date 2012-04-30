@@ -50,7 +50,7 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 
 		if (CCanvasController.hasContent(canvas_uuid) && !cell.isInUse())
 		{
-			CIntentionCellController.getInstance().setInUse(cell.getId(), true);
+			CIntentionCellController.getInstance().setInUse(cell.getId(), true, false);
 		}
 
 		IntentionGraphController.getInstance().contentChanged(canvas_uuid);
@@ -59,7 +59,10 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 	@Override
 	public void clearContent(long canvas_uuid)
 	{
-		CIntentionCellController.getInstance().setInUse(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(), false);
 		CCanvasLinkController.getInstance().clearLinks(canvas_uuid);
+
+		long cellId = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId();
+		CIntentionCellController.getInstance().clearCell(cellId);
+		CIntentionCellController.getInstance().setInUse(cellId, false, true);
 	}
 }

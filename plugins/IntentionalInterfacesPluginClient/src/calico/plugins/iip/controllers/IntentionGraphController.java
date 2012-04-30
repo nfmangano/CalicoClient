@@ -97,6 +97,61 @@ public class IntentionGraphController
 		return arrowsByLinkId.get(uuid);
 	}
 
+	public Point2D alignCellEdgeAtLinkEndpoint(long linkSourceCanvasId, double xLinkEndpoint, double yLinkEndpoint)
+	{
+		CIntentionCell sourceCell = CIntentionCellController.getInstance().getCellByCanvasId(linkSourceCanvasId);
+		Point2D sourceCenter = sourceCell.getCenter();
+
+		Dimension2D cellSize = sourceCell.getSize();
+		Point2D.Double cellOrigin = new Point2D.Double();
+		double xDelta = (xLinkEndpoint - sourceCenter.getX());
+		if (Math.abs(xDelta) < 0.01)
+		{
+			if (yLinkEndpoint < sourceCenter.getY())
+			{
+				cellOrigin.setLocation(xLinkEndpoint - (cellSize.getWidth() / 2.0), yLinkEndpoint - sourceCell.getSize().getHeight());
+			}
+			else
+			{
+				cellOrigin.setLocation(xLinkEndpoint - (cellSize.getWidth() / 2.0), yLinkEndpoint);
+			}
+		}
+		else
+		{
+			double cellDiagonalSlope = (cellSize.getHeight() / cellSize.getWidth());
+			double linkSlope = (yLinkEndpoint - sourceCenter.getY()) / xDelta;
+
+			if (Math.abs(linkSlope) < cellDiagonalSlope)
+			{ // attaching to right or left edge
+				double xSpanToCenter = (cellSize.getWidth() / 2.0);
+				double ySpanToCenter = (xSpanToCenter * linkSlope);
+				if (xLinkEndpoint > sourceCenter.getX())
+				{ // left
+					cellOrigin.setLocation(xLinkEndpoint, yLinkEndpoint + ySpanToCenter - (cellSize.getHeight() / 2.0));
+				}
+				else
+				{ // right
+					cellOrigin.setLocation(xLinkEndpoint - cellSize.getWidth(), yLinkEndpoint - (ySpanToCenter + (cellSize.getHeight() / 2.0)));
+				}
+			}
+			else
+			{ // top/bottom
+				double ySpanToCenter = (cellSize.getHeight() / 2.0);
+				double xSpanToCenter = (ySpanToCenter / linkSlope);
+				if (yLinkEndpoint > sourceCenter.getY())
+				{ // top
+					cellOrigin.setLocation(xLinkEndpoint + xSpanToCenter - (cellSize.getWidth() / 2.0), yLinkEndpoint);
+				}
+				else
+				{ // bottom
+					cellOrigin.setLocation(xLinkEndpoint - (xSpanToCenter + (cellSize.getWidth() / 2.0)), yLinkEndpoint - cellSize.getHeight());
+				}
+			}
+		}
+
+		return cellOrigin;
+	}
+
 	private void updateAnchorPosition(CCanvasLinkAnchor anchor)
 	{
 		if (anchor.getArrowEndpointType() == ArrowEndpointType.INTENTION_CELL)
@@ -144,7 +199,7 @@ public class IntentionGraphController
 		{
 			CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).setVisible(hasContent);
 		}
-		
+
 		IntentionGraph.getInstance().repaint();
 	}
 

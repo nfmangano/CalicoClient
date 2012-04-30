@@ -13,6 +13,7 @@ import java.util.List;
 
 import calico.components.grid.CGrid;
 import calico.components.grid.CGridCell;
+import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
@@ -25,6 +26,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CIntentionCell
 {
+	public static final String DEFAULT_TITLE = "<default>";
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
 	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
 	public static final Color COORDINATES_COLOR = Color.blue;
@@ -93,10 +95,10 @@ public class CIntentionCell
 	{
 		return canvas_uuid;
 	}
-	
+
 	public boolean hasContent()
 	{
-		return inUse || !intentionTypeIds.isEmpty();
+		return inUse || hasUserTitle() || !intentionTypeIds.isEmpty();
 	}
 
 	public boolean isInUse()
@@ -111,7 +113,16 @@ public class CIntentionCell
 
 	public String getTitle()
 	{
+		if (title.equals(DEFAULT_TITLE))
+		{
+			return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt();
+		}
 		return title;
+	}
+
+	public boolean hasUserTitle()
+	{
+		return !title.equals(DEFAULT_TITLE);
 	}
 
 	public void setTitle(String title)
@@ -304,7 +315,7 @@ public class CIntentionCell
 		protected void layoutChildren()
 		{
 			thumbnailBounds.setOrigin(getX(), getY());
-			
+
 			if (showingSnapshot)
 			{
 				canvasSnapshot.snapshot.setBounds(thumbnailBounds.x + BORDER_WIDTH, thumbnailBounds.y + BORDER_WIDTH, thumbnailBounds.width
@@ -349,7 +360,7 @@ public class CIntentionCell
 				{
 					g.setColor(type.getColor());
 					g.fillRect(x, y, DOT_SPAN, DOT_SPAN);
-					
+
 					x += (DOT_SPAN + DOT_INSET);
 				}
 			}
@@ -371,8 +382,6 @@ public class CIntentionCell
 
 		void contentsChanged()
 		{
-			// TODO: updateSnapshot() when dirty and dragged into view (will propertyChange() be triggered?)
-
 			if (isVisible() && isInGraphFootprint() && shell.showingSnapshot)
 			{
 				updateSnapshot();
@@ -392,8 +401,6 @@ public class CIntentionCell
 			isDirty = false;
 
 			snapshot.repaint();
-
-			System.out.println("CIntentionCell for canvas " + canvas_uuid + " took a new snapshot in " + (System.currentTimeMillis() - start) + "ms");
 		}
 	}
 }

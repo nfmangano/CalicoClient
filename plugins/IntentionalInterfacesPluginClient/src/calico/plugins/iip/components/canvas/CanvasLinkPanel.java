@@ -10,6 +10,8 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,8 +32,6 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
-import calico.plugins.iip.components.piemenu.DeleteLinkButton;
-import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
@@ -52,6 +52,8 @@ public class CanvasLinkPanel implements StickyItem
 	}
 
 	private static CanvasLinkPanel INSTANCE = new CanvasLinkPanel();
+
+	private static final LinkSorter LINK_SORTER = new LinkSorter();
 
 	public static final double PANEL_INSET_X = 100.0;
 	public static final double PANEL_INSET_Y = 50.0;
@@ -490,10 +492,18 @@ public class CanvasLinkPanel implements StickyItem
 				column.removeAllComponents();
 			}
 			linkColumns.clear();
-			// TODO: sort us
+
+			List<CCanvasLinkAnchor> anchorsByOppositeGridCoordinates = new ArrayList<CCanvasLinkAnchor>();
 			for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 			{
-				LinkColumn column = new LinkColumn(CCanvasLinkController.getInstance().getAnchor(anchorId).getOpposite());
+				anchorsByOppositeGridCoordinates.add(CCanvasLinkController.getInstance().getAnchor(anchorId));
+			}
+
+			Collections.sort(anchorsByOppositeGridCoordinates, LINK_SORTER);
+
+			for (CCanvasLinkAnchor anchor : anchorsByOppositeGridCoordinates)
+			{
+				LinkColumn column = new LinkColumn(anchor.getOpposite());
 				linkColumns.add(column);
 				column.installComponents();
 			}
@@ -764,6 +774,17 @@ public class CanvasLinkPanel implements StickyItem
 					}
 				}
 			}
+		}
+	}
+
+	private static class LinkSorter implements Comparator<CCanvasLinkAnchor>
+	{
+		@Override
+		public int compare(CCanvasLinkAnchor first, CCanvasLinkAnchor second)
+		{
+			CCanvas firstTargetCanvas = CCanvasController.canvasdb.get(first.getOpposite().getCanvasId());
+			CCanvas secondTargetCanvas = CCanvasController.canvasdb.get(second.getOpposite().getCanvasId());
+			return firstTargetCanvas.getGridCoordTxt().compareTo(secondTargetCanvas.getGridCoordTxt());
 		}
 	}
 }
