@@ -82,8 +82,6 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 			{
 				scale -= 1.0;
 			}
-
-			System.out.println("zoom out a bit");
 		}
 		else if (x > (bounds.width - buttonSpan))
 		{
@@ -103,7 +101,6 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 			{
 				scale += 1.0;
 			}
-			System.out.println("zoom in a bit");
 		}
 		else
 		{

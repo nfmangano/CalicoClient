@@ -1,9 +1,11 @@
 package calico.plugins.iip.util;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -12,6 +14,7 @@ import java.awt.image.BufferedImage;
 import calico.Geometry;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -110,19 +113,41 @@ public class IntentionalInterfacesGraphics
 			verticality = Math.abs(verticality - (2 * VERTICAL));
 		}
 		double verticalityComplement = 1.0 - (verticality / (double) VERTICAL);
-		
-		int obliqueness = Math.abs((int)(theta * 1000.0) % VERTICAL);
+
+		int obliqueness = Math.abs((int) (theta * 1000.0) % VERTICAL);
 		if (obliqueness > OBLIQUE)
 		{
 			obliqueness = Math.abs(obliqueness - (2 * OBLIQUE));
 		}
 		double obliquenessPercent = (obliqueness / (double) OBLIQUE);
-		
+
 		double baselineOffset = -2.0;
 		baselineOffset -= bounds.getHeight() * (0.5 + (0.5 * verticalityComplement));
 		baselineOffset -= 2.0 * obliquenessPercent;
 		label.translate(0.0, baselineOffset);
 
 		return label;
+	}
+
+	public static Image createCanvasThumbnail(long canvasId, Insets insets)
+	{
+		return createCanvasThumbnail(canvasId, null, insets);
+	}
+
+	public static Image createCanvasThumbnail(long canvasId, Dimension size, Insets insets)
+	{
+		CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
+		Image canvasSnapshot = canvas.getContentCamera().toImage();
+
+		if (size == null)
+		{
+			size = new Dimension(canvasSnapshot.getWidth(null), canvasSnapshot.getHeight(null));
+		}
+
+		BufferedImage thumbnail = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) thumbnail.getGraphics();
+		g.drawImage(canvasSnapshot, insets.left, insets.top, size.width - (insets.left + insets.right), size.height - (insets.top + insets.bottom), null);
+
+		return thumbnail;
 	}
 }

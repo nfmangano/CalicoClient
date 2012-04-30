@@ -34,8 +34,6 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
-		System.out.println("Drag the graph");
-		
 		double xMouseDelta = event.getGlobalPoint().x - lastMouse.x;
 		double yMouseDelta = event.getGlobalPoint().y - lastMouse.y;
 		

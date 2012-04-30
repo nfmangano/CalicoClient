@@ -13,18 +13,21 @@ import calico.events.CalicoEventListener;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CanvasPerspective;
 import calico.plugins.CalicoPlugin;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.CIntentionType;
+import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.controllers.IntentionalInterfacesCanvasContributor;
 import calico.plugins.iip.iconsets.CalicoIconManager;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoEventListener
 {
@@ -39,7 +42,6 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 	public void onPluginStart()
 	{
 		// register for palette events
-		CGroup.registerPieMenuButton(CreateDesignInsideLinkButton.class);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
@@ -85,17 +87,38 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			case CIC_CREATE:
 				CIC_CREATE(p);
 				break;
+			case CIC_MARK_IN_USE:
+				CIC_MARK_IN_USE(p);
+				break;
 			case CIC_MOVE:
 				CIC_MOVE(p);
+				break;
+			case CIC_SET_TITLE:
+				CIC_SET_TITLE(p);
+				break;
+			case CIC_TAG:
+				CIC_TAG(p);
+				break;
+			case CIC_UNTAG:
+				CIC_UNTAG(p);
 				break;
 			case CIC_DELETE:
 				CIC_DELETE(p);
 				break;
+			case CIT_CREATE:
+				CIT_CREATE(p);
+				break;
+			case CIT_RENAME:
+				CIT_RENAME(p);
+				break;
+			case CIT_SET_COLOR:
+				CIT_SET_COLOR(p);
+				break;
+			case CIT_DELETE:
+				CIT_DELETE(p);
+				break;
 			case CLINK_CREATE:
 				CLINK_CREATE(p);
-				break;
-			case CLINK_RETYPE:
-				CLINK_RETYPE(p);
 				break;
 			case CLINK_MOVE_ANCHOR:
 				CLINK_MOVE_ANCHOR(p);
@@ -129,6 +152,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		boolean hasLocation = p.getBoolean();
 		int x = p.getInt();
 		int y = p.getInt();
+		String title = p.getString();
 
 		Point2D location = new Point2D.Double(x, y);
 		if (!hasLocation)
@@ -136,7 +160,7 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 			assignGridLocation(canvas_uuid, location);
 		}
 
-		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, inUse, location);
+		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, inUse, location, title);
 		CIntentionCellController.getInstance().addCell(cell);
 		cell.setVisible(CCanvasController.hasContent(canvas_uuid));
 		IntentionGraph.getInstance().repaint();
@@ -151,6 +175,23 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		location.setLocation(x, y);
 	}
 
+	private static void CIC_MARK_IN_USE(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_MARK_IN_USE.verify(p);
+
+		long uuid = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
+
+		boolean markInUse = p.getBoolean();
+
+		if (cell.isInUse() != markInUse)
+		{
+			cell.setInUse(markInUse);
+			IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+		}
+	}
+
 	private static void CIC_MOVE(CalicoPacket p)
 	{
 		p.rewind();
@@ -159,28 +200,126 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		long uuid = p.getLong();
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
 
-		boolean wasInUse = cell.isInUse();
-		cell.setInUse(p.getBoolean());
-
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
 
 		IntentionGraphController.getInstance().updateAttachedArrows(cell.getId(), x, y);
+	}
 
-		if (wasInUse != cell.isInUse())
+	private static void CIC_SET_TITLE(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_SET_TITLE.verify(p);
+
+		long uuid = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
+
+		cell.setTitle(p.getString());
+
+		if (CanvasPerspective.getInstance().isActive() && (CCanvasController.getCurrentUUID() == cell.getCanvasId()))
 		{
-			IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+			CanvasTagPanel.getInstance().refresh();
 		}
+		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+	}
+
+	private static void CIC_TAG(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_TAG.verify(p);
+
+		long uuid = p.getLong();
+		long typeId = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
+
+		cell.addIntentionType(typeId);
+
+		if (CanvasPerspective.getInstance().isActive() && (CCanvasController.getCurrentUUID() == cell.getCanvasId()))
+		{
+			CanvasTagPanel.getInstance().refresh();
+		}
+		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
+	}
+
+	private static void CIC_UNTAG(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_UNTAG.verify(p);
+
+		long uuid = p.getLong();
+		long typeId = p.getLong();
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(uuid);
+
+		cell.removeIntentionType(typeId);
+
+		if (CanvasPerspective.getInstance().isActive() && (CCanvasController.getCurrentUUID() == cell.getCanvasId()))
+		{
+			CanvasTagPanel.getInstance().refresh();
+		}
+		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
 	}
 
 	private static void CIC_DELETE(CalicoPacket p)
 	{
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
+	}
 
-		// long uuid = p.getLong();
-		// CIntentionCellController.getInstance().removeCellById(uuid);
+	private static void CIT_CREATE(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIT_CREATE.verify(p);
+
+		long uuid = p.getLong();
+		String name = p.getString();
+		int colorIndex = p.getInt();
+		CIntentionType type = new CIntentionType(uuid, name, colorIndex);
+
+		IntentionCanvasController.getInstance().localAddIntentionType(type);
+	}
+
+	private static void CIT_RENAME(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIT_CREATE.verify(p);
+
+		long uuid = p.getLong();
+		String name = p.getString();
+
+		IntentionCanvasController.getInstance().localRenameIntentionType(uuid, name);
+	}
+
+	private static void CIT_SET_COLOR(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIT_CREATE.verify(p);
+
+		long uuid = p.getLong();
+		int colorIndex = p.getInt();
+
+		IntentionCanvasController.getInstance().localSetIntentionTypeColor(uuid, colorIndex);
+
+		if (IntentionalInterfacesPerspective.getInstance().isActive())
+		{
+			IntentionGraph.getInstance().repaint();
+		}
+	}
+
+	private static void CIT_DELETE(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIT_CREATE.verify(p);
+
+		long uuid = p.getLong();
+
+		IntentionCanvasController.getInstance().localRemoveIntentionType(uuid);
+		CIntentionCellController.getInstance().removeIntentionTypeReferences(uuid);
+
+		if (IntentionalInterfacesPerspective.getInstance().isActive())
+		{
+			IntentionGraph.getInstance().repaint();
+		}
 	}
 
 	private static CCanvasLinkAnchor unpackAnchor(CalicoPacket p)
@@ -215,26 +354,13 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		IntentionalInterfacesNetworkCommands.Command.CLINK_CREATE.verify(p);
 
 		long uuid = p.getLong();
-		CCanvasLink.LinkType type = CCanvasLink.LinkType.values()[p.getInt()];
 		CCanvasLinkAnchor anchorA = unpackAnchor(p);
 		CCanvasLinkAnchor anchorB = unpackAnchor(p);
 		String label = p.getString();
-		CCanvasLink link = new CCanvasLink(uuid, type, anchorA, anchorB, label);
+		CCanvasLink link = new CCanvasLink(uuid, anchorA, anchorB, label);
 
 		CCanvasLinkController.getInstance().addLink(link);
 		IntentionGraphController.getInstance().updateLinkArrow(link);
-	}
-
-	private static void CLINK_RETYPE(CalicoPacket p)
-	{
-		p.rewind();
-		IntentionalInterfacesNetworkCommands.Command.CLINK_RETYPE.verify(p);
-
-		long uuid = p.getLong();
-		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(uuid);
-
-		CCanvasLink.LinkType type = CCanvasLink.LinkType.values()[p.getInt()];
-		link.setLinkType(type);
 	}
 
 	private static void CLINK_MOVE_ANCHOR(CalicoPacket p)
@@ -261,7 +387,6 @@ public class IntentionalInterfacesPlugin extends CalicoPlugin implements CalicoE
 		link.setLabel(p.getString());
 
 		IntentionGraphController.getInstance().getArrowByLinkId(uuid).redraw();
-		// IntentionGraph.getInstance().repaint(); // is this required?
 	}
 
 	private static void CLINK_DELETE(CalicoPacket p)

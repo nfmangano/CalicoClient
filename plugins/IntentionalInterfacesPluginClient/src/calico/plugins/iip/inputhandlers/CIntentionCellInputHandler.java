@@ -11,9 +11,9 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
-import calico.plugins.iip.components.piemenu.iip.CreateNewAlternativeLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewPerspectiveLinkButton;
-import calico.plugins.iip.controllers.CCanvasLinkController;
+import calico.plugins.iip.components.piemenu.iip.CreateCanvasCopyButton;
+import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
+import calico.plugins.iip.components.piemenu.iip.CreateNewCanvasLinkButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
@@ -25,7 +25,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 
 	private static final CIntentionCellInputHandler INSTANCE = new CIntentionCellInputHandler();
 
-	private static final double CLICK_DRIFT_LIMIT = 5.0;
+	private static final double DRAG_THRESHOLD = 20.0;
 
 	private enum State
 	{
@@ -45,8 +45,9 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private Point mouseDragAnchor;
 	private Point2D cellDragAnchor;
 
-	private final CreateNewAlternativeLinkButton newAlternativeButton = new CreateNewAlternativeLinkButton();
-	private final CreateNewPerspectiveLinkButton newPerspectiveButton = new CreateNewPerspectiveLinkButton();
+	private final CreateLinkButton linkButton = new CreateLinkButton();
+	private final CreateNewCanvasLinkButton newCanvasButton = new CreateNewCanvasLinkButton();
+	private final CreateCanvasCopyButton copyCanvasButton = new CreateCanvasCopyButton();
 
 	private CIntentionCellInputHandler()
 	{
@@ -93,7 +94,14 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			switch (state)
 			{
 				case ACTIVATED:
-					state = State.DRAG;
+					if (event.getGlobalPoint().distance(mouseDragAnchor) >= DRAG_THRESHOLD)
+					{
+						state = State.DRAG;
+					}
+					else
+					{
+						break;
+					}
 				case DRAG:
 					moveCurrentCell(event.getGlobalPoint(), true);
 			}
@@ -125,20 +133,22 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
 
-		switch (state)
+		synchronized (stateLock)
 		{
-			case DRAG:
-				moveCurrentCell(event.getGlobalPoint(), false);
-				break;
-			case ACTIVATED:
-				if (event.getGlobalPoint().distance(mouseDragAnchor) < CLICK_DRIFT_LIMIT)
-				{
-					CCanvasController.loadCanvas(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
-				}
-				break;
+			switch (state)
+			{
+				case DRAG:
+					moveCurrentCell(event.getGlobalPoint(), false);
+					break;
+				case ACTIVATED:
+					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
+					{
+						CCanvasController.loadCanvas(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
+					}
+					break;
+			}
+			state = State.IDLE;
 		}
-
-		state = State.IDLE;
 	}
 
 	@Override
@@ -164,7 +174,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		{
 			this.point = point;
 
-			schedule(new Task(), 200L);
+			schedule(new Task(), 400L);
 		}
 
 		private class Task extends PieMenuTimerTask
@@ -189,7 +199,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				{
 					if (state == State.PIE)
 					{
-						PieMenu.displayPieMenu(point, newAlternativeButton, newPerspectiveButton);
+						PieMenu.displayPieMenu(point, linkButton, newCanvasButton, copyCanvasButton);
 					}
 				}
 			}

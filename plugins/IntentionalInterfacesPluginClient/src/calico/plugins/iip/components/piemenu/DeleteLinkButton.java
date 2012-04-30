@@ -28,8 +28,8 @@ public class DeleteLinkButton extends PieMenuButton
 			System.out.println("Warning: delete link button displayed without having been prepared with a link!");
 			return;
 		}
-		
+
 		System.out.println("Delete the link from canvas #" + link.getAnchorA().getCanvasId() + " to canvas #" + link.getAnchorB().getCanvasId());
-		CCanvasLinkController.getInstance().deleteLink(link.getId());
+		CCanvasLinkController.getInstance().deleteLink(link.getId(), false);
 	}
 }

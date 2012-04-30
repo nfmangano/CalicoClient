@@ -6,14 +6,16 @@ import java.awt.geom.Point2D;
 
 import calico.Geometry;
 import calico.components.arrow.AbstractArrow;
+import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
 public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 {
-	private static final Color NORMAL_COLOR = Color.black;
-	private static final Color HIGHLIGHTED_COLOR = new Color(0xFFFF30);
+	public static final Color NORMAL_COLOR = Color.black;
+	public static final Color HIGHLIGHTED_COLOR = new Color(0xFFFF30);
+	public static final Color FLOATING_COLOR = new Color(0x888888);
 
 	private final CCanvasLink link;
 
@@ -25,6 +27,8 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 
 		setAnchorA(link.getAnchorA());
 		setAnchorB(link.getAnchorB());
+
+		setHighlighted(false);
 	}
 
 	public long getId()
@@ -40,7 +44,15 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 		}
 		else
 		{
-			setColor(NORMAL_COLOR);
+			if ((link.getAnchorA().getArrowEndpointType() == ArrowEndpointType.FLOATING)
+					|| (link.getAnchorB().getArrowEndpointType() == ArrowEndpointType.FLOATING))
+			{
+				setColor(FLOATING_COLOR);
+			}
+			else
+			{
+				setColor(NORMAL_COLOR);
+			}
 		}
 
 		redraw();

@@ -3,27 +3,33 @@ package calico.plugins.iip.components.graph;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.perspectives.CanvasPerspective;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
-public class NewIdeaButton extends CanvasMenuButton
+public class NewCanvasButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
 
-	public NewIdeaButton()
+	private long currentCanvasId;
+
+	public NewCanvasButton()
 	{
 		this(0L);
 	}
-	
+
 	/**
 	 * Invoked via reflection in CanvasStatusBar
 	 */
-	public NewIdeaButton(long canvas_uuid)
+	public NewCanvasButton(long canvas_uuid)
 	{
 		try
 		{
-			setImage(CalicoIconManager.getIconImage("intention.new-idea"));
+			this.currentCanvasId = canvas_uuid;
+
+			setImage(CalicoIconManager.getIconImage("intention.new-canvas"));
 		}
 		catch (Exception e)
 		{
@@ -33,12 +39,12 @@ public class NewIdeaButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		long newIdeaCanvas = IntentionGraphController.getInstance().getNearestEmptyCanvas();
-		CIntentionCellController.getInstance().setInUse(CIntentionCellController.getInstance().getCellByCanvasId(newIdeaCanvas).getId(), true);
-		
+		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId, false);
+
 		if (CanvasPerspective.getInstance().isActive())
 		{
-			CCanvasController.loadCanvas(newIdeaCanvas);
+			CCanvasController.loadCanvas(newCanvas);
+			IntentionCanvasController.getInstance().showTagPanel();
 		}
 	}
 }

@@ -6,8 +6,10 @@ import java.awt.Rectangle;
 import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ReturnToGrid;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.graph.CopyCanvasButton;
+import calico.plugins.iip.components.graph.IconifyButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.graph.NewIdeaButton;
+import calico.plugins.iip.components.graph.NewCanvasButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar
@@ -26,8 +28,6 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addIcon(new ReturnToGrid());
 		addSpacer();
 		addIcon(new ZoomToExtent());
-		addSpacer();
-		addIcon(new NewIdeaButton());
 
 		addSpacer();
 
@@ -38,8 +38,10 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		zoomSlider.repaint();
 
 		addSpacer();
+		
+		addIcon(new IconifyButton());
 	}
-	
+
 	public void initialize()
 	{
 		zoomSlider.refreshState();
@@ -71,7 +73,10 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 	{
 		if (zoomSliderBounds.contains(point))
 		{
-			zoomSlider.click(point);
+			if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+			{
+				zoomSlider.click(point);
+			}
 		}
 		else
 		{
