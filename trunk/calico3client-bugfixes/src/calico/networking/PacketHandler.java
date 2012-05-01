@@ -312,6 +312,8 @@ public class PacketHandler
 		long cuid = p.getLong();
 		long puid = p.getLong();
 		String url = p.getString();
+		int port = p.getInt();
+		String localPath = p.getString();
 		int imgX = p.getInt();
 		int imgY = p.getInt();
 		int imgW = p.getInt();
@@ -340,7 +342,7 @@ public class PacketHandler
 //		if (CGroupController.exists(uuid))
 //			return;
 		
-		CGroupController.no_notify_create_image_group(uuid, cuid, puid, url, imgX, imgY, imgW, imgH);
+		CGroupController.no_notify_create_image_group(uuid, cuid, puid, url, port, localPath, imgX, imgY, imgW, imgH);
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
 		
@@ -1243,7 +1245,7 @@ public class PacketHandler
 				e.printStackTrace();
 			}
 //			Image image = Toolkit.getDefaultToolkit().createImage(CImageController.getImagePath(uuid));
-			CGroupController.no_notify_create_image_group(uuid, cuuid, 0l, "", x, y, image.getWidth(null), image.getHeight(null));
+			CGroupController.no_notify_create_image_group(uuid, cuuid, 0l, "", 0, "", x, y, image.getWidth(null), image.getHeight(null));
 		}
 		catch (Exception e)
 		{

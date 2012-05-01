@@ -89,8 +89,8 @@ public class CCanvasController
 
 	public static void clear(long uuid)
 	{
+		no_notify_clear(uuid);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, uuid));
-		// no_notify_clear(uuid);
 	}
 
 	public static Color getActiveCanvasBackgroundColor()

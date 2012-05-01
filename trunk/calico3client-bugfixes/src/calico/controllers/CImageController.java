@@ -284,7 +284,7 @@ public class CImageController
 		@Override
 		public boolean imageUpdate(Image img, int infoflags, int x,
 				int y, int width, int height) {
-			CGroupController.create_image_group(uuid, cuid, 0L, imageURL, this.x, this.y, width, height);		
+			CGroupController.create_image_group(uuid, cuid, 0L, imageURL, 0, "", this.x, this.y, width, height);		
 			return false;
 		}
 		

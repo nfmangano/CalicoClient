@@ -95,7 +95,7 @@ public class UserList implements CalicoEventListener
 		int imgY = height;
 		height += imgHeight + buffer;
 
-		UserImage userImage = new UserImage(uuid, cuid, puid, img, imgX, imgY,
+		UserImage userImage = new UserImage(uuid, cuid, puid, img, 0, "", imgX, imgY,
 				imgWidth, imgHeight, userName);
 		
 		no_notify_create_user_image(uuid, cuid, puid, userImage);

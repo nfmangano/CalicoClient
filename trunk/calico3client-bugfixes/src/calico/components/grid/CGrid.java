@@ -380,9 +380,10 @@ public class CGrid
 	 */
 	public void deleteCanvas(long cuid) {
 		//send the message to delete the contents of the canvas
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, 
+		/*Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, 
 				cuid				
-			));
+			));*/
+		CCanvasController.clear(cuid);
 	}
 	/**
 	 * executes the action to copy or cut a canvas from the dragged canvas id to the destination canvas in the point signaled by the event 

@@ -1549,22 +1549,22 @@ public class CGroupController
 		CGroupController.groupdb.get(guuid).shrinkToConvexHull();
 	}
 
-	public static void create_image_group(long uuid, long cuid, long puid, String imgURL, int imgX, int imgY, int imgW, int imgH)
+	public static void create_image_group(long uuid, long cuid, long puid, String imgURL, int port, String localPath, int imgX, int imgY, int imgW, int imgH)
 	{
 		
-		no_notify_create_image_group(uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH);
+		no_notify_create_image_group(uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH);
 		
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH, true, false, 0.0d, 1.0d, 1.0d));
+		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH, true, false, 0.0d, 1.0d, 1.0d));
 	}
 
-	public static void no_notify_create_image_group(long uuid, long cuid, long puid, String imgURL, int imgX, int imgY, int imgW, int imgH) {
+	public static void no_notify_create_image_group(long uuid, long cuid, long puid, String imgURL, int port, String localPath, int imgX, int imgY, int imgW, int imgH) {
 		// TODO Auto-generated method stub
 		//taken from start(...)
 		
 		if (groupdb.containsKey(uuid))
 			no_notify_delete(uuid);
 		
-		groupdb.put(uuid, new CGroupImage(uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH));		
+		groupdb.put(uuid, new CGroupImage(uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH));		
 		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);		
 		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));	
 		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));

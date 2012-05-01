@@ -593,13 +593,8 @@ public class CCanvas
 	public void drawMenuBars()
 	{		
 //		drawTopMenuBar();
-		//This may be ugly, but it prevents the menu bars from flickering and disappearing randomly.
-		//In order for all 
-		//SwingUtilities.invokeLater(
-				//new Runnable() { public void run() { 
-					drawMenuBar();
-					drawStatusBar();
-			//	}});
+		drawMenuBar();
+		drawStatusBar();
 	}
 	
 	public void removeTopMenuBar(){
