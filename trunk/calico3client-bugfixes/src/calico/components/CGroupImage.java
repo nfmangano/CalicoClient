@@ -52,15 +52,28 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		setShapeToRoundedRectangle(bounds, 0);
 	}
 
-	public CGroupImage(long uuid, long cuid, long puid, String img, int imgX,
-			int imgY, int imageWidth, int imageHeight) {
+	public CGroupImage(long uuid, long cuid, long puid, String img, int port, String localPath,
+			int imgX, int imgY, int imageWidth, int imageHeight) {
 		super(uuid, cuid, puid, true);
 //		this.transparency = 1.0f;
-		this.imgURL = img;
+		
 		Rectangle bounds = new Rectangle(imgX, imgY, imageWidth, imageHeight);
 		setShapeToRoundedRectangle(bounds, 0);
 //		image.getWidth(this);
-		Runnable runnable = new LoadImageThread(this, "http://" + CalicoDataStore.ServerHost + img);
+		
+		//The server won't always report the correct host name.
+		//The client now uses the host name specified by the user upon connecting.
+		if (img.length() > 0)
+		{
+			this.imgURL = "http://" + CalicoDataStore.ServerHost + ":" + port + "/" + localPath;
+		}
+		else
+		{
+			this.imgURL = img;
+		}
+		
+		Runnable runnable = new LoadImageThread(this, this.imgURL);
+		//Runnable runnable = new LoadImageThread(this, img);
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
@@ -78,11 +91,25 @@ public class CGroupImage extends CGroup implements ImageObserver {
 			int dx, int dy, boolean captureChildren) {
 		Rectangle bounds = this.getRawPolygon().getBounds();
 		CalicoPacket packet = CalicoPacket.getPacket(
-				NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, "", bounds.x
+				NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, "", 0, "", bounds.x
 						+ dx, bounds.y + dy, bounds.width, bounds.height,
 				this.isPermanent, captureChildren, this.rotation, this.scaleX,
-				this.scaleY);
-		packet.putImage(this.image);
+				this.scaleY);	
+		
+		try {
+			//Load the image from the file because it may not already be in memory.
+			Image tempImage = ImageIO.read(new File(CImageController.getImagePath(this.uuid)));
+			//Add the image to the packet
+			packet.putImage(tempImage);
+			
+			//Release the image from memory.
+			tempImage.flush();
+			tempImage = null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 
 		return new CalicoPacket[] { packet };
 	}
@@ -102,7 +129,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 	public void setImage() {	
 		try {
-			
+
 			if (CImageController.imageExists(uuid))
 				image = ImageIO.read(new File(CImageController
 						.getImagePath(uuid)));

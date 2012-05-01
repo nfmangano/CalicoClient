@@ -137,7 +137,7 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 	{
 //		this.hideModeIcon();
 		CalicoInputManager.unlockHandlerIfMatch(canvas_uid);
-		Networking.send(NetworkCommand.ERASE_START, canvas_uid, erasedSomething);
+		Networking.send(NetworkCommand.ERASE_END, canvas_uid, erasedSomething);
 		
 		removeCircle();
 		

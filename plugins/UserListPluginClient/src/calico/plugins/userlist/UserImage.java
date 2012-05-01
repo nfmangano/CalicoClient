@@ -37,11 +37,11 @@ public class UserImage extends CGroupImage
 	private static final int innerBuffer = 2;
 	private static final int textBuffer = 4;
 	
-	public UserImage(long uuid, long cuid, long puid, String img, int imgX,
-			int imgY, int imageWidth, int imageHeight, String userName)
+	public UserImage(long uuid, long cuid, long puid, String img, int port, String localPath,
+			int imgX, int imgY, int imageWidth, int imageHeight, String userName)
 	{
-		super(uuid, cuid, puid, img, imgX, imgY, imageWidth, imageHeight);
-		setImage(img);
+		super(uuid, cuid, puid, img, port, localPath, imgX, imgY, imageWidth, imageHeight);
+		setImage();
 		this.uuid = uuid;
 		audioIcon = CalicoIconManager.getIconImage("plugins.userlist.audio");
 		this.userName = userName;
@@ -79,11 +79,11 @@ public class UserImage extends CGroupImage
 	}
 	
 	// fix
-	public void setImage(String imgURL)
+	public void setImage()
 	{
 		if (CImageController.imageExists(uuid))
 		{// && UserImageCreate.isImageURL(imgURL))
-			super.setImage(imgURL);
+			super.setImage();
 		}
 		else
 		{
