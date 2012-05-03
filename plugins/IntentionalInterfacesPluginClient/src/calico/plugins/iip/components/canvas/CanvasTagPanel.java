@@ -23,8 +23,6 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
-import calico.plugins.iip.components.piemenu.DeleteLinkButton;
-import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
@@ -44,11 +42,9 @@ public class CanvasTagPanel implements StickyItem
 
 	private static CanvasTagPanel INSTANCE = new CanvasTagPanel();
 
-	public static final double PANEL_INSET_X = 100.0;
-	public static final double PANEL_INSET_Y = 50.0;
-	public static final double PANEL_COMPONENT_INSET = 3.0;
+	public static final double PANEL_COMPONENT_INSET = 5.0;
 
-	public static final double ROW_HEIGHT = 20.0;
+	public static final double ROW_HEIGHT = 30.0;
 	public static final double ROW_TEXT_INSET = 1.0;
 
 	private final PanelNode panel;
@@ -214,6 +210,7 @@ public class CanvasTagPanel implements StickyItem
 		{
 			text.setConstrainWidthToTextWidth(true);
 			text.setConstrainHeightToTextHeight(true);
+			text.setFont(text.getFont().deriveFont(20f));
 
 			addChild(text);
 		}
@@ -276,6 +273,7 @@ public class CanvasTagPanel implements StickyItem
 			label = new PText(type.getName());
 			label.setConstrainWidthToTextWidth(true);
 			label.setConstrainHeightToTextHeight(true);
+			label.setFont(label.getFont().deriveFont(20f));
 
 			addChild(label);
 			addChild(editButton);
@@ -629,9 +627,15 @@ public class CanvasTagPanel implements StickyItem
 		@Override
 		public void actionDragged(InputEventInfo event)
 		{
+			if (pressAnchor.distance(event.getGlobalPoint()) < dragThreshold)
+			{
+				// not a drag, completely ignore this event
+				return;
+			}
+			
 			synchronized (stateLock)
 			{
-				if ((state == InputState.PRESSED) && (pressAnchor.distance(event.getGlobalPoint()) > dragThreshold))
+				if (state == InputState.PRESSED)
 				{
 					state = InputState.IDLE;
 					pressTime = 0L;

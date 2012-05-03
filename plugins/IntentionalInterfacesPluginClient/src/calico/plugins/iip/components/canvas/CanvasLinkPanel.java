@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,12 +56,10 @@ public class CanvasLinkPanel implements StickyItem
 
 	private static final LinkSorter LINK_SORTER = new LinkSorter();
 
-	public static final double PANEL_INSET_X = 100.0;
-	public static final double PANEL_INSET_Y = 50.0;
 	public static final double PREVIEW_X_SPACER = 10.0;
 
-	public static final double PANEL_COMPONENT_INSET = 3.0;
-	public static final double TABLE_UNIT_SPAN = 20.0;
+	public static final double PANEL_COMPONENT_INSET = 5.0;
+	public static final double TABLE_UNIT_SPAN = 30.0;
 	public static final double ROW_TEXT_INSET = 1.0;
 
 	private static final Color PREVIEW_ROW_BACKGROUND = new Color(0xEAEAEA);
@@ -222,7 +221,7 @@ public class CanvasLinkPanel implements StickyItem
 		updatePanelBounds();
 	}
 
-	private void updatePanelBounds()
+	public void updatePanelBounds()
 	{
 		double width = panel.calculateWidth();
 		double height = panel.calculateHeight();
@@ -253,6 +252,7 @@ public class CanvasLinkPanel implements StickyItem
 			label = new PText(type.getName());
 			label.setConstrainWidthToTextWidth(true);
 			label.setConstrainHeightToTextHeight(true);
+			label.setFont(label.getFont().deriveFont(20f));
 		}
 
 		void setPosition(double x, double y)
@@ -311,8 +311,8 @@ public class CanvasLinkPanel implements StickyItem
 				PImage checkmark = checkmarksByIntentionTypeId.get(row.type.getId());
 				if (checkmark != null)
 				{
-					checkmark.setX(x + tableCheckmarkInset.width);
-					checkmark.setY(row.y + tableCheckmarkInset.height);
+					checkmark.setX(x); // + tableCheckmarkInset.width);
+					checkmark.setY(row.y); // + tableCheckmarkInset.height);
 				}
 			}
 		}
@@ -351,37 +351,29 @@ public class CanvasLinkPanel implements StickyItem
 			{
 				if (cell.hasIntentionType(type.getId()))
 				{
-					PImage checkmark = new PImage(checkmarkImage);
+					BufferedImage paintedCheckmark = new BufferedImage((int) TABLE_UNIT_SPAN, (int) TABLE_UNIT_SPAN, BufferedImage.TYPE_INT_ARGB);
+					Graphics2D g = (Graphics2D) paintedCheckmark.getGraphics();
+					g.setColor(type.getColor());
+					g.fillRect(0, 0, (int) TABLE_UNIT_SPAN, (int) TABLE_UNIT_SPAN);
+					g.drawImage(checkmarkImage, tableCheckmarkInset.width, tableCheckmarkInset.height, null);
+
+					// kind of a hack, would not be necessary if my checkmark icon had a transparent background
+					for (int i = 0; i < paintedCheckmark.getHeight(); i++)
+					{
+						for (int j = 0; j < paintedCheckmark.getWidth(); j++)
+						{
+							if (paintedCheckmark.getRGB(j, i) == Color.white.getRGB())
+							{
+								paintedCheckmark.setRGB(j, i, type.getColor().getRGB());
+							}
+						}
+					}
+
+					PImage checkmark = new PImage(paintedCheckmark);
 					checkmarksByIntentionTypeId.put(type.getId(), checkmark);
 					panel.addChild(checkmark);
 				}
 			}
-		}
-	}
-
-	private class PreviewRow
-	{
-		private final PText label = new PText("Preview");
-
-		int y;
-
-		public PreviewRow()
-		{
-			label.setConstrainWidthToTextWidth(true);
-			label.setConstrainHeightToTextHeight(true);
-		}
-
-		void installComponents()
-		{
-			panel.addChild(label);
-		}
-
-		void setPosition(double x, double y)
-		{
-			this.y = (int) y;
-
-			label.setX(x + PANEL_COMPONENT_INSET);
-			label.setY(y + ROW_TEXT_INSET);
 		}
 	}
 
@@ -395,7 +387,6 @@ public class CanvasLinkPanel implements StickyItem
 
 		private List<IntentionTypeRow> typeRows = new ArrayList<IntentionTypeRow>();
 		private List<LinkColumn> linkColumns = new ArrayList<LinkColumn>();
-		private final PreviewRow previewRow = new PreviewRow();
 
 		private int xColumnStart;
 
@@ -410,7 +401,6 @@ public class CanvasLinkPanel implements StickyItem
 		void initialize()
 		{
 			panel.setPaint(Color.white);
-			previewRow.installComponents();
 		}
 
 		private PPath createHighlight(Color c)
@@ -493,15 +483,15 @@ public class CanvasLinkPanel implements StickyItem
 			}
 			linkColumns.clear();
 
-			List<CCanvasLinkAnchor> anchorsByOppositeGridCoordinates = new ArrayList<CCanvasLinkAnchor>();
+			List<CCanvasLinkAnchor> sortedAnchors = new ArrayList<CCanvasLinkAnchor>();
 			for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid))
 			{
-				anchorsByOppositeGridCoordinates.add(CCanvasLinkController.getInstance().getAnchor(anchorId));
+				sortedAnchors.add(CCanvasLinkController.getInstance().getAnchor(anchorId));
 			}
 
-			Collections.sort(anchorsByOppositeGridCoordinates, LINK_SORTER);
+			Collections.sort(sortedAnchors, LINK_SORTER);
 
-			for (CCanvasLinkAnchor anchor : anchorsByOppositeGridCoordinates)
+			for (CCanvasLinkAnchor anchor : sortedAnchors)
 			{
 				LinkColumn column = new LinkColumn(anchor.getOpposite());
 				linkColumns.add(column);
@@ -509,13 +499,8 @@ public class CanvasLinkPanel implements StickyItem
 			}
 		}
 
-		LinkColumn getClickedPreviewCell(InputEventInfo event)
+		LinkColumn getClickedColumn(InputEventInfo event)
 		{
-			if (event.getY() < previewRow.y)
-			{
-				return null;
-			}
-
 			if (event.getX() < xColumnStart)
 			{
 				return null;
@@ -562,7 +547,6 @@ public class CanvasLinkPanel implements StickyItem
 			{
 				row.setPosition(bounds.x, yRow += TABLE_UNIT_SPAN);
 			}
-			previewRow.setPosition(bounds.x, yRow += TABLE_UNIT_SPAN);
 
 			double xColumn = bounds.x + getMaxIntentionHeaderWidth() + PANEL_COMPONENT_INSET;
 			this.xColumnStart = (int) xColumn;
@@ -591,21 +575,6 @@ public class CanvasLinkPanel implements StickyItem
 
 			border.setBounds(bounds);
 		}
-
-		@Override
-		protected void paint(PPaintContext paintContext)
-		{
-			super.paint(paintContext);
-
-			Graphics2D g = paintContext.getGraphics();
-			Color c = g.getColor();
-
-			PBounds bounds = getBounds();
-			g.setColor(PREVIEW_ROW_BACKGROUND);
-			g.fillRect((int) bounds.x, previewRow.y, (int) bounds.width, (int) TABLE_UNIT_SPAN);
-
-			g.setColor(c);
-		}
 	}
 
 	private static final int BORDER_WIDTH = 1;
@@ -617,8 +586,9 @@ public class CanvasLinkPanel implements StickyItem
 
 		public CanvasThumbnail()
 		{
-			setBounds(0.0, 0.0, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance().getImgh()
-					- (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
+			double gridCellWidth = CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
+			double gridCellHeight = CGrid.getInstance().getImgh() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
+			setBounds(0.0, 0.0, gridCellWidth * 3.0, gridCellHeight * 3.0);
 			setPaint(Color.white);
 
 			snapshot.setBounds(getBounds());
@@ -632,8 +602,10 @@ public class CanvasLinkPanel implements StickyItem
 			currentCanvasId = canvasId;
 
 			PBounds bounds = panel.getBounds();
-			setX(bounds.x + bounds.width + PREVIEW_X_SPACER);
-			setY(bounds.y);
+			double xPanelRight = bounds.x + bounds.width;
+			setX(xPanelRight + PREVIEW_X_SPACER);
+			double yPanelBottom = bounds.y + bounds.height;
+			setY(yPanelBottom - getBounds().height);
 
 			CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
 			snapshot.setImage(canvas.getContentCamera().toImage());
@@ -681,9 +653,11 @@ public class CanvasLinkPanel implements StickyItem
 		private final Object stateLock = new Object();
 
 		private InputState state = InputState.IDLE;
-		private LinkColumn clickedPreviewCell = null;
+		private LinkColumn clickedColumn = null;
+		private Point pressAnchor;
 
 		private final long tapDuration = 500L;
+		private final double dragThreshold = 10.0;
 
 		private final PressAndHoldTimer pressAndHold = new PressAndHoldTimer();
 
@@ -696,15 +670,15 @@ public class CanvasLinkPanel implements StickyItem
 				{
 					thumbnail.hide();
 				}
-				else if ((state == InputState.PRESSED) && (clickedPreviewCell != null))
+				else if ((state == InputState.PRESSED) && (clickedColumn != null))
 				{
-					CCanvasLinkController.getInstance().traverseLinkToCanvas(clickedPreviewCell.linkOppositeAnchor.getOpposite());
+					CCanvasLinkController.getInstance().traverseLinkToCanvas(clickedColumn.linkOppositeAnchor.getOpposite());
 				}
 				state = InputState.IDLE;
 			}
 
 			panel.clickHighlight.setVisible(false);
-			clickedPreviewCell = null;
+			clickedColumn = null;
 
 			CalicoInputManager.unlockHandlerIfMatch(uuid);
 		}
@@ -712,6 +686,12 @@ public class CanvasLinkPanel implements StickyItem
 		@Override
 		public void actionDragged(InputEventInfo event)
 		{
+			if (pressAnchor.distance(event.getGlobalPoint()) < dragThreshold)
+			{
+				// not a drag, completely ignore this event
+				return;
+			}
+			
 			synchronized (stateLock)
 			{
 				if (state == InputState.THUMBNAIL)
@@ -721,7 +701,7 @@ public class CanvasLinkPanel implements StickyItem
 				state = InputState.IDLE;
 			}
 
-			clickedPreviewCell = null;
+			clickedColumn = null;
 		}
 
 		@Override
@@ -730,15 +710,16 @@ public class CanvasLinkPanel implements StickyItem
 			synchronized (stateLock)
 			{
 				state = InputState.PRESSED;
+				pressAnchor = event.getGlobalPoint();
 			}
 
-			LinkColumn clickedColumn = panel.getClickedPreviewCell(event);
-			if (clickedColumn != null)
+			LinkColumn clickTestColumn = panel.getClickedColumn(event);
+			if (clickTestColumn != null)
 			{
-				clickedPreviewCell = clickedColumn;
+				clickedColumn = clickTestColumn;
 			}
 
-			if (clickedPreviewCell != null)
+			if (clickedColumn != null)
 			{
 				pressAndHold.start(event.getGlobalPoint());
 			}
@@ -767,7 +748,7 @@ public class CanvasLinkPanel implements StickyItem
 					{
 						if (state == InputState.PRESSED)
 						{
-							thumbnail.displayThumbnail(clickedPreviewCell.linkOppositeAnchor.getCanvasId());
+							thumbnail.displayThumbnail(clickedColumn.linkOppositeAnchor.getCanvasId());
 
 							state = InputState.THUMBNAIL;
 						}
@@ -782,6 +763,20 @@ public class CanvasLinkPanel implements StickyItem
 		@Override
 		public int compare(CCanvasLinkAnchor first, CCanvasLinkAnchor second)
 		{
+			boolean firstIsOutgoing = (first.getCanvasId() == first.getLink().getAnchorA().getCanvasId());
+			boolean secondIsOutgoing = (second.getCanvasId() == second.getLink().getAnchorA().getCanvasId());
+			if (firstIsOutgoing != secondIsOutgoing)
+			{
+				if (firstIsOutgoing)
+				{
+					return -1;
+				}
+				else
+				{
+					return 1;
+				}
+			}
+
 			CCanvas firstTargetCanvas = CCanvasController.canvasdb.get(first.getOpposite().getCanvasId());
 			CCanvas secondTargetCanvas = CCanvasController.canvasdb.get(second.getOpposite().getCanvasId());
 			return firstTargetCanvas.getGridCoordTxt().compareTo(secondTargetCanvas.getGridCoordTxt());
