@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoOptions;
+import calico.CalicoOptions.menu.menubar;
 import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -27,7 +29,7 @@ import calico.plugins.iip.components.graph.NewCanvasButton;
 import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import edu.umd.cs.piccolo.PNode;
 
-public class IntentionCanvasController 
+public class IntentionCanvasController
 {
 	public static IntentionCanvasController getInstance()
 	{
@@ -39,7 +41,7 @@ public class IntentionCanvasController
 		INSTANCE = new IntentionCanvasController();
 
 		INSTANCE.initializeComponents();
-		
+
 		CanvasStatusBar.addMenuButtonRightAligned(TagPanelToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(LinkPanelToolBarButton.class);
 		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
@@ -49,6 +51,9 @@ public class IntentionCanvasController
 
 	private static IntentionCanvasController INSTANCE;
 
+	// kind of a hack here, would be better to ask the menubar what dimensions it is using
+	private static final double MENUBAR_WIDTH = (CalicoOptions.menu.menubar.defaultIconDimension + (CalicoOptions.menu.menubar.iconBuffer * 2));
+
 	private final Long2ReferenceArrayMap<CIntentionType> activeIntentionTypes = new Long2ReferenceArrayMap<CIntentionType>();
 
 	private long currentCanvasId = 0L;
@@ -56,12 +61,15 @@ public class IntentionCanvasController
 	private boolean tagPanelVisible = false;
 	private boolean linkPanelVisible = false;
 
+	private final TagPanelBounds tagPanelBounds = new TagPanelBounds();
+	private final LinkPanelBounds linkPanelBounds = new LinkPanelBounds();
+
 	private void initializeComponents()
 	{
-		CanvasTagPanel.getInstance().setLayout(new LowerLeftLayout());
-		CanvasLinkPanel.getInstance().setLayout(new LowerLeftLayout());
+		CanvasTagPanel.getInstance().setLayout(tagPanelBounds);
+		CanvasLinkPanel.getInstance().setLayout(linkPanelBounds);
 	}
-	
+
 	public void localAddIntentionType(CIntentionType type)
 	{
 		activeIntentionTypes.put(type.getId(), type);
@@ -96,7 +104,7 @@ public class IntentionCanvasController
 		CanvasTagPanel.getInstance().updateIntentionTypes();
 		CanvasLinkPanel.getInstance().updateIntentionTypes();
 	}
-	
+
 	public void addIntentionType(String name)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -107,7 +115,7 @@ public class IntentionCanvasController
 		packet.rewind();
 		Networking.send(packet);
 	}
-	
+
 	public void renameIntentionType(long typeId, String name)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -119,7 +127,7 @@ public class IntentionCanvasController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
+
 	public void setIntentionTypeColorIndex(long typeId, int colorIndex)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -131,7 +139,7 @@ public class IntentionCanvasController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
+
 	public void removeIntentionType(long typeId)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -142,7 +150,7 @@ public class IntentionCanvasController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-	
+
 	public void showTagPanel()
 	{
 		if (!tagPanelVisible)
@@ -153,20 +161,16 @@ public class IntentionCanvasController
 
 	public void toggleTagPanelVisibility()
 	{
-		CanvasLinkPanel.getInstance().setVisible(linkPanelVisible = false);
-		
 		tagPanelVisible = !tagPanelVisible;
 		CanvasTagPanel.getInstance().setVisible(tagPanelVisible);
 	}
 
 	public void toggleLinkPanelVisibility()
 	{
-		CanvasTagPanel.getInstance().setVisible(tagPanelVisible = false);
-		
 		linkPanelVisible = !linkPanelVisible;
 		CanvasLinkPanel.getInstance().setVisible(linkPanelVisible);
 	}
-	
+
 	public Collection<CIntentionType> getActiveIntentionTypes()
 	{
 		return activeIntentionTypes.values();
@@ -205,13 +209,37 @@ public class IntentionCanvasController
 		return (CGroupController.groupdb.get(groupId).getCanvasUID() == CCanvasController.getCurrentUUID());
 	}
 
-	private class LowerLeftLayout implements IntentionPanelLayout
+	private class TagPanelBounds implements IntentionPanelLayout
 	{
+		private final int X_MARGIN = 20;
+		private final int Y_MARGIN = 20;
+
+		double currentRightEdgePosition = 0.0;
+
 		@Override
 		public void updateBounds(PNode node, double width, double height)
 		{
-			double x = CanvasLinkPanel.PANEL_INSET_X;
-			double y = CalicoDataStore.ScreenHeight - (CanvasLinkPanel.PANEL_INSET_Y + height);
+			double x = X_MARGIN + MENUBAR_WIDTH;
+			currentRightEdgePosition = x + width;
+			double y = CalicoDataStore.ScreenHeight
+					- (Y_MARGIN + (CalicoOptions.menu.menubar.defaultIconDimension + (CalicoOptions.menu.menubar.iconBuffer * 2)) + height);
+			node.setBounds(x, y, width, height);
+
+			CanvasLinkPanel.getInstance().updatePanelBounds();
+		}
+	}
+
+	private class LinkPanelBounds implements IntentionPanelLayout
+	{
+		private final int X_MARGIN = 10;
+		private final int Y_MARGIN = 20;
+
+		@Override
+		public void updateBounds(PNode node, double width, double height)
+		{
+			double x = tagPanelBounds.currentRightEdgePosition + X_MARGIN;
+			double y = CalicoDataStore.ScreenHeight
+					- (Y_MARGIN + (CalicoOptions.menu.menubar.defaultIconDimension + (CalicoOptions.menu.menubar.iconBuffer * 2)) + height);
 			node.setBounds(x, y, width, height);
 		}
 	}
