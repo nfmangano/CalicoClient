@@ -28,6 +28,7 @@ import calico.CalicoDraw;
 import calico.CalicoOptions.arrow;
 import calico.components.arrow.AnchorPoint;
 import calico.components.arrow.CArrow;
+import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
@@ -215,6 +216,13 @@ public class CGroupController
 		groupdb.get(uuid).addChildArrow(auuid);
 	}
 	
+	public static void no_notify_add_connector(long uuid, long cuuid)
+	{
+		if(!exists(uuid)){return;}
+		
+		groupdb.get(uuid).addChildConnector(cuuid);
+	}
+	
 
 	
 	public static int get_signature(long uuid)
@@ -302,7 +310,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).move(x, y);
 		informListenersOfMove(uuid);
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
@@ -377,7 +385,7 @@ public class CGroupController
 			}
 		}
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.clearMenu();
 		}
@@ -457,7 +465,7 @@ public class CGroupController
 			return;
 		}
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.clearMenu();
 		}
@@ -466,6 +474,7 @@ public class CGroupController
 		long[] child_strokes = group.getChildStrokes();
 		long[] child_groups = group.getChildGroups();
 		long[] child_arrows = group.getChildArrows();
+		long[] child_connectors = group.getChildConnectors();
 		
 		group.unparentAllChildren();
 		
@@ -504,6 +513,15 @@ public class CGroupController
 			for(int i=0;i<child_arrows.length;i++)
 			{
 				CArrowController.arrows.get(child_arrows[i]).calculateParent();
+			}
+		}
+		
+		// Convert connectors to strokes
+		if(child_connectors.length>0)
+		{
+			for(int i=0;i<child_connectors.length;i++)
+			{
+				CConnectorController.make_stroke(child_connectors[i]);
 			}
 		}
 	
@@ -593,7 +611,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).setPermanent(isperm);
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			CGroupController.show_group_bubblemenu(uuid, false);
 		}
@@ -845,6 +863,33 @@ public class CGroupController
 				}
 			}
 		}
+		
+		//Connectors
+		if (isRoot)
+		{
+			long[] connector_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildConnectors();
+			for (int i = 0; i < connector_uuids.length; i++)
+			{
+				CConnector tempConnector = CConnectorController.connectors.get(connector_uuids[i]);
+				if ((UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) || tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) == uuid) && 
+					(UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)) || tempConnector.getAnchorUUID(CConnector.TYPE_TAIL) == uuid))
+				{
+					long new_connector_uuid = UUIDMappings.get(connector_uuids[i]).longValue();
+					
+					
+					if (UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) && 
+						UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)))
+					{
+						Point head = (Point) tempConnector.getHead().clone();
+						Point tail = (Point) tempConnector.getTail().clone();
+						
+						CConnectorController.no_notify_create(new_connector_uuid, canvasuuid, tempConnector.getColor(), tempConnector.getThickness(), head, tail,
+								tempConnector.getOrthogonalDistance(), tempConnector.getTravelDistance(), 
+								UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)), UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)));
+					}
+				}
+			}
+		}
 	}//no_notify_copy
 	
 	private static ArrayList<Long> getSubGroups(long uuid)
@@ -959,6 +1004,7 @@ public class CGroupController
 			}*/
 		}
 		
+		//Arrows
 		if (isRoot)
 		{
 			long[] arrow_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildArrows();
@@ -970,6 +1016,22 @@ public class CGroupController
 				{
 					long new_arw_uuids = Calico.uuid();
 					UUIDMappings.put(arrow_uuids[i], new Long(new_arw_uuids));
+				}
+			}
+		}
+		
+		//Connectors
+		if (isRoot)
+		{
+			long[] connector_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildConnectors();
+			for (int i = 0; i < connector_uuids.length; i++)
+			{
+				CConnector tempConnector = CConnectorController.connectors.get(connector_uuids[i]);
+				if ((UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) || tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) == uuid) && 
+					(UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)) || tempConnector.getAnchorUUID(CConnector.TYPE_TAIL) == uuid))
+				{
+					long new_ctr_uuids = Calico.uuid();
+					UUIDMappings.put(connector_uuids[i], new Long(new_ctr_uuids));
 				}
 			}
 		}
@@ -1175,6 +1237,12 @@ public class CGroupController
 		
 		groupdb.get(uuid).deleteChildArrow(childuid);
 	}
+	public static void no_notify_delete_child_connector(long uuid, long childuid)
+	{
+		if(!exists(uuid)){return;}
+		
+		groupdb.get(uuid).deleteChildConnector(childuid);
+	}
 	
 	private static long getDecoratorParent(long uuid)
 	{
@@ -1359,7 +1427,7 @@ public class CGroupController
 		if (!exists(uuid))
 			return;
 
-		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getPieMenuButtons();
+		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getBubbleMenuButtons();
 		
 		int curPos = 0;
 		int totalButtons = 0;
@@ -1403,7 +1471,7 @@ public class CGroupController
 				}
 			}
 
-			BubbleMenu.displayBubbleMenu(uuid,fade,buttons.toArray(new PieMenuButton[buttons.size()]));
+			BubbleMenu.displayBubbleMenu(uuid,fade,BubbleMenu.TYPE_GROUP,buttons.toArray(new PieMenuButton[buttons.size()]));
 			
 			
 		}
@@ -1514,7 +1582,7 @@ public class CGroupController
 		//group.repaint();
 		CalicoDraw.repaint(group);
 
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == guuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == guuid)
 		{
 			BubbleMenu.moveIconPositions(group.getBounds());
 		}
@@ -1595,7 +1663,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).rotate(theta);
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
@@ -1615,7 +1683,7 @@ public class CGroupController
 		groupdb.get(uuid).scale(scaleX, scaleY);
 		
 		informListenersOfMove(uuid);
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}

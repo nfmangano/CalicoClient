@@ -1449,7 +1449,6 @@ public final class Geometry
 		// Angles
 		double dx = x0 - pos1[0];
 		double dy = y0 - pos1[1];
-
 		// Polyline angle
 		double v = dx == 0.0 ? Math.PI / 2.0 : Math.atan (Math.abs (dy / dx));
 
@@ -1660,5 +1659,48 @@ public final class Geometry
 
 		// Length is longer than polyline
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @param p0
+	 * @param p1
+	 * @param p2
+	 * @return	0 if point p2 is on the line from p0 to p1
+	 * 			Will be positive or negative otherwise
+	 */
+	public static double getSide(double[] p0, double[] p1, double[] p2)
+	{
+		return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]);
+	}
+	
+	/**
+	 * Return the intersecting point of the line defined by (x0,y0) and (x1,y1)
+	 * and the point (x,y).
+	 *
+	 * @param  x0, y0  First point of line.
+	 * @param  x1, y1  Second point of line.
+	 * @param  x, y,   Point to consider.
+	 * @return         Distance from x,y down to the (extended) line defined
+	 *                 by x0, y0, x1, y1.
+	 */
+	public static double[] computeIntersectingPoint (int x0, int y0, int x1, int y1,
+			int x, int y)
+	{
+		// If x0,y0,x1,y1 is same point, we return distance to that point
+		double length = Geometry.length (x0, y0, x1, y1);
+		if (length == 0.0)
+			return new double[]{x0, y0};
+
+		// If u is [0,1] then (xp,yp) is on the line segment (x0,y0),(x1,y1).
+		double u = ((x - x0) * (x1 - x0) + (y - y0) * (y1 - y0)) /
+		(length * length);
+
+		// This is the intersection point of the normal.
+		// TODO: Might consider returning this as well.
+		double xp = x0 + u * (x1 - x0);
+		double yp = y0 + u * (y1 - y0);
+
+		return new double[]{xp, yp};
 	}
 }
