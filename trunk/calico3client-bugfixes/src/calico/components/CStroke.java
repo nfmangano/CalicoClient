@@ -75,6 +75,7 @@ public class CStroke extends PPath
 	float thickness;
 	
 	private boolean isTempInk = false;
+	private boolean isHighlighted = false;
 
 	private LinkedList<PNode> tempSegments = new LinkedList<PNode>();
 	
@@ -83,6 +84,9 @@ public class CStroke extends PPath
 	public boolean hiding = false;
 	
 	public Point circlePoint = new Point(0,0);
+	
+	// This will hold the bubble menu buttons (Class<?>)
+	private static ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
 	
 	public CStroke(long u, long canvas, long puid)
 	{
@@ -568,6 +572,13 @@ public class CStroke extends PPath
 		{
 			//This draws the highlight
 			Composite temp = g2.getComposite();
+			if (isHighlighted)
+			{
+				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CalicoOptions.stroke.background_transparency));
+				g2.setStroke(new BasicStroke(CalicoOptions.pen.stroke_size + 8));
+				g2.setPaint(Color.blue);
+				g2.draw(getPathReference());
+			}
 			if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() && !this.isTempInk())
 			{
 				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CGroupController.groupdb.get(getParentUUID()).getTransparency()));
@@ -599,10 +610,24 @@ public class CStroke extends PPath
     }
 	
 	
+	public void highlight_on() {
+		isHighlighted = true;
+		highlight_repaint();
+	}
 	
-	
-	
+	public void highlight_off() {
+		isHighlighted = false;
+		highlight_repaint();
+	}
 
+	public void highlight_repaint()
+	{
+		Rectangle bounds = getBounds().getBounds();
+		double buffer = 20;
+		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
+		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), bufferBounds, this);
+	}
 	
 	public static int countIntersections(Polygon path, Polygon testPath)
 	{
@@ -1017,5 +1042,23 @@ public class CStroke extends PPath
 		
 		super.setTransparency(f);
 	}
+	
+	
+	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>();
+		bubbleMenuButtons.addAll(internal_getBubbleMenuButtons());
+		//bubbleMenuButtons.addAll(CStroke.bubbleMenuButtons); //5
+		return bubbleMenuButtons;
+	}
+	
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
+		bubbleMenuButtons.add(calico.components.bubblemenu.strokes.StrokeMakeConnectorButton.class); //12
+		return bubbleMenuButtons;
+	}
+	
+	
 
 }

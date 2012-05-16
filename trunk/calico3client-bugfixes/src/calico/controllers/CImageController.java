@@ -65,7 +65,7 @@ public class CImageController
 			}
 		}
 		
-		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
+		if (!(new File(CalicoOptions.images.download_folder)).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
 		
 		
@@ -74,6 +74,8 @@ public class CImageController
 		
 	    // TODO: NEED TO DOWNLOAD THE IMAGE CONTENT AND WRITE TO A FILE
 	    String filePath = CalicoOptions.images.download_folder + Long.toString(uuid) + "." + fileExt;
+	    
+	    System.out.println(filePath);
 	    File imageFile = new File(filePath);
 	    if (!imageFile.exists())
 	    	imageFile.createNewFile();

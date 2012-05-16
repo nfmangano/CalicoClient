@@ -13,12 +13,12 @@ public class GroupDropButton extends PieMenuButton
 	{
 		super("group.drop");
 
-		guuid = uuid;
+		this.uuid = uuid;
 	}
 	
 	public void onPressed(InputEventInfo ev)
 	{
-		if (!CGroupController.exists(guuid) || isActive)
+		if (!CGroupController.exists(uuid) || isActive)
 		{
 			return;
 		}
@@ -33,7 +33,7 @@ public class GroupDropButton extends PieMenuButton
 		//super.onClick(ev);
 		ev.stop();
 		//System.out.println("CLICKED GROUP DROP BUTTON");
-		CGroupController.drop(guuid);
+		CGroupController.drop(uuid);
 		
 		isActive = false;
 	}
