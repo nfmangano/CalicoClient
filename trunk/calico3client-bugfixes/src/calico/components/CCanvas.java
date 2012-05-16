@@ -1196,9 +1196,12 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
@@ -1274,9 +1277,12 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		
