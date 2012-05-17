@@ -18,12 +18,12 @@ public class SaveToPaletteButton extends PieMenuButton
 		
 
 
-		guuid = uuid;
+		this.uuid = uuid;
 	}
 	
 	public void onPressed(InputEventInfo ev)
 	{
-		if (!CGroupController.exists(guuid) || isActive)
+		if (!CGroupController.exists(uuid) || isActive)
 		{
 			return;
 		}
@@ -35,7 +35,7 @@ public class SaveToPaletteButton extends PieMenuButton
 	{
 		ev.stop();
 		
-		PalettePlugin.addGroupToPalette(PalettePlugin.getActivePaletteUUID(), guuid);
+		PalettePlugin.addGroupToPalette(PalettePlugin.getActivePaletteUUID(), uuid);
 		isActive = false;
 	}
 	

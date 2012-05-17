@@ -123,6 +123,20 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 					}
 				}
 			}
+			
+			long[] connectorlist = CCanvasController.canvasdb.get(canvas_uid).getChildConnectors();
+			if(connectorlist.length>0)
+			{
+				for(int i=0;i<connectorlist.length;i++)
+				{
+					if(CConnectorController.exists(connectorlist[i]) && CConnectorController.intersectsCircle(connectorlist[i],e.getPoint(), CalicoOptions.pen.eraser.radius) )
+					{
+						logger.debug("DELETE CONNECTOR "+connectorlist[i]);
+						CConnectorController.delete(connectorlist[i]);
+						erasedSomething = true;
+					}
+				}
+			}
 		}
 		
 		lastEvent = e;

@@ -75,7 +75,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			if (BubbleMenu.isBubbleMenuActive())
 			{
 				long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
-				if (guuid != BubbleMenu.activeGroup)
+				if (guuid != BubbleMenu.activeUUID)
 				{
 					BubbleMenu.clearMenu();
 				}
@@ -237,7 +237,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 		if (!hasBrokenDistanceThreshold)
 		{
 			long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
-			if (BubbleMenu.activeGroup != guuid && guuid != 0)
+			if (BubbleMenu.activeUUID != guuid && guuid != 0)
 			{
 				CGroupController.show_group_bubblemenu(guuid);
 			}

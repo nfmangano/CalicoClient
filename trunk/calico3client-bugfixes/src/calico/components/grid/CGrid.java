@@ -399,11 +399,12 @@ public class CGrid
 					cuidDest				
 				));
 			if(canvasAction==CUT_CANVAS){
-				//if cut was the action removes the contents of the source canvas				
+				//if cut was the action removes the contents of the source canvas
 				//send package to delete contents from source cell
-				Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, 
+				CCanvasController.clear(cuidDraggedCanvas);
+				/*Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, 
 						cuidDraggedCanvas				
-					));
+					));*/
 				if (CCanvasController.canvasdb.get(cuidDraggedCanvas).getLockValue() == true)
 				{
 					CCanvasController.lock_canvas(cuidDraggedCanvas, false, "clean move action", (new Date()).getTime());
@@ -503,9 +504,12 @@ public class CGrid
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);

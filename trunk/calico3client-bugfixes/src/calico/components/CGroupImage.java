@@ -24,6 +24,8 @@ import sun.java2d.pipe.AlphaColorPipe;
 
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
+import calico.components.grid.CGrid;
+import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.controllers.CImageController;
 import calico.networking.netstuff.CalicoPacket;
@@ -36,6 +38,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 	protected String imgURL;
 	protected Image image;
+	protected boolean isDownloading = false;
 
 	/**
 	 * 
@@ -130,7 +133,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 	public void setImage() {	
 		try {
 
-			if (CImageController.imageExists(uuid))
+			if (!isDownloading && CImageController.imageExists(uuid))
 				image = ImageIO.read(new File(CImageController
 						.getImagePath(uuid)));
 			/*else
@@ -208,10 +211,13 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 		@Override
 		public void run() {
+			group.isDownloading = true;
 			group.downloadImage(imgURL);
+			group.isDownloading = false;
 			//If the image group is on a different canvas than the one being viewed, don't load it
 			if (group.cuid == CCanvasController.getCurrentUUID())
 				group.setImage();	
+			CGrid.getInstance().updateCell(group.cuid);
 			group.repaint();
 		}
 		

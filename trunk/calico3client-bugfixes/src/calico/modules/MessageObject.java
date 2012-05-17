@@ -187,10 +187,12 @@ public class MessageObject extends PComposite
 		
 		text.setBounds(textbounds);
 
-		this.addChild(0,bgnode);
+		/*this.addChild(0,bgnode);
 		this.addChild(1,text);
-		this.setBounds(bounds);
-		
+		this.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this, bgnode, 0);
+		CalicoDraw.addChildToNode(this, text, 1);
+		CalicoDraw.setNodeBounds(this, bounds);
 
 		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this);
 		CalicoDraw.addChildToNode(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera(), this, 0);

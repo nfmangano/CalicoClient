@@ -13,6 +13,7 @@ import calico.CalicoOptions;
 import calico.components.CStroke;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.iconsets.CalicoIconManager;
@@ -336,7 +337,16 @@ public abstract class CalicoAbstractInputHandler
 			// else
 			potentialScrap = CStrokeController.getPotentialScrap(point);
 
-		if (group != 0l // the group must exist
+		if (CConnectorController.exists(group))
+		{
+			CConnectorController.show_stroke_bubblemenu(group, false);
+		}
+		else if (CStrokeController.exists(group))
+		{
+			CStrokeController.show_stroke_bubblemenu(group, false);
+		}
+		
+		else if (group != 0l // the group must exist
 				&& !CGroupController.group_contains_stroke(group, potentialScrap)) // and the group must not contain a
 																				   // potential scrap
 		{
