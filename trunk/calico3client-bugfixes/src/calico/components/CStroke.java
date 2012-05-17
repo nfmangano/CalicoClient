@@ -623,7 +623,7 @@ public class CStroke extends PPath
 	public void highlight_repaint()
 	{
 		Rectangle bounds = getBounds().getBounds();
-		double buffer = 20;
+		double buffer = 30;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
 		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
 		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), bufferBounds, this);

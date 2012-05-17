@@ -34,6 +34,11 @@ public class CConnectorController {
 	 */
 	public static Long2ReferenceAVLTreeMap<CConnector> connectors = new Long2ReferenceAVLTreeMap<CConnector>();
 	
+	public static void setup()
+	{
+		connectors.clear();
+	}
+	
 	public static boolean exists(long uuid)
 	{
 		return connectors.containsKey(uuid);
@@ -121,7 +126,12 @@ public class CConnectorController {
 	{
 		if (!exists(uuid))
 			return;
-			
+		
+		if (BubbleMenu.activeUUID == uuid)
+		{
+			BubbleMenu.clearMenu();
+		}
+		
 		connectors.get(uuid).delete();
 		connectors.remove(uuid);
 	}
@@ -146,12 +156,85 @@ public class CConnectorController {
 		}
 	}
 	
+	public static void move_group_anchor_start(long uuid, int type)
+	{
+		no_notify_move_group_anchor_start(uuid, type);
+		
+		Networking.send(NetworkCommand.CONNECTOR_MOVE_ANCHOR_START, uuid, type);
+	}
+	
+	public static void no_notify_move_group_anchor_start(long uuid, int type)
+	{
+		CConnector tempConnector = CConnectorController.connectors.get(uuid);
+		if (tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) != tempConnector.getAnchorUUID(CConnector.TYPE_TAIL))
+		{
+			CGroupController.no_notify_delete_child_connector(tempConnector.getAnchorUUID(type), uuid);
+		}
+	}
+	
+	public static void move_group_anchor(long uuid, int type, int x, int y)
+	{
+		if (!exists(uuid))
+			return;
+		
+		no_notify_move_group_anchor(uuid, type, x, y);
+		
+		Networking.send(NetworkCommand.CONNECTOR_MOVE_ANCHOR, uuid, type, x, y);
+	}
+	
+	public static void no_notify_move_group_anchor(long uuid, int type, int x, int y)
+	{
+		if (!exists(uuid))
+			return;
+		
+		connectors.get(uuid).moveAnchor(type, x, y);
+		
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
+		{
+			BubbleMenu.moveIconPositions(CConnectorController.connectors.get(uuid).getBounds());
+		}
+	}
+	
 	public static void no_notify_move_group_anchor(long uuid, long guuid, int x, int y)
 	{
 		if (!exists(uuid))
 			return;
 		
 		connectors.get(uuid).moveAnchor(guuid, x, y);
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
+		{
+			BubbleMenu.moveIconPositions(CConnectorController.connectors.get(uuid).getBounds());
+		}
+	}
+	
+	public static void move_group_anchor_end(long uuid, int type)
+	{
+		no_notify_move_group_anchor_end(uuid, type);
+		
+		Networking.send(NetworkCommand.CONNECTOR_MOVE_ANCHOR_END, uuid, type);
+	}
+	
+	public static void no_notify_move_group_anchor_end(long uuid, int type)
+	{
+		CConnector tempConnector = CConnectorController.connectors.get(uuid);
+		
+		Point p;
+		if (type == CConnector.TYPE_HEAD)
+			p = tempConnector.getHead();
+		else if (type == CConnector.TYPE_TAIL)
+			p = tempConnector.getTail();
+		else return;
+		
+		long guuid = CGroupController.get_smallest_containing_group_for_point(tempConnector.getCanvasUUID(), p);
+		if (guuid == 0l)
+		{
+			CConnectorController.make_stroke(uuid);
+		}
+		else
+		{
+			tempConnector.setAnchorUUID(guuid, type);
+			CGroupController.no_notify_add_connector(guuid, uuid);
+		}
 	}
 	
 	public static void make_stroke(long uuid)

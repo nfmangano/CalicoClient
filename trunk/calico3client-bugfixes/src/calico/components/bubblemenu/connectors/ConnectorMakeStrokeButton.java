@@ -10,13 +10,13 @@ import calico.controllers.CConnectorController;
 import calico.controllers.CStrokeController;
 import calico.inputhandlers.InputEventInfo;
 
-public class ConnectorLinearizeButton extends PieMenuButton
+public class ConnectorMakeStrokeButton extends PieMenuButton
 {
 	private boolean isActive = false;
 	
-	public ConnectorLinearizeButton(long uuid)
+	public ConnectorMakeStrokeButton(long uuid)
 	{
-		super("arrow.status");
+		super("connector.strokify");
 		this.uuid = uuid;
 	}
 	
@@ -35,16 +35,13 @@ public class ConnectorLinearizeButton extends PieMenuButton
 	{
 		if (CConnectorController.exists(uuid))
 		{
-			CConnectorController.connectors.get(uuid).highlight_off();
-			CConnectorController.linearize(uuid);
-			CConnectorController.connectors.get(uuid).highlight_on();
-			BubbleMenu.moveIconPositions(CConnectorController.connectors.get(uuid).getBounds());
+			CConnectorController.make_stroke(uuid);
 		}
 		
 		
 		ev.stop();
 		
-		Calico.logger.debug("CLICKED LINEARIZE CONNECTOR BUTTON");
+		Calico.logger.debug("CLICKED MAKE STROKE BUTTON");
 		
 		isActive = false;
 	}

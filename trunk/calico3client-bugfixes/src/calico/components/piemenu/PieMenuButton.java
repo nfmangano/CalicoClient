@@ -163,6 +163,11 @@ public class PieMenuButton
 		bounds = new Rectangle(point.x, point.y, CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
 	}
 	
+	public Point getPreferredPosition()
+	{
+		return null;
+	}
+	
 		
 	/**
 	 * Returns the bounds that contains this menu icon

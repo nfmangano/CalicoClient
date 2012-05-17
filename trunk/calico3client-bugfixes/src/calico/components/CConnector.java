@@ -320,7 +320,10 @@ public class CConnector extends PComposite{
 	@Override
 	public PBounds getBounds()
 	{
-		return connectorLine.getBounds();
+		Rectangle bounds = connectorLine.getBounds().getBounds();
+		double buffer = 30;
+		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
+		return bufferBounds;
 	}
 	
 	public void redraw()
@@ -419,11 +422,7 @@ public class CConnector extends PComposite{
 
 	public void highlight_repaint()
 	{
-		Rectangle bounds = getBounds().getBounds();
-		double buffer = 20;
-		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
-		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
-		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), bufferBounds, this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), this.getBounds(), this);
 	}
 	
 	public void moveAnchor(long guuid, int deltaX, int deltaY)
@@ -439,7 +438,18 @@ public class CConnector extends PComposite{
 		redraw();
 	}
 	
-	
+	public void moveAnchor(int type, int deltaX, int deltaY)
+	{
+		if (type == TYPE_HEAD)
+		{
+			pointHead.setLocation(pointHead.x + deltaX, pointHead.y + deltaY);
+		}
+		else if (type == TYPE_TAIL)
+		{
+			pointTail.setLocation(pointTail.x + deltaX, pointTail.y + deltaY);
+		}
+		redraw();
+	}
 
 	
 	
@@ -581,6 +591,9 @@ public class CConnector extends PComposite{
 	{
 		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorLinearizeButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveHeadButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveTailButton.class);
 		return bubbleMenuButtons;
 	}
 	

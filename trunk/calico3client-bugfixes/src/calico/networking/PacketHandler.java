@@ -148,6 +148,9 @@ public class PacketHandler
 			case NetworkCommand.CONNECTOR_LOAD:CONNECTOR_LOAD(packet);break;
 			case NetworkCommand.CONNECTOR_DELETE:CONNECTOR_DELETE(packet);break;
 			case NetworkCommand.CONNECTOR_LINEARIZE:CONNECTOR_LINEARIZE(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR:CONNECTOR_MOVE_ANCHOR(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_START:CONNECTOR_MOVE_ANCHOR_START(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_END:CONNECTOR_MOVE_ANCHOR_END(packet);break;
 			
 			case NetworkCommand.AUTH_OK:AUTH_OK(packet);break;
 			case NetworkCommand.AUTH_FAIL:AUTH_FAIL(packet);break;
@@ -982,7 +985,33 @@ public class PacketHandler
 		CConnectorController.no_notify_linearize(uuid);
 	}
 	
+	public static void CONNECTOR_MOVE_ANCHOR(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		int x = p.getInt();
+		int y = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor(uuid, type, x, y);
+
+	}
 	
+	public static void CONNECTOR_MOVE_ANCHOR_START(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor_start(uuid, type);
+	}
+	
+	public static void CONNECTOR_MOVE_ANCHOR_END(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor_end(uuid, type);
+
+	}
 	
 	/*
 	private static void STROKE_RELOAD_REMOVE(CalicoPacket p)

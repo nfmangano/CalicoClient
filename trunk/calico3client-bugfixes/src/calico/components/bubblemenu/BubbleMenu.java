@@ -233,7 +233,7 @@ public class BubbleMenu {
 	{
 		for(int i=0;i<buttonList.size();i++)
 		{
-			Point pos = getButtonPointFromPosition(buttonPosition[i], componentBounds);
+			Point pos = getButtonPointFromPosition(i, buttonPosition[i], componentBounds);
 			buttonList.get(i).setPosition(pos);
 
 			//bubbleContainer.getChild(i).setBounds(pos.getX(), pos.getY(), CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
@@ -265,7 +265,7 @@ public class BubbleMenu {
 		for(int i=0;i<buttonList.size();i++)
 		{
 			buttonPosition[i] = getButtonPosition(buttonList.get(i).getClass().getName());
-			Point pos = getButtonPointFromPosition(buttonPosition[i], activeBounds);
+			Point pos = getButtonPointFromPosition(i, buttonPosition[i], activeBounds);
 
 			buttonList.get(i).setPosition(pos);
 		}
@@ -344,6 +344,14 @@ public class BubbleMenu {
 		{
 			return 1;
 		}
+		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton") == 0)
+		{
+			return 2;
+		}
+		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMoveHeadButton") == 0)
+		{
+			return 0;
+		}
 		
 		//Palette Plugin Buttons
 		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
@@ -373,7 +381,7 @@ public class BubbleMenu {
 	//Determines the location of a button 
 	//Called for each button any time the active component bounds changes
 	//Should account for screen borders and any other restrictions for button positioning
-	private static Point getButtonPointFromPosition(int position, PBounds componentBounds)
+	private static Point getButtonPointFromPosition(int buttonIndex, int position, PBounds componentBounds)
 	{
 		//Minimum screen position. T
 		int screenX = 32;
@@ -416,6 +424,12 @@ public class BubbleMenu {
 		
 		switch(position)
 		{
+		case 0: Point p = buttonList.get(buttonIndex).getPreferredPosition();
+				if (p == null) 
+					return new Point(x, y);
+				else
+					return new Point(p.x - centerOffset, p.y - centerOffset);
+				
 		case 1: x = (int)componentBounds.getMinX() - startX - centerOffset - small;
 				y = (int)componentBounds.getMinY() - startY - centerOffset + large;
 				minX = screenX;
@@ -517,9 +531,7 @@ public class BubbleMenu {
 			y = maxY;
 		
 
-		return new Point(
-				x,y
-		);
+		return new Point(x,y);
 	}
 	
 	//Removes the menu

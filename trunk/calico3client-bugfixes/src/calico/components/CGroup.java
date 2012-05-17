@@ -1642,10 +1642,20 @@ public class CGroup extends PPath implements Serializable {
 			Point2D ptSrc = new Point2D.Double();
 			Point2D ptDst = new Point2D.Double();
 			for (int i = 0; i < cuid.length; i++) {
-				ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getAnchorPoint(uuid));
-				rotateAboutPivot.transform(ptSrc, ptDst);
-				CConnectorController.no_notify_move_group_anchor(cuid[i], uuid, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
-						Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				if (CConnectorController.connectors.get(cuid[i]).getAnchorUUID(CConnector.TYPE_HEAD) == uuid)
+				{
+					ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getHead());
+					rotateAboutPivot.transform(ptSrc, ptDst);
+					CConnectorController.no_notify_move_group_anchor(cuid[i], CConnector.TYPE_HEAD, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
+							Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				}
+				if (CConnectorController.connectors.get(cuid[i]).getAnchorUUID(CConnector.TYPE_TAIL) == uuid)
+				{
+					ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getTail());
+					rotateAboutPivot.transform(ptSrc, ptDst);
+					CConnectorController.no_notify_move_group_anchor(cuid[i], CConnector.TYPE_TAIL, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
+							Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				}
 			}
 		}
 		
@@ -1728,12 +1738,24 @@ public class CGroup extends PPath implements Serializable {
 			Point2D ptSrc = new Point2D.Double();
 			Point2D ptDst = new Point2D.Double();
 			for (int i = 0; i < cuid.length; i++) {
-				ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getAnchorPoint(uuid));
-				ptDst = scaleAboutPivot1.transform(ptSrc, ptDst);
-				ptDst = scaleAboutPivot2.transform(ptDst, null);
-				ptDst = scaleAboutPivot3.transform(ptDst, null);
-				CConnectorController.no_notify_move_group_anchor(cuid[i], uuid, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
-						Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				if (CConnectorController.connectors.get(cuid[i]).getAnchorUUID(CConnector.TYPE_HEAD) == uuid)
+				{
+					ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getHead());
+					ptDst = scaleAboutPivot1.transform(ptSrc, ptDst);
+					ptDst = scaleAboutPivot2.transform(ptDst, null);
+					ptDst = scaleAboutPivot3.transform(ptDst, null);
+					CConnectorController.no_notify_move_group_anchor(cuid[i], CConnector.TYPE_HEAD, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
+							Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				}
+				if (CConnectorController.connectors.get(cuid[i]).getAnchorUUID(CConnector.TYPE_TAIL) == uuid)
+				{
+					ptSrc = new Point(CConnectorController.connectors.get(cuid[i]).getTail());
+					ptDst = scaleAboutPivot1.transform(ptSrc, ptDst);
+					ptDst = scaleAboutPivot2.transform(ptDst, null);
+					ptDst = scaleAboutPivot3.transform(ptDst, null);
+					CConnectorController.no_notify_move_group_anchor(cuid[i], CConnector.TYPE_TAIL, Math.round((float)ptDst.getX() - (float)ptSrc.getX()),
+							Math.round((float)ptDst.getY() - (float)ptSrc.getY()));
+				}
 			}
 		}
 		

@@ -14,7 +14,7 @@ public class StrokeMakeConnectorButton extends PieMenuButton
 	
 	public StrokeMakeConnectorButton(long uuid)
 	{
-		super("arrow.status");
+		super("connector.create");
 		this.uuid = uuid;
 	}
 	
@@ -34,6 +34,7 @@ public class StrokeMakeConnectorButton extends PieMenuButton
 		if (CStrokeController.exists(uuid))
 		{
 			long new_uuid = Calico.uuid();
+			//Create the connector
 			CConnectorController.create(new_uuid, CCanvasController.getCurrentUUID(), CalicoDataStore.PenColor, 
 					CalicoDataStore.PenThickness, CStrokeController.strokes.get(uuid).getRawPolygon(), 0l, 0l);
 			CStrokeController.strokes.get(uuid).highlight_off();

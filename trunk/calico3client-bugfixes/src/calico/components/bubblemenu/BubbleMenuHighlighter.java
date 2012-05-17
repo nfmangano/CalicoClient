@@ -30,7 +30,8 @@ public class BubbleMenuHighlighter extends PComposite {
 		Graphics2D graphics = (Graphics2D)paintContext.getGraphics();
 		graphics.setStroke(new BasicStroke(1.0f));
 		
-		if (BubbleMenu.selectedButtonIndex != -1 && BubbleMenu.getButton(BubbleMenu.selectedButtonIndex).haloEnabled)
+		if (BubbleMenu.selectedButtonIndex != -1 && BubbleMenu.getButton(BubbleMenu.selectedButtonIndex).haloEnabled
+				&& BubbleMenu.buttonPosition[BubbleMenu.selectedButtonIndex] != 0)
 		{
 			//Rectangle2D buttonBounds = BubbleMenu.buttonList.get(BubbleMenu.selectedButtonIndex).getBounds();
 			
