@@ -25,7 +25,6 @@ import sun.java2d.pipe.AlphaColorPipe;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.components.grid.CGrid;
-import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.controllers.CImageController;
 import calico.networking.netstuff.CalicoPacket;
@@ -217,7 +216,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 			//If the image group is on a different canvas than the one being viewed, don't load it
 			if (group.cuid == CCanvasController.getCurrentUUID())
 				group.setImage();	
-			CGrid.getInstance().updateCell(group.cuid);
+			// GridRemoval: CGrid.getInstance().updateCell(group.cuid);
 			group.repaint();
 		}
 		
