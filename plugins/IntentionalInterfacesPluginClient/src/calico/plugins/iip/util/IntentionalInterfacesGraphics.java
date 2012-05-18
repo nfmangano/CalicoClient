@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import calico.Geometry;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
-import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -33,7 +32,7 @@ public class IntentionalInterfacesGraphics
 		}
 		else
 		{
-			coordinates = canvas.getGridCoordTxt();
+			coordinates = String.valueOf(canvas.getIndex());
 		}
 		Rectangle baseBounds = new Rectangle(baseImage.getWidth(null), baseImage.getHeight(null));
 		BufferedImage compound = new BufferedImage(baseBounds.width, baseBounds.height, BufferedImage.TYPE_INT_ARGB);
@@ -61,7 +60,7 @@ public class IntentionalInterfacesGraphics
 	public static void superimposeCellAddressInCorner(Graphics2D g, long canvas_uuid, double width, Font font, Color color)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
-		String coordinates = canvas.getGridCoordTxt();
+		String coordinates = String.valueOf(canvas.getIndex());
 
 		Color c = g.getColor();
 		Font f = g.getFont();
@@ -137,6 +136,13 @@ public class IntentionalInterfacesGraphics
 	public static Image createCanvasThumbnail(long canvasId, Dimension size, Insets insets)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(canvasId);
+		
+		if (canvas.getContentCamera().getBounds().isEmpty())
+		{
+			// there's no image to get yet
+			return new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+		}
+		
 		Image canvasSnapshot = canvas.getContentCamera().toImage();
 
 		if (size == null)

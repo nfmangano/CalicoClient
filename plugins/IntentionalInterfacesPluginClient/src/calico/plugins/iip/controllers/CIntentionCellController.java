@@ -44,12 +44,12 @@ public class CIntentionCellController
 		CIntentionCell cell = cells.get(cellId);
 		for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
 		{
-			if (cell.hasIntentionType(type.getId()))
+			if (cell.getIntentionTypeId() == type.getId())
 			{
 				toggleCellIntentionType(cellId, type.getId(), false, true);
 			}
 		}
-		
+
 		if (cell.hasUserTitle())
 		{
 			setCellTitle(cellId, CIntentionCell.DEFAULT_TITLE, true);
@@ -60,7 +60,7 @@ public class CIntentionCellController
 	{
 		for (CIntentionCell cell : cells.values())
 		{
-			if (cell.isVisible() && cell.contains(point))
+			if (cell.contains(point))
 			{
 				return cell.getId();
 			}
@@ -81,7 +81,7 @@ public class CIntentionCellController
 		int count = 0;
 		for (CIntentionCell cell : cells.values())
 		{
-			if (cell.hasIntentionType(typeId))
+			if (cell.getIntentionTypeId() == typeId)
 			{
 				count++;
 			}
@@ -93,7 +93,10 @@ public class CIntentionCellController
 	{
 		for (CIntentionCell cell : cells.values())
 		{
-			cell.removeIntentionType(typeId);
+			if (cell.getIntentionTypeId() == typeId)
+			{
+				cell.clearIntentionType();
+			}
 		}
 	}
 
@@ -107,9 +110,6 @@ public class CIntentionCellController
 		}
 	}
 
-	// The cells are all created at server startup, so new cells should never be created. If the policy changes at some
-	// point, this method will create a new cell, but until then it should not be used.
-	@Deprecated
 	private void createNewCell(long canvas_uuid)
 	{
 		int x = 0, y = 0;
@@ -124,28 +124,6 @@ public class CIntentionCellController
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
-	}
-
-	public void setInUse(long cellId, boolean inUse, boolean local)
-	{
-		CIntentionCell cell = cells.get(cellId);
-
-		if (cell.isInUse() == inUse)
-		{
-			return;
-		}
-
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MARK_IN_USE);
-		packet.putLong(cellId);
-		packet.putBoolean(inUse);
-
-		packet.rewind();
-		PacketHandler.receive(packet);
-		if (!local)
-		{
-			Networking.send(packet);
-		}
 	}
 
 	public void moveCellLocal(long cellId, double x, double y)
@@ -221,6 +199,10 @@ public class CIntentionCellController
 
 	public CIntentionCell getCellById(long uuid)
 	{
+		if (uuid < 0L)
+		{
+			return null;
+		}
 		return cells.get(uuid);
 	}
 
@@ -237,12 +219,7 @@ public class CIntentionCellController
 
 		for (CIntentionCell cell : orderedCells)
 		{
-			if (!cell.isVisible())
-			{
-				continue;
-			}
-
-			buffer.append(CCanvasController.canvasdb.get(cell.getCanvasId()).getGridCoordTxt());
+			buffer.append(CCanvasController.canvasdb.get(cell.getCanvasId()).getIndex());
 			buffer.append(", ");
 		}
 		if (buffer.length() > 1)
@@ -258,8 +235,7 @@ public class CIntentionCellController
 	{
 		public int compare(CIntentionCell first, CIntentionCell second)
 		{
-			return CCanvasController.canvasdb.get(first.getCanvasId()).getGridCoordTxt()
-					.compareTo(CCanvasController.canvasdb.get(second.getCanvasId()).getGridCoordTxt());
+			return CCanvasController.canvasdb.get(first.getCanvasId()).getIndex() - CCanvasController.canvasdb.get(second.getCanvasId()).getIndex();
 		}
 	}
 }

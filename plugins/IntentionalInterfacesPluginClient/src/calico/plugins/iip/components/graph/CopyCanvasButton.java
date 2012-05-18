@@ -40,8 +40,6 @@ public class CopyCanvasButton extends CanvasMenuButton
 	public void actionMouseClicked()
 	{
 		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId, true);
-		// CIntentionCellController.getInstance().setInUse(CIntentionCellController.getInstance().getCellByCanvasId(newCanvas).getId(),
-		// true);
 
 		CCanvasLinkController.getInstance().copyCanvas(CCanvasController.getCurrentUUID(), newCanvas);
 

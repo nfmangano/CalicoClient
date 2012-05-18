@@ -565,7 +565,7 @@ public class CanvasTagPanel implements StickyItem
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 			for (IntentionTypeRow row : typeRows)
 			{
-				row.setSelected(cell.hasIntentionType(row.type.getId()));
+				row.setSelected(cell.getIntentionTypeId() == row.type.getId());
 			}
 		}
 

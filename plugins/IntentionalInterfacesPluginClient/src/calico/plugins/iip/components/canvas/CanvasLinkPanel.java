@@ -22,7 +22,6 @@ import javax.swing.SwingUtilities;
 import calico.Calico;
 import calico.components.CCanvas;
 import calico.components.grid.CGrid;
-import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -47,7 +46,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CanvasLinkPanel implements StickyItem
 {
-	public static CanvasLinkPanel getInstance()
+	private static CanvasLinkPanel getInstance()
 	{
 		return INSTANCE;
 	}
@@ -349,7 +348,7 @@ public class CanvasLinkPanel implements StickyItem
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(linkOppositeAnchor.getCanvasId());
 			for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
 			{
-				if (cell.hasIntentionType(type.getId()))
+				if (cell.getIntentionTypeId() == type.getId())
 				{
 					BufferedImage paintedCheckmark = new BufferedImage((int) TABLE_UNIT_SPAN, (int) TABLE_UNIT_SPAN, BufferedImage.TYPE_INT_ARGB);
 					Graphics2D g = (Graphics2D) paintedCheckmark.getGraphics();
@@ -586,9 +585,9 @@ public class CanvasLinkPanel implements StickyItem
 
 		public CanvasThumbnail()
 		{
-			double gridCellWidth = CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
-			double gridCellHeight = CGrid.getInstance().getImgh() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
-			setBounds(0.0, 0.0, gridCellWidth * 3.0, gridCellHeight * 3.0);
+			// GridRemoval: double gridCellWidth = CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
+			// GridRemoval: double gridCellHeight = CGrid.getInstance().getImgh() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
+			// GridRemoval: setBounds(0.0, 0.0, gridCellWidth * 3.0, gridCellHeight * 3.0);
 			setPaint(Color.white);
 
 			snapshot.setBounds(getBounds());
@@ -779,7 +778,7 @@ public class CanvasLinkPanel implements StickyItem
 
 			CCanvas firstTargetCanvas = CCanvasController.canvasdb.get(first.getOpposite().getCanvasId());
 			CCanvas secondTargetCanvas = CCanvasController.canvasdb.get(second.getOpposite().getCanvasId());
-			return firstTargetCanvas.getGridCoordTxt().compareTo(secondTargetCanvas.getGridCoordTxt());
+			return firstTargetCanvas.getIndex() - secondTargetCanvas.getIndex();
 		}
 	}
 }

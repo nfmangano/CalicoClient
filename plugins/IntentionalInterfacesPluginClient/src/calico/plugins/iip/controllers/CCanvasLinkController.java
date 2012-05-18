@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.Set;
 
 import calico.Calico;
 import calico.controllers.CCanvasController;
-import calico.controllers.CGroupController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -21,6 +21,8 @@ import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
+import calico.plugins.iip.components.CCanvasLinkArrow;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 
@@ -44,7 +46,28 @@ public class CCanvasLinkController
 
 	private long traversedLinkSourceCanvas = 0L;
 	private long traversedLinkDestinationCanvas = 0L;
+	
+	private boolean arrowColorsInitialized = false;
 
+	public void initializeArrowColors()
+	{
+		for (CCanvasLinkAnchor anchor : anchorsById.values())
+		{
+			if (anchor.getLink().getAnchorA() == anchor)
+			{
+				continue;
+			}
+			
+			long canvasIntentionTypeId = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId()).getIntentionTypeId();
+			Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(canvasIntentionTypeId);
+			CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(anchor.getLink().getId());
+			arrow.setColor(color);
+			arrow.redraw();
+		}
+		
+		arrowColorsInitialized = true;
+	}
+	
 	public boolean hasTraversedLink()
 	{
 		return traversedLinkSourceCanvas > 0L;
@@ -67,6 +90,27 @@ public class CCanvasLinkController
 		if (canvasId != traversedLinkDestinationCanvas)
 		{
 			traversedLinkSourceCanvas = traversedLinkDestinationCanvas = 0L;
+		}
+	}
+	
+	public void canvasIntentionTypeChanged(CIntentionCell cell)
+	{
+		if (!arrowColorsInitialized)
+		{
+			return;
+		}
+		
+		Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(cell.getIntentionTypeId());
+		List<Long> anchorIds = anchorsIdsByCanvasId.get(cell.getCanvasId());
+		for (Long anchorId : anchorIds)
+		{
+			CCanvasLinkAnchor anchor = anchorsById.get(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(anchor.getLink().getId());
+				arrow.setColor(color);
+				arrow.redraw();
+			}
 		}
 	}
 
@@ -106,7 +150,6 @@ public class CCanvasLinkController
 		addAnchor(link.getAnchorB());
 
 		IntentionGraphController.getInstance().addLink(link);
-		IntentionCanvasController.getInstance().addLink(link);
 
 		CalicoInputManager.addCustomInputHandler(link.getId(), CCanvasLinkInputHandler.getInstance());
 
@@ -136,7 +179,6 @@ public class CCanvasLinkController
 
 		anchor.move(canvas_uuid, type, x, y);
 
-		IntentionCanvasController.getInstance().moveLinkAnchor(anchor, originalCanvasId);
 		IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
 	}
 
@@ -187,7 +229,6 @@ public class CCanvasLinkController
 	{
 		CCanvasLink link = linksById.remove(uuid);
 		IntentionGraphController.getInstance().removeLink(link);
-		IntentionCanvasController.getInstance().removeLink(link);
 		removeLinkAnchor(link.getAnchorA().getId());
 		removeLinkAnchor(link.getAnchorB().getId());
 
@@ -234,13 +275,7 @@ public class CCanvasLinkController
 
 	public long createLinkToEmptyCanvas(long fromCanvasId, boolean copy)
 	{
-		long toCanvasId = IntentionGraphController.getInstance().getNearestEmptyCanvas(fromCanvasId);
-		if (toCanvasId == 0L)
-		{
-			System.out.println("Can't create a link to a new canvas because there are no more empty canvases!");
-			return 0L;
-		}
-
+		long toCanvasId = CIntentionCellFactory.getInstance().createNewCell().getCanvasId();
 		createLink(fromCanvasId, toCanvasId);
 		if (copy)
 		{
@@ -279,6 +314,7 @@ public class CCanvasLinkController
 		packet.putInt(CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL.ordinal());
 		packet.putInt(0);
 		packet.putInt(0);
+		
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);
@@ -304,23 +340,6 @@ public class CCanvasLinkController
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId));
-		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
-		packet.putString(""); // empty label
-
-		packet.rewind();
-		PacketHandler.receive(packet);
-		Networking.send(packet);
-	}
-
-	public void createDesignInsideLink(long group_uuid)
-	{
-		long fromCanvasId = CGroupController.groupdb.get(group_uuid).getCanvasUID();
-		long toCanvasId = IntentionGraphController.getInstance().getNearestEmptyCanvas(fromCanvasId);
-
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
-		packet.putLong(Calico.uuid());
-		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId), group_uuid);
 		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
 		packet.putString(""); // empty label
 

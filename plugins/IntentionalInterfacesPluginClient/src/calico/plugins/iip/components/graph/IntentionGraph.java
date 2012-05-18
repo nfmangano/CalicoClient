@@ -56,7 +56,7 @@ public class IntentionGraph
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
 	private IntentionGraphMenuBar menuBar;
 	
-	private boolean iconifyMode = true;
+	private boolean iconifyMode = false;
 
 	private final long uuid;
 
@@ -70,6 +70,7 @@ public class IntentionGraph
 
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
+		contentCanvas.getLayer().translate(CalicoDataStore.ScreenWidth / 2, CalicoDataStore.ScreenHeight / 2);		
 
 		CalicoInputManager.addCustomInputHandler(uuid, new IntentionGraphInputHandler());
 

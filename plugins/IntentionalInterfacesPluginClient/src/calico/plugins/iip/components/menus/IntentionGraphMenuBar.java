@@ -25,8 +25,6 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
-		addIcon(new ReturnToGrid());
-		addSpacer();
 		addIcon(new ZoomToExtent());
 
 		addSpacer();
@@ -36,10 +34,6 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addChild(zoomSlider);
 		zoomSlider.setBounds(zoomSliderBounds);
 		zoomSlider.repaint();
-
-		addSpacer();
-		
-		addIcon(new IconifyButton());
 	}
 
 	public void initialize()

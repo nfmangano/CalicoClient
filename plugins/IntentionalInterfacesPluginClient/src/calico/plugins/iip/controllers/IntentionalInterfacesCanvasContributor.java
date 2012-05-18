@@ -29,28 +29,12 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 	}
 
 	@Override
-	public boolean hasContent(long canvas_uuid)
-	{
-		if (CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).hasContent())
-		{
-			return true;
-		}
-
-		return CCanvasLinkController.getInstance().hasLinks(canvas_uuid);
-	}
-
-	@Override
 	public void contentChanged(long canvas_uuid)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 		if (cell == null)
 		{
 			return;
-		}
-
-		if (CCanvasController.hasContent(canvas_uuid) && !cell.isInUse())
-		{
-			CIntentionCellController.getInstance().setInUse(cell.getId(), true, false);
 		}
 
 		IntentionGraphController.getInstance().contentChanged(canvas_uuid);
@@ -63,6 +47,5 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 
 		long cellId = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId();
 		CIntentionCellController.getInstance().clearCell(cellId);
-		CIntentionCellController.getInstance().setInUse(cellId, false, true);
 	}
 }
