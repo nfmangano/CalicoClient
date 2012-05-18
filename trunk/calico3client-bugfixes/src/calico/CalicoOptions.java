@@ -35,7 +35,17 @@ public class CalicoOptions
 	
 	public static class images
 	{
-		public static String download_folder = "images/";
+		public static String download_folder = getImageFolder();
+		private static String getImageFolder()
+		{
+			String folder = System.getProperty("java.io.tmpdir");
+			if (!folder.endsWith(File.separator))
+				folder += File.separator;
+			
+			folder += "images" + File.separator;
+			
+			return folder;
+		}
 	}
 	
 	public static class pen 
@@ -142,6 +152,7 @@ public class CalicoOptions
 		public static final double min_create_scrap_length = 300;
 		public static Color default_color = Color.BLACK;
 		public static float transparency = 1.0f;
+		public static float background_transparency = 0.3f;
 		public static final double max_head_to_heal_distance = 20;
 	}
 	

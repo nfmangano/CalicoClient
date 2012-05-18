@@ -137,11 +137,11 @@ public class CalicoKeyListener extends KeyAdapter {
 	{
 		int xPos = CalicoDataStore.ScreenWidth/3, yPos = CalicoDataStore.ScreenHeight/3;
 		boolean updateBubbleIcons = false;
-		if (BubbleMenu.activeGroup != 0l && CGroupController.groupdb.get(BubbleMenu.activeGroup) instanceof CListDecorator)
+		if (BubbleMenu.activeUUID != 0l && CGroupController.groupdb.get(BubbleMenu.activeUUID) instanceof CListDecorator)
 		{
-			xPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().x + 50;
-			yPos = CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().y
-					+ CGroupController.groupdb.get(BubbleMenu.activeGroup).getPathReference().getBounds().height - 10;
+			xPos = CGroupController.groupdb.get(BubbleMenu.activeUUID).getPathReference().getBounds().x + 50;
+			yPos = CGroupController.groupdb.get(BubbleMenu.activeUUID).getPathReference().getBounds().y
+					+ CGroupController.groupdb.get(BubbleMenu.activeUUID).getPathReference().getBounds().height - 10;
 			updateBubbleIcons = true;
 		}
 		else
@@ -170,7 +170,7 @@ public class CalicoKeyListener extends KeyAdapter {
 				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, xPos, yPos);
 				
 				if (updateBubbleIcons)
-					BubbleMenu.moveIconPositions(CGroupController.groupdb.get(BubbleMenu.activeGroup).getBounds());
+					BubbleMenu.moveIconPositions(CGroupController.groupdb.get(BubbleMenu.activeUUID).getBounds());
 			}
 		}
 //		CGroupController.move_start(new_uuid);

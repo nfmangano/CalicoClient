@@ -34,7 +34,7 @@ public class PieMenuButton
 	public boolean draggable = false;
 	//If the button affects a group, this should be set to the group's UUID
 	//Otherwise, it should remain 0;
-	protected long guuid = 0l;
+	protected long uuid = 0l;
 		
 	// Set the Icon
 	public PieMenuButton(String str)
@@ -148,7 +148,7 @@ public class PieMenuButton
 	
 	public void updateGroupUUID(long uuid)
 	{
-		guuid = uuid;
+		this.uuid = uuid;
 	}
 	
 	//Terrible implementation
@@ -161,6 +161,11 @@ public class PieMenuButton
 	{
 		buttonPosition = point;
 		bounds = new Rectangle(point.x, point.y, CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
+	}
+	
+	public Point getPreferredPosition()
+	{
+		return null;
 	}
 	
 		

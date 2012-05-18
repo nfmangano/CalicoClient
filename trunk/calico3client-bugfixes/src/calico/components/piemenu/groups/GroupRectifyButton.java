@@ -13,12 +13,12 @@ public class GroupRectifyButton extends PieMenuButton
 	public GroupRectifyButton(long u)
 	{
 		super("group.rectify");
-		guuid = u;
+		this.uuid = u;
 	}
 	
 	public void onClick(InputEventInfo ev)
 	{
-		CGroupController.rectify(guuid);
+		CGroupController.rectify(uuid);
 		ev.stop();
 		
 		Calico.logger.debug("CLICKED GROUP RECTIFY BUTTON");

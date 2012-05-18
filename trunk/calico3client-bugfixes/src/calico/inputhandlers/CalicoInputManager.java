@@ -496,13 +496,13 @@ public class CalicoInputManager
 				//Need this if else in case group does not exist
 				if (BubbleMenu.isBubbleMenuActive())
 				{
-					if (!CGroupController.exists(BubbleMenu.activeGroup))
+					if (!CGroupController.exists(BubbleMenu.activeUUID))
 					{
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;
 					}
-					else if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).containsPoint(ev.getPoint().x, ev.getPoint().y)
-							|| !CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+					else if (!CGroupController.groupdb.get(BubbleMenu.activeUUID).containsPoint(ev.getPoint().x, ev.getPoint().y)
+							|| !CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent())
 					{
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;

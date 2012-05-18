@@ -200,6 +200,14 @@ public class CalicoDraw {
 				}});
 	}
 	
+	public static void setVisible(final PNode node, final boolean visible)
+	{
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					node.setVisible(visible);
+				}});
+	}
+	
 	public static void processEventFromCamera(final PRoot root, final InputEvent e, final int type, final PCamera camera)
 	{
 		SwingUtilities.invokeLater(

@@ -18,7 +18,9 @@ import calico.CalicoDraw;
 import calico.components.menus.ContextMenu;
 import calico.CalicoOptions;
 import calico.components.piemenu.PieMenuButton;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
 import edu.umd.cs.piccolo.activities.PActivity;
@@ -26,6 +28,11 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 public class BubbleMenu {
 	public static Logger logger = Logger.getLogger(BubbleMenu.class.getName());
+	
+	final public static int TYPE_GROUP = 1;
+	final public static int TYPE_STROKE = 2;
+	final public static int TYPE_CONNECTOR = 3;
+	
 	//Uses PieMenuButton for compatibility
 	static ObjectArrayList<PieMenuButton> buttonList = new ObjectArrayList<PieMenuButton>();
 	static int[] buttonPosition;
@@ -35,14 +42,17 @@ public class BubbleMenu {
 	
 	//worst piece of programming right here --v 
 	public static boolean isPerformingBubbleMenuAction = false;
-	public static long activeGroup = 0l;
+	//The UUID of the component
+	public static long activeUUID = 0l;
 	@Deprecated
 	public static Point lastOpenedPosition = null;
 	
 	//UUID of parent to highlight when moving
 	public static long highlightedParentGroup = 0l;
-	//bounds of the active group
-	public static PBounds activeGroupBounds;
+	//bounds of the active component
+	public static PBounds activeBounds;
+	//type of active component
+	public static int activeType;
 	
 	//Index of highlighted button
 	public static int selectedButtonIndex = -1;
@@ -66,7 +76,7 @@ public class BubbleMenu {
 	}
 	
 	//Displays the bubble menu given the scrap UUID and the buttons to add.
-	public static void displayBubbleMenu(Long uuid, boolean fade, PieMenuButton... buttons)
+	public static void displayBubbleMenu(Long uuid, boolean fade, int type, PieMenuButton... buttons)
 	{
 		//if(bubbleContainer!=null)
 		boolean fadeIn = fade;
@@ -77,12 +87,27 @@ public class BubbleMenu {
 			//Don't fade in if menu was already active.
 			fadeIn = false;
 		}
-		activeGroup = uuid;
-		activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+		activeUUID = uuid;
+		activeType = type;
 		
-		//Highlight the active group
-		CGroupController.groupdb.get(activeGroup).highlight_on();
-		CGroupController.groupdb.get(activeGroup).highlight_repaint();
+		//Unfortunately this is necessary due to existing conventions
+		switch(activeType)
+		{
+			case TYPE_GROUP: activeBounds = CGroupController.groupdb.get(activeUUID).getBounds();
+											//Highlight the active group
+											CGroupController.groupdb.get(activeUUID).highlight_on();
+											CGroupController.groupdb.get(activeUUID).highlight_repaint();
+				break;
+			case TYPE_STROKE: activeBounds = CStrokeController.strokes.get(activeUUID).getBounds();
+											 CStrokeController.strokes.get(activeUUID).highlight_on();
+				break;
+			case TYPE_CONNECTOR: activeBounds = CConnectorController.connectors.get(activeUUID).getBounds();
+												CConnectorController.connectors.get(activeUUID).highlight_on();
+				break;
+		}
+		
+		
+		
 		
 		//Reset buttons
 		buttonList.clear();
@@ -191,21 +216,24 @@ public class BubbleMenu {
 	//Must check for completeness before additional usage
 	public static void updateGroupUUID(long uuid)
 	{
+		if(activeType != TYPE_GROUP)
+			return;
+		
 		for(int i=0;i<buttonList.size();i++)
 		{
-			activeGroup = uuid;
-			activeGroupBounds =  CGroupController.groupdb.get(activeGroup).getBounds();
+			activeUUID = uuid;
+			activeBounds =  CGroupController.groupdb.get(activeUUID).getBounds();
 			buttonList.get(i).updateGroupUUID(uuid);
-			moveIconPositions(activeGroupBounds);
+			moveIconPositions(activeBounds);
 		}
 	}
 	
 	//Update the icon buttons and listeners to fit the new bounds
-	public static void moveIconPositions(PBounds groupBounds)
+	public static void moveIconPositions(PBounds componentBounds)
 	{
 		for(int i=0;i<buttonList.size();i++)
 		{
-			Point pos = getButtonPointFromPosition(buttonPosition[i], groupBounds);
+			Point pos = getButtonPointFromPosition(i, buttonPosition[i], componentBounds);
 			buttonList.get(i).setPosition(pos);
 
 			//bubbleContainer.getChild(i).setBounds(pos.getX(), pos.getY(), CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
@@ -237,7 +265,7 @@ public class BubbleMenu {
 		for(int i=0;i<buttonList.size();i++)
 		{
 			buttonPosition[i] = getButtonPosition(buttonList.get(i).getClass().getName());
-			Point pos = getButtonPointFromPosition(buttonPosition[i], activeGroupBounds);
+			Point pos = getButtonPointFromPosition(i, buttonPosition[i], activeBounds);
 
 			buttonList.get(i).setPosition(pos);
 		}
@@ -263,68 +291,97 @@ public class BubbleMenu {
 	//Determines where the button is placed around the group
 	private static int getButtonPosition(String className)
 	{		
+		//Group Buttons
 		if (className.compareTo("calico.components.piemenu.groups.GroupSetPermanentButton") == 0)
 		{
 			return 1;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
 		{
 			return 2;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
 		{
 			return 12;
 		}
-		else if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
-		{
-			return 4;
-		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
 		{
 			return 5;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
 		{
 			return 6;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0)
 		{
 			return 7;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupResizeButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupResizeButton") == 0)
 		{
 			return 8;
 		}
-		else if (className.compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
+		if (className.compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
 		{
 			return 9;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
 		{
 		    return 10;
 		}
-		else if (className.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
+		if (className.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
 		{
 			return 11;
 		}
-		else if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
+		
+		//Stroke Buttons
+		if (className.compareTo("calico.components.bubblemenu.strokes.StrokeMakeConnectorButton") == 0)
+		{
+			return 1;
+		}
+		
+		//Connector Buttons
+		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorLinearizeButton") == 0)
+		{
+			return 1;
+		}
+		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton") == 0)
+		{
+			return 2;
+		}
+		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMoveHeadButton") == 0)
+		{
+			return 0;
+		}
+		
+		//Palette Plugin Buttons
+		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
+		{
+			return 4;
+		}
+		
+	
+		//IIP Pluging Buttons
+		if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
 		{
 			return 12;
 		}
 		
-		else if (className.compareTo("calico.plugins.userlist.UserImageCreate") == 0)
+		
+		//User Plugin Buttons
+		if (className.compareTo("calico.plugins.userlist.UserImageCreate") == 0)
 		{
 			return 11;
 		}
+		
 		
 		return 0;
 		
 	}
 	
 	//Determines the location of a button 
-	//Called for each button any time the active group bounds changes
+	//Called for each button any time the active component bounds changes
 	//Should account for screen borders and any other restrictions for button positioning
-	private static Point getButtonPointFromPosition(int position, PBounds groupBounds)
+	private static Point getButtonPointFromPosition(int buttonIndex, int position, PBounds componentBounds)
 	{
 		//Minimum screen position. T
 		int screenX = 32;
@@ -347,13 +404,13 @@ public class BubbleMenu {
 		
 		int farSideDistance = (iconSize + small + large + gap);
 		
-		if (groupBounds.getWidth() < farSideDistance)
+		if (componentBounds.getWidth() < farSideDistance)
 		{
-			startX += (farSideDistance - groupBounds.getWidth()) / 2;
+			startX += (farSideDistance - componentBounds.getWidth()) / 2;
 		}
-		if (groupBounds.getHeight() < farSideDistance)
+		if (componentBounds.getHeight() < farSideDistance)
 		{
-			startY += (farSideDistance - groupBounds.getHeight()) / 2;
+			startY += (farSideDistance - componentBounds.getHeight()) / 2;
 		}
 		
 		int minX, minY, maxX, maxY;
@@ -367,85 +424,91 @@ public class BubbleMenu {
 		
 		switch(position)
 		{
-		case 1: x = (int)groupBounds.getMinX() - startX - centerOffset - small;
-				y = (int)groupBounds.getMinY() - startY - centerOffset + large;
+		case 0: Point p = buttonList.get(buttonIndex).getPreferredPosition();
+				if (p == null) 
+					return new Point(x, y);
+				else
+					return new Point(p.x - centerOffset, p.y - centerOffset);
+				
+		case 1: x = (int)componentBounds.getMinX() - startX - centerOffset - small;
+				y = (int)componentBounds.getMinY() - startY - centerOffset + large;
 				minX = screenX;
 				minY = screenYTop + small + large;
 				maxX = screenWidth - screenX - iconSize - farSideDistance - large - small;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance;
 			break;
-		case 2: x = (int)groupBounds.getMinX() - startX - centerOffset;
-				y = (int)groupBounds.getMinY() - startY - centerOffset;
+		case 2: x = (int)componentBounds.getMinX() - startX - centerOffset;
+				y = (int)componentBounds.getMinY() - startY - centerOffset;
 				minX = screenX + small;
 				minY = screenYTop + small;
 				maxX = screenWidth - screenX - iconSize - farSideDistance - large;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance - large;
 			break;
-		case 3: x = (int)groupBounds.getMinX() - startX - centerOffset + large;
-				y = (int)groupBounds.getMinY() - startY - centerOffset - small;
+		case 3: x = (int)componentBounds.getMinX() - startX - centerOffset + large;
+				y = (int)componentBounds.getMinY() - startY - centerOffset - small;
 				minX = screenX + small + large;
 				minY = screenYTop;
 				maxX = screenWidth - screenX - iconSize - farSideDistance;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance - large - small;
 			break;
-		case 4: x = (int)groupBounds.getMaxX() + startX - centerOffset - large;
-				y = (int)groupBounds.getMinY() - startY - centerOffset - small;
+		case 4: x = (int)componentBounds.getMaxX() + startX - centerOffset - large;
+				y = (int)componentBounds.getMinY() - startY - centerOffset - small;
 				minX = screenX + farSideDistance;
 				minY = screenYTop;
 				maxX = screenWidth - screenX - iconSize - small - large;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance - large - small;
 			break;
-		case 5: x = (int)groupBounds.getMaxX() + startX - centerOffset;
-				y = (int)groupBounds.getMinY() - startY - centerOffset;
+		case 5: x = (int)componentBounds.getMaxX() + startX - centerOffset;
+				y = (int)componentBounds.getMinY() - startY - centerOffset;
 				minX = screenX + farSideDistance + large;
 				minY = screenYTop + small;
 				maxX = screenWidth - screenX - iconSize - small;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance - large;
 			break;
-		case 6: x = (int)groupBounds.getMaxX() + startX - centerOffset + small;
-				y = (int)groupBounds.getMinY() - startY - centerOffset + large;
+		case 6: x = (int)componentBounds.getMaxX() + startX - centerOffset + small;
+				y = (int)componentBounds.getMinY() - startY - centerOffset + large;
 				minX = screenX + farSideDistance + large + small;
 				minY = screenYTop + small + large;
 				maxX = screenWidth - screenX - iconSize;
 				maxY = screenHeight - screenYBottom - iconSize - farSideDistance;
 			break;
-		case 7: x = (int)groupBounds.getMaxX() + startX - centerOffset + small;
-				y = (int)groupBounds.getMaxY() + startY - centerOffset - large;
+		case 7: x = (int)componentBounds.getMaxX() + startX - centerOffset + small;
+				y = (int)componentBounds.getMaxY() + startY - centerOffset - large;
 				minX = screenX + farSideDistance + large + small;
 				minY = screenYTop + farSideDistance;
 				maxX = screenWidth - screenX - iconSize;
 				maxY = screenHeight - screenYBottom - iconSize - small - large;
 			break;
-		case 8: x = (int)groupBounds.getMaxX() + startX - centerOffset;
-				y = (int)groupBounds.getMaxY() + startY - centerOffset;
+		case 8: x = (int)componentBounds.getMaxX() + startX - centerOffset;
+				y = (int)componentBounds.getMaxY() + startY - centerOffset;
 				minX = screenX + farSideDistance + large;
 				minY = screenYTop + farSideDistance + large;
 				maxX = screenWidth - screenX - iconSize - small;
 				maxY = screenHeight - screenYBottom - iconSize - small;
 			break;
-		case 9: x = (int)groupBounds.getMaxX() + startX - centerOffset - large;
-				y = (int)groupBounds.getMaxY() + startY - centerOffset + small;
+		case 9: x = (int)componentBounds.getMaxX() + startX - centerOffset - large;
+				y = (int)componentBounds.getMaxY() + startY - centerOffset + small;
 				minX = screenX + farSideDistance;
 				minY = screenYTop + farSideDistance + large + small;
 				maxX = screenWidth - screenX - iconSize - small - large;
 				maxY = screenHeight - screenYBottom - iconSize;
 			break;
-		case 10: x = (int)groupBounds.getMinX() - startX - centerOffset + large;
-				 y = (int)groupBounds.getMaxY() + startY - centerOffset + small;
+		case 10: x = (int)componentBounds.getMinX() - startX - centerOffset + large;
+				 y = (int)componentBounds.getMaxY() + startY - centerOffset + small;
 				 minX = screenX + small + large;
 				 minY = screenYTop + farSideDistance + large + small;
 				 maxX = screenWidth - screenX - iconSize - farSideDistance;
 				 maxY = screenHeight - screenYBottom - iconSize;
 			break;
-		case 11: x = (int)groupBounds.getMinX() - startX - centerOffset;
-				 y = (int)groupBounds.getMaxY() + startY - centerOffset;
+		case 11: x = (int)componentBounds.getMinX() - startX - centerOffset;
+				 y = (int)componentBounds.getMaxY() + startY - centerOffset;
 				 minX = screenX + small;
 				 minY = screenYTop + farSideDistance + large;
 				 maxX = screenWidth - screenX - iconSize - farSideDistance - large;
 				 maxY = screenHeight - screenYBottom - iconSize - small;
 			break;
-		case 12: x = (int)groupBounds.getMinX() - startX - centerOffset - small;
-				 y = (int)groupBounds.getMaxY() + startY - centerOffset - large;
+		case 12: x = (int)componentBounds.getMinX() - startX - centerOffset - small;
+				 y = (int)componentBounds.getMaxY() + startY - centerOffset - large;
 				 minX = screenX;
 				 minY = screenYTop + farSideDistance;
 				 maxX = screenWidth - screenX - iconSize - farSideDistance - large - small;
@@ -468,9 +531,7 @@ public class BubbleMenu {
 			y = maxY;
 		
 
-		return new Point(
-				x,y
-		);
+		return new Point(x,y);
 	}
 	
 	//Removes the menu
@@ -495,22 +556,30 @@ public class BubbleMenu {
 		//bubbleHighlighter = null;
 		selectedButtonIndex = -1;
 		
-		if (activeGroup != 0l)
+		if (activeUUID != 0l)
 		{
 			//SwingUtilities.invokeLater(
 			//		new Runnable() { public void run() { 
-			if (CGroupController.exists(activeGroup))
+			if (activeType == TYPE_GROUP && CGroupController.exists(activeUUID))
 			{
-				CGroupController.groupdb.get(activeGroup).highlight_off();
-				CGroupController.groupdb.get(activeGroup).highlight_repaint();
-				if (!CGroupController.groupdb.get(BubbleMenu.activeGroup).isPermanent())
+				CGroupController.groupdb.get(activeUUID).highlight_off();
+				CGroupController.groupdb.get(activeUUID).highlight_repaint();
+				if (!CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent())
 				{
-					CGroupController.drop(BubbleMenu.activeGroup);
+					CGroupController.drop(BubbleMenu.activeUUID);
 				}
+			}
+			else if (activeType == TYPE_STROKE && CStrokeController.exists(activeUUID))
+			{
+				CStrokeController.strokes.get(activeUUID).highlight_off();
+			}
+			else if (activeType == TYPE_CONNECTOR && CConnectorController.exists(activeUUID))
+			{
+				CConnectorController.connectors.get(activeUUID).highlight_off();
 			}
 			
 			//		}});
-			activeGroup = 0l;
+			activeUUID = 0l;
 		}
 		isPerformingBubbleMenuAction = false;
 

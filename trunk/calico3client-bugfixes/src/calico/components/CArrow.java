@@ -265,7 +265,7 @@ public class CArrow extends PComposite
 		return temp;
 	}
 	
-	
+	@Deprecated
 	public void moveGroup(long uid, int x, int y)
 	{
 		if( (anchorA.getType()==CArrow.TYPE_GROUP && anchorA.getUUID()==uid) && (anchorB.getType()==CArrow.TYPE_GROUP && anchorB.getUUID()==uid))
@@ -321,6 +321,7 @@ public class CArrow extends PComposite
 		//removeFromParent();
 	}
 	
+	@Deprecated
 	public void moveAnchor(int anchor, int x, int y)
 	{
 		if(anchor==CArrow.ANCHOR_A)
@@ -336,11 +337,12 @@ public class CArrow extends PComposite
 	
 	
 	
-	
+	@Deprecated
 	public void redraw()
 	{
 		redraw(true);
 	}
+	@Deprecated
 	public void redraw(boolean repaint)
 	{
 		//this.removeAllChildren();
@@ -409,7 +411,7 @@ public class CArrow extends PComposite
 				}});
 		
 		//this.addChild(0,arrowLine);
-		CalicoDraw.addChildToNode(this, arrowLine, 0);
+		//CalicoDraw.addChildToNode(this, arrowLine, 0);
 		
 		//this.repaint();
 		//CalicoDraw.repaint(this);

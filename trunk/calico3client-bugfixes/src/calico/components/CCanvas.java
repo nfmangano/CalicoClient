@@ -98,6 +98,8 @@ public class CCanvas
 	
 	private LongArraySet lists = new LongArraySet();
 	
+	private LongArraySet connectors = new LongArraySet();
+	
 	private LongArraySet checkBoxes = new LongArraySet();
 	
 	private IntArraySet clients = new IntArraySet();
@@ -266,6 +268,7 @@ public class CCanvas
 		long[] strokear = getChildStrokes();
 		long[] groupar = getChildGroups();
 		long[] arrar = getChildArrows();
+		long[] ctrar = getChildConnectors();
 		
 		int stroke_sig = 0;
 		for(int i=0;i<strokear.length;i++)
@@ -285,7 +288,13 @@ public class CCanvas
 			arrow_sig = arrow_sig + CArrowController.get_signature(arrar[i]);
 		}
 		
-		return stroke_sig + group_sig + arrow_sig;
+		int connector_sig = 0;
+		for (int i=0;i<ctrar.length;i++)
+		{
+			connector_sig = connector_sig + CConnectorController.get_signature(ctrar[i]);
+		}
+		
+		return stroke_sig + group_sig + arrow_sig + connector_sig;
 	}
 	
 	public CalicoPacket getConsistencyDebugPacket()
@@ -378,6 +387,16 @@ public class CCanvas
 		return this.strokes.size();
 	}
 	
+	public void addChildConnector(long uid)
+	{
+		this.connectors.add(uid);
+		CCanvasController.notifyContentChanged(uuid);
+	}
+	public int getNumConnectors()
+	{
+		return this.connectors.size();
+	}
+	
 	/**
 	 * @deprecated
 	 * @see #getChildStrokes()
@@ -390,6 +409,12 @@ public class CCanvas
 	public void deleteChildStroke(long uid)
 	{
 		this.strokes.remove(uid);
+		CCanvasController.notifyContentChanged(uuid);
+	}
+	
+	public void deleteChildConnector(long uid)
+	{
+		this.connectors.remove(uid);
 		CCanvasController.notifyContentChanged(uuid);
 	}
 
@@ -934,6 +959,10 @@ public class CCanvas
 	{
 		return this.arrows.toLongArray();
 	}
+	public long[] getChildConnectors()
+	{
+		return this.connectors.toLongArray();
+	}
 	public boolean hasChildStroke(long cuuid)
 	{
 		return this.strokes.contains(cuuid);
@@ -953,6 +982,10 @@ public class CCanvas
 	public boolean hasChildArrow(long cuuid)
 	{
 		return this.arrows.contains(cuuid);
+	}
+	public boolean hasChildConnector(long cuuid)
+	{
+		return this.connectors.contains(cuuid);
 	}
 	
 	/**
@@ -988,10 +1021,20 @@ public class CCanvas
 				CArrowController.no_notify_delete(auuids[i]);
 			}
 		}
+		
+		if(this.connectors.size()>0)
+		{
+			long cuuids[] = this.connectors.toLongArray();
+			for(int i=cuuids.length-1;i>=0;i--)
+			{
+				CConnectorController.no_notify_delete(cuuids[i]);
+			}
+		}
 
 		this.groups = new LongArraySet();
 		this.strokes = new LongArraySet();
 		this.arrows = new LongArraySet();
+		this.connectors = new LongArraySet();
 		this.lists = new LongArraySet();
 		this.checkBoxes = new LongArraySet();
 		
@@ -1101,9 +1144,12 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
@@ -1179,9 +1225,12 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		
@@ -1275,6 +1324,7 @@ public class CCanvas
 		long[] grouparr = getChildGroups();
 		long[] bgearr = getChildStrokes();
 		long[] arlist = getChildArrows();
+		long[] ctrlist = getChildConnectors();
 		
 		// GROUPS
 		if(grouparr.length>0)
@@ -1326,6 +1376,19 @@ public class CCanvas
 			for(int i=0;i<arlist.length;i++)
 			{
 				CalicoPacket[] packets = CArrowController.arrows.get(arlist[i]).getUpdatePackets();
+				if(packets!=null && packets.length>0)
+				{
+					packetlist.addElements(packetlist.size(), packets);
+				}
+			}
+		}
+		
+		// CONNECTORS
+		if(ctrlist.length>0)
+		{
+			for(int i=0;i<ctrlist.length;i++)
+			{
+				CalicoPacket[] packets = CConnectorController.connectors.get(ctrlist[i]).getUpdatePackets();
 				if(packets!=null && packets.length>0)
 				{
 					packetlist.addElements(packetlist.size(), packets);

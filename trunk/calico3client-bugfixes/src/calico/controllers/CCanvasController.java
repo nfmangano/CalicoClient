@@ -22,6 +22,7 @@ import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.components.CCanvas.ContentContributor;
 import calico.components.CCanvasWatermark;
+import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.CStroke;
@@ -124,7 +125,8 @@ public class CCanvasController
 
 		// RepaintManager.currentManager(canvasdb.get(uuid)).
 		// canvasdb.get(uuid).setBuffering(true);
-		canvasdb.get(uuid).getLayer().setVisible(false);
+		//canvasdb.get(uuid).getLayer().setVisible(false);
+		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
 		canvasdb.get(uuid).setEnabled(false);
 
 		// canvasdb.get(uuid).setEnabled(false);
@@ -137,6 +139,7 @@ public class CCanvasController
 		long[] groups = canvasdb.get(uuid).getChildGroups();
 		long[] strokes = canvasdb.get(uuid).getChildStrokes();
 		long[] arrows = canvasdb.get(uuid).getChildArrows();
+		long[] connectors = canvasdb.get(uuid).getChildConnectors();
 
 		if (strokes.length > 0)
 		{
@@ -154,7 +157,17 @@ public class CCanvasController
 			{
 				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
 				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CArrowController.arrows.get(arrows[i]));
-				CGroupController.no_notify_delete(arrows[i]);
+				CArrowController.no_notify_delete(arrows[i]);
+			}
+		}
+		
+		if (connectors.length > 0)
+		{
+			for (int i = 0; i < connectors.length; i++)
+			{
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CConnectorController.connectors.get(connectors[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CConnectorController.connectors.get(connectors[i]));
+				CConnectorController.no_notify_delete(connectors[i]);
 			}
 		}
 
@@ -184,7 +197,8 @@ public class CCanvasController
 		// canvasdb.get(uuid).setIgnoreRepaint(false);
 		// canvasdb.get(uuid).setDoubleBuffered(false);
 		canvasdb.get(uuid).setEnabled(true);
-		canvasdb.get(uuid).getLayer().setVisible(true);
+		//canvasdb.get(uuid).getLayer().setVisible(true);
+		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
 
 		canvasdb.get(uuid).repaint();
 		// canvasdb.get(uuid).setBuffering(false);
@@ -440,6 +454,20 @@ public class CCanvasController
 			CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CStrokeController.strokes.get(uuid));
 		}
 	}
+	
+	public static void no_notify_add_child_connector(long cuid, long uuid)
+	{
+		if (!canvasdb.containsKey(cuid))
+		{
+			logger.warn("Attempting to add a connector to non-existing canvas: " + cuid + " !!");
+			return;
+		}
+
+		canvasdb.get(cuid).addChildConnector(uuid);
+		
+		//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+		CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CConnectorController.connectors.get(uuid));
+	}
 
 	public static void no_notify_add_child_stroke(long cuid, long uuid)
 	{
@@ -459,6 +487,11 @@ public class CCanvasController
 	public static void no_notify_delete_child_list(long cuid, long uuid)
 	{
 		canvasdb.get(cuid).deleteChildList(uuid);
+	}
+
+	public static void no_notify_delete_child_connector(long cuid, long uuid)
+	{
+		canvasdb.get(cuid).deleteChildConnector(uuid);
 	}
 
 	public static void no_notify_flush_dead_objects()
@@ -497,6 +530,14 @@ public class CCanvasController
 						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
+				else if (childobj instanceof CConnector)
+				{
+					if (!canvasdb.get(cuids[i]).hasChildConnector(((CConnector) childobj).getUUID()))
+					{
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
+					}
+				}
 
 			}
 
@@ -521,6 +562,16 @@ public class CCanvasController
 		}
 
 		return (canvasdb.get(cuid).getLayer().indexOfChild(CStrokeController.strokes.get(uuid)) != -1);
+	}
+	
+	public static boolean canvas_has_child_connector_node(long cuid, long uuid)
+	{
+		if (!CConnectorController.exists(uuid))
+		{
+			return false;
+		}
+
+		return (canvasdb.get(cuid).getLayer().indexOfChild(CConnectorController.connectors.get(uuid)) != -1);
 	}
 
 	public static void lock_canvas(long canvas, boolean lock, String lockedBy, long time)

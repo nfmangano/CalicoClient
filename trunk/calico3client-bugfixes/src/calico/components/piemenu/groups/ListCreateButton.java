@@ -29,7 +29,7 @@ public class ListCreateButton extends PieMenuButton
 	public ListCreateButton(long cuid, long uuid)
 	{
 		super("lists.create");
-		guuid = uuid;
+		this.uuid = uuid;
 		this.cuid = cuid;
 	}
 	public ListCreateButton(long uuid)
@@ -39,7 +39,7 @@ public class ListCreateButton extends PieMenuButton
 	
 	public void onPressed(InputEventInfo ev)
 	{
-		if (!CGroupController.exists(guuid) || isActive)
+		if (!CGroupController.exists(uuid) || isActive)
 		{
 			return;
 		}
@@ -53,15 +53,15 @@ public class ListCreateButton extends PieMenuButton
 	{
 		//super.onClick(ev);
 		
-		if (CGroupController.exists(this.guuid))
+		if (CGroupController.exists(this.uuid))
 		{
-			long listuuid = createList(this.guuid);
+			long listuuid = createList(this.uuid);
 			CGroupController.show_group_bubblemenu(listuuid);
 		}
-		else if (CStrokeController.exists(this.guuid))
+		else if (CStrokeController.exists(this.uuid))
 		{
 			long new_uuid = Calico.uuid();
-			CStrokeController.makeScrap(this.guuid, new_uuid);
+			CStrokeController.makeScrap(this.uuid, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
 			long listuuid = createList(new_uuid);
 			CGroupController.show_group_bubblemenu(listuuid);

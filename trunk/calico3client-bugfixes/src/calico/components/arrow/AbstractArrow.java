@@ -7,6 +7,7 @@ import java.awt.Polygon;
 
 import org.shodor.util11.PolygonUtils;
 
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.Geometry;
 import calico.controllers.CGroupController;
@@ -157,14 +158,26 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 
 	public void redraw(boolean repaint)
 	{
-		this.removeAllChildren();
+		//this.removeAllChildren();
+		//CalicoDraw.removeAllChildrenFromNode(this);
 
 		addRenderingElements();
-
-		this.repaint();
+		CalicoDraw.removeAllChildrenFromNode(this);
+		if (arrowType == CArrow.TYPE_NORM_HEAD_AB || arrowType == CArrow.TYPE_NORM_HEAD_A)
+		{
+			CalicoDraw.addChildToNode(this, arrowHeadA, 0);
+		}
+		if (arrowType == CArrow.TYPE_NORM_HEAD_AB || arrowType == CArrow.TYPE_NORM_HEAD_B)
+		{
+			CalicoDraw.addChildToNode(this, arrowHeadB, 0);
+		}
+		CalicoDraw.addChildToNode(this, arrowLine, 0);
+		//this.repaint();
+		CalicoDraw.repaint(this);
 		if (repaint)
 		{
-			this.setPaintInvalid(true);
+			//this.setPaintInvalid(true);
+			//CalicoDraw.setNodePaintInvalid(this, true);
 		}
 	}
 	
@@ -187,7 +200,8 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 			arrowHeadA.setStrokePaint(this.color);
 			arrowHeadA.setPaint(this.color);
 
-			this.addChild(0, arrowHeadA);
+			//this.addChild(0, arrowHeadA);
+			//CalicoDraw.addChildToNode(this, arrowHeadA, 0);
 		}
 		if (arrowType == CArrow.TYPE_NORM_HEAD_AB || arrowType == CArrow.TYPE_NORM_HEAD_B)
 		{
@@ -203,7 +217,8 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 			arrowHeadB.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
 			arrowHeadB.setStrokePaint(this.color);
 			arrowHeadB.setPaint(this.color);
-			this.addChild(0, arrowHeadB);
+			//this.addChild(0, arrowHeadB);
+			//CalicoDraw.addChildToNode(this, arrowHeadB, 0);
 		}
 
 		arrowLine = new PLine();
@@ -213,7 +228,8 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 		arrowLine.setStrokePaint(this.color);
 		arrowLine.setPaint(this.color);
 
-		this.addChild(0, arrowLine);
+		//this.addChild(0, arrowLine);
+		//CalicoDraw.addChildToNode(this, arrowLine, 0);
 	}
 
 	public int get_signature()
