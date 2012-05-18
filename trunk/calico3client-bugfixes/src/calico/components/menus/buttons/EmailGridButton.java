@@ -80,7 +80,7 @@ public class EmailGridButton extends CanvasMenuButton
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			String response = JOptionPane.showInputDialog(CalicoDataStore.gridObject.getComponent(),
+			String response = JOptionPane.showInputDialog(CalicoDataStore.calicoObj,
 					  "Please enter the email address(es) you wish to the canvases to",
 					  "Email All Canvas",
 					  JOptionPane.QUESTION_MESSAGE);
@@ -157,7 +157,7 @@ public class EmailGridButton extends CanvasMenuButton
 			t.sendMessage(msg, msg.getAllRecipients());
 	    } finally {
 	    	t.close();
-	    	JOptionPane.showMessageDialog(CalicoDataStore.gridObject.getComponent(), "Email sent successfully");
+	    	JOptionPane.showMessageDialog(CalicoDataStore.calicoObj, "Email sent successfully");
 	    }
 
 	}
@@ -175,6 +175,7 @@ public class EmailGridButton extends CanvasMenuButton
             document.open();
             // step 4
 
+            /* // GridRemoval: 
             BufferedImage bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);
             Image imgPDF = Image.getInstance((java.awt.Image)CalicoDataStore.gridObject.getCamera().toImage(bIMG, Color.white), null);
             imgPDF.setAbsolutePosition(75, 25);
@@ -182,16 +183,15 @@ public class EmailGridButton extends CanvasMenuButton
             imgPDF.enableBorderSide(com.itextpdf.text.Rectangle.BOX);
             document.add(imgPDF);
             document.newPage();
+            */ 
             
-            for (int i = 1; i < CalicoDataStore.GridCols*CalicoDataStore.GridRows; i++)
+            for (CCanvas canvas : CCanvasController.canvasdb.values())
             {
-              long canvasUUID = i;
-              CCanvas canvas = CCanvasController.canvasdb.get(canvasUUID);
-              if ((canvas == null) || canvas.isEmpty())
+              if (canvas.isEmpty())
             	  continue;
               
-              bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);
-              imgPDF = Image.getInstance((java.awt.Image)CCanvasController.canvasdb.get(canvasUUID).getCamera().toImage(bIMG, Color.white), null);
+              BufferedImage bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);
+              Image imgPDF = Image.getInstance((java.awt.Image)canvas.getCamera().toImage(bIMG, Color.white), null);
               imgPDF.setAbsolutePosition(75, 25);
               imgPDF.scaleToFit(750, 550);
               imgPDF.enableBorderSide(com.itextpdf.text.Rectangle.BOX);

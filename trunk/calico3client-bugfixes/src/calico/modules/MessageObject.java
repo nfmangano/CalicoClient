@@ -1,25 +1,21 @@
 package calico.modules;
 
-import calico.*;
-import calico.perspectives.GridPerspective;
-import calico.utils.*;
-import calico.components.*;
-import calico.components.grid.CGrid;
-import calico.controllers.CCanvasController;
-
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.nodes.PComposite;
-import edu.umd.cs.piccolo.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.awt.Font;
-import java.awt.Color;
+import java.awt.Rectangle;
 
-import java.util.*;
-import java.util.concurrent.*;
-
-import java.awt.*;
-
-import it.unimi.dsi.fastutil.objects.*;
+import calico.Calico;
+import calico.CalicoDataStore;
+import calico.CalicoDraw;
+import calico.CalicoOptions;
+import calico.controllers.CCanvasController;
+import calico.utils.Ticker;
+import calico.utils.TickerTask;
+import edu.umd.cs.piccolo.PCanvas;
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PText;
+import edu.umd.cs.piccolox.nodes.PComposite;
 
 // TODO: If the current canvas is 0L, then we need to abort this.
 
@@ -60,7 +56,7 @@ public class MessageObject extends PComposite
 		
 		public boolean runtask()
 		{
-			if(CCanvasController.getCurrentUUID()==canvasuid || GridPerspective.getInstance().isActive())
+			if(CCanvasController.getCurrentUUID()==canvasuid) // GridRemoval:  || GridPerspective.getInstance().isActive())
 			{
 				try
 				{

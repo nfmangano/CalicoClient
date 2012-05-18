@@ -2,18 +2,10 @@ package calico.components.piemenu.grid;
 
 import java.util.Date;
 
-import calico.Calico;
 import calico.CalicoDataStore;
-import calico.components.grid.CGrid;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
-import calico.inputhandlers.CGridInputHandler;
-import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
-import calico.networking.Networking;
-import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
 
 public class LockCanvasButton extends PieMenuButton {
 
@@ -27,9 +19,9 @@ public class LockCanvasButton extends PieMenuButton {
 	{
 		//confirm with the user?
 		//get the canvas ID
-		((CGridInputHandler)CalicoInputManager.getInputHandler(CGridInputHandler.inputHandlerUUID)).triggerLoadCanvas = false;
+		// GridRemoval: ((CGridInputHandler)CalicoInputManager.getInputHandler(CGridInputHandler.inputHandlerUUID)).triggerLoadCanvas = false;
 		
-		long canvasClicked = CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );
+		long canvasClicked = 0L; // GridRemoval: may need this one: CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );
 		long time = (new Date()).getTime();
 		boolean lockStatus = CCanvasController.canvasdb.get(canvasClicked).getLockValue();
 		CCanvasController.lock_canvas(canvasClicked, true, CalicoDataStore.Username, time);

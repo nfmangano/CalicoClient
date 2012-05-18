@@ -1,29 +1,24 @@
 package calico.components.piemenu;
 
-import java.awt.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import calico.*;
-import calico.components.*;
-import calico.components.grid.CGrid;
+import calico.CalicoDataStore;
+import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.components.menus.ContextMenu;
-import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.nodes.*;
-import calico.inputhandlers.*;
+import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
-
-import it.unimi.dsi.fastutil.objects.*;
 
 public class PieMenu
 {

@@ -18,7 +18,7 @@ public class CanvasPerspective extends CalicoPerspective
 	{
 		return INSTANCE;
 	}
-
+	
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
 		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleHighlighter);
@@ -109,5 +109,11 @@ public class CanvasPerspective extends CalicoPerspective
 	protected void removeMouseListener(MouseListener listener)
 	{
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).removeMouseListener(listener);
+	}
+
+	@Override
+	protected boolean isNavigationPerspective()
+	{
+		return false;
 	}
 }

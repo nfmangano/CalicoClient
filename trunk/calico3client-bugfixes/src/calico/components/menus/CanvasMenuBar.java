@@ -59,13 +59,6 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 		
-		addIcon(new ReturnToGrid());
-		
-		
-
-		
-		addSpacer();
-		
 //		clients = addText(
 //				CCanvasController.canvasdb.get(cuid).getClients().length+" clients", 
 //				new Font("Verdana", Font.BOLD, 12),
@@ -87,14 +80,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 //		addSpacer();
 		
-		addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_UP));
-		addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_DOWN));
-		addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_LEFT));
-		addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_RIGHT));
-		
 
 		//addCap();
-		addSpacer();
 		addIcon(new DoNotEraseButton(cuid));
 		addIcon(new CanEraseButton(cuid));
 		addIcon(new ClearButton(cuid));

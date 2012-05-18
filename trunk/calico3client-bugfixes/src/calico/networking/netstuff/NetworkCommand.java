@@ -176,6 +176,7 @@ public class NetworkCommand
     public static final int CANVAS_SC_FINISH		= 418; // UUID (state change has completed)
     public static final int CANVAS_LOCK				= 419;
     public static final int CANVAS_LOAD				= 420;
+    public static final int CANVAS_DELETE 			= 421; // UUID
 	
 	// Consistency
 	public static final int CONSISTENCY_CHECK		= 510; // Requests that the server send you a consistency check.

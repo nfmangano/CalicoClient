@@ -3,11 +3,10 @@ package calico;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 
-import calico.components.CCanvas;
 import calico.components.CSession;
-import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
 import calico.input.CInputMode;
 
@@ -16,7 +15,7 @@ import calico.input.CInputMode;
 public class CalicoDataStore
 {
 	// Object Storage
-	public static CGrid gridObject = null;
+	// GridRemoval: private static CGrid gridObject = null;
 
 	/**
 	 * This is a reference back to the main Calico object
@@ -27,6 +26,7 @@ public class CalicoDataStore
 	public static int ScreenWidth = 0;
 	public static int ScreenHeight = 0;
 	public static boolean isFullScreen = false;
+	public static final Dimension CanvasSnapshotSize = new Dimension();
 
 	public static String SessionName = "";
 	public static String Username = "SDCL-";
@@ -38,8 +38,8 @@ public class CalicoDataStore
 	public static int ServerPort = 0;
 	
 	
-	public static int GridRows = 0;
-	public static int GridCols = 0;
+	private static int GridRows = 0;
+	private static int GridCols = 0;
 	
 	public static boolean RunStressTest = false;
 	public static long StressTestInterval = Integer.MAX_VALUE;

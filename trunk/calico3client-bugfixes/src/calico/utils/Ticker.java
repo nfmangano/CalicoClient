@@ -1,16 +1,9 @@
 package calico.utils;
 
-import calico.*;
-import calico.components.grid.CGrid;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import calico.Calico;
+import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
-import calico.inputhandlers.canvas.CCanvasExpertModeInputHandler;
-import calico.networking.*;
-import calico.networking.netstuff.*;
-import calico.perspectives.GridPerspective;
-
-import it.unimi.dsi.fastutil.objects.*;
-
-import java.net.*;
 
 public class Ticker extends Thread
 {
@@ -61,10 +54,13 @@ public class Ticker extends Thread
 				}
 			}
 			
+			/*
+			 * // GridRemoval: 
 			if(CalicoDataStore.gridObject!=null && onTick(66) && GridPerspective.getInstance().isActive() && !Calico.isGridLoading )
 			{
 				CalicoDataStore.gridObject.updateCells();
 			}
+			*/
 			
 			// TODO: maybe record when the last input was, and only run this after some time has passed
 			try {

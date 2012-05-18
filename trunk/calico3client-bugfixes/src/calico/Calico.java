@@ -51,7 +51,6 @@ import org.json.me.JSONObject;
 
 import calico.components.CCanvasWatermark;
 import calico.components.CSession;
-import calico.components.grid.CGrid;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -65,7 +64,6 @@ import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CalicoPerspective;
-import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.utils.Ticker;
 
@@ -172,7 +170,7 @@ public class Calico extends JFrame
 		// We load the conf/calico.conf file
 		CalicoOptions.setup();
 		CalicoDataStore.setup();
-		GridPerspective.getInstance().activate();
+		// GridRemoval: GridPerspective.getInstance().activate();
 		setPropertiesFromArgs(args);
 		try
 		{
@@ -285,9 +283,8 @@ public class Calico extends JFrame
 		{
 			CalicoDataStore.calicoObj.dispose();
 		}
-		CGrid.instance = null;
 
-		CalicoDataStore.gridObject = null;
+		// GridRemoval: CalicoDataStore.gridObject = null;
 		CalicoDataStore.calicoObj = this;
 		CalicoDataStore.messageHandlerObj = StatusMessageHandler.getInstance();
 
@@ -318,6 +315,8 @@ public class Calico extends JFrame
 		{
 			setBounds(50, 50, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
 		}
+
+		CalicoDataStore.CanvasSnapshotSize.setSize(CalicoDataStore.ScreenWidth / 7, CalicoDataStore.ScreenHeight / 7);
 
 		// Setup the networking system
 		Networking.setup();
@@ -387,7 +386,8 @@ public class Calico extends JFrame
 		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
 
-		CGrid.loadGrid();
+		CalicoPerspective.Registry.activateNavigationPerspective();
+		// GridRemoval: CGrid.loadGrid();
 	}
 
 	public static void exit()
@@ -597,8 +597,8 @@ public class Calico extends JFrame
 		CalicoDataStore.ServerPort = port;
 
 		// XXX: WE MUST RESET THIS TO 0. Otherwise, the client will just hang there like an idiot
-		CalicoDataStore.GridRows = 0;
-		CalicoDataStore.GridCols = 0;
+		// GridRemoval: CalicoDataStore.GridRows = 0;
+		// GridRemoval: CalicoDataStore.GridCols = 0;
 
 		if (Networking.receivePacketThread != null && !Networking.receivePacketThread.isInterrupted())
 		{
