@@ -162,6 +162,7 @@ public class ListenServer implements Runnable
 					catch (Exception e)
 					{
 						logger.warn("Failed to process packet " + tpack.toString());
+						e.printStackTrace();
 					}
 					Networking.receivingPacketsFromServer = false;
 					

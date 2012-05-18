@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -18,7 +19,9 @@ public class BubbleMenuHighlighter extends PComposite {
 	
 	public BubbleMenuHighlighter()
 	{
-		setBounds(0,0,halo_size,halo_size);
+		//setBounds(0,0,halo_size,halo_size);
+		//Initialize it offscreen in case it gets drawn;
+		CalicoDraw.setNodeBounds(this, -100,-100,halo_size,halo_size);
 	}
 	
 	
@@ -27,10 +30,10 @@ public class BubbleMenuHighlighter extends PComposite {
 		Graphics2D graphics = (Graphics2D)paintContext.getGraphics();
 		graphics.setStroke(new BasicStroke(1.0f));
 		
-		if (BubbleMenu.selectedButtonIndex != -1 && BubbleMenu.getButton(BubbleMenu.selectedButtonIndex).haloEnabled)
+		if (BubbleMenu.selectedButtonIndex != -1 && BubbleMenu.getButton(BubbleMenu.selectedButtonIndex).haloEnabled
+				&& BubbleMenu.buttonPosition[BubbleMenu.selectedButtonIndex] != 0)
 		{
 			//Rectangle2D buttonBounds = BubbleMenu.buttonList.get(BubbleMenu.selectedButtonIndex).getBounds();
-			System.out.println("on");
 			
 			Ellipse2D.Double halo = new Ellipse2D.Double(getBounds().getX(), getBounds().getY(), getBounds().getWidth(), getBounds().getHeight());
 			

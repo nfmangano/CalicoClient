@@ -7,12 +7,16 @@ import calico.networking.*;
 import calico.networking.netstuff.*;
 import calico.components.CGroup;
 import calico.components.CStroke;
+import calico.components.bubblemenu.BubbleMenu;
+import calico.components.decorators.CListDecorator;
+import calico.components.piemenu.PieMenuButton;
 import calico.input.CInputMode;
 import calico.modules.*;
 
 
 import java.awt.geom.*;
 import java.awt.geom.Line2D.Double;
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 import javax.swing.SwingUtilities;
@@ -30,6 +34,7 @@ import edu.umd.cs.piccolo.util.*;
 import edu.umd.cs.piccolox.nodes.*;
 
 import it.unimi.dsi.fastutil.longs.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * This handles all start/append/finish requests for lines
@@ -133,7 +138,6 @@ public class CStrokeController
 		{
 			logger.warn("Attempting to load stroke " + suuid + " which does not exist!");
 			//System.err.println("Attempting to load a stroke that does not exist!");
-			//(new Exception()).printStackTrace();
 			return;
 		}
 		CalicoPacket[] packets = strokes.get(suuid).getUpdatePackets();
@@ -288,7 +292,6 @@ public class CStrokeController
 		
 		strokes.get(uuid).finish();
 		strokes.get(uuid).calculateParent();
-		
 	}
 	
 	public static void no_notify_delete(long uuid)
@@ -299,11 +302,15 @@ public class CStrokeController
 		
 		strokes.get(uuid).delete();
 		strokes.remove(uuid);
-		CGroupController.originalStroke = 0l;
-		CGroupController.restoreOriginalStroke = false;
+		//CGroupController.originalStroke = null;
+		//CGroupController.restoreOriginalStroke = false;
 
 		dq_add(uuid);
 		
+		if (BubbleMenu.activeUUID == uuid)
+		{
+			BubbleMenu.clearMenu();
+		}
 	}
 	
 	
@@ -435,8 +442,6 @@ public class CStrokeController
 		
 //		Networking.send(NetworkCommand.STROKE_FINISH, uuid);
 		loadStroke(uuid);
-		
-
 	}
 	
 	public static void deleteDoubleClickStrokes()
@@ -719,9 +724,9 @@ public class CStrokeController
 	}
 	*/
 	
+	
 	public static boolean isPotentialScrap(long strokeUUID)
 	{
-		
 		float DISTANCE_PERCENT = 0.025f;//0.0125f;
 		
 		int maxDistance = (int) (CalicoDataStore.ScreenWidth * DISTANCE_PERCENT);//10;
@@ -736,8 +741,9 @@ public class CStrokeController
 			return false;
 		
 		Polygon strokePoly = stroke.getRawPolygon();
+
 //		Polygon strokePoly = stroke.getPolygon();
-		double headTailDistance = Point2D.distance(strokePoly.xpoints[0], strokePoly.ypoints[0], 
+		double headTailDistance = Point2D.distance(stroke.circlePoint.x, stroke.circlePoint.y, 
 				stroke.getPolygon().xpoints[strokePoly.npoints-1], stroke.getPolygon().ypoints[strokePoly.npoints-1]);
 		
 //		logger.debug("Stroke length: " + stroke.getLength());
@@ -827,6 +833,62 @@ public class CStrokeController
 		return smallestStroke;
 	}
 	
+	public static long getPotentialConnector(Point p, int maxDistance)
+	{
+		if (p == null)
+			return 0l;
+		
+		long[] strokes = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getChildStrokes();
+		
+		long closestStroke = 0l;
+		double minStrokeDistance = java.lang.Double.MAX_VALUE;
+		Polygon temp;
+		for (int i = 0; i < strokes.length; i++)
+		{
+			temp = CStrokeController.strokes.get(strokes[i]).getPolygon();
+
+			long tailUUID = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(temp.xpoints[0], temp.ypoints[0]));
+			long headUUID = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(temp.xpoints[temp.npoints - 1], temp.ypoints[temp.npoints - 1]));
+			
+			if (tailUUID != 0l && headUUID != 0l && tailUUID != headUUID
+					&& !(CGroupController.groupdb.get(tailUUID) instanceof CListDecorator) && !(CGroupController.groupdb.get(headUUID) instanceof CListDecorator))
+			{
+				double minSegmentDistance = java.lang.Double.MAX_VALUE;
+				for (int j = 0; j < temp.npoints - 1; j++)
+				{
+					double[] intersectPoint = Geometry.computeIntersectingPoint(temp.xpoints[j], temp.ypoints[j], temp.xpoints[j+1], temp.ypoints[j+1], p.x, p.y);
+					double AtoB = Geometry.length(temp.xpoints[j], temp.ypoints[j], temp.xpoints[j+1], temp.ypoints[j+1]);
+					double AtoI = Geometry.length(temp.xpoints[j], temp.ypoints[j], intersectPoint[0], intersectPoint[1]);
+					double ItoB = Geometry.length(intersectPoint[0], intersectPoint[1], temp.xpoints[j+1], temp.ypoints[j+1]);
+					double actualDistance;
+					
+					//The intersecting point is not on the segment
+					if (AtoI > AtoB || ItoB > AtoB)
+					{
+						actualDistance = Math.min(Geometry.length(temp.xpoints[j], temp.ypoints[j], p.x, p.y),
+									Geometry.length(p.x, p.y, temp.xpoints[j+1], temp.ypoints[j+1]));
+					}
+					//The intersecting line is on the segment
+					else
+					{
+						actualDistance = Geometry.length(intersectPoint[0], intersectPoint[1], p.x, p.y);
+					}
+					
+					if (actualDistance < minSegmentDistance)
+						minSegmentDistance = actualDistance;
+				}
+				
+				if (minSegmentDistance < maxDistance && minSegmentDistance < minStrokeDistance)
+				{
+					minStrokeDistance = minSegmentDistance;
+					closestStroke = strokes[i];
+				}
+		
+			}
+		}
+		return closestStroke;
+	}
+	
 	public static boolean intersectsCircle(long suuid, Point center, double radius)
 	{
 		Polygon stroke = strokes.get(suuid).getPolygon();
@@ -874,10 +936,12 @@ public class CStrokeController
 		    }
 		};
 		// Must schedule the activity with the root for it to run.
-		strokes.get(uuid).getRoot().addActivity(flash);
+		//strokes.get(uuid).getRoot().addActivity(flash);
+		CalicoDraw.addActivityToNode(strokes.get(uuid), flash);
 		
 	}
 	
+	@Deprecated
 	public static void hideStroke(long uuid, boolean delete)
 	{
 		if (!exists(uuid))
@@ -889,6 +953,7 @@ public class CStrokeController
 		no_notify_hide_stroke(uuid, delete);
 	}
 	
+	@Deprecated
 	public static void no_notify_hide_stroke(final long uuid, final boolean delete)
 	{
 		if (!exists(uuid))
@@ -932,9 +997,47 @@ public class CStrokeController
 		};
 		// Must schedule the activity with the root for it to run.
 		if (stroke.getRoot() != null)
-			stroke.getRoot().addActivity(flash);
+			//stroke.getRoot().addActivity(flash);
+			CalicoDraw.addActivityToNode(stroke, flash);
 	}
 	
+	public static void show_stroke_bubblemenu(long uuid, boolean fade)
+	{
+		//Class<?> pieMenuClass = calico.components.piemenu.PieMenu.class;
+		if (!exists(uuid))
+			return;
+
+		ObjectArrayList<Class<?>> pieMenuButtons = CStrokeController.strokes.get(uuid).getBubbleMenuButtons();
+		
+		int[] bitmasks = new int[pieMenuButtons.size()];
+		
+		
+		
+		if(pieMenuButtons.size()>0)
+		{
+			ArrayList<PieMenuButton> buttons = new ArrayList<PieMenuButton>();
+			
+			for(int i=0;i<pieMenuButtons.size();i++)
+			{
+				try
+				{
+					buttons.add((PieMenuButton) pieMenuButtons.get(i).getConstructor(long.class).newInstance(uuid));
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+			BubbleMenu.displayBubbleMenu(uuid,fade,BubbleMenu.TYPE_STROKE,buttons.toArray(new PieMenuButton[buttons.size()]));
+			
+			
+		}
+		
+		
+	}
+	
+	@Deprecated
 	public static void unhideStroke(long uuid)
 	{
 		if (!exists(uuid))
@@ -946,7 +1049,7 @@ public class CStrokeController
 		Networking.send(NetworkCommand.STROKE_UNHIDE, uuid);
 	}
 
-
+	@Deprecated
 	public static void no_notify_unhide_stroke(long uuid) {
 		if (!exists(uuid))
 			return;
@@ -955,12 +1058,13 @@ public class CStrokeController
 		
 		strokes.get(tempUUID).hiding = false;
 		//This line is not thread safe so must invokeLater to prevent exceptions.
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
 					
 					strokes.get(tempUUID).setTransparency(1.0f);
 					} }
-		);
+		);*/
+		CalicoDraw.setNodeTransparency(strokes.get(tempUUID), 1.0f);
 		
 		//strokes.get(uuid).hiding = false;
 		//strokes.get(uuid).setTransparency(1.0f);

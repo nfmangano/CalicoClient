@@ -48,7 +48,7 @@ public class MBColorButton extends CanvasMenuButton
 			//Color curColor = CalicoOptions.getColor("pen.default_color");
 			//setImage(CalicoOptions.getColorImage(color));
 			
-			if(CalicoDataStore.PenColor.equals(color) && CalicoDataStore.Mode == CInputMode.EXPERT)
+			if(CalicoDataStore.PenColor.equals(color) && (CalicoDataStore.Mode == CInputMode.EXPERT || CalicoDataStore.Mode == CInputMode.ARROW))
 			{
 				setSelected(true);
 			}
@@ -69,7 +69,7 @@ public class MBColorButton extends CanvasMenuButton
 	{
 		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			isPressed = true;
+			super.onMouseDown();
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
@@ -78,7 +78,8 @@ public class MBColorButton extends CanvasMenuButton
 			CalicoDataStore.PenColor = color;
 			CalicoDataStore.LastDrawingColor = color;
 			
-			CalicoDataStore.set_Mode(CInputMode.EXPERT);
+			if (CalicoDataStore.Mode != CInputMode.ARROW)
+				CalicoDataStore.set_Mode(CInputMode.EXPERT);
 			CCanvasController.redrawMenuBars();
 			isPressed = false;
 		}

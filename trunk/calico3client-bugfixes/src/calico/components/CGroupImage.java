@@ -22,6 +22,10 @@ import javax.imageio.ImageIO;
 
 import sun.java2d.pipe.AlphaColorPipe;
 
+import calico.CalicoDataStore;
+import calico.CalicoDraw;
+import calico.components.grid.CGrid;
+import calico.components.grid.CGridCell;
 import calico.controllers.CCanvasController;
 import calico.controllers.CImageController;
 import calico.networking.netstuff.CalicoPacket;
@@ -34,6 +38,7 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 	protected String imgURL;
 	protected Image image;
+	protected boolean isDownloading = false;
 
 	/**
 	 * 
@@ -50,16 +55,28 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		setShapeToRoundedRectangle(bounds, 0);
 	}
 
-	public CGroupImage(long uuid, long cuid, long puid, String img, int imgX,
-			int imgY, int imageWidth, int imageHeight) {
+	public CGroupImage(long uuid, long cuid, long puid, String img, int port, String localPath,
+			int imgX, int imgY, int imageWidth, int imageHeight) {
 		super(uuid, cuid, puid, true);
 //		this.transparency = 1.0f;
-		this.imgURL = img;
+		
 		Rectangle bounds = new Rectangle(imgX, imgY, imageWidth, imageHeight);
 		setShapeToRoundedRectangle(bounds, 0);
 //		image.getWidth(this);
 		
-		Runnable runnable = new LoadImageThread(this, img);
+		//The server won't always report the correct host name.
+		//The client now uses the host name specified by the user upon connecting.
+		if (img.length() > 0)
+		{
+			this.imgURL = "http://" + CalicoDataStore.ServerHost + ":" + port + "/" + localPath;
+		}
+		else
+		{
+			this.imgURL = img;
+		}
+		
+		Runnable runnable = new LoadImageThread(this, this.imgURL);
+		//Runnable runnable = new LoadImageThread(this, img);
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
@@ -77,11 +94,25 @@ public class CGroupImage extends CGroup implements ImageObserver {
 			int dx, int dy, boolean captureChildren) {
 		Rectangle bounds = this.getRawPolygon().getBounds();
 		CalicoPacket packet = CalicoPacket.getPacket(
-				NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, "", bounds.x
+				NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, "", 0, "", bounds.x
 						+ dx, bounds.y + dy, bounds.width, bounds.height,
 				this.isPermanent, captureChildren, this.rotation, this.scaleX,
-				this.scaleY);
-		packet.putImage(this.image);
+				this.scaleY);	
+		
+		try {
+			//Load the image from the file because it may not already be in memory.
+			Image tempImage = ImageIO.read(new File(CImageController.getImagePath(this.uuid)));
+			//Add the image to the packet
+			packet.putImage(tempImage);
+			
+			//Release the image from memory.
+			tempImage.flush();
+			tempImage = null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 
 		return new CalicoPacket[] { packet };
 	}
@@ -91,29 +122,44 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		return getUpdatePackets(this.uuid, this.cuid, this.puid, 0, 0,
 				captureChildren);
 	}
+	
+	public void downloadImage(String imgURL)
+	{
+		//Always download the image first
+		if (imgURL.length() > 0)
+			CImageController.download_image_no_exception(uuid, imgURL);
+	}
 
-	public void setImage(String imgURL) {
-
-		boolean imageExistsLocally = CImageController.imageExists(uuid);
-			
+	public void setImage() {	
 		try {
-			if (imageExistsLocally)
+
+			if (!isDownloading && CImageController.imageExists(uuid))
 				image = ImageIO.read(new File(CImageController
 						.getImagePath(uuid)));
-			else
+			/*else
 			{
 				URL url = new URL(imgURL);
 				image = ImageIO.read(url);
-			}
+			}*/
 //				image = Toolkit.getDefaultToolkit().createImage(image);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
 		}
-		if (imgURL.length() > 0)
-			CImageController.download_image_no_exception(uuid, imgURL);
+		
 		// image =
 		// Toolkit.getDefaultToolkit().createImage(CImageController.getImagePath(uuid));
 
+	}
+	
+	public void unloadImage()
+	{
+		if (image != null)
+		{
+			image.flush();
+			image = null;
+		}
 	}
 
 	protected void paint(final PPaintContext paintContext) {
@@ -144,7 +190,8 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		// redrawAll();
 		// this.setPaintInvalid(true);
 		// CCanvasController.canvasdb.get(cuid).repaint();
-		repaint();
+		//repaint();
+		CalicoDraw.repaint(this);
 		return x == 0 || y == 0;
 	}
 
@@ -164,7 +211,13 @@ public class CGroupImage extends CGroup implements ImageObserver {
 
 		@Override
 		public void run() {
-			group.setImage(imgURL);	
+			group.isDownloading = true;
+			group.downloadImage(imgURL);
+			group.isDownloading = false;
+			//If the image group is on a different canvas than the one being viewed, don't load it
+			if (group.cuid == CCanvasController.getCurrentUUID())
+				group.setImage();	
+			CGrid.getInstance().updateCell(group.cuid);
 			group.repaint();
 		}
 		

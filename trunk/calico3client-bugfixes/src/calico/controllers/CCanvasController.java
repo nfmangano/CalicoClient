@@ -17,13 +17,18 @@ import org.apache.log4j.Logger;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.components.CCanvas.ContentContributor;
+import calico.components.CCanvas.Layer;
 import calico.components.CCanvasWatermark;
+import calico.components.CConnector;
 import calico.components.CGroup;
+import calico.components.CGroupImage;
 import calico.components.CStroke;
 import calico.components.arrow.CArrow;
+import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
@@ -57,6 +62,8 @@ public class CCanvasController
 	public static CGroup currentGroup = null;
 
 	static long currentCanvasUUID = 0L;
+	
+	static long lastActiveCanvasUUID = 0L;
 
 	// Does nothing right now
 	public static void setup()
@@ -83,8 +90,8 @@ public class CCanvasController
 
 	public static void clear(long uuid)
 	{
+		no_notify_clear(uuid);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, uuid));
-		// no_notify_clear(uuid);
 	}
 
 	public static Color getActiveCanvasBackgroundColor()
@@ -107,7 +114,8 @@ public class CCanvasController
 
 		// RepaintManager.currentManager(canvasdb.get(uuid)).
 		// canvasdb.get(uuid).setBuffering(true);
-		canvasdb.get(uuid).getLayer().setVisible(false);
+		//canvasdb.get(uuid).getLayer().setVisible(false);
+		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
 		canvasdb.get(uuid).setEnabled(false);
 
 		// canvasdb.get(uuid).setEnabled(false);
@@ -120,12 +128,14 @@ public class CCanvasController
 		long[] groups = canvasdb.get(uuid).getChildGroups();
 		long[] strokes = canvasdb.get(uuid).getChildStrokes();
 		long[] arrows = canvasdb.get(uuid).getChildArrows();
+		long[] connectors = canvasdb.get(uuid).getChildConnectors();
 
 		if (strokes.length > 0)
 		{
 			for (int i = 0; i < strokes.length; i++)
 			{
-				CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CStrokeController.strokes.get(strokes[i]));
 				CStrokeController.no_notify_delete(strokes[i]);
 			}
 		}
@@ -134,8 +144,19 @@ public class CCanvasController
 		{
 			for (int i = 0; i < arrows.length; i++)
 			{
-				CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
-				CGroupController.no_notify_delete(arrows[i]);
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CArrowController.arrows.get(arrows[i]));
+				CArrowController.no_notify_delete(arrows[i]);
+			}
+		}
+		
+		if (connectors.length > 0)
+		{
+			for (int i = 0; i < connectors.length; i++)
+			{
+				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CConnectorController.connectors.get(connectors[i]));
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CConnectorController.connectors.get(connectors[i]));
+				CConnectorController.no_notify_delete(connectors[i]);
 			}
 		}
 
@@ -165,7 +186,8 @@ public class CCanvasController
 		// canvasdb.get(uuid).setIgnoreRepaint(false);
 		// canvasdb.get(uuid).setDoubleBuffered(false);
 		canvasdb.get(uuid).setEnabled(true);
-		canvasdb.get(uuid).getLayer().setVisible(true);
+		//canvasdb.get(uuid).getLayer().setVisible(true);
+		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
 
 		canvasdb.get(uuid).repaint();
 		// canvasdb.get(uuid).setBuffering(false);
@@ -187,6 +209,16 @@ public class CCanvasController
 	public static void setCurrentUUID(long u)
 	{
 		currentCanvasUUID = u;
+	}
+	
+	public static long getLastActiveUUID()
+	{
+		return lastActiveCanvasUUID;
+	}
+	
+	public static void setLastActiveUUID(long u)
+	{
+		lastActiveCanvasUUID = u;
 	}
 
 	public static void windowResized()
@@ -278,7 +310,6 @@ public class CCanvasController
 
 	public static void loadCanvas(long uuid)
 	{
-
 		// if (CCanvasController.getCurrentUUID() == uuid)
 		// return;
 		//
@@ -329,6 +360,7 @@ public class CCanvasController
 		
 		cal.setJMenuBar(null);
 		cal.pack();
+		loadCanvasImages(uuid);
 		initializeCanvas(uuid);
 		cal.setVisible(true);
 		cal.repaint();
@@ -346,9 +378,20 @@ public class CCanvasController
 
 			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), uuid);
 		}
-		Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, uuid);
-		Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
+		
+		long tempUUID = getLastActiveUUID();
+		CCanvasController.setLastActiveUUID(uuid);
+		if (tempUUID != 0L)
+		{
+			CGrid.getInstance().updateCell(tempUUID);			
+		}
+		
 		CCanvasController.setCurrentUUID(uuid);
+		
+		Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, uuid);
+		
+		//Why was this even here? -Wayne
+		//Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
 
 		CArrowController.setOutstandingAnchorPoint(null);
 		// calico.events.CalicoEventHandler.getInstance().fireEvent(NetworkCommand.PRESENCE_CANVAS_USERS,
@@ -362,6 +405,42 @@ public class CCanvasController
 		// canvas.menuBar.invalidateFullBounds();
 
 		MessageObject.showNotice("Viewing canvas " + CCanvasController.canvasdb.get(uuid).getGridCoordTxt());
+	}
+	
+	//Load all images in the canvas to memory to they are visible
+	public static void loadCanvasImages(long uuid)
+	{
+		//System.out.println("loading canvas: " + uuid);
+		if (uuid != 0)
+		{
+			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
+			for (int i = 0; i < groups.length; i++)
+			{
+				CGroup temp = CGroupController.groupdb.get(groups[i]);
+				if (temp instanceof CGroupImage)
+				{
+					((CGroupImage) temp).setImage();
+				}
+			}
+		}
+	}
+	
+	//Remove all image in the canvas from memory as they are not needed right now
+	public static void unloadCanvasImages(long uuid)
+	{
+		//System.out.println("unloading canvas: " + uuid);
+		if (uuid != 0)
+		{
+			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
+			for (int i = 0; i < groups.length; i++)
+			{
+				CGroup temp = CGroupController.groupdb.get(groups[i]);
+				if (temp instanceof CGroupImage)
+				{
+					((CGroupImage) temp).unloadImage();
+				}
+			}
+		}
 	}
 
 	/**
@@ -396,8 +475,23 @@ public class CCanvasController
 		// add to the painter
 		if (addToPiccolo)
 		{
-			canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+			//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+			CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CStrokeController.strokes.get(uuid));
 		}
+	}
+	
+	public static void no_notify_add_child_connector(long cuid, long uuid)
+	{
+		if (!canvasdb.containsKey(cuid))
+		{
+			logger.warn("Attempting to add a connector to non-existing canvas: " + cuid + " !!");
+			return;
+		}
+
+		canvasdb.get(cuid).addChildConnector(uuid);
+		
+		//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+		CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CConnectorController.connectors.get(uuid));
 	}
 
 	public static void no_notify_add_child_stroke(long cuid, long uuid)
@@ -420,6 +514,11 @@ public class CCanvasController
 		canvasdb.get(cuid).deleteChildList(uuid);
 	}
 
+	public static void no_notify_delete_child_connector(long cuid, long uuid)
+	{
+		canvasdb.get(cuid).deleteChildConnector(uuid);
+	}
+
 	public static void no_notify_flush_dead_objects()
 	{
 		long[] cuids = canvasdb.keySet().toLongArray();
@@ -436,21 +535,32 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildStroke(((CStroke) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 				else if (childobj instanceof CGroup)
 				{
 					if (!canvasdb.get(cuids[i]).hasChildGroup(((CGroup) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 				else if (childobj instanceof CArrow)
 				{
 					if (!canvasdb.get(cuids[i]).hasChildArrow(((CArrow) childobj).getUUID()))
 					{
-						canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
+					}
+				}
+				else if (childobj instanceof CConnector)
+				{
+					if (!canvasdb.get(cuids[i]).hasChildConnector(((CConnector) childobj).getUUID()))
+					{
+						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
 
@@ -477,6 +587,16 @@ public class CCanvasController
 		}
 
 		return (canvasdb.get(cuid).getLayer().indexOfChild(CStrokeController.strokes.get(uuid)) != -1);
+	}
+	
+	public static boolean canvas_has_child_connector_node(long cuid, long uuid)
+	{
+		if (!CConnectorController.exists(uuid))
+		{
+			return false;
+		}
+
+		return (canvasdb.get(cuid).getLayer().indexOfChild(CConnectorController.connectors.get(uuid)) != -1);
 	}
 
 	public static void lock_canvas(long canvas, boolean lock, String lockedBy, long time)

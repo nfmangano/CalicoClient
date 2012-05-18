@@ -110,6 +110,7 @@ public class CanvasGenericMenuBar extends PComposite
 		}
 		
 		setBounds(this.rect_overall);
+		//CalicoDraw.setNodeBounds(this, this.rect_overall);
 		setPaint( CalicoOptions.menu.menubar.background_color );
 	}
 	public CanvasGenericMenuBar(int position)
@@ -207,7 +208,8 @@ public class CanvasGenericMenuBar extends PComposite
 		button_array[button_array_index].setBounds(rect_array[button_array_index]);
 		
 		
-		addChild(0,button_array[button_array_index]);
+		//addChild(0,button_array[button_array_index]);
+		CalicoDraw.addChildToNode(this, button_array[button_array_index], 0);
 		button_array_index++;
 	}
 	
@@ -223,7 +225,8 @@ public class CanvasGenericMenuBar extends PComposite
 		button_array[button_array_index].setBounds(rect_array[button_array_index]);
 		
 		
-		addChild(0,button_array[button_array_index]);
+		//addChild(0,button_array[button_array_index]);
+		CalicoDraw.addChildToNode(this, button_array[button_array_index], 0);
 		button_array_index++;
 	}
 	
@@ -263,7 +266,8 @@ public class CanvasGenericMenuBar extends PComposite
 		text_button_array[text_button_array_index] = buttonHandler;
 		text_button_array_index++;
 		
-		addChild(0,img2);
+		//addChild(0,img2);
+		CalicoDraw.addChildToNode(this, img2, 0);
 		
 		return img2;
 	}
@@ -297,7 +301,8 @@ public class CanvasGenericMenuBar extends PComposite
 		text_button_array[text_button_array_index] = buttonHandler;
 		text_button_array_index++;
 		
-		addChild(0,img2);
+		//addChild(0,img2);
+		CalicoDraw.addChildToNode(this, img2, 0);
 		
 		return img2;
 	}
@@ -331,7 +336,8 @@ public class CanvasGenericMenuBar extends PComposite
 		text_button_array[text_button_array_index] = buttonHandler;
 		text_button_array_index++;
 		
-		addChild(0,img2);
+		//addChild(0,img2);
+		CalicoDraw.addChildToNode(this, img2, 0);
 		
 		return img2;
 	}
@@ -374,7 +380,8 @@ public class CanvasGenericMenuBar extends PComposite
 			) );
 			
 			img.setBounds(temp);
-			addChild(0,img);
+			//addChild(0,img);
+			CalicoDraw.addChildToNode(this, img, 0);
 			//button_array_index++;
 		}
 		catch (Exception e)

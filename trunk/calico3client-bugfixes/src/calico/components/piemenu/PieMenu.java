@@ -226,8 +226,11 @@ public class PieMenu
 	
 	public static void clearMenu()
 	{
-		pieContainer.removeAllChildren();
-		pieContainer.removeFromParent();
+		//pieContainer.removeAllChildren();
+		//pieContainer.removeFromParent();
+		CalicoDraw.removeAllChildrenFromNode(pieContainer);
+		CalicoDraw.removeNodeFromParent(pieContainer);
+		
 		buttonList.clear();
 		pieContainer = null;
 		

@@ -3,6 +3,7 @@ package calico.plugins.userlist;
 import java.awt.Color;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.CalicoOptions.menu.menubar;
 import calico.controllers.CCanvasController;
@@ -62,7 +63,6 @@ public class UserList implements CalicoEventListener
 //		for (long canvas : canvases)
 //		{
 			int[] users = CCanvasController.canvasdb.get(cuid).getClients();
-			
 //			System.out.println("There are " + uuids.length + " clients on this canvas.");
 			for(int uuid : users)
 			{	
@@ -95,7 +95,7 @@ public class UserList implements CalicoEventListener
 		int imgY = height;
 		height += imgHeight + buffer;
 
-		UserImage userImage = new UserImage(uuid, cuid, puid, img, imgX, imgY,
+		UserImage userImage = new UserImage(uuid, cuid, puid, img, 0, "", imgX, imgY,
 				imgWidth, imgHeight, userName);
 		
 		no_notify_create_user_image(uuid, cuid, puid, userImage);
@@ -133,8 +133,9 @@ public class UserList implements CalicoEventListener
 	{
 		CGroupController.groupdb.put(uuid, userImage);
 //		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);
-		CCanvasController.canvasdb.get(cuid).getCamera().addChild(
-				CGroupController.groupdb.get(uuid));
+//		CCanvasController.canvasdb.get(cuid).getCamera().addChild(
+//				CGroupController.groupdb.get(uuid));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getCamera(), CGroupController.groupdb.get(uuid));
 		CGroupController.groupdb.get(uuid).drawPermTemp(true);
 		CGroupController.no_notify_finish(uuid, false);
 		
@@ -146,8 +147,9 @@ public class UserList implements CalicoEventListener
 	{
 //		CGroupController.no_notify_delete(uuid);
 		CGroupController.groupdb.get(uuid).drawPermTemp(true);
-		CCanvasController.canvasdb.get(cuid).getCamera().removeChild(
-				CGroupController.groupdb.get(uuid));
+//		CCanvasController.canvasdb.get(cuid).getCamera().removeChild(
+//				CGroupController.groupdb.get(uuid));
+		CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuid).getCamera(), CGroupController.groupdb.get(uuid));
 //		CCanvasController.canvasdb.get(cuid).deleteChildGroup(uuid);
 		CGroupController.no_notify_finish(uuid, false);
 		CGroupController.groupdb.remove(uuid);
@@ -264,7 +266,7 @@ public class UserList implements CalicoEventListener
 				int count = p.getInt();
 //				System.out.println("  canvas:  " + cuid);
 //				System.out.println("  clients: " + count);
-				if (cuid == canvasid && count != userdb.size() && visible)
+				if (CCanvasController.getCurrentUUID() == canvasid && visible)
 				{
 					refresh();
 				}

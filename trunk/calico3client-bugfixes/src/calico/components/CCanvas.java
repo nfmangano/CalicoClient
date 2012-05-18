@@ -97,6 +97,8 @@ public class CCanvas
 	
 	private LongArraySet lists = new LongArraySet();
 	
+	private LongArraySet connectors = new LongArraySet();
+	
 	private LongArraySet checkBoxes = new LongArraySet();
 	
 	private IntArraySet clients = new IntArraySet();
@@ -166,12 +168,18 @@ public class CCanvas
 		// This makes a border, so that we see the ENTIRE canvas
 		if(!CalicoOptions.grid.render_zoom_canvas)
 		{
-			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
+			/*getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
 			getLayer(Layer.CONTENT).addChild(drawBorderLine(CalicoDataStore.ScreenWidth,0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));//right
 			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, 0, CalicoDataStore.ScreenHeight));//left
 			getLayer(Layer.CONTENT).addChild(drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
+			*/
+			CalicoDraw.addChildToNode(getLayer(Layer.CONTENT), drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
+			CalicoDraw.addChildToNode(getLayer(Layer.CONTENT), drawBorderLine(CalicoDataStore.ScreenWidth,0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));//right
+			CalicoDraw.addChildToNode(getLayer(Layer.CONTENT), drawBorderLine(0,0, 0, CalicoDataStore.ScreenHeight));//left
+			CalicoDraw.addChildToNode(getLayer(Layer.CONTENT), drawBorderLine(0,CalicoDataStore.ScreenHeight, CalicoDataStore.ScreenWidth,CalicoDataStore.ScreenHeight));//bottom
 		}
 		canvas.repaint();
+
 	}
 	
 	public JComponent getComponent()
@@ -261,6 +269,7 @@ public class CCanvas
 		long[] strokear = getChildStrokes();
 		long[] groupar = getChildGroups();
 		long[] arrar = getChildArrows();
+		long[] ctrar = getChildConnectors();
 		
 		int stroke_sig = 0;
 		for(int i=0;i<strokear.length;i++)
@@ -280,7 +289,13 @@ public class CCanvas
 			arrow_sig = arrow_sig + CArrowController.get_signature(arrar[i]);
 		}
 		
-		return stroke_sig + group_sig + arrow_sig;
+		int connector_sig = 0;
+		for (int i=0;i<ctrar.length;i++)
+		{
+			connector_sig = connector_sig + CConnectorController.get_signature(ctrar[i]);
+		}
+		
+		return stroke_sig + group_sig + arrow_sig + connector_sig;
 	}
 	
 	public CalicoPacket getConsistencyDebugPacket()
@@ -424,6 +439,16 @@ public class CCanvas
 		return this.strokes.size();
 	}
 	
+	public void addChildConnector(long uid)
+	{
+		this.connectors.add(uid);
+		CCanvasController.notifyContentChanged(uuid);
+	}
+	public int getNumConnectors()
+	{
+		return this.connectors.size();
+	}
+	
 	/**
 	 * @deprecated
 	 * @see #getChildStrokes()
@@ -436,6 +461,12 @@ public class CCanvas
 	public void deleteChildStroke(long uid)
 	{
 		this.strokes.remove(uid);
+		CCanvasController.notifyContentChanged(uuid);
+	}
+	
+	public void deleteChildConnector(long uid)
+	{
+		this.connectors.remove(uid);
 		CCanvasController.notifyContentChanged(uuid);
 	}
 
@@ -523,72 +554,79 @@ public class CCanvas
 	{
 		if(topMenuBar!=null)
 		{
-			toolLayer.removeChild(topMenuBar);
+			//toolLayer.removeChild(topMenuBar);
+			CalicoDraw.removeChildFromNode(toolLayer, topMenuBar);
 			topMenuBar = null;
 		}
 		topMenuBar = new CanvasTopMenuBar(uuid);
-		toolLayer.addChild(topMenuBar);
+		//toolLayer.addChild(topMenuBar);
+		CalicoDraw.addChildToNode(toolLayer, topMenuBar);
 	}
 	
 	private void drawMenuBar()
 	{
 		CanvasMenuBar tempLeft = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_LEFT);
-		toolLayer.addChild(tempLeft);
+		//toolLayer.addChild(tempLeft);
+		CalicoDraw.addChildToNode(toolLayer, tempLeft);
 		
 		CanvasMenuBar tempRight = new CanvasMenuBar(this.uuid, CanvasGenericMenuBar.POSITION_RIGHT);
-		toolLayer.addChild(tempRight);
+		//toolLayer.addChild(tempRight);
+		CalicoDraw.addChildToNode(toolLayer, tempRight);
 		
 		if(this.menuBarLeft!=null)
 		{
 			//canvas.getCamera().removeChild(this.menuBarLeft);
-			toolLayer.removeChild(this.menuBarLeft);
+			//toolLayer.removeChild(this.menuBarLeft);
+			CalicoDraw.removeChildFromNode(toolLayer, this.menuBarLeft);
 			this.menuBarLeft = null;
 		}
 		if(this.menuBarRight!=null)
 		{
-			toolLayer.removeChild(this.menuBarRight);
+			//toolLayer.removeChild(this.menuBarRight);
+			CalicoDraw.removeChildFromNode(toolLayer, this.menuBarRight);
 			this.menuBarRight = null;
 		}
 		
 		this.menuBarLeft = tempLeft;
 		this.menuBarRight = tempRight;
 		if (this.menuBarLeft != null)
-			this.menuBarLeft.repaint();
+			//this.menuBarLeft.repaint();
+			CalicoDraw.repaint(this.menuBarLeft);
 		if (this.menuBarRight != null)
-			this.menuBarRight.repaint();
+			//this.menuBarRight.repaint();
+			CalicoDraw.repaint(this.menuBarRight);
 	}
 	
 	private void drawStatusBar()
 	{
 		CanvasStatusBar temp = new CanvasStatusBar(this.uuid);
-		toolLayer.addChild(temp);
+		//toolLayer.addChild(temp);
+		CalicoDraw.addChildToNode(toolLayer, temp);
 		
 		if(this.statusBar!=null)
 		{
-			toolLayer.removeChild(this.statusBar);
+			//toolLayer.removeChild(this.statusBar);
+			CalicoDraw.removeChildFromNode(toolLayer, this.statusBar);
 			this.statusBar = null;
 		}
 		
 		this.statusBar = temp;
-		this.statusBar.repaint();
+		//this.statusBar.repaint();
+		CalicoDraw.repaint(this.statusBar);
 	}
 	
 	public void drawMenuBars()
 	{		
 //		drawTopMenuBar();
-		//This may be ugly, but it prevents the menu bars from flickering and disappearing randomly.
-		//In order for all 
-		SwingUtilities.invokeLater(
-				new Runnable() { public void run() { 
-					drawMenuBar();
-					drawStatusBar();
-				}});
+		drawMenuBar();
+		drawStatusBar();
 	}
 	
 	public void removeTopMenuBar(){
 		if(topMenuBar!=null)
 		{
-			toolLayer.removeChild(topMenuBar);
+			//toolLayer.removeChild(topMenuBar);
+			CalicoDraw.removeChildFromNode(toolLayer, topMenuBar);
 			topMenuBar = null;
 		}
 	}
@@ -611,6 +649,12 @@ public class CCanvas
 
 	public Image toImage()
 	{
+		Color backgroundColor;
+		if (CCanvasController.getLastActiveUUID() == this.uuid)
+			backgroundColor = new Color(200,200,200);
+		else
+			backgroundColor = CCanvasController.getActiveCanvasBackgroundColor();
+		
 		if (!isEmpty())
 		{
 			//logger.debug("Canvas "+cell_coord+" render image");
@@ -618,8 +662,14 @@ public class CCanvas
 //			getCamera().removeChild(menuBarRight);
 //			getCamera().removeChild(statusBar);
 			//getCamera().removeChild(topMenuBar);
-			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, CCanvasController.getActiveCanvasBackgroundColor());
-
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.loadCanvasImages(uuid);
+				
+			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
+			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.unloadCanvasImages(uuid);
+			
 //			getCamera().addChild(menuBarLeft);
 //			if (menuBarRight != null)
 //				getCamera().addChild(menuBarRight);
@@ -634,7 +684,7 @@ public class CCanvas
 			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = (Graphics2D)bimg.createGraphics();
 			g.setComposite(AlphaComposite.Src);
-			g.setColor(CCanvasController.getActiveCanvasBackgroundColor());
+			g.setColor(backgroundColor);
 			g.fill(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.draw(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
 			g.dispose();
@@ -796,8 +846,10 @@ public class CCanvas
 						}
 							
 					}
-					this.getLayer(Layer.CONTENT).addChild(linetemp);
-					linetemp.repaint();
+					//this.getLayer(Layer.CONTENT).addChild(linetemp);
+					CalicoDraw.addChildToNode(this.getLayer(Layer.CONTENT), linetemp);
+					//linetemp.repaint();
+					CalicoDraw.repaint(linetemp);
 				}
 
 				// Blobs
@@ -959,6 +1011,10 @@ public class CCanvas
 	{
 		return this.arrows.toLongArray();
 	}
+	public long[] getChildConnectors()
+	{
+		return this.connectors.toLongArray();
+	}
 	public boolean hasChildStroke(long cuuid)
 	{
 		return this.strokes.contains(cuuid);
@@ -979,12 +1035,18 @@ public class CCanvas
 	{
 		return this.arrows.contains(cuuid);
 	}
+	public boolean hasChildConnector(long cuuid)
+	{
+		return this.connectors.contains(cuuid);
+	}
 	
 	/**
 	 * This clears the canvas and all its contents.
 	 */
 	public void clear()
 	{
+		CGroupController.restoreOriginalStroke = false;
+		
 		if(this.groups.size()>0)
 		{
 			long guuids[] = this.groups.toLongArray();
@@ -1011,10 +1073,20 @@ public class CCanvas
 				CArrowController.no_notify_delete(auuids[i]);
 			}
 		}
+		
+		if(this.connectors.size()>0)
+		{
+			long cuuids[] = this.connectors.toLongArray();
+			for(int i=cuuids.length-1;i>=0;i--)
+			{
+				CConnectorController.no_notify_delete(cuuids[i]);
+			}
+		}
 
 		this.groups = new LongArraySet();
 		this.strokes = new LongArraySet();
 		this.arrows = new LongArraySet();
+		this.connectors = new LongArraySet();
 		this.lists = new LongArraySet();
 		this.checkBoxes = new LongArraySet();
 		
@@ -1024,7 +1096,8 @@ public class CCanvas
 		//clearEverythingExceptMenu();
 		
 		drawMenuBars();
-		this.getLayer(Layer.CONTENT).repaint();
+		//this.getLayer(Layer.CONTENT).repaint();
+		CalicoDraw.repaint(this.getLayer(Layer.CONTENT));
 	}
 	
 	@Deprecated
@@ -1035,7 +1108,8 @@ public class CCanvas
 			if (getLayer(Layer.CONTENT).getChild(i) instanceof CanvasGenericMenuBar)
 				continue;
 			else
-				getLayer(Layer.CONTENT).removeChild(i);
+				//getLayer(Layer.CONTENT).removeChild(i);
+				CalicoDraw.removeChildFromNode(getLayer(Layer.CONTENT), i);
 		}
 	}
 	
@@ -1059,7 +1133,8 @@ public class CCanvas
 	public void drawClientList(Rectangle boundingBox) {
 		
 		if(this.clientListPopup!=null) {
-			this.clientListPopup.removeFromParent();
+			//this.clientListPopup.removeFromParent();
+			CalicoDraw.removeNodeFromParent(this.clientListPopup);
 			CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
 			this.clientListPopup = null;
 			return;
@@ -1121,12 +1196,16 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		CalicoDraw.addChildToNode(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera(), this.clientListPopup, 0);
 		CalicoDataStore.calicoObj.getContentPane().getComponent(0).validate();
 		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().validateFullPaint();
 //		CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
@@ -1138,7 +1217,8 @@ public class CCanvas
 	public void drawLockInfo(Rectangle boundingBox) {
 		
 		if(this.clientListPopup!=null) {
-			this.clientListPopup.removeFromParent();
+			//this.clientListPopup.removeFromParent();
+			CalicoDraw.removeNodeFromParent(this.clientListPopup);
 			CalicoDataStore.calicoObj.getContentPane().getComponent(0).validate();
 			this.clientListPopup = null;
 			return;
@@ -1197,13 +1277,17 @@ public class CCanvas
 		
 		text.setBounds(textbounds);
 
-		this.clientListPopup.addChild(0,bgnode);
+		/*this.clientListPopup.addChild(0,bgnode);
 		this.clientListPopup.addChild(1,text);
-		this.clientListPopup.setBounds(bounds);
+		this.clientListPopup.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this.clientListPopup, bgnode, 0);
+		CalicoDraw.addChildToNode(this.clientListPopup, text, 1);
+		CalicoDraw.setNodeBounds(this.clientListPopup, bounds);
 		
 
 		
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this.clientListPopup);
+		CalicoDraw.addChildToNode(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera(), this.clientListPopup, 0);
 		canvas.repaint(menuBarLeft.getBounds());
 		if (menuBarRight != null)
 			canvas.repaint(menuBarRight.getBounds());
@@ -1297,6 +1381,7 @@ public class CCanvas
 		long[] grouparr = getChildGroups();
 		long[] bgearr = getChildStrokes();
 		long[] arlist = getChildArrows();
+		long[] ctrlist = getChildConnectors();
 		
 		// GROUPS
 		if(grouparr.length>0)
@@ -1355,6 +1440,19 @@ public class CCanvas
 			}
 		}
 		
+		// CONNECTORS
+		if(ctrlist.length>0)
+		{
+			for(int i=0;i<ctrlist.length;i++)
+			{
+				CalicoPacket[] packets = CConnectorController.connectors.get(ctrlist[i]).getUpdatePackets();
+				if(packets!=null && packets.length>0)
+				{
+					packetlist.addElements(packetlist.size(), packets);
+				}
+			}
+		}
+		
 		// Send the BGElement Parents
 		if(bgearr.length>0)
 		{
@@ -1388,7 +1486,8 @@ public class CCanvas
 			if (type == MouseEvent.MOUSE_PRESSED || type == MouseEvent.MOUSE_DRAGGED || type == MouseEvent.MOUSE_RELEASED)
 				return;
 			
-			getRoot().getDefaultInputManager().processEventFromCamera(e, type, getCamera());
+			//getRoot().getDefaultInputManager().processEventFromCamera(e, type, getCamera());
+			CalicoDraw.processEventFromCamera(getRoot(), e, type, getCamera());
 		}
 
 		public void paintComponent(Graphics g) {
@@ -1428,13 +1527,17 @@ public class CCanvas
 			CalicoDataStore.ScreenHeight = h;
 			super.setPreferredSize(new Dimension(w,h));
 			super.setBounds(x,y,w,h); 
-			getCamera().getLayer(Layer.CONTENT.id).setBounds(x, y, w, h);
+			//getCamera().getLayer(Layer.CONTENT.id).setBounds(x, y, w, h);
+			CalicoDraw.setNodeBounds(getCamera().getLayer(Layer.CONTENT.id),x, y, w, h);
 			
-			toolLayer.setBounds(x, y, w , h);
-			contentCamera.setBounds(x, y, w, h);
+			//toolLayer.setBounds(x, y, w , h);
+			CalicoDraw.setNodeBounds(toolLayer, x, y, w , h);
+			//contentCamera.setBounds(x, y, w, h);
+			CalicoDraw.setNodeBounds(contentCamera, x, y, w , h);
 			if (CCanvas.this.watermarkLayer != null)
 			{
-				CCanvas.this.watermarkLayer.setBounds(x, y, w, h);
+				//CCanvas.this.watermarkLayer.setBounds(x, y, w, h);
+				CalicoDraw.setNodeBounds(CCanvas.this.watermarkLayer, x, y, w , h);
 			}
 		}
 

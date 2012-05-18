@@ -165,6 +165,9 @@ public class SendPackets implements Runnable
 
 				openOutputStream();
 				Networking.join();
+				//Need to inform the server what canvas we were in so it uses the right thread.
+				if (CCanvasController.getCurrentUUID() != 0l)
+					Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, CCanvasController.getCurrentUUID());
 
 			}
 		}

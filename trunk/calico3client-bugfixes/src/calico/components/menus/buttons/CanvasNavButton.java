@@ -85,7 +85,7 @@ public class CanvasNavButton extends CanvasMenuButton
 			// Error
 			return;
 		}
-		
+		CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
 		CCanvasController.loadCanvas(cuid);
 	}
 	

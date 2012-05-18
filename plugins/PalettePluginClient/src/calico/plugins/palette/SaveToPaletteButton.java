@@ -9,9 +9,8 @@ import calico.plugins.palette.iconsets.*;
 
 public class SaveToPaletteButton extends PieMenuButton
 {
-	private long group_uuid = 0L;
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
-	
+	private boolean isActive = false;
 	
 	public SaveToPaletteButton(long uuid)
 	{
@@ -19,13 +18,25 @@ public class SaveToPaletteButton extends PieMenuButton
 		
 
 
-		group_uuid = uuid;
+		this.uuid = uuid;
 	}
 	
-	public void onClick(InputEventInfo ev)
+	public void onPressed(InputEventInfo ev)
+	{
+		if (!CGroupController.exists(uuid) || isActive)
+		{
+			return;
+		}
+		
+		isActive = true;
+	}
+	
+	public void onReleased(InputEventInfo ev)
 	{
 		ev.stop();
 		
-		PalettePlugin.addGroupToPalette(PalettePlugin.getActivePaletteUUID(), group_uuid);
+		PalettePlugin.addGroupToPalette(PalettePlugin.getActivePaletteUUID(), uuid);
+		isActive = false;
 	}
+	
 }

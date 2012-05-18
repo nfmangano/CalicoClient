@@ -95,7 +95,7 @@ public class MBModeChangeButton extends CanvasMenuButton
 	{
 		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 		{
-			isPressed = true;
+			super.onMouseDown();
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{

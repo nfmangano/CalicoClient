@@ -8,10 +8,12 @@ import java.awt.geom.Arc2D;
 
 import org.shodor.util11.PolygonUtils;
 
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CStroke;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.iconsets.CalicoIconManager;
@@ -182,6 +184,7 @@ public abstract class CalicoAbstractInputHandler
 					}
 				};
 
+
 				animation.setStartTime(System.currentTimeMillis());
 				animation.setStepRate(CalicoOptions.pen.press_and_hold_menu_animation_tick_rate);
 				animation.start();
@@ -232,11 +235,13 @@ public abstract class CalicoAbstractInputHandler
 
 		try
 		{
-			this.modeIconLocation = new Point(showLocation.x, showLocation.y);
+			this.modeIconLocation = new Point(showLocation.x, showLocation.y); 
 			this.modeIcon.setBounds(showLocation.getX() - 16, showLocation.getY() - 16, 16, 16);
 			this.modeIcon.setPaintInvalid(true);
-			CCanvasController.canvasdb.get(this.canvas_uid).getLayer().addChild(this.modeIcon);
-			// CCanvasController.canvasdb.get(this.canvas_uid).getLayer().repaint();
+			//CCanvasController.canvasdb.get(this.canvas_uid).getLayer().addChild(this.modeIcon);
+			CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(this.canvas_uid).getLayer(), this.modeIcon);
+//			CCanvasController.canvasdb.get(this.canvas_uid).getLayer().repaint();
+
 			this.isModeIconShowing = true;
 		}
 		catch (Exception e)
@@ -251,8 +256,9 @@ public abstract class CalicoAbstractInputHandler
 		if (!this.isModeIconShowing)
 		{
 			return;
-		}
-		this.modeIcon.removeFromParent();
+		}	
+		//this.modeIcon.removeFromParent();
+		CalicoDraw.removeNodeFromParent(this.modeIcon);
 		this.isModeIconShowing = false;
 	}
 
@@ -331,7 +337,16 @@ public abstract class CalicoAbstractInputHandler
 			// else
 			potentialScrap = CStrokeController.getPotentialScrap(point);
 
-		if (group != 0l // the group must exist
+		if (CConnectorController.exists(group))
+		{
+			CConnectorController.show_stroke_bubblemenu(group, false);
+		}
+		else if (CStrokeController.exists(group))
+		{
+			CStrokeController.show_stroke_bubblemenu(group, false);
+		}
+		
+		else if (group != 0l // the group must exist
 				&& !CGroupController.group_contains_stroke(group, potentialScrap)) // and the group must not contain a
 																				   // potential scrap
 		{

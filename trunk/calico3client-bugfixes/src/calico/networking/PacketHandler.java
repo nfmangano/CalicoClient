@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.*;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import org.apache.log4j.Logger;
@@ -92,6 +93,7 @@ public class PacketHandler
 			case NetworkCommand.GROUP_DROP:GROUP_DROP(packet);break;
 			case NetworkCommand.GROUP_MOVE:GROUP_MOVE(packet);break;
 			case NetworkCommand.GROUP_MOVE_END:GROUP_MOVE_END(packet);break;
+			case NetworkCommand.GROUP_MOVE_START:GROUP_MOVE_START(packet);break;
 			case NetworkCommand.GROUP_SET_PERM:GROUP_SET_PERM(packet);break;
 			case NetworkCommand.GROUP_CHILDREN_COLOR:GROUP_CHILDREN_COLOR(packet);break;
 //			case NetworkCommand.GROUP_RECTIFY:GROUP_RECTIFY(packet);break;
@@ -142,6 +144,13 @@ public class PacketHandler
 			case NetworkCommand.ARROW_DELETE:ARROW_DELETE(packet);break;
 			case NetworkCommand.ARROW_SET_TYPE:ARROW_SET_TYPE(packet);break;
 			case NetworkCommand.ARROW_SET_COLOR:ARROW_SET_COLOR(packet);break;
+			
+			case NetworkCommand.CONNECTOR_LOAD:CONNECTOR_LOAD(packet);break;
+			case NetworkCommand.CONNECTOR_DELETE:CONNECTOR_DELETE(packet);break;
+			case NetworkCommand.CONNECTOR_LINEARIZE:CONNECTOR_LINEARIZE(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR:CONNECTOR_MOVE_ANCHOR(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_START:CONNECTOR_MOVE_ANCHOR_START(packet);break;
+			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_END:CONNECTOR_MOVE_ANCHOR_END(packet);break;
 			
 			case NetworkCommand.AUTH_OK:AUTH_OK(packet);break;
 			case NetworkCommand.AUTH_FAIL:AUTH_FAIL(packet);break;
@@ -203,7 +212,8 @@ public class PacketHandler
 //				CCanvasController.redrawToolbar_clients(cuid);
 			
 			if (CCanvasController.exists(cuid) && CalicoDataStore.gridObject != null &&
-					origNumClients != CCanvasController.canvasdb.get(cuid).getClients().length)
+					origNumClients != CCanvasController.canvasdb.get(cuid).getClients().length
+					&& 0 == CCanvasController.getCurrentUUID())
 				CalicoDataStore.gridObject.updateCell(cuid);
 			
 			if (cuid == CCanvasController.getCurrentUUID())
@@ -296,9 +306,21 @@ public class PacketHandler
 		p.rewind();
 		p.getInt();
 		long uuid = p.getLong();
+		
+		//This is pretty ugly. The proper way to handle it is to create a new packet. However this is the quick and dirty solution until we decide on exactly how to handle large images.
+		if (uuid == 0l)
+		{
+			JOptionPane.showMessageDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
+			"The maximum image size is 1920W x 1080H",
+			"Image Error",
+			JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		long cuid = p.getLong();
 		long puid = p.getLong();
 		String url = p.getString();
+		int port = p.getInt();
+		String localPath = p.getString();
 		int imgX = p.getInt();
 		int imgY = p.getInt();
 		int imgW = p.getInt();
@@ -327,9 +349,11 @@ public class PacketHandler
 //		if (CGroupController.exists(uuid))
 //			return;
 		
-		CGroupController.no_notify_create_image_group(uuid, cuid, puid, url, imgX, imgY, imgW, imgH);
+		CGroupController.no_notify_create_image_group(uuid, cuid, puid, url, port, localPath, imgX, imgY, imgW, imgH);
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
+		
+		
 	}
 	
 	private static void GROUP_ROTATE(CalicoPacket p)
@@ -423,6 +447,14 @@ public class PacketHandler
 		int y = p.getInt();
 		CGroupController.no_notify_move(uuid, x, y);
 	}
+	
+	public static void GROUP_MOVE_START(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+
+		CGroupController.no_notify_move_start(uuid);
+	}
+	
 	public static void GROUP_MOVE_END(CalicoPacket p)
 	{
 		long uuid = p.getLong();
@@ -915,9 +947,71 @@ public class PacketHandler
 	}
 	
 	
+	public static void CONNECTOR_LOAD(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		long cuid = p.getLong();
+		Color color = p.getColor();
+		float thickness = p.getFloat();
+		
+		Point head = new Point(p.getInt(), p.getInt());
+		Point tail = new Point(p.getInt(), p.getInt());
+		
+		int nPoints = p.getInt();
+		double[] orthogonalDistance = new double[nPoints];
+		double[] travelDistance = new double[nPoints];
+		for (int i = 0; i < nPoints; i++)
+		{
+			orthogonalDistance[i] = p.getDouble();
+			travelDistance[i] = p.getDouble();
+		}
+		
+		long anchorHead = p.getLong();
+		long anchorTail = p.getLong();
+		
+		CConnectorController.no_notify_create(uuid, cuid, color, thickness, head, tail, orthogonalDistance, travelDistance, anchorHead, anchorTail);
+		
+	}
 	
+	public static void CONNECTOR_DELETE(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		CConnectorController.no_notify_delete(uuid);
+	}
 	
+	public static void CONNECTOR_LINEARIZE(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		CConnectorController.no_notify_linearize(uuid);
+	}
 	
+	public static void CONNECTOR_MOVE_ANCHOR(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		int x = p.getInt();
+		int y = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor(uuid, type, x, y);
+
+	}
+	
+	public static void CONNECTOR_MOVE_ANCHOR_START(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor_start(uuid, type);
+	}
+	
+	public static void CONNECTOR_MOVE_ANCHOR_END(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int type = p.getInt();
+		
+		CConnectorController.no_notify_move_group_anchor_end(uuid, type);
+
+	}
 	
 	/*
 	private static void STROKE_RELOAD_REMOVE(CalicoPacket p)
@@ -1076,10 +1170,9 @@ public class PacketHandler
 		CStrokeController.strokes.get(uuid).primative_rotate(rotation);
 		CStrokeController.strokes.get(uuid).primative_scale(scaleX, scaleY);
 		
-		CStrokeController.strokes.get(uuid).finish();
+		//CStrokeController.strokes.get(uuid).finish();
 		
-//		CStrokeController.no_notify_finish(uuid);
-		
+		CStrokeController.no_notify_finish(uuid);
 	}
 	
 	private static void STROKE_MAKE_SCRAP(CalicoPacket p)
@@ -1221,7 +1314,7 @@ public class PacketHandler
 				e.printStackTrace();
 			}
 //			Image image = Toolkit.getDefaultToolkit().createImage(CImageController.getImagePath(uuid));
-			CGroupController.no_notify_create_image_group(uuid, cuuid, 0l, "", x, y, image.getWidth(null), image.getHeight(null));
+			CGroupController.no_notify_create_image_group(uuid, cuuid, 0l, "", 0, "", x, y, image.getWidth(null), image.getHeight(null));
 		}
 		catch (Exception e)
 		{
@@ -1290,7 +1383,6 @@ public class PacketHandler
 		{
 			packets[i].rewind();
 			int comm = packets[i].getInt();
-
 			
 			// As long as its not the canvas_info, we should just send it along
 			if(comm!=NetworkCommand.CANVAS_INFO
@@ -1300,7 +1392,17 @@ public class PacketHandler
 				receive(packets[i]);
 			}
 		}
-		
+
+		//Remove temp scraps after undo/redo
+		long[] guuid = CCanvasController.canvasdb.get(cuuid).getChildGroups();
+		for (int i = 0; i < guuid.length; i++)
+		{
+			if (!CGroupController.groupdb.get(guuid[i]).isPermanent())
+			{
+				CGroupController.drop(guuid[i]);
+			}
+		}
+
 		CCanvasController.no_notify_state_change_complete(cuuid);
 //		UndoButton.progressMonitor.close();
 //		UndoButton.progressMonitor = null;

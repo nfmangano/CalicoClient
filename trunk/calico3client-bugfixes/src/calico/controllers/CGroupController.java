@@ -24,9 +24,11 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.CalicoOptions.arrow;
 import calico.components.arrow.AnchorPoint;
 import calico.components.arrow.CArrow;
+import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
@@ -58,7 +60,8 @@ public class CGroupController
 	
 	private static long group_copy_uuid = 0L;
 	public static boolean restoreOriginalStroke = false;
-	public static long originalStroke = 0l;
+	//public static long originalStroke = 0l;
+	public static CalicoPacket originalStroke = null;
 	
 	private static List<Listener> listeners = new ArrayList<Listener>();
 
@@ -213,6 +216,13 @@ public class CGroupController
 		groupdb.get(uuid).addChildArrow(auuid);
 	}
 	
+	public static void no_notify_add_connector(long uuid, long cuuid)
+	{
+		if(!exists(uuid)){return;}
+		
+		groupdb.get(uuid).addChildConnector(cuuid);
+	}
+	
 
 	
 	public static int get_signature(long uuid)
@@ -244,7 +254,8 @@ public class CGroupController
 		{
 			logger.debug("Need to delete group "+uuid);
 			// WHOAA WE NEED TO DELETE THIS SHIT
-			CCanvasController.canvasdb.get(cuid).getLayer().removeChild(groupdb.get(uuid));
+			//CCanvasController.canvasdb.get(cuid).getLayer().removeChild(groupdb.get(uuid));
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 //			CCanvasController.canvasdb.get(cuid).getCamera().repaint();
 		}
 		
@@ -253,7 +264,8 @@ public class CGroupController
 		
 		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);
 		
-		CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 		
 		groupdb.get(uuid).drawPermTemp(true);
 		
@@ -298,7 +310,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).move(x, y);
 		informListenersOfMove(uuid);
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
@@ -313,22 +325,20 @@ public class CGroupController
 			return;
 		}
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
-		{
-			BubbleMenu.clearMenu();
-		}
 		
-		if (restoreOriginalStroke && CStrokeController.exists(originalStroke))
+		if (restoreOriginalStroke && originalStroke != null && uuid == lastGroupUUID)
 		{
-			CStrokeController.unhideStroke(originalStroke);
-			originalStroke = 0l;
+			//CStrokeController.unhideStroke(originalStroke);
+			batchReceive(new CalicoPacket[]{originalStroke});
+			Networking.send(originalStroke);
+			originalStroke = null;
 			restoreOriginalStroke = false;
 		}
-		else if (originalStroke != 0l)
+		/*else if (originalStroke != null)
 		{
-			CStrokeController.delete(originalStroke);
-			originalStroke = 0l;
-		}
+			//CStrokeController.delete(originalStroke);
+			originalStroke = null;
+		}*/
 		
 		//The purpose of this block is to achieve smoother drawing, but it is not thread safe
 		/*groupdb.get(uuid).setTransparency(0f);
@@ -347,34 +357,40 @@ public class CGroupController
 		//CCanvasController.canvasdb.get(groupdb.get(uuid).getCanvasUID()).getLayer().removeChild(groupdb.get(uuid));
 		
 		//This ain't pretty, but its needed for thread safety.
-		SwingUtilities.invokeLater(
+		/*SwingUtilities.invokeLater(
 			new Runnable() { 
-				public void run() {
-					
-					if(!exists(uuid))
-					{
-						//Even if we get this warning it should be ok. 
-						//It means the AWT eventqueue did not process this remove and a duplicate delete request came.
-						//The rest of the code in this method should deal with it ok and the code in here deals with it through this warning
-						logger.warn("DELETE for non-existant group "+uuid);
-					}
-					else
-					{
-						if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
-						{
-							groupdb.get(uuid).removeFromParent();
-							groupdb.remove(uuid);
-				
-							dq_add(uuid);
-						}
-						
-						for (Listener listener : listeners)
-						{
-							listener.groupDeleted(uuid);
-						}
-					}
+				public void run() {*/
+
+		if(!exists(uuid))
+		{
+			//Even if we get this warning it should be ok. 
+			//It means the AWT eventqueue did not process this remove and a duplicate delete request came.
+			//The rest of the code in this method should deal with it ok and the code in here deals with it through this warning
+			logger.warn("DELETE for non-existant group "+uuid);
+		}
+		else
+		{
+			if(CCanvasController.canvas_has_child_group_node(groupdb.get(uuid).getCanvasUID(), uuid))
+			{
+				//groupdb.get(uuid).removeFromParent();
+				CalicoDraw.removeNodeFromParent(groupdb.get(uuid));
+				groupdb.remove(uuid);
 	
-				} } );
+				dq_add(uuid);
+			}
+			
+			for (Listener listener : listeners)
+			{
+				listener.groupDeleted(uuid);
+			}
+		}
+		
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
+		{
+			BubbleMenu.clearMenu();
+		}
+	
+				//} } );
 		
 	}
 	
@@ -449,7 +465,7 @@ public class CGroupController
 			return;
 		}
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.clearMenu();
 		}
@@ -458,6 +474,7 @@ public class CGroupController
 		long[] child_strokes = group.getChildStrokes();
 		long[] child_groups = group.getChildGroups();
 		long[] child_arrows = group.getChildArrows();
+		long[] child_connectors = group.getChildConnectors();
 		
 		group.unparentAllChildren();
 		
@@ -496,6 +513,15 @@ public class CGroupController
 			for(int i=0;i<child_arrows.length;i++)
 			{
 				CArrowController.arrows.get(child_arrows[i]).calculateParent();
+			}
+		}
+		
+		// Convert connectors to strokes
+		if(child_connectors.length>0)
+		{
+			for(int i=0;i<child_connectors.length;i++)
+			{
+				CConnectorController.make_stroke(child_connectors[i]);
 			}
 		}
 	
@@ -585,7 +611,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).setPermanent(isperm);
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			CGroupController.show_group_bubblemenu(uuid, false);
 		}
@@ -837,6 +863,33 @@ public class CGroupController
 				}
 			}
 		}
+		
+		//Connectors
+		if (isRoot)
+		{
+			long[] connector_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildConnectors();
+			for (int i = 0; i < connector_uuids.length; i++)
+			{
+				CConnector tempConnector = CConnectorController.connectors.get(connector_uuids[i]);
+				if ((UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) || tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) == uuid) && 
+					(UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)) || tempConnector.getAnchorUUID(CConnector.TYPE_TAIL) == uuid))
+				{
+					long new_connector_uuid = UUIDMappings.get(connector_uuids[i]).longValue();
+					
+					
+					if (UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) && 
+						UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)))
+					{
+						Point head = (Point) tempConnector.getHead().clone();
+						Point tail = (Point) tempConnector.getTail().clone();
+						
+						CConnectorController.no_notify_create(new_connector_uuid, canvasuuid, tempConnector.getColor(), tempConnector.getThickness(), head, tail,
+								tempConnector.getOrthogonalDistance(), tempConnector.getTravelDistance(), 
+								UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)), UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)));
+					}
+				}
+			}
+		}
 	}//no_notify_copy
 	
 	private static ArrayList<Long> getSubGroups(long uuid)
@@ -951,6 +1004,7 @@ public class CGroupController
 			}*/
 		}
 		
+		//Arrows
 		if (isRoot)
 		{
 			long[] arrow_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildArrows();
@@ -962,6 +1016,22 @@ public class CGroupController
 				{
 					long new_arw_uuids = Calico.uuid();
 					UUIDMappings.put(arrow_uuids[i], new Long(new_arw_uuids));
+				}
+			}
+		}
+		
+		//Connectors
+		if (isRoot)
+		{
+			long[] connector_uuids  = CCanvasController.canvasdb.get(canvasuuid).getChildConnectors();
+			for (int i = 0; i < connector_uuids.length; i++)
+			{
+				CConnector tempConnector = CConnectorController.connectors.get(connector_uuids[i]);
+				if ((UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)) || tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) == uuid) && 
+					(UUIDMappings.containsKey(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)) || tempConnector.getAnchorUUID(CConnector.TYPE_TAIL) == uuid))
+				{
+					long new_ctr_uuids = Calico.uuid();
+					UUIDMappings.put(connector_uuids[i], new Long(new_ctr_uuids));
 				}
 			}
 		}
@@ -1167,6 +1237,12 @@ public class CGroupController
 		
 		groupdb.get(uuid).deleteChildArrow(childuid);
 	}
+	public static void no_notify_delete_child_connector(long uuid, long childuid)
+	{
+		if(!exists(uuid)){return;}
+		
+		groupdb.get(uuid).deleteChildConnector(childuid);
+	}
 	
 	private static long getDecoratorParent(long uuid)
 	{
@@ -1351,7 +1427,7 @@ public class CGroupController
 		if (!exists(uuid))
 			return;
 
-		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getPieMenuButtons();
+		ObjectArrayList<Class<?>> pieMenuButtons = CGroupController.groupdb.get(uuid).getBubbleMenuButtons();
 		
 		int curPos = 0;
 		int totalButtons = 0;
@@ -1395,7 +1471,7 @@ public class CGroupController
 				}
 			}
 
-			BubbleMenu.displayBubbleMenu(uuid,fade,buttons.toArray(new PieMenuButton[buttons.size()]));
+			BubbleMenu.displayBubbleMenu(uuid,fade,BubbleMenu.TYPE_GROUP,buttons.toArray(new PieMenuButton[buttons.size()]));
 			
 			
 		}
@@ -1503,11 +1579,12 @@ public class CGroupController
 		
 		group.setShapeToRoundedRectangle(rect);
 		
-		group.repaint();
+		//group.repaint();
+		CalicoDraw.repaint(group);
 
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == guuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == guuid)
 		{
-			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
+			BubbleMenu.moveIconPositions(group.getBounds());
 		}
 	}
 	
@@ -1540,24 +1617,25 @@ public class CGroupController
 		CGroupController.groupdb.get(guuid).shrinkToConvexHull();
 	}
 
-	public static void create_image_group(long uuid, long cuid, long puid, String imgURL, int imgX, int imgY, int imgW, int imgH)
+	public static void create_image_group(long uuid, long cuid, long puid, String imgURL, int port, String localPath, int imgX, int imgY, int imgW, int imgH)
 	{
 		
-		no_notify_create_image_group(uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH);
+		no_notify_create_image_group(uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH);
 		
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH, true, false, 0.0d, 1.0d, 1.0d));
+		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_IMAGE_LOAD, uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH, true, false, 0.0d, 1.0d, 1.0d));
 	}
 
-	public static void no_notify_create_image_group(long uuid, long cuid, long puid, String imgURL, int imgX, int imgY, int imgW, int imgH) {
+	public static void no_notify_create_image_group(long uuid, long cuid, long puid, String imgURL, int port, String localPath, int imgX, int imgY, int imgW, int imgH) {
 		// TODO Auto-generated method stub
 		//taken from start(...)
 		
 		if (groupdb.containsKey(uuid))
 			no_notify_delete(uuid);
 		
-		groupdb.put(uuid, new CGroupImage(uuid, cuid, puid, imgURL, imgX, imgY, imgW, imgH));		
+		groupdb.put(uuid, new CGroupImage(uuid, cuid, puid, imgURL, port, localPath, imgX, imgY, imgW, imgH));		
 		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);		
-		CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));		
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));	
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), groupdb.get(uuid));
 		groupdb.get(uuid).drawPermTemp(true);
 		CGroupController.no_notify_finish(uuid, false);
 		
@@ -1585,7 +1663,7 @@ public class CGroupController
 		
 		groupdb.get(uuid).rotate(theta);
 		
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
@@ -1605,7 +1683,7 @@ public class CGroupController
 		groupdb.get(uuid).scale(scaleX, scaleY);
 		
 		informListenersOfMove(uuid);
-		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeGroup == uuid)
+		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			BubbleMenu.moveIconPositions(CGroupController.groupdb.get(uuid).getBounds());
 		}
@@ -1618,8 +1696,8 @@ public class CGroupController
 		CGroupController.setCurrentUUID(uuid);
 		CGroupController.no_notify_append(uuid, x, y);
 		CGroupController.no_notify_set_text(uuid, text);
-		CGroupController.no_notify_finish(uuid, false);
-		CGroupController.no_notify_set_permanent(uuid, true);
+		CGroupController.no_notify_finish(uuid, false, false, true);
+		//CGroupController.no_notify_set_permanent(uuid, true);
 		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
 		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
 		CGroupController.recheck_parent(uuid);
@@ -1670,6 +1748,7 @@ public class CGroupController
 	
 	public static void move_end(long uuid, int x, int y) {		no_notify_move_end(uuid, x, y);
 		CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()).moveInFrontOf(null);
+		//CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()), null);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_MOVE_END, uuid, x, y));
 	}
 
@@ -1681,8 +1760,10 @@ public class CGroupController
 	
 	public static void no_notify_move_start(long guuid) {
 		no_notify_set_parent(guuid, 0);
-		CGroupController.groupdb.get(guuid).moveToFront();
-		CGroupController.groupdb.get(guuid).moveInFrontOf(null);
+		//CGroupController.groupdb.get(guuid).moveToFront();
+		CalicoDraw.moveNodeToFront(CGroupController.groupdb.get(guuid));
+		//CGroupController.groupdb.get(guuid).moveInFrontOf(null);
+		CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(guuid), null);
 		CalicoInputManager.group = guuid;
 	}
 	

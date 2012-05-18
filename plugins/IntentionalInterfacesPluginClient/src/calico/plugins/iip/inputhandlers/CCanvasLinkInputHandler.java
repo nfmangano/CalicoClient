@@ -9,7 +9,6 @@ import calico.components.piemenu.PieMenu;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CCanvasLink;
-import calico.plugins.iip.components.CCanvasLink.LinkType;
 import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.DeleteLinkButton;
@@ -28,7 +27,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 
 	private static final CCanvasLinkInputHandler INSTANCE = new CCanvasLinkInputHandler();
 
-	private static final double MOVE_THRESHOLD = 5.0;
+	private static final double MOVE_THRESHOLD = 10.0;
 
 	private enum State
 	{
@@ -47,8 +46,9 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
 	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
+	
+	private Point mouseDragAnchor;
 
-	private boolean canMoveCurrentLink;
 	private boolean isNearestSideA;
 
 	private CCanvasLinkInputHandler()
@@ -62,7 +62,6 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 
 		CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(currentLinkId);
 		isNearestSideA = CCanvasLinkController.getInstance().isNearestSideA(currentLinkId, point);
-		canMoveCurrentLink = (link.getLinkType() != LinkType.DESIGN_INSIDE) || !isNearestSideA;
 
 		deleteLinkButton.setContext(link);
 		setLinkLabelButton.setContext(link);
@@ -87,8 +86,14 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		{
 			if (state == State.ACTIVATED)
 			{
-				state = State.DRAG;
-				CreateIntentionArrowPhase.getInstance().startMove(CCanvasLinkController.getInstance().getLinkById(currentLinkId), isNearestSideA);
+				if (event.getGlobalPoint().distance(mouseDragAnchor) >= MOVE_THRESHOLD)
+				{
+					state = State.DRAG;
+					CreateIntentionArrowPhase.getInstance().startMove(
+							CCanvasLinkController.getInstance().getLinkById(currentLinkId),
+							isNearestSideA ? CreateIntentionArrowPhase.MoveLinkEndpointMode.MOVE_ANCHOR_A
+									: CreateIntentionArrowPhase.MoveLinkEndpointMode.MOVE_ANCHOR_B, event.getGlobalPoint());
+				}
 			}
 		}
 	}
@@ -103,6 +108,8 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 				state = State.ACTIVATED;
 			}
 
+			mouseDragAnchor = event.getGlobalPoint();
+			
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
 			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 		}

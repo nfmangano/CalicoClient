@@ -123,6 +123,20 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 					}
 				}
 			}
+			
+			long[] connectorlist = CCanvasController.canvasdb.get(canvas_uid).getChildConnectors();
+			if(connectorlist.length>0)
+			{
+				for(int i=0;i<connectorlist.length;i++)
+				{
+					if(CConnectorController.exists(connectorlist[i]) && CConnectorController.intersectsCircle(connectorlist[i],e.getPoint(), CalicoOptions.pen.eraser.radius) )
+					{
+						logger.debug("DELETE CONNECTOR "+connectorlist[i]);
+						CConnectorController.delete(connectorlist[i]);
+						erasedSomething = true;
+					}
+				}
+			}
 		}
 		
 		lastEvent = e;
@@ -137,7 +151,7 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 	{
 //		this.hideModeIcon();
 		CalicoInputManager.unlockHandlerIfMatch(canvas_uid);
-		Networking.send(NetworkCommand.ERASE_START, canvas_uid, erasedSomething);
+		Networking.send(NetworkCommand.ERASE_END, canvas_uid, erasedSomething);
 		
 		removeCircle();
 		
@@ -152,15 +166,18 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 		eraser = new PPath(hitTarget);
 		eraser.setStrokePaint(Color.black);
 		eraser.setStroke(new BasicStroke(1.0f));
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().addChild(eraser);
-		eraser.invalidatePaint();
+		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().addChild(eraser);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(), eraser);
+		//eraser.invalidatePaint();
+		CalicoDraw.invalidatePaint(eraser);
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().repaintFrom(eraser.getBounds(), eraser);
 		}
 		else {
 			Rectangle origBounds = eraser.getBounds().getBounds();
 			Ellipse2D.Double hitTarget = new Ellipse2D.Double(e.getPoint().x - CalicoOptions.pen.eraser.radius, e.getPoint().y - CalicoOptions.pen.eraser.radius, CalicoOptions.pen.eraser.radius*2, CalicoOptions.pen.eraser.radius*2);
 			eraser.setPathTo(hitTarget);
-			eraser.repaint();
+			//eraser.repaint();
+			CalicoDraw.repaintNode(eraser);
 			CCanvasController.canvasdb.get(canvas_uid).repaint(new PBounds(origBounds));
 //			eraser.moveTo((float)(e.getPoint().x - CalicoOptions.pen.eraser.radius), (float)(e.getPoint().y - CalicoOptions.pen.eraser.radius));
 		}
@@ -169,7 +186,8 @@ public class CCanvasEraseModeInputHandler extends CalicoAbstractInputHandler
 	private void removeCircle()
 	{
 		PBounds bounds = eraser.getBounds();
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().removeChild(eraser);
+		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().removeChild(eraser);
+		CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(), eraser);
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().repaintFrom(bounds, null);
 		eraser = null;
 	}

@@ -68,8 +68,9 @@ public class ClearButton extends CanvasMenuButton
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, cuid));
-			CCanvasController.lock_canvas(cuid, false, "clean canvas action", (new Date()).getTime());
+			CCanvasController.clear(cuid);
+			//Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, cuid));
+			//CCanvasController.lock_canvas(cuid, false, "clean canvas action", (new Date()).getTime());
 			//StatusMessage.popup("Not yet implemented");
 			super.onMouseUp();
 		}

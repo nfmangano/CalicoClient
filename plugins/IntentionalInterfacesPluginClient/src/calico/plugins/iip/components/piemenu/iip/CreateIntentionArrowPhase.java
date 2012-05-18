@@ -11,6 +11,7 @@ import calico.components.arrow.AbstractArrow;
 import calico.components.arrow.AbstractArrowAnchorPoint;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -24,15 +25,28 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		return INSTANCE;
 	}
 
-	private static final double DRAG_THRESHOLD = 3.0;
-	
 	static final CreateIntentionArrowPhase INSTANCE = new CreateIntentionArrowPhase();
+
+	public enum MoveLinkEndpointMode
+	{
+		MOVE_ANCHOR_A,
+		MOVE_ANCHOR_B;
+	}
+
+	public enum NewLinkMode
+	{
+		LINK_TO_COPY,
+		LINK_TO_BLANK,
+		LINK_EXISTING;
+	}
 
 	private enum Mode
 	{
 		MOVE_ANCHOR_A,
 		MOVE_ANCHOR_B,
-		CREATE;
+		LINK_TO_COPY,
+		LINK_TO_BLANK,
+		LINK_EXISTING;
 	}
 
 	private boolean dragInitiated;
@@ -41,7 +55,8 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 	private CIntentionCell fromCell;
 	private CIntentionCell toCell;
 	private Point2D anchorPoint;
-	private CCanvasLink.LinkType type;
+	private Point2D dragStartPoint;
+	private boolean copy;
 
 	private final TransitoryArrow arrow = new TransitoryArrow();
 
@@ -53,14 +68,14 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		arrow.setVisible(false);
 	}
 
-	public void startMove(CCanvasLink link, boolean moveA)
+	public void startMove(CCanvasLink link, MoveLinkEndpointMode moveMode, Point dragStartPoint)
 	{
-		this.mode = moveA ? Mode.MOVE_ANCHOR_A : Mode.MOVE_ANCHOR_B;
+		this.mode = (moveMode == MoveLinkEndpointMode.MOVE_ANCHOR_A) ? Mode.MOVE_ANCHOR_A : Mode.MOVE_ANCHOR_B;
 		this.link = link;
 		this.fromCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorA().getCanvasId());
 		this.toCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
-		this.anchorPoint = moveA ? link.getAnchorB().getPoint() : link.getAnchorA().getPoint();
-		this.type = link.getLinkType();
+		this.anchorPoint = (mode == Mode.MOVE_ANCHOR_A) ? link.getAnchorB().getPoint() : link.getAnchorA().getPoint();
+		this.dragStartPoint = dragStartPoint;
 		this.onSelf = false;
 
 		IntentionGraphController.getInstance().getArrowByLinkId(link.getId()).setVisible(false);
@@ -69,20 +84,19 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		startDrag();
 	}
 
-	void startCreate(CIntentionCell fromCell, Point anchorPoint, CCanvasLink.LinkType type)
+	void startCreate(CIntentionCell fromCell, Point dragStartPoint, NewLinkMode mode)
 	{
-		this.mode = Mode.CREATE;
+		this.mode = (mode == NewLinkMode.LINK_EXISTING) ? Mode.LINK_EXISTING : (mode == NewLinkMode.LINK_TO_BLANK) ? Mode.LINK_TO_BLANK : Mode.LINK_TO_COPY;
 		this.link = null;
 		this.fromCell = fromCell;
 		this.toCell = null;
 		this.anchorPoint = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT)
-				.globalToLocal(new Point2D.Double(anchorPoint.getX(), anchorPoint.getY()));
-		this.type = type;
+				.globalToLocal(new Point2D.Double(dragStartPoint.getX(), dragStartPoint.getY()));
+		this.dragStartPoint = dragStartPoint;
 		this.onSelf = false;
 		this.dragInitiated = false;
 
-		System.out.println("Start creating " + type + " arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + " with anchor point "
-				+ anchorPoint);
+		System.out.println("Start creating arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + " with anchor point " + anchorPoint);
 
 		startPhase();
 	}
@@ -117,7 +131,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			switch (mode)
 			{
-				case CREATE:
+				case LINK_EXISTING:
+				case LINK_TO_BLANK:
+				case LINK_TO_COPY:
 				case MOVE_ANCHOR_B:
 					arrow.a.getPoint().setLocation(point);
 					break;
@@ -132,7 +148,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			switch (mode)
 			{
-				case CREATE:
+				case LINK_EXISTING:
+				case LINK_TO_BLANK:
+				case LINK_TO_COPY:
 				case MOVE_ANCHOR_B:
 					arrow.b.getPoint().setLocation(point);
 					break;
@@ -173,13 +191,17 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		}
 
 		Point2D graphPosition = getGraphPosition(terminationPoint);
-		if (mode == Mode.CREATE)
+		switch (mode)
 		{
-			createLink(graphPosition);
-		}
-		else
-		{
-			moveLink(graphPosition);
+			case LINK_EXISTING:
+			case LINK_TO_BLANK:
+			case LINK_TO_COPY:
+				createLink(graphPosition);
+				break;
+			case MOVE_ANCHOR_A:
+			case MOVE_ANCHOR_B:
+				moveLink(graphPosition);
+				break;
 		}
 	}
 
@@ -196,7 +218,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 			CCanvasLinkController.getInstance().moveLink(anchor, canvasId);
 		}
 
-		IntentionGraphController.getInstance().getArrowByLinkId(link.getId()).setVisible(true);
+		CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(link.getId());
+		arrow.setVisible(true);
+		arrow.setHighlighted(false);
 	}
 
 	private void createLink(Point2D graphPosition)
@@ -205,20 +229,28 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			if (toCell == null)
 			{
-				CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), type, graphPosition.getX(), graphPosition.getY());
+				if (mode == Mode.LINK_EXISTING)
+				{
+					CCanvasLinkController.getInstance().createOrphanedLink(fromCell.getCanvasId(), graphPosition.getX(), graphPosition.getY());
+				}
+				else
+				{
+					CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), graphPosition.getX(), graphPosition.getY(),
+							(mode == Mode.LINK_TO_COPY));
+				}
 			}
 			else
 			{
-				CCanvasLinkController.getInstance().createLink(fromCell.getCanvasId(), toCell.getCanvasId(), type);
+				CCanvasLinkController.getInstance().createLink(fromCell.getCanvasId(), toCell.getCanvasId());
 			}
 		}
 		else
 		{
-			CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), type);
+			CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), copy);
 		}
 
-		System.out.println("Create " + type + " arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + ", with anchor point "
-				+ anchorPoint + ", to " + ((toCell == null) ? "the canvas" : "cell #" + toCell.getCanvasId()) + " at " + graphPosition);
+		System.out.println("Create arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + ", with anchor point " + anchorPoint
+				+ ", to " + ((toCell == null) ? "the canvas" : "cell #" + toCell.getCanvasId()) + " at " + graphPosition);
 	}
 
 	private Point2D getGraphPosition(Point2D point)
@@ -232,7 +264,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			case MOVE_ANCHOR_A:
 				return toCell;
-			case CREATE:
+			case LINK_EXISTING:
+			case LINK_TO_BLANK:
+			case LINK_TO_COPY:
 			case MOVE_ANCHOR_B:
 				return fromCell;
 			default:
@@ -246,7 +280,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			case MOVE_ANCHOR_A:
 				return fromCell;
-			case CREATE:
+			case LINK_EXISTING:
+			case LINK_TO_BLANK:
+			case LINK_TO_COPY:
 			case MOVE_ANCHOR_B:
 				return toCell;
 			default:
@@ -261,18 +297,23 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 			case MOVE_ANCHOR_A:
 				fromCell = cell;
 				break;
-			case CREATE:
+			case LINK_EXISTING:
 			case MOVE_ANCHOR_B:
 				toCell = cell;
 				break;
+			case LINK_TO_BLANK:
+			case LINK_TO_COPY:
+				if (cell != null)
+				{
+					throw new IllegalArgumentException("Can't set the transitory cell for mode " + mode);
+				}
+				else
+				{
+					break;
+				}
 			default:
 				throw new IllegalArgumentException("Unknown mode " + mode);
 		}
-	}
-
-	private boolean dragThresholdCrossed(Point point)
-	{
-		return anchorPoint.distance(point) >= DRAG_THRESHOLD;
 	}
 
 	@Override
@@ -280,18 +321,10 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 	{
 		if (!dragInitiated)
 		{
-			if (dragThresholdCrossed(event.getPoint()))
-			{
-				startDrag();
-			}
-			else
-			{
-				return;
-			}
+			startDrag();
 		}
 
 		Point2D graphPosition = getGraphPosition(event.getPoint());
-		System.out.println("Drag arrowhead to " + graphPosition);
 
 		moveTransitoryArrow(graphPosition, false);
 
@@ -300,7 +333,7 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		onSelf = ((getAnchorCell() != null) && (newCellId == getAnchorCell().getId()));
 
 		CIntentionCell newCell;
-		if ((newCellId < 0L) || onSelf)
+		if ((newCellId < 0L) || onSelf || (mode == Mode.LINK_TO_BLANK) || (mode == Mode.LINK_TO_COPY))
 		{
 			newCell = null;
 		}
@@ -316,6 +349,21 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		if (getTransitoryCell() != null)
 		{
 			getTransitoryCell().setHighlighted(true);
+		}
+
+		switch (mode)
+		{
+			case MOVE_ANCHOR_A:
+			case MOVE_ANCHOR_B:
+			case LINK_EXISTING:
+				if (getTransitoryCell() == null)
+				{
+					arrow.setColor(CCanvasLinkArrow.FLOATING_COLOR);
+					break;
+				}
+			case LINK_TO_BLANK:
+			case LINK_TO_COPY:
+				arrow.setColor(CCanvasLinkArrow.NORMAL_COLOR);
 		}
 	}
 

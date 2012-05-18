@@ -1,5 +1,6 @@
 package calico.components;
 
+import calico.components.CCanvas.Layer;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -74,12 +75,18 @@ public class CStroke extends PPath
 	float thickness;
 	
 	private boolean isTempInk = false;
+	private boolean isHighlighted = false;
 
 	private LinkedList<PNode> tempSegments = new LinkedList<PNode>();
 	
 	protected float transparency = CalicoOptions.stroke.transparency;
 	
 	public boolean hiding = false;
+	
+	public Point circlePoint = new Point(0,0);
+	
+	// This will hold the bubble menu buttons (Class<?>)
+	private static ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
 	
 	public CStroke(long u, long canvas, long puid)
 	{
@@ -171,9 +178,10 @@ public class CStroke extends PPath
 			for (final PNode path : tempSegments)
 			{
 				//layer.removeChild(path);
-				SwingUtilities.invokeLater(
+				/*SwingUtilities.invokeLater(
 						new Runnable() { public void run() { layer.removeChild(path); } }
-				);
+				);*/
+				CalicoDraw.removeChildFromNode(layer, path);
 			}
 			tempSegments.clear();
 		}
@@ -193,9 +201,10 @@ public class CStroke extends PPath
 		if(CCanvasController.canvas_has_child_stroke_node(this.canvasUID, uuid))
 		{
 			//This line is not thread safe so must invokeLater to prevent eraser artifacts.
-			SwingUtilities.invokeLater(
+			/*SwingUtilities.invokeLater(
 					new Runnable() { public void run() { removeFromParent(); } }
-			);
+			);*/
+			CalicoDraw.removeNodeFromParent(this);
 			//removeFromParent();
 		}
 	}
@@ -218,14 +227,16 @@ public class CStroke extends PPath
 	{
 		this.color = color;
 		setStrokePaint( color );
-		this.setPaintInvalid(true);
+		//this.setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(this, true);
 	}
 	
 	public void setThickness(float t)
 	{
 		this.thickness = t;
 		setStroke( new BasicStroke(t) );
-		this.setPaintInvalid(true);
+		//this.setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(this, true);
 	}
 	
 	public void finish()
@@ -241,12 +252,13 @@ public class CStroke extends PPath
 		for (final PNode path : tempSegments)
 		{
 			//path.setTransparency(0f);
-			SwingUtilities.invokeLater(
+			/*SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
 						path.setTransparency(0f);
 						layer.removeChild(path); 
 						} }
-			);
+			);*/
+			CalicoDraw.removeChildFromNode(layer, path);
 			
 		}
 		tempSegments.clear();
@@ -360,9 +372,11 @@ public class CStroke extends PPath
 		line.setStrokePaint(strokePaint);
 		line.addPoint(0, mousePoints.xpoints[mousePoints.npoints-2], mousePoints.ypoints[mousePoints.npoints-2]);
 		line.addPoint(1, x, y);
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(line);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(line);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), line);
 		this.tempSegments.add(line);
-		line.repaintFrom(line.getBounds(), line);
+		//line.repaintFrom(line.getBounds(), line);
+		CalicoDraw.repaintNode(line);
 		
 		if (!drawTailTarget && Geometry.getPolygonLength(mousePoints) >= CalicoOptions.stroke.min_create_scrap_length
 				&& CalicoDataStore.Mode == CInputMode.EXPERT)
@@ -373,15 +387,34 @@ public class CStroke extends PPath
 	}
 	
 	private void drawHitCircle() {
+		double totalLen = 0f, previousLen = 0f;
+		for (int i = 1; i < mousePoints.npoints; i++)
+		{
+			previousLen = totalLen;
+			totalLen += Point.distance(mousePoints.xpoints[i-1], mousePoints.ypoints[i-1], mousePoints.xpoints[i], mousePoints.ypoints[i]);
+			int offsetLength = 25;
+			if (totalLen >= offsetLength)
+			{
+				double ratio = (offsetLength - previousLen) / ((offsetLength - previousLen) +(totalLen - offsetLength));
+				circlePoint.x = (int) (((mousePoints.xpoints[i] - mousePoints.xpoints[i-1]) * ratio) + mousePoints.xpoints[i-1]);
+				circlePoint.y = (int) (((mousePoints.ypoints[i] - mousePoints.ypoints[i-1]) * ratio) + mousePoints.ypoints[i-1]);
+				break;
+			}
+		}
+		
+		
 		double radius = CalicoOptions.stroke.max_head_to_heal_distance;
-		Ellipse2D.Double hitTarget = new Ellipse2D.Double(mousePoints.xpoints[0] - radius, mousePoints.ypoints[0] - radius, radius*2, radius*2);
+		Ellipse2D.Double hitTarget = new Ellipse2D.Double(circlePoint.x - radius, circlePoint.y - radius, radius*2, radius*2);
+		//Ellipse2D.Double hitTarget = new Ellipse2D.Double(mousePoints.xpoints[0] - radius, mousePoints.ypoints[0] - radius, radius*2, radius*2);
 		final PPath circle = new PPath(hitTarget);
 		circle.setStrokePaint(Color.white);
 		circle.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
 		BasicStroke.JOIN_MITER, 10.0f, new float[] {10f}, 0.0f));
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(circle);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(circle);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), circle);
 		this.tempSegments.add(circle);
-		circle.invalidatePaint();
+		//circle.invalidatePaint();
+		CalicoDraw.invalidatePaint(circle);
 		CCanvasController.canvasdb.get(canvasUID).getLayer().repaintFrom(circle.getBounds(), circle);
 		drawTailTarget = true;
 //			circle.repaintFrom(circle.getBounds(), circle);
@@ -400,7 +433,8 @@ public class CStroke extends PPath
 		    }
 		};
 		// Must schedule the activity with the root for it to run.
-		circle.getRoot().addActivity(flash);
+		//circle.getRoot().addActivity(flash);
+		CalicoDraw.addActivityToNode(circle, flash);
 	}
 	
 	
@@ -434,7 +468,8 @@ public class CStroke extends PPath
 //		pline.setStroke(new BasicStroke( CalicoOptions.pen.stroke_size ));
 		pline.setStrokePaint(color);
 		//debugObjects.add(pline);
-		CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(pline);
+		//CCanvasController.canvasdb.get(canvasUID).getLayer().addChild(pline);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), pline);
 	}
 	public void eraseDebugMarks()
 	{
@@ -537,6 +572,13 @@ public class CStroke extends PPath
 		{
 			//This draws the highlight
 			Composite temp = g2.getComposite();
+			if (isHighlighted)
+			{
+				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CalicoOptions.stroke.background_transparency));
+				g2.setStroke(new BasicStroke(CalicoOptions.pen.stroke_size + 8));
+				g2.setPaint(Color.blue);
+				g2.draw(getPathReference());
+			}
 			if (CGroupController.exists(getParentUUID()) && !CGroupController.groupdb.get(getParentUUID()).isPermanent() && !this.isTempInk())
 			{
 				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CGroupController.groupdb.get(getParentUUID()).getTransparency()));
@@ -568,10 +610,24 @@ public class CStroke extends PPath
     }
 	
 	
+	public void highlight_on() {
+		isHighlighted = true;
+		highlight_repaint();
+	}
 	
-	
-	
+	public void highlight_off() {
+		isHighlighted = false;
+		highlight_repaint();
+	}
 
+	public void highlight_repaint()
+	{
+		Rectangle bounds = getBounds().getBounds();
+		double buffer = 30;
+		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
+		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), bufferBounds, this);
+	}
 	
 	public static int countIntersections(Polygon path, Polygon testPath)
 	{
@@ -711,7 +767,9 @@ public class CStroke extends PPath
 //		invalidatePaint();
 		
 //		CCanvasController.canvasdb.get(canvasUID).getCamera().validateFullPaint();
-		CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+
+		//CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getCamera(), new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
 	}
 	
 	public PAffineTransform getPTransform() {
@@ -757,7 +815,8 @@ public class CStroke extends PPath
 	public long createTemporaryScrapPreview(final boolean delete) {
 		
 		long tempUUID = Calico.uuid();
-		CGroupController.no_notify_start(tempUUID, this.canvasUID, getParentUUID(), false);
+		CGroupController.no_notify_start(tempUUID, this.canvasUID, 0l, false);
+
 		int[] x = new int[mousePoints.npoints];
 		int[] y = new int[mousePoints.npoints];
 		for (int i = 0; i < mousePoints.npoints; i++)
@@ -767,7 +826,7 @@ public class CStroke extends PPath
 		}
 		
 		CGroupController.no_notify_append(tempUUID, x, y);
-		CGroupController.no_notify_finish(tempUUID, true);
+		CGroupController.no_notify_finish(tempUUID, true, false, true);
 		
 //		System.out.println("Creating temporary group: " + tempUUID);
 		
@@ -776,10 +835,13 @@ public class CStroke extends PPath
 		CGroupController.setCurrentUUID(tempUUID);
 		CGroupController.setLastCreatedGroupUUID(tempUUID);
 
-		CStrokeController.hideStroke(this.uuid, delete);
+		//CStrokeController.hideStroke(this.uuid, delete);
+		
 		
 		CGroupController.restoreOriginalStroke = true;
-		CGroupController.originalStroke = uuid;
+		CGroupController.originalStroke = getUpdatePackets()[0];
+		
+		CStrokeController.delete(this.uuid);
 		
 		return tempUUID;
 	}
@@ -968,7 +1030,6 @@ public class CStroke extends PPath
 		return isTempInk;
 	}
 	
-	@Override
 	public void setTransparency(float f)
 	{
 		if (f > 1.0f)
@@ -981,5 +1042,23 @@ public class CStroke extends PPath
 		
 		super.setTransparency(f);
 	}
+	
+	
+	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>();
+		bubbleMenuButtons.addAll(internal_getBubbleMenuButtons());
+		//bubbleMenuButtons.addAll(CStroke.bubbleMenuButtons); //5
+		return bubbleMenuButtons;
+	}
+	
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
+		bubbleMenuButtons.add(calico.components.bubblemenu.strokes.StrokeMakeConnectorButton.class); //12
+		return bubbleMenuButtons;
+	}
+	
+	
 
 }

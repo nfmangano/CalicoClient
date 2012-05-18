@@ -75,7 +75,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			if (BubbleMenu.isBubbleMenuActive())
 			{
 				long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
-				if (guuid != BubbleMenu.activeGroup)
+				if (guuid != BubbleMenu.activeUUID)
 				{
 					BubbleMenu.clearMenu();
 				}
@@ -111,11 +111,12 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 						new AnchorPoint(CArrow.TYPE_CANVAS, canvas_uid, e.getPoint())
 					);
 					
-					final CArrow finalArrow = tempArrow;
+					/*final CArrow finalArrow = tempArrow;
 					SwingUtilities.invokeLater(
 							new Runnable() { public void run() { 
 								CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(finalArrow);
-							}});
+							}});*/
+					CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uid).getLayer(), tempArrow);
 							
 					//CCanvasController.canvasdb.get(canvas_uid).getLayer().addChild(tempArrow);
 					
@@ -219,15 +220,16 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 			
 			
 			//This line is not thread safe so must invokeLater to prevent exceptions.
-			final CArrow finalArrow = tempArrow;
+			/*final CArrow finalArrow = tempArrow;
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
 						CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(finalArrow);
 						tempArrow = null;
 						} }
-			);
+			);*/
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(canvas_uid).getLayer(), tempArrow);
 			//CCanvasController.canvasdb.get(canvas_uid).getLayer().removeChild(tempArrow);
-			//tempArrow = null;
+			tempArrow = null;
 			
 			tempGuuidB = 0;
 		}
@@ -235,7 +237,7 @@ public class CCanvasArrowModeInputHandler extends CalicoAbstractInputHandler
 		if (!hasBrokenDistanceThreshold)
 		{
 			long guuid = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint());
-			if (BubbleMenu.activeGroup != guuid && guuid != 0)
+			if (BubbleMenu.activeUUID != guuid && guuid != 0)
 			{
 				CGroupController.show_group_bubblemenu(guuid);
 			}

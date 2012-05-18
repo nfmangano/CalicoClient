@@ -73,7 +73,8 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 		addCap(CanvasGenericMenuBar.ALIGN_END);
 		
 
-		this.invalidatePaint();
+		//this.invalidatePaint();
+		CalicoDraw.invalidatePaint(this);
 
 	}
 			

@@ -3,9 +3,12 @@ package calico.inputhandlers.canvas;
 import calico.*;
 import calico.components.*;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.decorators.CListDecorator;
 import calico.components.piemenu.*;
 import calico.components.piemenu.canvas.DeleteAreaButton;
 import calico.components.piemenu.groups.GroupCreateTempButton;
+import calico.controllers.CConnectorController;
+import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
@@ -73,6 +76,16 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionPressed(InputEventInfo e)
 	{
+		//Tablets might not get the released event if the stylus is moved off the edge.
+		//Make sure any previous stroke is finished before starting the next
+		if (hasBeenPressed)
+		{
+			InputEventInfo lastEvent = new InputEventInfo();
+			lastEvent.setPoint(lastPoint);
+			lastEvent.setButton(InputEventInfo.BUTTON_LEFT);
+			actionReleased(lastEvent);
+		}
+		
 		mouseMoved = false;
 //		CalicoInputManager.drawCursorImage(canvas_uid,
 //				CalicoIconManager.getIconImage("mode.stroke"), e.getPoint());
@@ -80,7 +93,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		hasBeenPressed = true;
 		long uuid = 0l;
 		
-		if(e.isLeftButtonPressed())
+		if(e.isLeftButton())
 		{
 			int x = e.getX();
 			int y = e.getY();
@@ -91,7 +104,21 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			hasStartedBge = true;
 			mouseDown = e.getPoint();
 			
-			if (CStrokeController.getPotentialScrap(e.getPoint()) > 0l && !BubbleMenu.isBubbleMenuActive())
+			long actualConnector, potentialConnector;
+			if ((actualConnector = CConnectorController.getNearestConnector(e.getPoint(), 20)) > 0l && !BubbleMenu.isBubbleMenuActive())
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), actualConnector, layer);
+				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			}
+			
+			else if ((potentialConnector = CStrokeController.getPotentialConnector(e.getPoint(), 20)) > 0l && !BubbleMenu.isBubbleMenuActive())
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), potentialConnector, layer);
+				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
+			}
+			else if (CStrokeController.getPotentialScrap(e.getPoint()) > 0l && !BubbleMenu.isBubbleMenuActive())
 			{
 				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
@@ -113,10 +140,10 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			mouseMoved = true;
 
 		}
-		if(PieMenu.isPieMenuActive())
+		/*if(BubbleMenu.isBubbleMenuActive())
 		{
 			return;
-		}
+		}*/
 		
 //		this.hideModeIcon(e.getPoint());
 
@@ -150,10 +177,10 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionReleased(InputEventInfo e)
 	{
-		if(PieMenu.isPieMenuActive())
+		/*if(BubbleMenu.isBubbleMenuActive())
 		{
 			return;
-		}
+		}*/
 		mouseUp = e.getPoint();
 //		this.hideModeIcon();
 		
@@ -167,7 +194,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		
 		if (e.isLeftButton())
 		{
-			long bguid;
+			long strokeUID = CStrokeController.getCurrentUUID();
 			boolean isPotentialScrap = false;
 			if(hasStartedBge)
 //			{
@@ -177,40 +204,51 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 //			}
 //			else
 			{
-				bguid = CStrokeController.getCurrentUUID();
-				CStrokeController.append(bguid, x, y);
-				 isPotentialScrap = CStrokeController.isPotentialScrap(CStrokeController.getCurrentUUID());
+				CStrokeController.append(strokeUID, x, y);
+				 isPotentialScrap = CStrokeController.isPotentialScrap(strokeUID);
 				//if it's a circle-scrap, we don't want to broadcast it to the server!
 //				if (isPotentialScrap)
 //					CStrokeController.no_notify_finish(bguid);
 //				else
-					CStrokeController.finish(bguid);
+					CStrokeController.finish(strokeUID);
 			}
 
 			
 
 			hasStartedBge = false;
 			boolean isSmudge = false;
-			if (CStrokeController.exists(CStrokeController.getCurrentUUID()))
+			if (CStrokeController.exists(strokeUID))
 			{
 				if (deleteSmudge &&
-						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getWidth() <= 5 &&
-						CStrokeController.strokes.get(CStrokeController.getCurrentUUID()).getHeight() <= 5)
+						CStrokeController.strokes.get(strokeUID).getWidth() <= 10 &&
+						CStrokeController.strokes.get(strokeUID).getHeight() <= 10)
 				{
 					isSmudge = true;
-					CStrokeController.delete(CStrokeController.getCurrentUUID());
+					CStrokeController.delete(strokeUID);
 				}
 			}
 			
-			
 			if (isPotentialScrap && !isSmudge)
 			{
-				long strokeUID = 0l;
-				if (CStrokeController.isPotentialScrap(CStrokeController.getCurrentUUID()))
+				/*if (CStrokeController.isPotentialScrap(CStrokeController.getCurrentUUID()))
 				{
 					strokeUID = CStrokeController.getCurrentUUID();
-				}
+				}*/
 				CalicoAbstractInputHandler.clickMenu(strokeUID, 0l, mouseDown);
+			}
+			else if (CStrokeController.exists(strokeUID))
+			{
+				
+				Polygon poly = CStrokeController.strokes.get(strokeUID).getRawPolygon();
+				long guuidA = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(poly.xpoints[0],poly.ypoints[0]));
+				long guuidB = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(poly.xpoints[poly.npoints-1], poly.ypoints[poly.npoints-1]));
+				if (guuidA != 0l && guuidB != 0l && guuidA != guuidB 
+						&& !(CGroupController.groupdb.get(guuidA) instanceof CListDecorator) && !(CGroupController.groupdb.get(guuidB) instanceof CListDecorator))
+				{
+					CStrokeController.show_stroke_bubblemenu(strokeUID, false);
+					//CConnectorController.no_notify_create(Calico.uuid(), CCanvasController.getCurrentUUID(), 0l, CalicoDataStore.PenColor, CalicoDataStore.PenThickness, guuidA, guuidB, strokeUID);
+					//CStrokeController.delete(strokeUID);
+				}
 			}
 		}
 

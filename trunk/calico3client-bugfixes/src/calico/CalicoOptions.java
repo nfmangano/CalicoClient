@@ -35,7 +35,17 @@ public class CalicoOptions
 	
 	public static class images
 	{
-		public static String download_folder = "images/";
+		public static String download_folder = getImageFolder();
+		private static String getImageFolder()
+		{
+			String folder = System.getProperty("java.io.tmpdir");
+			if (!folder.endsWith(File.separator))
+				folder += File.separator;
+			
+			folder += "images" + File.separator;
+			
+			return folder;
+		}
 	}
 	
 	public static class pen 
@@ -142,6 +152,7 @@ public class CalicoOptions
 		public static final double min_create_scrap_length = 300;
 		public static Color default_color = Color.BLACK;
 		public static float transparency = 1.0f;
+		public static float background_transparency = 0.3f;
 		public static final double max_head_to_heal_distance = 20;
 	}
 	
@@ -168,7 +179,7 @@ public class CalicoOptions
 	{
 		public static Color[] colorlist = {Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.MAGENTA};
 		public static String[] colorlist_icons = {"color.black", "color.red", "color.green", "color.blue", "color.silver", "color.orange", "color.yellow", "color.purple"};
-		public static float[] pensize = {1.0f, 2.0f, 3.0f};
+		public static float[] pensize = {1.0f, 3.0f, 5.0f};
 		public static String[] pensize_icons = {"size.small", "size.medium", "size.large"};
 		public static int icon_size = 24;
 		public static float icon_tooltip_dist_threshold = 5.0f;

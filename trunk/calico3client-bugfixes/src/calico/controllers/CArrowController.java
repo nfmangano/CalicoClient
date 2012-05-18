@@ -91,15 +91,15 @@ public class CArrowController
 		}
 		
 		// Add the node to the painter
-		SwingUtilities.invokeLater(
-				new Runnable() { public void run() { 
-					CCanvasController.canvasdb.get(cuid).getLayer().addChild(arrows.get(uuid));
-				}});
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(arrows.get(uuid));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), arrows.get(uuid));
+		
 
 		// Add the input handler
 		CalicoInputManager.addArrowInputHandler(uuid);
 		
-		arrows.get(uuid).repaint();
+		//arrows.get(uuid).repaint();
+		CalicoDraw.repaintNode(arrows.get(uuid));
 		
 	}
 	
@@ -114,9 +114,10 @@ public class CArrowController
 		CCanvasController.canvasdb.get(cuid).removeChildArrow(uuid);
 		
 		//This line is not thread safe so must invokeLater to prevent eraser artifacts.
-				SwingUtilities.invokeLater(
-						new Runnable() { public void run() { arrow.removeFromParent(); } }
-				);		
+		/*SwingUtilities.invokeLater(
+				new Runnable() { public void run() { arrow.removeFromParent(); } }
+		);	*/
+		CalicoDraw.removeNodeFromParent(arrow);
 		//arrow.removeFromParent();
 				
 		// Clear the anchor A
@@ -133,7 +134,8 @@ public class CArrowController
 		
 		arrows.remove(uuid);
 				
-		CCanvasController.canvasdb.get(cuid).getLayer().setPaintInvalid(true);
+		//CCanvasController.canvasdb.get(cuid).getLayer().setPaintInvalid(true);
+		CalicoDraw.setNodePaintInvalid(CCanvasController.canvasdb.get(cuid).getLayer(), true);
 	}
 	
 	public static void no_notify_set_color(long uuid, Color color)

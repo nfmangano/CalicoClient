@@ -54,6 +54,7 @@ import calico.components.CSession;
 import calico.components.grid.CGrid;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.events.CalicoEventHandler;
@@ -111,7 +112,7 @@ public class Calico extends JFrame
 		
 		if (uuidlist.size() == 0)
 		{
-			System.out.println("Out of UUIDs: Waiting for allocation");
+			System.out.println("UUID Allocation: Pending");
 			int waitTimes = 1000;
 			int count = 0;
 			
@@ -128,6 +129,7 @@ public class Calico extends JFrame
 				
 				if (uuidlist.size() > 0)
 				{
+					System.out.println("UUID Allocation: Complete");
 					break;
 				}
 				count++;
@@ -138,7 +140,7 @@ public class Calico extends JFrame
 				}
 			}
 		}
-		
+
 		return uuidlist.removeLong(0);
 	}
 
@@ -295,6 +297,7 @@ public class Calico extends JFrame
 		CCanvasController.setup();
 		CGroupController.setup();
 		CStrokeController.setup();
+		CConnectorController.setup();
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme(CalicoOptions.core.icontheme);

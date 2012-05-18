@@ -67,10 +67,13 @@ public class MessageObject extends PComposite
 					for(int i=10;i>1;i--)
 					{
 						//Calico.logger.debug("fading");
-						smobj.setTransparency((float) (i/10.0));
+						//smobj.setTransparency((float) (i/10.0));
+						CalicoDraw.setNodeTransparency(smobj, (float) (i/10.0));
 						//smobj.invalidatePaint();
-						smobj.setPaintInvalid(true);
-						smobj.repaint();
+						//smobj.setPaintInvalid(true);
+						CalicoDraw.setNodePaintInvalid(smobj, true);
+						//smobj.repaint();
+						CalicoDraw.repaint(smobj);
 						/*
 						if(CalicoDataStore.isViewingGrid)
 						{
@@ -93,7 +96,8 @@ public class MessageObject extends PComposite
 				//CCanvasController.canvasdb.get(canvasuid).getCamera().removeChild(smobj);
 			}
 			MessageObject.rect_list.rem(objbounds);
-			smobj.removeFromParent();
+			//smobj.removeFromParent();
+			CalicoDraw.removeNodeFromParent(smobj);
 			CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
 			return false;
 		}
@@ -183,14 +187,18 @@ public class MessageObject extends PComposite
 		
 		text.setBounds(textbounds);
 
-		this.addChild(0,bgnode);
+		/*this.addChild(0,bgnode);
 		this.addChild(1,text);
-		this.setBounds(bounds);
-		
+		this.setBounds(bounds);*/
+		CalicoDraw.addChildToNode(this, bgnode, 0);
+		CalicoDraw.addChildToNode(this, text, 1);
+		CalicoDraw.setNodeBounds(this, bounds);
 
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this);
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().addChild(0, this);
+		CalicoDraw.addChildToNode(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera(), this, 0);
 		CalicoDataStore.calicoObj.getContentPane().getComponent(0).repaint();
-		((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().repaint();
+		//((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera().repaint();
+		CalicoDraw.repaint(((PCanvas)CalicoDataStore.calicoObj.getContentPane().getComponent(0)).getCamera());
 		
 		Rectangle newBounds = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height+padding);
 		

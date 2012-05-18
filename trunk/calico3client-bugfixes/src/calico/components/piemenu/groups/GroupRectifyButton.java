@@ -10,12 +10,10 @@ import calico.inputhandlers.InputEventInfo;
 public class GroupRectifyButton extends PieMenuButton
 {
 	
-	long uuid;
-	
 	public GroupRectifyButton(long u)
 	{
 		super("group.rectify");
-		uuid = u;
+		this.uuid = u;
 	}
 	
 	public void onClick(InputEventInfo ev)

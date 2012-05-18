@@ -2,7 +2,10 @@ package calico.perspectives;
 
 import java.awt.event.MouseListener;
 
+import calico.CalicoDraw;
 import calico.components.grid.CGrid;
+import calico.controllers.CCanvasController;
+import calico.inputhandlers.CGridInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.PNode;
 
@@ -17,7 +20,8 @@ public class GridPerspective extends CalicoPerspective
 
 	protected void drawPieMenu(PNode pieCrust)
 	{
-		CGrid.getInstance().getCamera().addChild(pieCrust);
+		//CGrid.getInstance().getCamera().addChild(pieCrust);
+		CalicoDraw.addChildToNode(CGrid.getInstance().getCamera(), pieCrust);
 		CGrid.getInstance().getCamera().repaintFrom(pieCrust.getBounds(), pieCrust);
 	}
 
@@ -28,6 +32,11 @@ public class GridPerspective extends CalicoPerspective
 
 	protected boolean processToolEvent(InputEventInfo event)
 	{
+		if(CGrid.getInstance().isPointOnMenuBar(event.getPoint())) {
+			//if (mousePressed != 0)
+			CGrid.getInstance().clickMenuBar(event, event.getPoint());
+			return true;
+		}
 		return false;
 	}
 
