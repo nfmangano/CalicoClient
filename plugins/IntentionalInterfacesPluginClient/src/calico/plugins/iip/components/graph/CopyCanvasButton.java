@@ -46,7 +46,6 @@ public class CopyCanvasButton extends CanvasMenuButton
 		if (CanvasPerspective.getInstance().isActive())
 		{
 			CCanvasController.loadCanvas(newCanvas);
-			IntentionCanvasController.getInstance().showTagPanel();
 		}
 	}
 }

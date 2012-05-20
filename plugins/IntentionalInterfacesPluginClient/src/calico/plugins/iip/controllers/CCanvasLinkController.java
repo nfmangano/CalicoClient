@@ -295,7 +295,7 @@ public class CCanvasLinkController
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR);
 		packet.putLong(anchor.getId());
-		packet.putLong(0L);
+		packet.putLong(-1L);
 		packet.putInt(CCanvasLinkAnchor.ArrowEndpointType.FLOATING.ordinal());
 		packet.putInt((int) x);
 		packet.putInt((int) y);
@@ -326,7 +326,7 @@ public class CCanvasLinkController
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
 		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, x, y));
-		packAnchor(packet, 0L, CCanvasLinkAnchor.ArrowEndpointType.FLOATING, (int) x, (int) y);
+		packAnchor(packet, -1L, CCanvasLinkAnchor.ArrowEndpointType.FLOATING, (int) x, (int) y);
 		packet.putString(""); // empty label
 
 		packet.rewind();

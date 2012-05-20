@@ -2,19 +2,20 @@ package calico.plugins.iip.inputhandlers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.Timer;
 
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.ContextMenu;
-import calico.components.piemenu.PieMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateCanvasCopyButton;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewCanvasLinkButton;
+import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
+import calico.plugins.iip.components.piemenu.iip.EnterCanvasButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import edu.umd.cs.piccolo.util.PBounds;
 
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
 {
@@ -26,13 +27,14 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private static final CIntentionCellInputHandler INSTANCE = new CIntentionCellInputHandler();
 
 	private static final double DRAG_THRESHOLD = 20.0;
+	private static final int BUBBLE_MENU_TYPE_ID = BubbleMenu.registerType(new BubbleMenuComponentType());
 
 	private enum State
 	{
 		IDLE,
 		ACTIVATED,
 		DRAG,
-		PIE;
+		MENU;
 	}
 
 	private long currentCellId;
@@ -40,18 +42,18 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private State state = State.IDLE;
 	private final Object stateLock = new Object();
 
-	private final PieMenuTimer pieMenuTimer = new PieMenuTimer();
-
 	private Point mouseDragAnchor;
 	private Point2D cellDragAnchor;
 
+	private final EnterCanvasButton enterCanvasButton = new EnterCanvasButton();
+	private final DeleteCanvasButton deleteCanvasButton = new DeleteCanvasButton();
 	private final CreateLinkButton linkButton = new CreateLinkButton();
 	private final CreateNewCanvasLinkButton newCanvasButton = new CreateNewCanvasLinkButton();
 	private final CreateCanvasCopyButton copyCanvasButton = new CreateCanvasCopyButton();
 
 	private CIntentionCellInputHandler()
 	{
-		PieMenu.addListener(this);
+		BubbleMenu.addListener(this);
 	}
 
 	public void setCurrentCellId(long currentCellId)
@@ -118,13 +120,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				state = State.ACTIVATED;
 			}
 
-			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
-			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
-
 			mouseDragAnchor = event.getGlobalPoint();
 			cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentCellId).getLocation();
-
-			// CalicoInputManager.rerouteEvent(this.canvas_uid, e); ???
 		}
 	}
 
@@ -143,18 +140,33 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				case ACTIVATED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
 					{
-						CCanvasController.loadCanvas(CIntentionCellController.getInstance().getCellById(currentCellId).getCanvasId());
+						state = State.MENU;
+
+						if (CCanvasController.canvasdb.size() > 1)
+						{
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, enterCanvasButton, linkButton,
+									newCanvasButton, copyCanvasButton);
+						}
+						else
+						{
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, enterCanvasButton, linkButton, newCanvasButton,
+									copyCanvasButton);
+						}
 					}
 					break;
 			}
-			state = State.IDLE;
+
+			if (state != State.MENU)
+			{
+				state = State.IDLE;
+			}
 		}
 	}
 
 	@Override
 	public void menuCleared(ContextMenu menu)
 	{
-		if ((state == State.PIE) && (menu == ContextMenu.PIE_MENU))
+		if ((state == State.MENU) && (menu == ContextMenu.BUBBLE_MENU))
 		{
 			state = State.IDLE;
 			CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
@@ -166,43 +178,48 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 	}
 
-	private class PieMenuTimer extends Timer
+	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
 	{
-		private Point point;
-
-		void start(Point point)
+		@Override
+		public PBounds getBounds(long uuid)
 		{
-			this.point = point;
-
-			schedule(new Task(), 400L);
+			PBounds bounds = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
+//			bounds.setOrigin(bounds.getX() + IntentionGraph.getInstance().getTranslation().getX(), bounds.getY()
+//					+ IntentionGraph.getInstance().getTranslation().getY());
+			return bounds;
 		}
 
-		private class Task extends PieMenuTimerTask
+		@Override
+		public void highlight(boolean b, long uuid)
 		{
-			@Override
-			public void run()
+			CIntentionCellController.getInstance().getCellById(uuid).setHighlighted(b);
+		}
+
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			if (buttonClassname.equals(DeleteCanvasButton.class.getName()))
 			{
-				synchronized (stateLock)
-				{
-					if (state == State.ACTIVATED)
-					{
-						state = State.PIE;
-						startAnimation(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), point);
-					}
-				}
+				return 1;
+			}
+			if (buttonClassname.equals(EnterCanvasButton.class.getName()))
+			{
+				return 2;
+			}
+			if (buttonClassname.equals(CreateLinkButton.class.getName()))
+			{
+				return 3;
+			}
+			if (buttonClassname.equals(CreateNewCanvasLinkButton.class.getName()))
+			{
+				return 4;
+			}
+			if (buttonClassname.equals(CreateCanvasCopyButton.class.getName()))
+			{
+				return 5;
 			}
 
-			@Override
-			protected void animationCompleted()
-			{
-				synchronized (stateLock)
-				{
-					if (state == State.PIE)
-					{
-						PieMenu.displayPieMenu(point, linkButton, newCanvasButton, copyCanvasButton);
-					}
-				}
-			}
+			return 0;
 		}
 	}
 }

@@ -17,6 +17,7 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
+import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -42,6 +43,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		// register for palette events
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(NetworkCommand.PRESENCE_CANVAS_USERS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : this.getNetworkCommands())
 		{
 			CalicoEventHandler.getInstance().addListener(event.intValue(), this, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
@@ -79,6 +81,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 			case NetworkCommand.CONSISTENCY_FINISH:
 				CCanvasLinkController.getInstance().initializeArrowColors();
 				return;
+			case NetworkCommand.PRESENCE_CANVAS_USERS:
+				CIntentionCellController.getInstance().updateUserLists();
+				return;
 		}
 
 		switch (IntentionalInterfacesNetworkCommands.Command.forId(event))
@@ -100,6 +105,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				break;
 			case CIC_DELETE:
 				CIC_DELETE(p);
+				break;
+			case CIC_TOPOLOGY:
+				CIC_TOPOLOGY(p);
 				break;
 			case CIT_CREATE:
 				CIT_CREATE(p);
@@ -166,7 +174,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int y = p.getInt();
 		cell.setLocation(x, y);
 
-		IntentionGraphController.getInstance().updateAttachedArrows(cell.getId(), x, y);
+		IntentionGraphController.getInstance().cellMoved(cell.getId(), x, y);
 	}
 
 	private static void CIC_SET_TITLE(CalicoPacket p)
@@ -227,8 +235,21 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	{
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
+		
+		long cellId = p.getLong();
+		
+		CIntentionCellController.getInstance().localDeleteCell(cellId);
 	}
 
+	private static void CIC_TOPOLOGY(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_TOPOLOGY.verify(p);
+
+		CIntentionTopology topology = new CIntentionTopology(p.getString());
+		IntentionGraph.getInstance().setTopology(topology);
+	}
+	
 	private static void CIT_CREATE(CalicoPacket p)
 	{
 		p.rewind();

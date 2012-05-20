@@ -10,6 +10,7 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CIC_SET_TITLE = Command.CIC_SET_TITLE.id;
 	public static final int CIC_TAG = Command.CIC_TAG.id;
 	public static final int CIC_UNTAG = Command.CIC_UNTAG.id;
+	public static final int CIC_TOPOLOGY = Command.CIC_TOPOLOGY.id;
 	public static final int CIT_CREATE = Command.CIT_CREATE.id;
 	public static final int CIT_RENAME = Command.CIT_RENAME.id;
 	public static final int CIT_SET_COLOR = Command.CIT_SET_COLOR.id;
@@ -45,6 +46,10 @@ public class IntentionalInterfacesNetworkCommands
 		 * Delete a CIntentionCell
 		 */
 		CIC_DELETE,
+		/**
+		 * Describe the topology of the CIC clusters
+		 */
+		CIC_TOPOLOGY,
 		/**
 		 * Create a new CIntentionType
 		 */

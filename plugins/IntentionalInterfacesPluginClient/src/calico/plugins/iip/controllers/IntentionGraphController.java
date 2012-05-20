@@ -8,6 +8,7 @@ import java.util.List;
 
 import calico.Calico;
 import calico.Geometry;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
 import calico.networking.Networking;
@@ -94,6 +95,7 @@ public class IntentionGraphController
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
 		arrowsByLinkId.put(link.getId(), arrow);
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		arrow.moveToBack();
 		arrow.redraw();
 	}
 	
@@ -181,7 +183,7 @@ public class IntentionGraphController
 				throw new IllegalArgumentException("Unknown anchor type " + anchor.getArrowEndpointType());
 		}
 	}
-
+	
 	public void removeLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
@@ -226,7 +228,7 @@ public class IntentionGraphController
 		}
 	}
 
-	public void updateAttachedArrows(long cellId, double x, double y)
+	public void cellMoved(long cellId, double x, double y)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
 		long canvasId = cell.getCanvasId();
@@ -237,6 +239,11 @@ public class IntentionGraphController
 			Point2D edgePosition = alignAnchorAtCellEdge(x, y, cell.getSize(), getOppositePosition(anchor));
 
 			CCanvasLinkController.getInstance().moveLinkAnchor(anchor, edgePosition);
+		}
+		
+		if (BubbleMenu.isBubbleMenuActive() && (BubbleMenu.activeUUID == cellId))
+		{
+			BubbleMenu.moveIconPositions(cell.getGlobalBounds());
 		}
 	}
 

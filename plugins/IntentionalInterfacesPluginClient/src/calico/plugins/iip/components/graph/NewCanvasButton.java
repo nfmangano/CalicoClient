@@ -44,7 +44,6 @@ public class NewCanvasButton extends CanvasMenuButton
 		if (CanvasPerspective.getInstance().isActive())
 		{
 			CCanvasController.loadCanvas(newCanvas);
-			IntentionCanvasController.getInstance().showTagPanel();
 		}
 	}
 }

@@ -60,6 +60,12 @@ public class IntentionalInterfacesGraphics
 	public static void superimposeCellAddressInCorner(Graphics2D g, long canvas_uuid, double width, Font font, Color color)
 	{
 		CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
+		if (canvas == null)
+		{
+			// this canvas is being deleted, so stop trying to draw about it
+			return;
+		}
+		
 		String coordinates = String.valueOf(canvas.getIndex());
 
 		Color c = g.getColor();

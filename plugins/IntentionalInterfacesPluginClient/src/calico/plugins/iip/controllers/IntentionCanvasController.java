@@ -16,6 +16,7 @@ import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
@@ -150,6 +151,14 @@ public class IntentionCanvasController
 
 	public void toggleTagPanelVisibility()
 	{
+		if (!tagPanelVisible)
+		{
+			if (CIntentionCellController.getInstance().getCellByCanvasId(currentCanvasId) == null)
+			{
+				return; // not showing the tag panel if there is no CIC for the current canvas
+			}
+		}
+		
 		tagPanelVisible = !tagPanelVisible;
 		CanvasTagPanel.getInstance().setVisible(tagPanelVisible);
 	}
@@ -158,12 +167,12 @@ public class IntentionCanvasController
 	{
 		return activeIntentionTypes.values();
 	}
-	
+
 	public CIntentionType getIntentionType(long typeId)
 	{
 		return activeIntentionTypes.get(typeId);
 	}
-	
+
 	public Color getIntentionTypeColor(long typeId)
 	{
 		if (typeId < 0L)
@@ -182,6 +191,12 @@ public class IntentionCanvasController
 		CanvasTagPanel.getInstance().moveTo(canvas_uuid);
 
 		CCanvasLinkController.getInstance().showingCanvas(canvas_uuid);
+
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
+		if ((cell != null) && !cell.hasIntentionType())
+		{
+			showTagPanel();
+		}
 	}
 
 	private boolean isCurrentlyDisplayed(long groupId)

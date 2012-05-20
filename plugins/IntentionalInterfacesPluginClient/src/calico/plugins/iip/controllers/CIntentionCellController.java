@@ -3,7 +3,6 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,8 +14,8 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
+import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
-import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -109,6 +108,14 @@ public class CIntentionCellController
 			cell.updateIconification();
 		}
 	}
+	
+	public void updateUserLists()
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.updateUserList();
+		}
+	}
 
 	private void createNewCell(long canvas_uuid)
 	{
@@ -120,6 +127,17 @@ public class CIntentionCellController
 		packet.putLong(canvas_uuid);
 		packet.putInt(x);
 		packet.putInt(y);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+	
+	public void deleteCanvas(long canvasId)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(NetworkCommand.CANVAS_DELETE);
+		packet.putLong(canvasId);
 
 		packet.rewind();
 		PacketHandler.receive(packet);
@@ -175,18 +193,13 @@ public class CIntentionCellController
 		}
 	}
 
-	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become
-	// useful. Until then, it should not be called.
-	@Deprecated
-	private void deleteCell(long cell_uuid)
+	public void localDeleteCell(long cellId)
 	{
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_DELETE);
-		packet.putLong(cell_uuid);
-
-		packet.rewind();
-		PacketHandler.receive(packet);
-		Networking.send(packet);
+		CIntentionCell cell = cells.remove(cellId);
+		cellsByCanvasId.remove(cell.getCanvasId());
+		cell.delete();
+		
+		IntentionGraph.getInstance().repaint();
 	}
 
 	public void addCell(CIntentionCell cell)
