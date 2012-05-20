@@ -2,6 +2,7 @@ package calico.plugins.iip.perspectives;
 
 import java.awt.event.MouseListener;
 
+import calico.CalicoDataStore;
 import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -23,6 +24,16 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 	private boolean notYetDisplayed = true;
 
+	public void displayPerspective()
+	{
+		CalicoDataStore.calicoObj.getContentPane().removeAll();
+		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
+		CalicoDataStore.calicoObj.pack();
+		CalicoDataStore.calicoObj.setVisible(true);
+		CalicoDataStore.calicoObj.repaint();
+		activate();
+	}
+	
 	@Override
 	public void activate()
 	{
