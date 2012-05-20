@@ -107,4 +107,10 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
 		return true;
 	}
+
+	@Override
+	protected boolean isNavigationPerspective()
+	{
+		return true;
+	}
 }

@@ -7,7 +7,6 @@ import java.util.Random;
 
 import calico.Calico;
 import calico.CalicoOptions;
-import calico.components.grid.CGrid;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.grid.CopyCanvasButton;
 import calico.components.piemenu.grid.CutCanvasButton;
@@ -22,7 +21,7 @@ import calico.utils.Ticker;
 
 
 // implements PenListener
-public class CGridInputHandler extends CalicoAbstractInputHandler
+class CGridInputHandler extends CalicoAbstractInputHandler
 	implements PressAndHoldAction
 {
 	public final static long inputHandlerUUID = 0L;
@@ -70,13 +69,13 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		if(ev.getButton()==InputEventInfo.BUTTON_LEFT){
 //			CGrid.getInstance().moveViewPortToPoints(ev.getPoint());
 			mouseDown = ev.getPoint();
-			long canvasClicked = CCanvasController.getCanvasAtPoint( ev.getGlobalPoint() );
+			long canvasClicked = 0L; //CCanvasController.getCanvasAtPoint( ev.getGlobalPoint() );
 //			LoadCanvasTimerTicker timer = new LoadCanvasTimerTicker(this, canvasClicked, mousePressed);
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, timer);
 			
 			if (menuTimer != null)
 				menuTimer.terminate();
-			menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, currentAction, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, 0, ev.getPoint(), 0, CGrid.getInstance().getLayer());
+			// GridRemoval: menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, currentAction, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, 0, ev.getPoint(), 0, CGrid.getInstance().getLayer());
 			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
 		}
 		
@@ -88,10 +87,11 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 
 	public void actionDragged(InputEventInfo ev)
 	{
+		/* // GridRemoval: 
 		if(CGrid.draggingCell){			
 			CGrid.getInstance().moveDraggedCell(ev.getX(), ev.getY());
 			//send message to execute the action once group is dropped
-		}
+		} */
 		lastPoint = ev.getPoint();
 		dragHistory.addPoint(ev.getPoint().x, ev.getPoint().y);
 	}
@@ -103,7 +103,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		
 		//If its a left click: dive into viewport or single canvas
 		//if we were dragging a cell we will remove it and then check which action to execute
-		if(CGrid.draggingCell){			
+		/* // GridRemoval: if(CGrid.draggingCell){			
 			
 			//check which action to execute (copy/move)
 			if(CGrid.canvasAction!=CGrid.NO_ACTION){
@@ -111,12 +111,12 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 			}
 			CGrid.getInstance().removeDraggedCell();
 		}
-		else if(ev.getButton()==InputEventInfo.BUTTON_RIGHT){
+		else  if(ev.getButton()==InputEventInfo.BUTTON_RIGHT){
 			openMenu(ev.getGlobalPoint());
 		}
 		else if (triggerLoadCanvas)
 		{
-			long canvasClicked = CCanvasController.getCanvasAtPoint( mouseDown );
+			long canvasClicked = 0L; //CCanvasController.getCanvasAtPoint( mouseDown );
 			if (canvasClicked != 0l)
 				CCanvasController.loadCanvas(canvasClicked);
 		}
@@ -131,7 +131,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		
 		lastReleasedTime = (new Date()).getTime();
 		lastPoint = null;
-		
+		*/
 		
 	}//
 
@@ -141,11 +141,12 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 			StatusMessage.popup("The grid is loading, please wait.");
 			return false;
 		}
+		/* // GridRemoval: 
 		if(CGrid.getInstance().isPointOnMenuBar(ev.getPoint())) {
 			//if (mousePressed != 0)
 			getMenuBarClick(ev, ev.getPoint());
 			return false;
-		}
+		}*/
 		
 		return true;
 	}
@@ -153,7 +154,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 	private void openMenu(Point point)
 	{
 		triggerLoadCanvas = false;
-		long canvasClicked = CCanvasController.getCanvasAtPoint( point );
+		long canvasClicked = 0L; //CCanvasController.getCanvasAtPoint( point );
 		boolean lockStatus = CCanvasController.canvasdb.get(canvasClicked).getLockValue();
 		PieMenu.displayPieMenu(point, 
 				new UnlockCanvasButton(),
@@ -169,10 +170,11 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 	
 	private void getMenuBarClick(InputEventInfo event, Point point)
 	{
+		/* // GridRemoval: 
 		if(CGrid.getInstance().isPointOnMenuBar(point))
 		{
 			CGrid.getInstance().clickMenuBar(event, point);
-		}
+		} */
 	}
 	
 	@Override

@@ -38,7 +38,7 @@ public class CCanvasLinkAnchor extends AbstractArrowAnchorPoint
 
 	public CCanvasLinkAnchor(long uuid, int x, int y)
 	{
-		this(uuid, 0L, ArrowEndpointType.FLOATING);
+		this(uuid, -1L, ArrowEndpointType.FLOATING);
 
 		this.point.setLocation(x, y);
 	}

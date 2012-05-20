@@ -34,7 +34,7 @@
 
 	<!-- CALICO -->
 	<target name="compile-calico" depends="init, build-icons">
-		<javac srcdir="${src}" destdir="${build}" includes="calico/**/*.java" debug="on" debuglevel="lines,vars,source" deprecation="on">
+		<javac srcdir="${src}" destdir="${build}" includes="calico/**/*.java" debug="on" debuglevel="lines,vars,source" deprecation="on" compiler="javac1.6" source="1.6" target="1.6">
 			<classpath>
 				<fileset dir="${libs}"><include name="*.jar"/></fileset>
 			</classpath>

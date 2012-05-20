@@ -1,25 +1,26 @@
 package calico.plugins.iip.components;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 
-import calico.components.grid.CGrid;
-import calico.components.grid.CGridCell;
+import calico.CalicoDataStore;
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PImage;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -28,9 +29,10 @@ public class CIntentionCell
 {
 	public static final String DEFAULT_TITLE = "<default>";
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
-	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 12);
+	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 10);
 	public static final Color COORDINATES_COLOR = Color.blue;
 	private static final Insets THUMBNAIL_INSETS = new Insets(2, 2, 2, 2);
+	public static final Dimension THUMBNAIL_SIZE = new Dimension(100, 60);
 
 	private enum BorderColor
 	{
@@ -48,19 +50,17 @@ public class CIntentionCell
 	private long uuid;
 	private long canvas_uuid;
 	private Point2D location;
-	private boolean inUse;
 	private String title;
-	private final List<Long> intentionTypeIds = new ArrayList<Long>();
+	private long intentionTypeId = -1L;
 
 	private boolean highlighted = false;
 
 	private final Shell shell;
 
-	public CIntentionCell(long uuid, long canvas_uuid, boolean inUse, Point2D location, String title)
+	public CIntentionCell(long uuid, long canvas_uuid, Point2D location, String title)
 	{
 		this.uuid = uuid;
 		this.canvas_uuid = canvas_uuid;
-		this.inUse = inUse;
 		this.location = location;
 		this.title = title;
 
@@ -72,6 +72,11 @@ public class CIntentionCell
 	public void initialize()
 	{
 		shell.updateContents();
+	}
+
+	public void delete()
+	{
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(shell);
 	}
 
 	private Color currentBorderColor()
@@ -96,26 +101,11 @@ public class CIntentionCell
 		return canvas_uuid;
 	}
 
-	public boolean hasContent()
-	{
-		return inUse || hasUserTitle() || !intentionTypeIds.isEmpty();
-	}
-
-	public boolean isInUse()
-	{
-		return inUse;
-	}
-
-	public void setInUse(boolean inUse)
-	{
-		this.inUse = inUse;
-	}
-
 	public String getTitle()
 	{
 		if (title.equals(DEFAULT_TITLE))
 		{
-			return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getGridCoordTxt();
+			return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
 		}
 		return title;
 	}
@@ -128,21 +118,27 @@ public class CIntentionCell
 	public void setTitle(String title)
 	{
 		this.title = title;
+		shell.titleBar.updateTitle();
 	}
 
-	public void addIntentionType(long typeId)
+	public Long getIntentionTypeId()
 	{
-		intentionTypeIds.add(typeId);
+		return intentionTypeId;
 	}
 
-	public boolean hasIntentionType(long typeId)
+	public void setIntentionType(long intentionTypeId)
 	{
-		return intentionTypeIds.contains(typeId);
+		this.intentionTypeId = intentionTypeId;
 	}
 
-	public void removeIntentionType(long typeId)
+	public boolean hasIntentionType()
 	{
-		intentionTypeIds.remove(typeId);
+		return intentionTypeId >= 0L;
+	}
+
+	public void clearIntentionType()
+	{
+		intentionTypeId = -1L;
 	}
 
 	public boolean contains(Point2D point)
@@ -154,6 +150,13 @@ public class CIntentionCell
 	public Point2D getLocation()
 	{
 		return shell.getBounds().getOrigin();
+	}
+
+	public PBounds getGlobalBounds()
+	{
+		PBounds bounds = shell.getBounds();
+//		bounds.setOrigin(0.0, 0.0);
+		return new PBounds(shell.localToGlobal(bounds)); // getBounds();
 	}
 
 	public Point2D getCenter()
@@ -180,17 +183,6 @@ public class CIntentionCell
 		return (PBounds) shell.thumbnailBounds.clone();
 	}
 
-	public boolean isVisible()
-	{
-		return shell.getVisible();
-	}
-
-	public void setVisible(boolean b)
-	{
-		shell.setVisible(b);
-		shell.repaint();
-	}
-
 	public void setHighlighted(boolean highlighted)
 	{
 		this.highlighted = highlighted;
@@ -213,6 +205,11 @@ public class CIntentionCell
 		shell.repaint();
 	}
 
+	public void updateUserList()
+	{
+		shell.userList.updateUsers();
+	}
+
 	private boolean scaleAllowsSnapshot()
 	{
 		return ((!IntentionGraph.getInstance().getIconifyMode()) || (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() >= MINIMUM_SNAPSHOT_SCALE));
@@ -224,7 +221,8 @@ public class CIntentionCell
 	{
 		private final PImage canvasAddress;
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
-		private final IntentionBar intentionBar = new IntentionBar();
+		private final TitleBar titleBar = new TitleBar();
+		private final UserList userList = new UserList();
 
 		private boolean showingSnapshot = false;
 
@@ -239,18 +237,21 @@ public class CIntentionCell
 					CalicoIconManager.getIconImage("intention-graph.obscured-intention-cell"), canvas_uuid));
 			addChild(canvasAddress);
 
-			addChild(intentionBar);
+			addChild(titleBar);
+			addChild(userList);
 
-			thumbnailBounds.setRect(x, y, CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN), CGrid.getInstance()
-					.getImgh() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN));
+			thumbnailBounds.setRect(x, y, THUMBNAIL_SIZE.width - (CCanvas.ROUNDED_RECTANGLE_OVERFLOW + CCanvas.CELL_MARGIN), THUMBNAIL_SIZE.height
+					- (CCanvas.ROUNDED_RECTANGLE_OVERFLOW + CCanvas.CELL_MARGIN));
 			setBounds(thumbnailBounds);
 
-			intentionBar.setWidth(thumbnailBounds.getWidth());
-			setHeight(getHeight() + intentionBar.getHeight());
+			titleBar.setWidth(thumbnailBounds.getWidth());
 
-			repaint();
+			updateIconification();
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
+
+			userList.moveToFront();
+			repaint();
 		}
 
 		void updateIconification()
@@ -299,21 +300,26 @@ public class CIntentionCell
 
 			Graphics2D g = paintContext.getGraphics();
 			Color c = g.getColor();
-			PBounds bounds = getBounds();
 
 			g.setColor(currentBorderColor());
-			g.translate(bounds.x, bounds.y);
+			g.translate(thumbnailBounds.x, thumbnailBounds.y);
 			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
 			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, thumbnailBounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT,
 					COORDINATES_COLOR);
 
-			g.translate(-bounds.x, -bounds.y);
+			g.translate(-thumbnailBounds.x, -thumbnailBounds.y);
 			g.setColor(c);
 		}
 
 		@Override
 		protected void layoutChildren()
 		{
+			titleBar.setX(getX());
+			titleBar.setY(getY() - 20);
+
+			userList.setX(getX() + 4);
+			userList.setY(getY() + 2);
+
 			thumbnailBounds.setOrigin(getX(), getY());
 
 			if (showingSnapshot)
@@ -326,46 +332,104 @@ public class CIntentionCell
 				canvasAddress.setBounds(thumbnailBounds.x + BORDER_WIDTH, thumbnailBounds.y + BORDER_WIDTH, thumbnailBounds.width - (2 * BORDER_WIDTH),
 						thumbnailBounds.height - (2 * BORDER_WIDTH));
 			}
-
-			intentionBar.setX(getX());
-			intentionBar.setY(getY() + thumbnailBounds.getHeight());
 		}
 	}
 
-	private class IntentionBar extends PComposite
+	private class TitleBar extends PComposite
 	{
-		private final int HEIGHT = 10;
-		private final int DOT_INSET = 2;
-		private final int DOT_SPAN = 6;
+		private final int HEIGHT = 20;
+		private final int LEFT_INSET = 2;
+		private final int TEXT_INSET = 1;
 
-		public IntentionBar()
+		private final int FADE_HEIGHT = 30;
+		private final Color MASK_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xDD);
+		private final Color TRANSPARENT = new Color(0xFF, 0xFF, 0xFF, 0x00);
+		private final GradientPaint TOP_FADE = new GradientPaint(0f, 0f, TRANSPARENT, 0f, FADE_HEIGHT / 2, MASK_COLOR);
+		private final GradientPaint BOTTOM_FADE = new GradientPaint(0f, FADE_HEIGHT / 2, MASK_COLOR, 0f, FADE_HEIGHT, TRANSPARENT);
+
+		private final PText title = new PText();
+
+		public TitleBar()
 		{
 			// width is arbitrary, it will be immediately changed by the Shell
 			setBounds(0, 0, 100, HEIGHT);
+
+			addChild(title);
+			updateTitle();
+		}
+
+		private void updateTitle()
+		{
+			title.setText(getTitle());
+			repaint();
+		}
+
+		@Override
+		protected void layoutChildren()
+		{
+			PBounds bounds = getBounds();
+			title.setBounds(bounds.x + LEFT_INSET, bounds.y + TEXT_INSET, bounds.width - LEFT_INSET, bounds.height - (2 * TEXT_INSET));
 		}
 
 		@Override
 		protected void paint(PPaintContext paintContext)
 		{
-			super.paint(paintContext);
-
 			Graphics2D g = paintContext.getGraphics();
-			Color c = g.getColor();
+			int yTitle = (int) (title.getY() - (((FADE_HEIGHT - HEIGHT) / 2)));
+			g.translate(title.getX(), yTitle);
 
-			int y = ((int) getY()) + DOT_INSET;
-			int x = ((int) getX()) + DOT_INSET;
-			for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
+			g.setPaint(TOP_FADE);
+			g.fillRect(0, 0, (int) title.getBounds().width, FADE_HEIGHT / 2);
+			g.setPaint(BOTTOM_FADE);
+			g.fillRect(0, FADE_HEIGHT / 2, (int) title.getBounds().width, FADE_HEIGHT);
+			g.translate(-title.getX(), -yTitle);
+
+			super.paint(paintContext);
+		}
+	}
+
+	private class UserList extends PText
+	{
+		public UserList()
+		{
+			setText("Username"); // template, for sizing
+			setFont(new Font("Helvetica", Font.BOLD, 10));
+			setTextPaint(Color.BLUE);
+			setBounds(this.getBounds().getBounds());
+			setConstrainWidthToTextWidth(true);
+			setConstrainHeightToTextHeight(true);
+			
+			setText("");
+		}
+
+		void updateUsers()
+		{
+			StringBuilder userListText = new StringBuilder();
+			int[] clients = CCanvasController.canvasdb.get(canvas_uuid).getClients();
+			for (int i = 0; i < clients.length; i++)
 			{
-				if (intentionTypeIds.contains(type.getId()))
+				if (CalicoDataStore.clientInfo.containsKey(clients[i]) && !CalicoDataStore.clientInfo.get(clients[i]).equals(CalicoDataStore.Username))
 				{
-					g.setColor(type.getColor());
-					g.fillRect(x, y, DOT_SPAN, DOT_SPAN);
-
-					x += (DOT_SPAN + DOT_INSET);
+					userListText.append(CalicoDataStore.clientInfo.get(clients[i]) + "\n");
 				}
+
 			}
 
-			g.setColor(c);
+			if (!getText().equals(userListText.toString()))
+			{
+				setText(userListText.toString());
+				repaint();
+			}
+		}
+
+		@Override
+		protected void paint(PPaintContext paintContext)
+		{
+			Graphics2D g = paintContext.getGraphics();
+			g.setColor(Color.white);
+			g.fill(getBounds());
+
+			super.paint(paintContext);
 		}
 	}
 
@@ -382,7 +446,7 @@ public class CIntentionCell
 
 		void contentsChanged()
 		{
-			if (isVisible() && isInGraphFootprint() && shell.showingSnapshot)
+			if (isInGraphFootprint() && shell.showingSnapshot)
 			{
 				updateSnapshot();
 			}

@@ -7,16 +7,17 @@ import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import javax.swing.SwingUtilities;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
-import calico.components.menus.ContextMenu;
 import calico.CalicoOptions;
+import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
@@ -29,9 +30,19 @@ import edu.umd.cs.piccolo.util.PBounds;
 public class BubbleMenu {
 	public static Logger logger = Logger.getLogger(BubbleMenu.class.getName());
 	
-	final public static int TYPE_GROUP = 1;
-	final public static int TYPE_STROKE = 2;
-	final public static int TYPE_CONNECTOR = 3;
+	public interface ComponentType
+	{
+		PBounds getBounds(long uuid);
+
+		void highlight(boolean b, long uuid);
+		
+		int getButtonPosition(String buttonClassname);
+	}
+	
+	private static final AtomicInteger COMPONENT_TYPE_INDEX = new AtomicInteger(1);
+	final public static int TYPE_GROUP = COMPONENT_TYPE_INDEX.getAndIncrement();
+	final public static int TYPE_STROKE = COMPONENT_TYPE_INDEX.getAndIncrement();
+	final public static int TYPE_CONNECTOR = COMPONENT_TYPE_INDEX.getAndIncrement();
 	
 	//Uses PieMenuButton for compatibility
 	static ObjectArrayList<PieMenuButton> buttonList = new ObjectArrayList<PieMenuButton>();
@@ -64,6 +75,21 @@ public class BubbleMenu {
 	private static boolean isBubbleMenuActive = false;
 	
 	private static final List<ContextMenu.Listener> listeners = new ArrayList<ContextMenu.Listener>();
+	private static final Map<Integer, ComponentType> componentTypes = new HashMap<Integer, ComponentType>();
+	
+	public static void setup()
+	{
+		componentTypes.put(TYPE_GROUP, new GroupType());
+		componentTypes.put(TYPE_STROKE, new StrokeType());
+		componentTypes.put(TYPE_CONNECTOR, new ConnectorType());
+	}
+	
+	public static int registerType(ComponentType type)
+	{
+		int typeId = COMPONENT_TYPE_INDEX.getAndIncrement();
+		componentTypes.put(typeId, type);
+		return typeId;
+	}
 
 	public static void addListener(ContextMenu.Listener listener)
 	{
@@ -89,25 +115,10 @@ public class BubbleMenu {
 		}
 		activeUUID = uuid;
 		activeType = type;
-		
-		//Unfortunately this is necessary due to existing conventions
-		switch(activeType)
-		{
-			case TYPE_GROUP: activeBounds = CGroupController.groupdb.get(activeUUID).getBounds();
-											//Highlight the active group
-											CGroupController.groupdb.get(activeUUID).highlight_on();
-											CGroupController.groupdb.get(activeUUID).highlight_repaint();
-				break;
-			case TYPE_STROKE: activeBounds = CStrokeController.strokes.get(activeUUID).getBounds();
-											 CStrokeController.strokes.get(activeUUID).highlight_on();
-				break;
-			case TYPE_CONNECTOR: activeBounds = CConnectorController.connectors.get(activeUUID).getBounds();
-												CConnectorController.connectors.get(activeUUID).highlight_on();
-				break;
-		}
-		
-		
-		
+
+		ComponentType componentType = componentTypes.get(activeType);
+		activeBounds = componentType.getBounds(activeUUID);
+		componentType.highlight(true, activeUUID);
 		
 		//Reset buttons
 		buttonList.clear();
@@ -262,14 +273,14 @@ public class BubbleMenu {
 	//Sets the initial button and listener positions
 	private static void setIconPositions()
 	{
+		ComponentType type = componentTypes.get(activeType);
 		for(int i=0;i<buttonList.size();i++)
 		{
-			buttonPosition[i] = getButtonPosition(buttonList.get(i).getClass().getName());
+			buttonPosition[i] = type.getButtonPosition(buttonList.get(i).getClass().getName());
 			Point pos = getButtonPointFromPosition(i, buttonPosition[i], activeBounds);
 
 			buttonList.get(i).setPosition(pos);
 		}
-		
 	}
 	
 	//Sets the button to be highlighted
@@ -285,97 +296,6 @@ public class BubbleMenu {
 			}
 			CalicoDraw.repaintNode(bubbleHighlighter);
 		}
-	}
-	
-	//Gets the button position for each button
-	//Determines where the button is placed around the group
-	private static int getButtonPosition(String className)
-	{		
-		//Group Buttons
-		if (className.compareTo("calico.components.piemenu.groups.GroupSetPermanentButton") == 0)
-		{
-			return 1;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
-		{
-			return 2;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
-		{
-			return 12;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
-		{
-			return 5;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
-		{
-			return 6;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0)
-		{
-			return 7;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupResizeButton") == 0)
-		{
-			return 8;
-		}
-		if (className.compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
-		{
-			return 9;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
-		{
-		    return 10;
-		}
-		if (className.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
-		{
-			return 11;
-		}
-		
-		//Stroke Buttons
-		if (className.compareTo("calico.components.bubblemenu.strokes.StrokeMakeConnectorButton") == 0)
-		{
-			return 1;
-		}
-		
-		//Connector Buttons
-		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorLinearizeButton") == 0)
-		{
-			return 1;
-		}
-		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton") == 0)
-		{
-			return 2;
-		}
-		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorMoveHeadButton") == 0)
-		{
-			return 0;
-		}
-		
-		//Palette Plugin Buttons
-		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
-		{
-			return 4;
-		}
-		
-	
-		//IIP Pluging Buttons
-		if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
-		{
-			return 12;
-		}
-		
-		
-		//User Plugin Buttons
-		if (className.compareTo("calico.plugins.userlist.UserImageCreate") == 0)
-		{
-			return 11;
-		}
-		
-		
-		return 0;
-		
 	}
 	
 	//Determines the location of a button 
@@ -560,23 +480,8 @@ public class BubbleMenu {
 		{
 			//SwingUtilities.invokeLater(
 			//		new Runnable() { public void run() { 
-			if (activeType == TYPE_GROUP && CGroupController.exists(activeUUID))
-			{
-				CGroupController.groupdb.get(activeUUID).highlight_off();
-				CGroupController.groupdb.get(activeUUID).highlight_repaint();
-				if (!CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent())
-				{
-					CGroupController.drop(BubbleMenu.activeUUID);
-				}
-			}
-			else if (activeType == TYPE_STROKE && CStrokeController.exists(activeUUID))
-			{
-				CStrokeController.strokes.get(activeUUID).highlight_off();
-			}
-			else if (activeType == TYPE_CONNECTOR && CConnectorController.exists(activeUUID))
-			{
-				CConnectorController.connectors.get(activeUUID).highlight_off();
-			}
+			ComponentType type = componentTypes.get(activeType);
+			type.highlight(false, activeUUID);
 			
 			//		}});
 			activeUUID = 0l;
@@ -746,5 +651,169 @@ public class BubbleMenu {
 	public static boolean performingBubbleMenuAction()
 	{
 		return BubbleMenu.isPerformingBubbleMenuAction;
+	}
+	
+	private static class GroupType implements ComponentType
+	{
+		@Override
+		public PBounds getBounds(long uuid)
+		{
+			return CGroupController.groupdb.get(activeUUID).getBounds();
+		}
+
+		@Override
+		public void highlight(boolean b, long uuid)
+		{
+			if (b)
+			{
+				CGroupController.groupdb.get(uuid).highlight_on();
+				CGroupController.groupdb.get(uuid).highlight_repaint();
+			}
+			else
+			{
+				CGroupController.groupdb.get(uuid).highlight_off();
+				CGroupController.groupdb.get(uuid).highlight_repaint();
+				if (!CGroupController.groupdb.get(uuid).isPermanent())
+				{
+					CGroupController.drop(uuid);
+				}
+			}
+		}
+		
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			//Group Buttons
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupSetPermanentButton") == 0)
+			{
+				return 1;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0)
+			{
+				return 2;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
+			{
+				return 12;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
+			{
+				return 5;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
+			{
+				return 6;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupRotateButton") == 0)
+			{
+				return 7;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupResizeButton") == 0)
+			{
+				return 8;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.canvas.ArrowButton") == 0)
+			{
+				return 9;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
+			{
+			    return 10;
+			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupDeleteButton") == 0)
+			{
+				return 11;
+			}
+			
+			//Palette Plugin Buttons
+			if (buttonClassname.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
+			{
+				return 4;
+			}
+			
+			//User Plugin Buttons
+			if (buttonClassname.compareTo("calico.plugins.userlist.UserImageCreate") == 0)
+			{
+				return 11;
+			}
+
+			return 0;
+		}
+	}
+
+	private static class StrokeType implements ComponentType
+	{
+		@Override
+		public PBounds getBounds(long uuid)
+		{
+			return CStrokeController.strokes.get(uuid).getBounds();
+		}
+
+		@Override
+		public void highlight(boolean b, long uuid)
+		{
+			if (b)
+			{
+				CStrokeController.strokes.get(uuid).highlight_on();
+			}
+			else
+			{
+				CStrokeController.strokes.get(uuid).highlight_off();
+			}
+		}
+		
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			//Stroke Buttons
+			if (buttonClassname.compareTo("calico.components.bubblemenu.strokes.StrokeMakeConnectorButton") == 0)
+			{
+				return 1;
+			}
+
+			return 0;
+		}
+	}
+
+	private static class ConnectorType implements ComponentType
+	{
+		@Override
+		public PBounds getBounds(long uuid)
+		{
+			return CConnectorController.connectors.get(uuid).getBounds();
+		}
+
+		@Override
+		public void highlight(boolean b, long uuid)
+		{
+			if (b)
+			{
+				CConnectorController.connectors.get(uuid).highlight_on();
+			}
+			else
+			{
+				CConnectorController.connectors.get(activeUUID).highlight_off();
+			}
+		}
+		
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			//Connector Buttons
+			if (buttonClassname.compareTo("calico.components.bubblemenu.connectors.ConnectorLinearizeButton") == 0)
+			{
+				return 1;
+			}
+			if (buttonClassname.compareTo("calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton") == 0)
+			{
+				return 2;
+			}
+			if (buttonClassname.compareTo("calico.components.bubblemenu.connectors.ConnectorMoveHeadButton") == 0)
+			{
+				return 0;
+			}
+			
+			return 0;
+		}
 	}
 }

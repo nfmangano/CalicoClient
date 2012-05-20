@@ -3,7 +3,6 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,8 +14,8 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
+import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
-import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -44,12 +43,12 @@ public class CIntentionCellController
 		CIntentionCell cell = cells.get(cellId);
 		for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
 		{
-			if (cell.hasIntentionType(type.getId()))
+			if (cell.getIntentionTypeId() == type.getId())
 			{
 				toggleCellIntentionType(cellId, type.getId(), false, true);
 			}
 		}
-		
+
 		if (cell.hasUserTitle())
 		{
 			setCellTitle(cellId, CIntentionCell.DEFAULT_TITLE, true);
@@ -60,7 +59,7 @@ public class CIntentionCellController
 	{
 		for (CIntentionCell cell : cells.values())
 		{
-			if (cell.isVisible() && cell.contains(point))
+			if (cell.contains(point))
 			{
 				return cell.getId();
 			}
@@ -81,7 +80,7 @@ public class CIntentionCellController
 		int count = 0;
 		for (CIntentionCell cell : cells.values())
 		{
-			if (cell.hasIntentionType(typeId))
+			if (cell.getIntentionTypeId() == typeId)
 			{
 				count++;
 			}
@@ -93,7 +92,10 @@ public class CIntentionCellController
 	{
 		for (CIntentionCell cell : cells.values())
 		{
-			cell.removeIntentionType(typeId);
+			if (cell.getIntentionTypeId() == typeId)
+			{
+				cell.clearIntentionType();
+			}
 		}
 	}
 
@@ -106,10 +108,15 @@ public class CIntentionCellController
 			cell.updateIconification();
 		}
 	}
+	
+	public void updateUserLists()
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			cell.updateUserList();
+		}
+	}
 
-	// The cells are all created at server startup, so new cells should never be created. If the policy changes at some
-	// point, this method will create a new cell, but until then it should not be used.
-	@Deprecated
 	private void createNewCell(long canvas_uuid)
 	{
 		int x = 0, y = 0;
@@ -125,27 +132,16 @@ public class CIntentionCellController
 		PacketHandler.receive(packet);
 		Networking.send(packet);
 	}
-
-	public void setInUse(long cellId, boolean inUse, boolean local)
+	
+	public void deleteCanvas(long canvasId)
 	{
-		CIntentionCell cell = cells.get(cellId);
-
-		if (cell.isInUse() == inUse)
-		{
-			return;
-		}
-
 		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_MARK_IN_USE);
-		packet.putLong(cellId);
-		packet.putBoolean(inUse);
+		packet.putInt(NetworkCommand.CANVAS_DELETE);
+		packet.putLong(canvasId);
 
 		packet.rewind();
 		PacketHandler.receive(packet);
-		if (!local)
-		{
-			Networking.send(packet);
-		}
+		Networking.send(packet);
 	}
 
 	public void moveCellLocal(long cellId, double x, double y)
@@ -197,18 +193,13 @@ public class CIntentionCellController
 		}
 	}
 
-	// The set of cells is static according to current policy: one per canvas. If that changes, this method may become
-	// useful. Until then, it should not be called.
-	@Deprecated
-	private void deleteCell(long cell_uuid)
+	public void localDeleteCell(long cellId)
 	{
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_DELETE);
-		packet.putLong(cell_uuid);
-
-		packet.rewind();
-		PacketHandler.receive(packet);
-		Networking.send(packet);
+		CIntentionCell cell = cells.remove(cellId);
+		cellsByCanvasId.remove(cell.getCanvasId());
+		cell.delete();
+		
+		IntentionGraph.getInstance().repaint();
 	}
 
 	public void addCell(CIntentionCell cell)
@@ -221,6 +212,10 @@ public class CIntentionCellController
 
 	public CIntentionCell getCellById(long uuid)
 	{
+		if (uuid < 0L)
+		{
+			return null;
+		}
 		return cells.get(uuid);
 	}
 
@@ -237,12 +232,7 @@ public class CIntentionCellController
 
 		for (CIntentionCell cell : orderedCells)
 		{
-			if (!cell.isVisible())
-			{
-				continue;
-			}
-
-			buffer.append(CCanvasController.canvasdb.get(cell.getCanvasId()).getGridCoordTxt());
+			buffer.append(CCanvasController.canvasdb.get(cell.getCanvasId()).getIndex());
 			buffer.append(", ");
 		}
 		if (buffer.length() > 1)
@@ -258,8 +248,7 @@ public class CIntentionCellController
 	{
 		public int compare(CIntentionCell first, CIntentionCell second)
 		{
-			return CCanvasController.canvasdb.get(first.getCanvasId()).getGridCoordTxt()
-					.compareTo(CCanvasController.canvasdb.get(second.getCanvasId()).getGridCoordTxt());
+			return CCanvasController.canvasdb.get(first.getCanvasId()).getIndex() - CCanvasController.canvasdb.get(second.getCanvasId()).getIndex();
 		}
 	}
 }

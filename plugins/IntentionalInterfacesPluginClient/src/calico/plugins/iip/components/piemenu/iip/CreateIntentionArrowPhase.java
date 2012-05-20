@@ -316,6 +316,62 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		}
 	}
 
+	private boolean canLinkTo(CIntentionCell cell)
+	{
+		if ((cell == null) || onSelf || (mode == Mode.LINK_TO_BLANK) || (mode == Mode.LINK_TO_COPY))
+		{
+			return false;
+		}
+
+		if (mode != Mode.MOVE_ANCHOR_A)
+		{
+			for (Long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(cell.getCanvasId()))
+			{
+				CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+				if (anchor.getLink().getAnchorB() == anchor)
+				{
+					return false;
+				}
+			}
+		}
+
+		CIntentionCell anchorA = (mode == Mode.MOVE_ANCHOR_A) ? cell : getAnchorCell();
+		CIntentionCell target = (mode == Mode.MOVE_ANCHOR_A) ? getAnchorCell() : cell;
+		if (isParent(target, anchorA.getCanvasId()))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean isParent(CIntentionCell target, long canvasIdOfAnchorA)
+	{
+		CCanvasLinkAnchor incomingAnchor = null;
+		for (Long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasIdOfAnchorA))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				incomingAnchor = anchor;
+				break;
+			}
+		}
+
+		if (incomingAnchor == null)
+		{
+			return false;
+		}
+
+		if (incomingAnchor.getOpposite().getCanvasId() == target.getCanvasId())
+		{
+			System.out.println("Cycle detected on canvas id " + target.getCanvasId());
+			return true;
+		}
+
+		return isParent(target, incomingAnchor.getOpposite().getCanvasId());
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent event)
 	{
@@ -329,17 +385,14 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		moveTransitoryArrow(graphPosition, false);
 
 		long newCellId = CIntentionCellController.getInstance().getCellAt(event.getPoint());
+		CIntentionCell newCell = CIntentionCellController.getInstance().getCellById(newCellId);
 
+		// kind of risky to require `onSelf to be set before calling canLinkTo()
 		onSelf = ((getAnchorCell() != null) && (newCellId == getAnchorCell().getId()));
 
-		CIntentionCell newCell;
-		if ((newCellId < 0L) || onSelf || (mode == Mode.LINK_TO_BLANK) || (mode == Mode.LINK_TO_COPY))
+		if (!canLinkTo(newCell))
 		{
 			newCell = null;
-		}
-		else
-		{
-			newCell = CIntentionCellController.getInstance().getCellById(newCellId);
 		}
 		if ((getTransitoryCell() != null) && (newCell != getTransitoryCell()))
 		{

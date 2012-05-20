@@ -6,9 +6,15 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import calico.Calico;
 import calico.Geometry;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
+import calico.networking.Networking;
+import calico.networking.PacketHandler;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
@@ -89,9 +95,10 @@ public class IntentionGraphController
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
 		arrowsByLinkId.put(link.getId(), arrow);
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		arrow.moveToBack();
 		arrow.redraw();
 	}
-
+	
 	public CCanvasLinkArrow getArrowByLinkId(long uuid)
 	{
 		return arrowsByLinkId.get(uuid);
@@ -176,7 +183,7 @@ public class IntentionGraphController
 				throw new IllegalArgumentException("Unknown anchor type " + anchor.getArrowEndpointType());
 		}
 	}
-
+	
 	public void removeLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
@@ -185,67 +192,14 @@ public class IntentionGraphController
 
 	public void contentChanged(long canvas_uuid)
 	{
-		boolean hasContent = CCanvasController.hasContent(canvas_uuid);
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
-
 		if (cell == null)
 		{
 			return;
 		}
 
 		cell.contentsChanged();
-
-		if (hasContent != cell.isVisible())
-		{
-			CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).setVisible(hasContent);
-		}
-
 		IntentionGraph.getInstance().repaint();
-	}
-
-	public long getNearestEmptyCanvas()
-	{
-		return getNearestEmptyCanvas(0L);
-	}
-
-	public long getNearestEmptyCanvas(long fromCanvasId)
-	{
-		Point2D fromCanvasCenter = null;
-		if (fromCanvasId > 0L)
-		{
-			fromCanvasCenter = CIntentionCellController.getInstance().getCellByCanvasId(fromCanvasId).getCenter();
-		}
-
-		double shortestDistance = Double.MAX_VALUE;
-		long nearestCanvasId = 0L;
-
-		for (long nextCanvasId : CCanvasController.getCanvasIDList())
-		{
-			if (nextCanvasId == fromCanvasId)
-			{
-				continue;
-			}
-
-			if (CCanvasController.hasContent(nextCanvasId))
-			{
-				continue;
-			}
-
-			if (fromCanvasId == 0L)
-			{
-				return nextCanvasId;
-			}
-
-			Point2D canvasCenter = CIntentionCellController.getInstance().getCellByCanvasId(nextCanvasId).getCenter();
-			double distance = fromCanvasCenter.distance(canvasCenter);
-			if (distance < shortestDistance)
-			{
-				shortestDistance = distance;
-				nearestCanvasId = nextCanvasId;
-			}
-		}
-
-		return nearestCanvasId;
 	}
 
 	public void initializeDisplay()
@@ -274,7 +228,7 @@ public class IntentionGraphController
 		}
 	}
 
-	public void updateAttachedArrows(long cellId, double x, double y)
+	public void cellMoved(long cellId, double x, double y)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
 		long canvasId = cell.getCanvasId();
@@ -285,6 +239,11 @@ public class IntentionGraphController
 			Point2D edgePosition = alignAnchorAtCellEdge(x, y, cell.getSize(), getOppositePosition(anchor));
 
 			CCanvasLinkController.getInstance().moveLinkAnchor(anchor, edgePosition);
+		}
+		
+		if (BubbleMenu.isBubbleMenuActive() && (BubbleMenu.activeUUID == cellId))
+		{
+			BubbleMenu.moveIconPositions(cell.getGlobalBounds());
 		}
 	}
 

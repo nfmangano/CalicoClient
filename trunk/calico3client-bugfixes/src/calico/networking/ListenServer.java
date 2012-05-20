@@ -1,22 +1,14 @@
 package calico.networking;
 
-import it.unimi.dsi.fastutil.io.BinIO;
-
-import java.awt.Component;
-import java.io.*;
-import java.net.*;
+import java.io.InputStream;
 
 import javax.swing.ProgressMonitor;
 
 import org.apache.log4j.Logger;
 
-import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
-import calico.components.grid.CGrid;
-import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
-import calico.modules.*;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
@@ -42,8 +34,7 @@ public class ListenServer implements Runnable
 	{
 		openInputStream();
 		
-		if (CalicoDataStore.GridRows == 0 || CalicoDataStore.GridCols == 0)
-			startProgressMonitor();
+		startProgressMonitor();
 //			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, ((double)0), 
 //					((double)100), "Synchronizing with server... "));
 		
@@ -188,7 +179,7 @@ public class ListenServer implements Runnable
 			            }
 						
 						double cuuid = new Long(tpack.getCUUID()).doubleValue();
-						double numCanvases = new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
+						double numCanvases = 2d;
 						int progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
 						if (progress < previousProgress)
 							progress = previousProgress;

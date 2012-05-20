@@ -1,14 +1,23 @@
 package calico.perspectives;
 
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
-import calico.components.bubblemenu.BubbleMenu;
+import javax.swing.SwingUtilities;
+
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.PNode;
 
 public abstract class CalicoPerspective
 {
+	protected CalicoPerspective()
+	{
+		Registry.register(this);
+	}
+
 	protected abstract boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer);
 
 	protected abstract void drawPieMenu(PNode pieCrust);
@@ -23,6 +32,8 @@ public abstract class CalicoPerspective
 
 	protected abstract void removeMouseListener(MouseListener listener);
 
+	protected abstract boolean isNavigationPerspective();
+
 	public boolean isActive()
 	{
 		return Active.INSTANCE.currentPerspective == this;
@@ -33,6 +44,31 @@ public abstract class CalicoPerspective
 		Active.INSTANCE.currentPerspective = this;
 
 		CalicoInputManager.perspectiveChanged();
+	}
+
+	public static class Registry
+	{
+		private static final List<CalicoPerspective> perspectives = new ArrayList<CalicoPerspective>();
+		private static CalicoPerspective navigationPerspective = null;
+
+		private static void register(CalicoPerspective perspective)
+		{
+			perspectives.add(perspective);
+
+			if (perspective.isNavigationPerspective())
+			{
+				navigationPerspective = perspective;
+			}
+		}
+
+		public static void activateNavigationPerspective()
+		{
+			CCanvasController.loadCanvas(CCanvasController.getCanvasByIndex(1).uuid);
+
+			/*
+			 * if (navigationPerspective != null) { navigationPerspective.activate(); }
+			 */
+		}
 	}
 
 	public static class Active

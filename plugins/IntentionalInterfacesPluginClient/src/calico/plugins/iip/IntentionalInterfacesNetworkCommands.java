@@ -4,19 +4,13 @@ import calico.networking.netstuff.CalicoPacket;
 
 public class IntentionalInterfacesNetworkCommands
 {
-	// According to current policy, the client should receive but never send this event. Only the server creates CICs.
-	@Deprecated
 	public static final int CIC_CREATE = Command.CIC_CREATE.id;
-
-	// This should never occur, according to current policy. The set of CICs is static, one per canvas.
-	@Deprecated
 	public static final int CIC_DELETE = Command.CIC_DELETE.id;
-
-	public static final int CIC_MARK_IN_USE = Command.CIC_MARK_IN_USE.id;
 	public static final int CIC_MOVE = Command.CIC_MOVE.id;
 	public static final int CIC_SET_TITLE = Command.CIC_SET_TITLE.id;
 	public static final int CIC_TAG = Command.CIC_TAG.id;
 	public static final int CIC_UNTAG = Command.CIC_UNTAG.id;
+	public static final int CIC_TOPOLOGY = Command.CIC_TOPOLOGY.id;
 	public static final int CIT_CREATE = Command.CIT_CREATE.id;
 	public static final int CIT_RENAME = Command.CIT_RENAME.id;
 	public static final int CIT_SET_COLOR = Command.CIT_SET_COLOR.id;
@@ -32,10 +26,6 @@ public class IntentionalInterfacesNetworkCommands
 		 * Create a new CIntentionCell
 		 */
 		CIC_CREATE,
-		/**
-		 * Mark a CIntentionCell as "in use" (or not)
-		 */
-		CIC_MARK_IN_USE,
 		/**
 		 * Move a CIntentionCell's (x,y) position and set its inUse flag
 		 */
@@ -56,6 +46,10 @@ public class IntentionalInterfacesNetworkCommands
 		 * Delete a CIntentionCell
 		 */
 		CIC_DELETE,
+		/**
+		 * Describe the topology of the CIC clusters
+		 */
+		CIC_TOPOLOGY,
 		/**
 		 * Create a new CIntentionType
 		 */

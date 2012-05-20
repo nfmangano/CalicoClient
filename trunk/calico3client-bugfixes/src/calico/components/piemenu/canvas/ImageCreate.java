@@ -1,26 +1,18 @@
 package calico.components.piemenu.canvas;
 
-import java.awt.Image;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import calico.Calico;
 import calico.components.bubblemenu.BubbleMenu;
-import calico.components.grid.CGrid;
-import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
-import calico.controllers.CGroupController;
 import calico.controllers.CImageController;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
-import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
 
 @Deprecated
 public class ImageCreate extends PieMenuButton {

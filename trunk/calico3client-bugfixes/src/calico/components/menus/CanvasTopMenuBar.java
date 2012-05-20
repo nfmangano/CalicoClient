@@ -45,12 +45,12 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 		
 		
 		// GRID COORDINATES
-		String coordtxt = CCanvasController.canvasdb.get(cuid).getGridCoordTxt();
+		String canvasIndex = String.valueOf(CCanvasController.canvasdb.get(cuid).getIndex());
 		
 		
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 		
-		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
+		addText(canvasIndex, new Font("Verdana", Font.BOLD, 12));
 		
 		addSpacer();
 		
@@ -61,14 +61,14 @@ public class CanvasTopMenuBar extends CanvasGenericMenuBar
 				
 		switch(CalicoDataStore.Mode)
 		{
-			case ARROW:coordtxt="Arrow Mode";break;
-			case DELETE:coordtxt="Eraser Mode";break;
-			case EXPERT:coordtxt="Expert Mode";break;
-			case SCRAP:coordtxt="Scrap Mode";break;
-			case STROKE:coordtxt="Stroke Mode";break;
+			case ARROW:canvasIndex="Arrow Mode";break;
+			case DELETE:canvasIndex="Eraser Mode";break;
+			case EXPERT:canvasIndex="Expert Mode";break;
+			case SCRAP:canvasIndex="Scrap Mode";break;
+			case STROKE:canvasIndex="Stroke Mode";break;
 		}
 		
-		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
+		addText(canvasIndex, new Font("Verdana", Font.BOLD, 12));
 		
 		addCap(CanvasGenericMenuBar.ALIGN_END);
 		

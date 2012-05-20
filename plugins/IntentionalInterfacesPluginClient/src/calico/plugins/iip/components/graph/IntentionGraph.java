@@ -1,6 +1,7 @@
 package calico.plugins.iip.components.graph;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -11,13 +12,12 @@ import javax.swing.JComponent;
 
 import calico.Calico;
 import calico.CalicoDataStore;
-import calico.components.grid.CGrid;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
-import calico.plugins.iip.components.menus.IntentionGraphZoomSlider;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -28,8 +28,9 @@ public class IntentionGraph
 {
 	public enum Layer
 	{
-		CONTENT(0),
-		TOOLS(1);
+		TOPOLOGY(0),
+		CONTENT(1),
+		TOOLS(2);
 
 		public final int id;
 
@@ -50,13 +51,16 @@ public class IntentionGraph
 
 	private static IntentionGraph INSTANCE;
 
+	private final PLayer topologyLayer = new PLayer();
 	private final PLayer toolLayer = new PLayer();
 
 	private final ContainedCanvas canvas = new ContainedCanvas();
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
 	private IntentionGraphMenuBar menuBar;
-	
-	private boolean iconifyMode = true;
+
+	private CIntentionTopology topology;
+
+	private boolean iconifyMode = false;
 
 	private final long uuid;
 
@@ -70,6 +74,8 @@ public class IntentionGraph
 
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
+		translate((CalicoDataStore.ScreenWidth / 2) - (CIntentionCell.THUMBNAIL_SIZE.width / 2), (CalicoDataStore.ScreenHeight / 2)
+				- (CIntentionCell.THUMBNAIL_SIZE.height / 2));
 
 		CalicoInputManager.addCustomInputHandler(uuid, new IntentionGraphInputHandler());
 
@@ -83,6 +89,8 @@ public class IntentionGraph
 
 		PLayer contentLayer = contentCanvas.getLayer();
 		toolLayer.setParent(contentLayer.getParent());
+		topologyLayer.setParent(contentLayer.getParent());
+		canvas.getCamera().addLayer(Layer.TOPOLOGY.id, topologyLayer);
 		canvas.getCamera().addLayer(Layer.CONTENT.id, contentLayer);
 		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 
@@ -98,6 +106,8 @@ public class IntentionGraph
 	{
 		switch (layer)
 		{
+			case TOPOLOGY:
+				return topologyLayer;
 			case CONTENT:
 				return contentCanvas.getLayer();
 			case TOOLS:
@@ -111,7 +121,65 @@ public class IntentionGraph
 	{
 		return canvas;
 	}
-	
+
+	public Point getTranslation()
+	{
+		double x = getLayer(Layer.CONTENT).getTransform().getTranslateX();
+		double y = getLayer(Layer.CONTENT).getTransform().getTranslateY();
+		return new Point((int) x, (int) y);
+	}
+
+	public void translate(double x, double y)
+	{
+		getLayer(Layer.CONTENT).translate(x, y);
+		getLayer(Layer.TOPOLOGY).translate(x, y);
+	}
+
+	public void translateGlobal(double x, double y)
+	{
+		Point2D.Double translation = new Point2D.Double(x, y);
+		getLayer(Layer.CONTENT).setGlobalTranslation(translation);
+		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
+	}
+
+	public void setTopology(CIntentionTopology topology)
+	{
+		if (this.topology != null)
+		{
+			topologyLayer.removeAllChildren();
+		}
+
+		this.topology = topology;
+
+		for (CIntentionTopology.Cluster cluster : this.topology.getClusters())
+		{
+			topologyLayer.addChild(cluster);
+		}
+
+		repaint();
+	}
+
+	public void setScale(double scale)
+	{
+		if (getLayer(IntentionGraph.Layer.CONTENT).getScale() == Double.NaN)
+		{
+			getLayer(IntentionGraph.Layer.CONTENT).setGlobalScale(scale);
+		}
+		else
+		{
+			getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+		}
+
+		if (getLayer(IntentionGraph.Layer.TOPOLOGY).getScale() == Double.NaN)
+		{
+			getLayer(IntentionGraph.Layer.TOPOLOGY).setGlobalScale(scale);
+		}
+		else
+		{
+			getLayer(IntentionGraph.Layer.TOPOLOGY).setScale(scale);
+		}
+	}
+
 	public void activateIconifyMode(boolean b)
 	{
 		iconifyMode = b;
@@ -121,7 +189,7 @@ public class IntentionGraph
 	{
 		return iconifyMode;
 	}
-	
+
 	public void fitContents()
 	{
 		double minX = Double.MAX_VALUE;
@@ -158,7 +226,8 @@ public class IntentionGraph
 
 		if (visibleCount < 2)
 		{
-			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX, minY));
+			// contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX, minY));
+			translate(minX, minY);
 		}
 		else
 		{
@@ -167,18 +236,19 @@ public class IntentionGraph
 			double yRatio = canvasSize.height / (maxY - minY);
 
 			double scale = Math.min(xRatio, yRatio) * 0.9;
-			contentCanvas.getLayer().setScale(scale);
+			setScale(scale);
 			double contentWidth = maxX - minX;
 			double contentHeight = maxY - minY;
 			double xMargin = (contentWidth * (xRatio - scale)) / 2;
 			double yMargin = (contentHeight * (yRatio - scale)) / 2;
 
-			contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(xMargin - minX, yMargin - minY));
+			// be very careful, it scales the translation!!!
+			translateGlobal(xMargin - (minX * scale), yMargin - (minY * scale));
 		}
 
 		repaint();
 	}
-	
+
 	public void initialize()
 	{
 		menuBar.initialize();

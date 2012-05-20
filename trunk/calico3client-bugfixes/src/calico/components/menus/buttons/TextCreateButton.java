@@ -1,8 +1,5 @@
 package calico.components.menus.buttons;
 
-import java.awt.Image;
-import java.awt.image.ImageObserver;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,11 +7,7 @@ import javax.swing.JOptionPane;
 
 import calico.Calico;
 import calico.CalicoDataStore;
-import calico.components.bubblemenu.BubbleMenu;
-import calico.components.grid.CGrid;
 import calico.components.menus.CanvasMenuButton;
-import calico.components.piemenu.PieMenu;
-import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.iconsets.CalicoIconManager;

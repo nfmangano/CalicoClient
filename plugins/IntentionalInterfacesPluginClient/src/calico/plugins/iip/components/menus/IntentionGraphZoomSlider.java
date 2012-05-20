@@ -50,7 +50,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		if ((x > buttonSpan) && (x < (bounds.width - buttonSpan)))
 		{
 			double scale = convertSlidePointToScale(point);
-			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+			IntentionGraph.getInstance().setScale(scale);
 			IntentionGraph.getInstance().repaint();
 
 			System.out.println("zoom to " + scale);
@@ -108,14 +108,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 			System.out.println("zoom to " + scale);
 		}
 
-		if (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() == Double.NaN)
-		{
-			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setGlobalScale(scale);
-		}
-		else
-		{
-			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
-		}
+		IntentionGraph.getInstance().setScale(scale);
 		IntentionGraph.getInstance().repaint();
 	}
 
