@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
+import calico.components.CGroup;
 import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CConnectorController;
@@ -671,11 +672,15 @@ public class BubbleMenu {
 			}
 			else
 			{
-				CGroupController.groupdb.get(uuid).highlight_off();
-				CGroupController.groupdb.get(uuid).highlight_repaint();
-				if (!CGroupController.groupdb.get(uuid).isPermanent())
+				CGroup group = CGroupController.groupdb.get(uuid);
+				if (group != null)
 				{
-					CGroupController.drop(uuid);
+					group.highlight_off();
+					group.highlight_repaint();
+					if (!group.isPermanent())
+					{
+						CGroupController.drop(uuid);
+					}
 				}
 			}
 		}
