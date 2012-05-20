@@ -1,4 +1,4 @@
-package calico.plugins.iip.components.graph;
+package calico.plugins.iip.components.canvas;
 
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
@@ -9,13 +9,13 @@ import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
-public class CopyCanvasButton extends CanvasMenuButton
+public class NewCanvasButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
 
 	private long currentCanvasId;
 
-	public CopyCanvasButton()
+	public NewCanvasButton()
 	{
 		this(0L);
 	}
@@ -23,13 +23,13 @@ public class CopyCanvasButton extends CanvasMenuButton
 	/**
 	 * Invoked via reflection in CanvasStatusBar
 	 */
-	public CopyCanvasButton(long canvas_uuid)
+	public NewCanvasButton(long canvas_uuid)
 	{
 		try
 		{
 			this.currentCanvasId = canvas_uuid;
 
-			setImage(CalicoIconManager.getIconImage("intention.copy-canvas"));
+			setImage(CalicoIconManager.getIconImage("intention.new-canvas"));
 		}
 		catch (Exception e)
 		{
@@ -39,9 +39,7 @@ public class CopyCanvasButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId, true);
-
-		CCanvasLinkController.getInstance().copyCanvas(CCanvasController.getCurrentUUID(), newCanvas);
+		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId);
 
 		if (CanvasPerspective.getInstance().isActive())
 		{

@@ -12,12 +12,14 @@ import javax.swing.JComponent;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
+import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -133,6 +135,11 @@ public class IntentionGraph
 	{
 		getLayer(Layer.CONTENT).translate(x, y);
 		getLayer(Layer.TOPOLOGY).translate(x, y);
+
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
+		}
 	}
 
 	public void translateGlobal(double x, double y)
@@ -140,6 +147,11 @@ public class IntentionGraph
 		Point2D.Double translation = new Point2D.Double(x, y);
 		getLayer(Layer.CONTENT).setGlobalTranslation(translation);
 		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
+		
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
+		}
 	}
 
 	public void setTopology(CIntentionTopology topology)
@@ -177,6 +189,11 @@ public class IntentionGraph
 		else
 		{
 			getLayer(IntentionGraph.Layer.TOPOLOGY).setScale(scale);
+		}
+
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
 		}
 	}
 
@@ -226,27 +243,46 @@ public class IntentionGraph
 
 		if (visibleCount < 2)
 		{
-			// contentCanvas.getLayer().setGlobalTranslation(new Point2D.Double(minX, minY));
 			translate(minX, minY);
+			repaint();
 		}
 		else
 		{
-			Dimension canvasSize = contentCanvas.getBounds().getSize();
-			double xRatio = canvasSize.width / (maxX - minX);
-			double yRatio = canvasSize.height / (maxY - minY);
-
-			double scale = Math.min(xRatio, yRatio) * 0.9;
-			setScale(scale);
-			double contentWidth = maxX - minX;
-			double contentHeight = maxY - minY;
-			double xMargin = (contentWidth * (xRatio - scale)) / 2;
-			double yMargin = (contentHeight * (yRatio - scale)) / 2;
-
-			// be very careful, it scales the translation!!!
-			translateGlobal(xMargin - (minX * scale), yMargin - (minY * scale));
+			zoomToRegion(new PBounds(minX, minY, (maxX - minX), (maxY - minY)));
 		}
+	}
 
-		repaint();
+	public void zoomToCluster(long memberCanvasId)
+	{
+		long clusterRootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(memberCanvasId);
+		CIntentionTopology.Cluster cluster = topology.getCluster(clusterRootCanvasId);
+		PBounds maxRingBounds = cluster.getMaxRingBounds();
+		if (maxRingBounds == null)
+		{
+			return; // no zooming on atomic clusters
+		}
+		
+		double margin = maxRingBounds.width * 0.03;
+		maxRingBounds.x -= margin;
+		maxRingBounds.y -= margin;
+		maxRingBounds.width += (2 * margin);
+		maxRingBounds.height += (2 * margin);
+		zoomToRegion(maxRingBounds);
+	}
+
+	private void zoomToRegion(PBounds bounds)
+	{
+		Dimension canvasSize = contentCanvas.getBounds().getSize();
+		double xRatio = canvasSize.width / bounds.width;
+		double yRatio = canvasSize.height / bounds.height;
+
+		double scale = Math.min(xRatio, yRatio) * 0.9;
+		setScale(scale);
+		double xMargin = (bounds.width * (xRatio - scale)) / 2;
+		double yMargin = (bounds.height * (yRatio - scale)) / 2;
+
+		// be very careful, it scales the translation!!!
+		translateGlobal(xMargin - (bounds.x * scale), yMargin - (bounds.y * scale));
 	}
 
 	public void initialize()

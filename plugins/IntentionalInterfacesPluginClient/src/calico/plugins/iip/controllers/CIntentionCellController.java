@@ -16,6 +16,7 @@ import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -65,6 +66,27 @@ public class CIntentionCellController
 			}
 		}
 		return -1L;
+	}
+	
+	public long getClusterRootCanvasId(long memberCanvasId)
+	{
+		long parentCanvasId = -1L;
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(memberCanvasId))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				parentCanvasId = anchor.getOpposite().getCanvasId();
+				break;
+			}
+		}
+		
+		if (parentCanvasId < 0L)
+		{
+			return memberCanvasId;
+		}
+		
+		return getClusterRootCanvasId(parentCanvasId);
 	}
 
 	public void initializeDisplay()

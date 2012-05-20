@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 
 import calico.components.arrow.AbstractArrow;
 import calico.components.arrow.AbstractArrowAnchorPoint;
+import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkArrow;
@@ -246,7 +247,11 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		}
 		else
 		{
-			CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), copy);
+			long newCanvasId = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId());
+			if (copy)
+			{
+				CCanvasLinkController.getInstance().copyCanvas(fromCell.getCanvasId(), newCanvasId);
+			}
 		}
 
 		System.out.println("Create arrow from cell #" + fromCell.getCanvasId() + " at " + fromCell.getLocation() + ", with anchor point " + anchorPoint

@@ -551,6 +551,8 @@ public class CanvasTagPanel implements StickyItem
 			border.setStrokePaint(Color.black);
 			border.setStroke(new BasicStroke(1f));
 			addChild(border);
+			
+			repaint();
 		}
 
 		void refresh()
