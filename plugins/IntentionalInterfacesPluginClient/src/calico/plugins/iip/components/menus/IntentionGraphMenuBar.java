@@ -6,10 +6,10 @@ import java.awt.Rectangle;
 import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ReturnToGrid;
 import calico.inputhandlers.InputEventInfo;
-import calico.plugins.iip.components.graph.CopyCanvasButton;
+import calico.plugins.iip.components.canvas.CopyCanvasButton;
+import calico.plugins.iip.components.canvas.NewCanvasButton;
 import calico.plugins.iip.components.graph.IconifyButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.graph.NewCanvasButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar

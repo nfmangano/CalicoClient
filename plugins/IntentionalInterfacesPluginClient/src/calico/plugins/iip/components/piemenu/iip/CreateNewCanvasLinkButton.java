@@ -18,11 +18,6 @@ public class CreateNewCanvasLinkButton extends PieMenuButton
 	public void onClick(InputEventInfo event)
 	{
 		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
-		CCanvasLinkController.getInstance().createLinkToEmptyCanvas(activeCanvasId, false);
-
-		// CreateIntentionArrowPhase.INSTANCE.startCreate(
-		// CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()),
-		// event.getGlobalPoint(),
-		// CreateIntentionArrowPhase.NewLinkMode.LINK_TO_BLANK);
+		CCanvasLinkController.getInstance().createLinkToEmptyCanvas(activeCanvasId);
 	}
 }

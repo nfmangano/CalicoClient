@@ -20,12 +20,7 @@ public class CreateCanvasCopyButton extends PieMenuButton
 	public void onClick(InputEventInfo event)
 	{
 		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
-		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(activeCanvasId, true);
-		CCanvasLinkController.getInstance().copyCanvas(CCanvasController.getCurrentUUID(), newCanvas);
-
-		// CreateIntentionArrowPhase.INSTANCE.startCreate(
-		// CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()),
-		// event.getGlobalPoint(),
-		// CreateIntentionArrowPhase.NewLinkMode.LINK_TO_COPY);
+		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(activeCanvasId);
+		CCanvasLinkController.getInstance().copyCanvas(activeCanvasId, newCanvas);
 	}
 }

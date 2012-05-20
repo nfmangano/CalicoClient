@@ -1,4 +1,4 @@
-package calico.plugins.iip.components.graph;
+package calico.plugins.iip.components.canvas;
 
 import calico.CalicoDataStore;
 import calico.components.menus.CanvasMenuButton;

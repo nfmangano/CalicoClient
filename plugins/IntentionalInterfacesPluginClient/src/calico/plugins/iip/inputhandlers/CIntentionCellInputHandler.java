@@ -14,6 +14,7 @@ import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.CreateNewCanvasLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.EnterCanvasButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -50,6 +51,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private final CreateLinkButton linkButton = new CreateLinkButton();
 	private final CreateNewCanvasLinkButton newCanvasButton = new CreateNewCanvasLinkButton();
 	private final CreateCanvasCopyButton copyCanvasButton = new CreateCanvasCopyButton();
+	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
 
 	private CIntentionCellInputHandler()
 	{
@@ -145,12 +147,12 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						if (CCanvasController.canvasdb.size() > 1)
 						{
 							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, enterCanvasButton, linkButton,
-									newCanvasButton, copyCanvasButton);
+									newCanvasButton, copyCanvasButton, zoomToClusterButton);
 						}
 						else
 						{
 							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, enterCanvasButton, linkButton, newCanvasButton,
-									copyCanvasButton);
+									copyCanvasButton, zoomToClusterButton);
 						}
 					}
 					break;
@@ -214,6 +216,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			if (buttonClassname.equals(CreateCanvasCopyButton.class.getName()))
 			{
 				return 5;
+			}
+			if (buttonClassname.equals(ZoomToClusterButton.class.getName()))
+			{
+				return 6;
 			}
 
 			return 0;

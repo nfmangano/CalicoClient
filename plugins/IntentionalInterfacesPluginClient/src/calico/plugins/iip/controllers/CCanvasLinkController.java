@@ -261,11 +261,12 @@ public class CCanvasLinkController
 
 	public void createLinkToEmptyCanvas(long fromCanvasId, double xLinkEndpoint, double yLinkEndpoint, boolean copy)
 	{
-		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId, copy);
+		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId);
 		if (toCanvasId == 0L)
 		{
 			return;
 		}
+		CCanvasLinkController.getInstance().copyCanvas(fromCanvasId, toCanvasId);
 
 		Point2D cellOrigin = IntentionGraphController.getInstance().alignCellEdgeAtLinkEndpoint(fromCanvasId, xLinkEndpoint, yLinkEndpoint);
 
@@ -273,14 +274,10 @@ public class CCanvasLinkController
 				cellOrigin.getY());
 	}
 
-	public long createLinkToEmptyCanvas(long fromCanvasId, boolean copy)
+	public long createLinkToEmptyCanvas(long fromCanvasId)
 	{
 		long toCanvasId = CIntentionCellFactory.getInstance().createNewCell().getCanvasId();
 		createLink(fromCanvasId, toCanvasId);
-		if (copy)
-		{
-			copyCanvas(fromCanvasId, toCanvasId);
-		}
 
 		return toCanvasId;
 	}
