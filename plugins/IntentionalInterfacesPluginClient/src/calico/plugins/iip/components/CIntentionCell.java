@@ -219,6 +219,8 @@ public class CIntentionCell
 
 	private class Shell extends PComposite implements PropertyChangeListener
 	{
+		private final Color BACKGROUND_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xCC);
+		
 		private final PImage canvasAddress;
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
 		private final TitleBar titleBar = new TitleBar();
@@ -300,6 +302,9 @@ public class CIntentionCell
 
 			Graphics2D g = paintContext.getGraphics();
 			Color c = g.getColor();
+			
+			g.setColor(BACKGROUND_COLOR);
+			g.fill(getBounds());
 
 			g.setColor(currentBorderColor());
 			g.translate(thumbnailBounds.x, thumbnailBounds.y);
@@ -341,7 +346,7 @@ public class CIntentionCell
 		private final int LEFT_INSET = 2;
 		private final int TEXT_INSET = 1;
 
-		private final int FADE_HEIGHT = 30;
+		private final int FADE_HEIGHT = 34;
 		private final Color MASK_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xDD);
 		private final Color TRANSPARENT = new Color(0xFF, 0xFF, 0xFF, 0x00);
 		private final GradientPaint TOP_FADE = new GradientPaint(0f, 0f, TRANSPARENT, 0f, FADE_HEIGHT / 2, MASK_COLOR);
@@ -379,9 +384,9 @@ public class CIntentionCell
 			g.translate(title.getX(), yTitle);
 
 			g.setPaint(TOP_FADE);
-			g.fillRect(0, 0, (int) title.getBounds().width, FADE_HEIGHT / 2);
+			g.fillRect(-2, 0, ((int) title.getBounds().width) + 4, FADE_HEIGHT / 2);
 			g.setPaint(BOTTOM_FADE);
-			g.fillRect(0, FADE_HEIGHT / 2, (int) title.getBounds().width, FADE_HEIGHT);
+			g.fillRect(-2, FADE_HEIGHT / 2, ((int) title.getBounds().width) + 4, FADE_HEIGHT);
 			g.translate(-title.getX(), -yTitle);
 
 			super.paint(paintContext);
