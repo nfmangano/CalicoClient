@@ -26,11 +26,6 @@ public class ShowIntentionGraphButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		CalicoDataStore.calicoObj.getContentPane().removeAll();
-		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
-		CalicoDataStore.calicoObj.pack();
-		CalicoDataStore.calicoObj.setVisible(true);
-		CalicoDataStore.calicoObj.repaint();
-		IntentionalInterfacesPerspective.getInstance().activate();
+		IntentionalInterfacesPerspective.getInstance().displayPerspective();
 	}
 }

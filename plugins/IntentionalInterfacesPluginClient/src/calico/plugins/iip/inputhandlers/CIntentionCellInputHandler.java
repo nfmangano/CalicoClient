@@ -183,10 +183,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		@Override
 		public PBounds getBounds(long uuid)
 		{
-			PBounds bounds = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
-//			bounds.setOrigin(bounds.getX() + IntentionGraph.getInstance().getTranslation().getX(), bounds.getY()
-//					+ IntentionGraph.getInstance().getTranslation().getY());
-			return bounds;
+			return CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
 		}
 
 		@Override

@@ -13,6 +13,11 @@ public class GridPerspective extends CalicoPerspective
 	{
 		return INSTANCE;
 	}
+	
+	@Override
+	protected void displayPerspective()
+	{
+	}
 
 	protected void drawPieMenu(PNode pieCrust)
 	{

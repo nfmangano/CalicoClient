@@ -66,6 +66,7 @@ public class CalicoDataStore
 	// We will probably use this thing for running tasks after a certain amount of time.
 	public static long LastUserActionTime = 0L;
 
+	public static boolean initialScreenDisplayed = false;
 	
 	public static ArrayList<CSession> sessiondb = new ArrayList<CSession>();
 	
