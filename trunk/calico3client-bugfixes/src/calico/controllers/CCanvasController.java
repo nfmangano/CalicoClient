@@ -727,6 +727,12 @@ public class CCanvasController
 
 		void notifyContentChanged(ContentContributor changeContributor, long canvas_uuid)
 		{
+			if (!canvasdb.containsKey(canvas_uuid))
+			{
+				// this canvas is being deleted, so stop notifying about it
+				return;
+			}
+			
 			synchronized (changedCanvasIds)
 			{
 				changedCanvasIds.add(canvas_uuid);

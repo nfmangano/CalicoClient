@@ -51,6 +51,7 @@ import org.json.me.JSONObject;
 
 import calico.components.CCanvasWatermark;
 import calico.components.CSession;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
@@ -295,6 +296,7 @@ public class Calico extends JFrame
 		CGroupController.setup();
 		CStrokeController.setup();
 		CConnectorController.setup();
+		BubbleMenu.setup();
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme(CalicoOptions.core.icontheme);

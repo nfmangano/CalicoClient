@@ -1424,6 +1424,15 @@ public class PacketHandler
 	
 	public static void CANVAS_DELETE(CalicoPacket p)
 	{
+		p.rewind();
+		p.getInt();
+		long canvasId = p.getLong();
 		
+		if (CCanvasController.getCurrentUUID() == canvasId)
+		{
+			System.out.println("Warning: active canvas has been deleted.");
+		}
+		
+		CCanvasController.canvasdb.remove(canvasId);
 	}
 }
