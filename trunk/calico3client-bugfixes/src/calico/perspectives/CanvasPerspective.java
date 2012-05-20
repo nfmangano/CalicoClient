@@ -19,6 +19,12 @@ public class CanvasPerspective extends CalicoPerspective
 		return INSTANCE;
 	}
 	
+	@Override
+	protected void displayPerspective()
+	{
+		CCanvasController.loadCanvas(CCanvasController.getCanvasByIndex(1).uuid);
+	}
+	
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
 		//CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(bubbleHighlighter);

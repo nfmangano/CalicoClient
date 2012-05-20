@@ -390,7 +390,6 @@ public class Calico extends JFrame
 		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
 
-		CalicoPerspective.Registry.activateNavigationPerspective();
 		// GridRemoval: CGrid.loadGrid();
 	}
 

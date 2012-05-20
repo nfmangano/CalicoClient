@@ -19,6 +19,7 @@ import calico.events.CalicoEventHandler;
 import calico.inputhandlers.*;
 import calico.modules.*;
 import calico.networking.netstuff.*;
+import calico.perspectives.CalicoPerspective;
 import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.plugins.events.CalicoEvent;
@@ -661,15 +662,15 @@ public class PacketHandler
 		CCanvasController.canvasdb.put(uuid, canvas);
 		CCanvasController.canvasdb.get(uuid).drawMenuBars();
 		
-		// run the consistency on the first canvas only
-		if (CCanvasController.canvasdb.size() == 1)
+		if (!CalicoDataStore.initialScreenDisplayed)
 		{
+			CalicoDataStore.initialScreenDisplayed = true;
+			CalicoPerspective.Registry.activateNavigationPerspective();
+			
 			Networking.consistency_check();
 		}
-		else
-		{
-			CCanvasController.Factory.getInstance().canvasCreated(canvas);
-		}
+
+		CCanvasController.Factory.getInstance().canvasCreated(canvas);
 	}
 	
 	

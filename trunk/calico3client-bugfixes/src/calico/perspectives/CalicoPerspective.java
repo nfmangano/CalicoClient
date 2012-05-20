@@ -18,6 +18,8 @@ public abstract class CalicoPerspective
 		Registry.register(this);
 	}
 
+	protected abstract void displayPerspective();
+	
 	protected abstract boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer);
 
 	protected abstract void drawPieMenu(PNode pieCrust);
@@ -63,11 +65,10 @@ public abstract class CalicoPerspective
 
 		public static void activateNavigationPerspective()
 		{
-			CCanvasController.loadCanvas(CCanvasController.getCanvasByIndex(1).uuid);
-
-			/*
-			 * if (navigationPerspective != null) { navigationPerspective.activate(); }
-			 */
+			if (navigationPerspective != null)
+			{
+				navigationPerspective.displayPerspective();
+			}
 		}
 	}
 
