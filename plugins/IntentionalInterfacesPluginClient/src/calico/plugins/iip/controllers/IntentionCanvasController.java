@@ -20,10 +20,10 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
+import calico.plugins.iip.components.canvas.CopyCanvasButton;
+import calico.plugins.iip.components.canvas.NewCanvasButton;
+import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.canvas.TagPanelToolBarButton;
-import calico.plugins.iip.components.graph.CopyCanvasButton;
-import calico.plugins.iip.components.graph.NewCanvasButton;
-import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import edu.umd.cs.piccolo.PNode;
 
 public class IntentionCanvasController

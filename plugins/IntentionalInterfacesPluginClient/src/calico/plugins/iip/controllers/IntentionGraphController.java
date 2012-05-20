@@ -20,8 +20,8 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
 import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.graph.ShowIntentionGraphButton;
 import edu.umd.cs.piccolo.util.PBounds;
 
 public class IntentionGraphController
