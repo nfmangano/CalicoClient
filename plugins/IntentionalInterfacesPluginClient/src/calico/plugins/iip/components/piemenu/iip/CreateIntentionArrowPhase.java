@@ -328,26 +328,30 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 			return false;
 		}
 
-		if (mode != Mode.MOVE_ANCHOR_A)
-		{
-			for (Long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(cell.getCanvasId()))
-			{
-				CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-				if (anchor.getLink().getAnchorB() == anchor)
-				{
-					return false;
-				}
-			}
-		}
-
 		CIntentionCell anchorA = (mode == Mode.MOVE_ANCHOR_A) ? cell : getAnchorCell();
 		CIntentionCell target = (mode == Mode.MOVE_ANCHOR_A) ? getAnchorCell() : cell;
-		if (isParent(target, anchorA.getCanvasId()))
+		if (isAlreadyLinked(target, anchorA.getCanvasId()) || isParent(target, anchorA.getCanvasId()))
 		{
 			return false;
 		}
 
 		return true;
+	}
+	
+	private boolean isAlreadyLinked(CIntentionCell target, long canvasIdOfAnchorA)
+	{
+		for (Long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasIdOfAnchorA))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorA() == anchor)
+			{
+				if (anchor.getLink().getAnchorB().getCanvasId() == target.getCanvasId())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean isParent(CIntentionCell target, long canvasIdOfAnchorA)

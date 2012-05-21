@@ -16,8 +16,10 @@ public class EnterCanvasButton extends PieMenuButton
 	}
 
 	@Override
-	public void onClick(InputEventInfo event)
+	public void onReleased(InputEventInfo event)
 	{
+		super.onReleased(event);
+		
 		CCanvasController
 				.loadCanvas(CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId());
 	}

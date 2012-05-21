@@ -15,8 +15,10 @@ public class CreateLinkButton extends PieMenuButton
 	}
 
 	@Override
-	public void onClick(InputEventInfo event)
+	public void onPressed(InputEventInfo event)
 	{
+		super.onPressed(event);
+		
 		CreateIntentionArrowPhase.INSTANCE.startCreate(
 				CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()), event.getGlobalPoint(),
 				CreateIntentionArrowPhase.NewLinkMode.LINK_EXISTING);

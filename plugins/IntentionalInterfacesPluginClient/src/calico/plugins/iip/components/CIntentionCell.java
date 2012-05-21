@@ -29,10 +29,10 @@ public class CIntentionCell
 {
 	public static final String DEFAULT_TITLE = "<default>";
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
-	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, 10);
 	public static final Color COORDINATES_COLOR = Color.blue;
 	private static final Insets THUMBNAIL_INSETS = new Insets(2, 2, 2, 2);
-	public static final Dimension THUMBNAIL_SIZE = new Dimension(100, 60);
+	public static final Dimension THUMBNAIL_SIZE = new Dimension(200, 130);
+	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, THUMBNAIL_SIZE.width / 10);
 
 	private enum BorderColor
 	{
@@ -65,7 +65,6 @@ public class CIntentionCell
 		this.title = title;
 
 		shell = new Shell(location.getX(), location.getY());
-
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
 
@@ -155,7 +154,7 @@ public class CIntentionCell
 	public PBounds getGlobalBounds()
 	{
 		PBounds bounds = shell.getBounds();
-//		bounds.setOrigin(0.0, 0.0);
+		// bounds.setOrigin(0.0, 0.0);
 		return new PBounds(shell.localToGlobal(bounds)); // getBounds();
 	}
 
@@ -220,7 +219,7 @@ public class CIntentionCell
 	private class Shell extends PComposite implements PropertyChangeListener
 	{
 		private final Color BACKGROUND_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xCC);
-		
+
 		private final PImage canvasAddress;
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
 		private final TitleBar titleBar = new TitleBar();
@@ -302,7 +301,7 @@ public class CIntentionCell
 
 			Graphics2D g = paintContext.getGraphics();
 			Color c = g.getColor();
-			
+
 			g.setColor(BACKGROUND_COLOR);
 			g.fill(getBounds());
 
@@ -320,7 +319,7 @@ public class CIntentionCell
 		protected void layoutChildren()
 		{
 			titleBar.setX(getX());
-			titleBar.setY(getY() - 20);
+			titleBar.setY(getY() - titleBar.HEIGHT);
 
 			userList.setX(getX() + 4);
 			userList.setY(getY() + 2);
@@ -342,11 +341,11 @@ public class CIntentionCell
 
 	private class TitleBar extends PComposite
 	{
-		private final int HEIGHT = 20;
+		private final int HEIGHT = THUMBNAIL_SIZE.width / 7;
 		private final int LEFT_INSET = 2;
 		private final int TEXT_INSET = 1;
 
-		private final int FADE_HEIGHT = 34;
+		private final int FADE_HEIGHT = HEIGHT;
 		private final Color MASK_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xDD);
 		private final Color TRANSPARENT = new Color(0xFF, 0xFF, 0xFF, 0x00);
 		private final GradientPaint TOP_FADE = new GradientPaint(0f, 0f, TRANSPARENT, 0f, FADE_HEIGHT / 2, MASK_COLOR);
@@ -358,6 +357,7 @@ public class CIntentionCell
 		{
 			// width is arbitrary, it will be immediately changed by the Shell
 			setBounds(0, 0, 100, HEIGHT);
+			title.setFont(new Font("Helvetica", Font.PLAIN, THUMBNAIL_SIZE.width / 10));
 
 			addChild(title);
 			updateTitle();
@@ -398,12 +398,12 @@ public class CIntentionCell
 		public UserList()
 		{
 			setText("Username"); // template, for sizing
-			setFont(new Font("Helvetica", Font.BOLD, 10));
+			setFont(new Font("Helvetica", Font.BOLD, THUMBNAIL_SIZE.width / 10));
 			setTextPaint(Color.BLUE);
 			setBounds(this.getBounds().getBounds());
 			setConstrainWidthToTextWidth(true);
 			setConstrainHeightToTextHeight(true);
-			
+
 			setText("");
 		}
 
