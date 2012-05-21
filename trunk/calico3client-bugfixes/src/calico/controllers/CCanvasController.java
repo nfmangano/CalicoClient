@@ -89,8 +89,10 @@ public class CCanvasController
 
 	public static void clear(long uuid)
 	{
-		no_notify_clear(uuid);
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, uuid));
+		CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CANVAS_DELETE, uuid);
+		p.rewind();
+		PacketHandler.receive(p);
+		Networking.send(p);
 	}
 	
 	public static CCanvas getCanvasByIndex(int index)
