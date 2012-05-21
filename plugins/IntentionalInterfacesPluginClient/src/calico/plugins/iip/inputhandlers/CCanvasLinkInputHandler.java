@@ -80,24 +80,11 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	}
 
 	@Override
-	public void actionDragged(InputEventInfo event)
+	public void actionDragged(InputEventInfo ev)
 	{
-		synchronized (stateLock)
-		{
-			if (state == State.ACTIVATED)
-			{
-				if (event.getGlobalPoint().distance(mouseDragAnchor) >= MOVE_THRESHOLD)
-				{
-					state = State.DRAG;
-					CreateIntentionArrowPhase.getInstance().startMove(
-							CCanvasLinkController.getInstance().getLinkById(currentLinkId),
-							isNearestSideA ? CreateIntentionArrowPhase.MoveLinkEndpointMode.MOVE_ANCHOR_A
-									: CreateIntentionArrowPhase.MoveLinkEndpointMode.MOVE_ANCHOR_B, event.getGlobalPoint());
-				}
-			}
-		}
+		// no moving arrows anymore
 	}
-
+	
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{

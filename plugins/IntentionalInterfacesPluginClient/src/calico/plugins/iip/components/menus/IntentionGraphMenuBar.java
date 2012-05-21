@@ -10,6 +10,7 @@ import calico.plugins.iip.components.canvas.CopyCanvasButton;
 import calico.plugins.iip.components.canvas.NewCanvasButton;
 import calico.plugins.iip.components.graph.IconifyButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.menus.buttons.NewClusterButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar
@@ -26,6 +27,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
 		addIcon(new ZoomToExtent());
+		addIcon(new NewClusterButton());
 
 		addSpacer();
 
