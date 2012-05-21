@@ -8,7 +8,9 @@ import java.util.Collection;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
+import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.CanvasStatusBar;
+import calico.components.menus.buttons.SpacerButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.networking.Networking;
@@ -39,10 +41,12 @@ public class IntentionCanvasController
 
 		INSTANCE.initializeComponents();
 
-		CanvasStatusBar.addMenuButtonRightAligned(TagPanelToolBarButton.class);
-		CanvasStatusBar.addMenuButtonRightAligned(ShowIntentionGraphButton.class);
-		CanvasStatusBar.addMenuButtonRightAligned(CopyCanvasButton.class);
-		CanvasStatusBar.addMenuButtonRightAligned(NewCanvasButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(TagPanelToolBarButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
+//		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
+		
 	}
 
 	private static IntentionCanvasController INSTANCE;
