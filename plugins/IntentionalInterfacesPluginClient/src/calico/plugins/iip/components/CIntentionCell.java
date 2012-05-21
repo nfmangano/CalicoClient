@@ -54,6 +54,7 @@ public class CIntentionCell
 	private long intentionTypeId = -1L;
 
 	private boolean highlighted = false;
+	private boolean isNew = false;
 
 	private final Shell shell;
 
@@ -67,7 +68,17 @@ public class CIntentionCell
 		shell = new Shell(location.getX(), location.getY());
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
-
+	
+	public boolean isNew()
+	{
+		return isNew;
+	}
+	
+	public void setNew(boolean isNew)
+	{
+		this.isNew = isNew;
+	}
+	
 	public void initialize()
 	{
 		shell.updateContents();

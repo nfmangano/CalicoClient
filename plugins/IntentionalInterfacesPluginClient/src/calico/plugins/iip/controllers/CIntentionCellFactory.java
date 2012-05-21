@@ -37,6 +37,7 @@ public class CIntentionCellFactory
 			boolean install;
 			if (pendingCell != null)
 			{
+				cell.setNew(true);
 				pendingCellsByCanvasId.remove(cell.getCanvasId());
 				pendingCell.cellArrived(cell);
 			}

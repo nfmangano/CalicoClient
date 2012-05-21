@@ -210,6 +210,19 @@ public class IntentionGraphController
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
+		
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
+		if ((cell != null) && cell.isNew())
+		{
+			arrow.setVisible(false);
+			return;
+		}
+		
+		if (!arrow.getVisible())
+		{
+			arrow.setVisible(true);
+		}
+		
 		alignAnchors(link);
 		arrow.redraw();
 	}
@@ -244,6 +257,12 @@ public class IntentionGraphController
 		if (BubbleMenu.isBubbleMenuActive() && (BubbleMenu.activeUUID == cellId))
 		{
 			BubbleMenu.moveIconPositions(cell.getGlobalBounds());
+		}
+
+		if (cell.isNew())
+		{
+			cell.setNew(false);
+			localUpdateAttachedArrows(cell.getId(), cell.getLocation().getX(), cell.getLocation().getY());
 		}
 	}
 
