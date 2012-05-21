@@ -759,11 +759,13 @@ public class BubbleMenu {
 		{
 			if (b)
 			{
-				CStrokeController.strokes.get(uuid).highlight_on();
+				if (CStrokeController.strokes.containsKey(uuid))
+					CStrokeController.strokes.get(uuid).highlight_on();
 			}
 			else
 			{
-				CStrokeController.strokes.get(uuid).highlight_off();
+				if (CStrokeController.strokes.containsKey(uuid))
+					CStrokeController.strokes.get(uuid).highlight_off();
 			}
 		}
 		
