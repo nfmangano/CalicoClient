@@ -47,6 +47,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 	private PImage clients;
 	
 	private static ObjectArrayList<Class<?>> externalButtons = new ObjectArrayList<Class<?>>();
+	private static ObjectArrayList<Class<?>> externalButtonsPreAppended = new ObjectArrayList<Class<?>>();
 	private static ObjectArrayList<Class<?>> externalButtons_rightAligned = new ObjectArrayList<Class<?>>();
 	
 	public CanvasMenuBar(long c, int screenPos)
@@ -58,6 +59,21 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		Rectangle rect_default = new Rectangle(0,0,20,20);
 		
 		addCap(CanvasGenericMenuBar.ALIGN_START);
+		
+		try
+		{
+			for (Class<?> button : externalButtonsPreAppended)
+			{
+				if (button.getClass().getName().compareTo(SpacerButton.class.getName()) == 0)
+					addSpacer();
+				else
+					addIcon((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		
 //		clients = addText(
 //				CCanvasController.canvasdb.get(cuid).getClients().length+" clients", 
@@ -82,8 +98,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 
 		//addCap();
-		addIcon(new DoNotEraseButton(cuid));
-		addIcon(new CanEraseButton(cuid));
+//		addIcon(new DoNotEraseButton(cuid));
+//		addIcon(new CanEraseButton(cuid));
 		addIcon(new ClearButton(cuid));
 		addSpacer();
 		
@@ -264,6 +280,11 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		
 		clients = newClients;
 		
+	}
+	
+	public static void addMenuButtonPreAppend(Class<?> button)
+	{
+		externalButtonsPreAppended.add(button);
 	}
 	
 	public static void addMenuButton(Class<?> button)

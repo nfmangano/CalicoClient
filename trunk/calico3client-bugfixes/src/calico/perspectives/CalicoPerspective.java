@@ -65,6 +65,17 @@ public abstract class CalicoPerspective
 
 		public static void activateNavigationPerspective()
 		{
+			while (navigationPerspective == null)
+			{
+				try {
+					System.out.println("Warning: navigation perspective is null, waiting 100ms to try again");
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			if (navigationPerspective != null)
 			{
 				navigationPerspective.displayPerspective();

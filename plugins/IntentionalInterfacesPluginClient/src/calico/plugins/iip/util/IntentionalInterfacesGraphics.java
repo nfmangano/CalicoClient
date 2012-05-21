@@ -149,7 +149,8 @@ public class IntentionalInterfacesGraphics
 			return new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
 		}
 		
-		Image canvasSnapshot = canvas.getContentCamera().toImage();
+		//Nick: Using this class properly scales it.
+		Image canvasSnapshot = CCanvasController.image(canvasId);//canvas.getContentCamera().toImage();
 
 		if (size == null)
 		{
