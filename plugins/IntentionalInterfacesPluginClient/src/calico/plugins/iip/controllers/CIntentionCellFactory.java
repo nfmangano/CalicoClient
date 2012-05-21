@@ -34,6 +34,7 @@ public class CIntentionCellFactory
 		synchronized (pendingCellsByCanvasId)
 		{
 			PendingCell pendingCell = pendingCellsByCanvasId.get(cell.getCanvasId());
+			boolean install;
 			if (pendingCell != null)
 			{
 				pendingCellsByCanvasId.remove(cell.getCanvasId());

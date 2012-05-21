@@ -18,8 +18,10 @@ public class ZoomToClusterButton extends PieMenuButton
 	}
 
 	@Override
-	public void onClick(InputEventInfo event)
+	public void onReleased(InputEventInfo event)
 	{
+		super.onReleased(event);
+		
 		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
 		IntentionGraph.getInstance().zoomToCluster(activeCanvasId);
 	}

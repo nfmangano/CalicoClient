@@ -1431,7 +1431,10 @@ public class PacketHandler
 		
 		if (CCanvasController.getCurrentUUID() == canvasId)
 		{
-			System.out.println("Warning: active canvas has been deleted.");
+			// randomly choose a canvas to be current, so things don't crash
+			CCanvasController.setCurrentUUID(CCanvasController.canvasdb.values().iterator().next().uuid);
+			
+			CalicoPerspective.Registry.activateNavigationPerspective();
 		}
 		
 		CCanvasController.canvasdb.remove(canvasId);

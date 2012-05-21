@@ -15,8 +15,10 @@ public class DeleteCanvasButton extends PieMenuButton
 	}
 
 	@Override
-	public void onClick(InputEventInfo event)
+	public void onReleased(InputEventInfo event)
 	{
+		super.onReleased(event);
+		
 		CIntentionCellController.getInstance().deleteCanvas(
 				CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId());
 		
