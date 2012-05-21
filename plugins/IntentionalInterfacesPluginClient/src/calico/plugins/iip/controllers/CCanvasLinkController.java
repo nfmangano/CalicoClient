@@ -58,7 +58,12 @@ public class CCanvasLinkController
 				continue;
 			}
 			
-			long canvasIntentionTypeId = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId()).getIntentionTypeId();
+			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId());
+			if (cell == null)
+			{
+				continue;
+			}
+			long canvasIntentionTypeId = cell.getIntentionTypeId();
 			Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(canvasIntentionTypeId);
 			CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(anchor.getLink().getId());
 			arrow.setColor(color);
