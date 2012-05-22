@@ -105,6 +105,7 @@ public class IntentionCanvasController
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putString(name);
+		packet.putInt(-1); // request a color to be chosen on the server
 
 		packet.rewind();
 		Networking.send(packet);

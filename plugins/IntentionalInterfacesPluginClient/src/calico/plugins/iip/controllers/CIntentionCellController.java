@@ -139,22 +139,6 @@ public class CIntentionCellController
 		}
 	}
 
-	private void createNewCell(long canvas_uuid)
-	{
-		int x = 0, y = 0;
-
-		CalicoPacket packet = new CalicoPacket();
-		packet.putInt(IntentionalInterfacesNetworkCommands.CIC_CREATE);
-		packet.putLong(Calico.uuid());
-		packet.putLong(canvas_uuid);
-		packet.putInt(x);
-		packet.putInt(y);
-
-		packet.rewind();
-		PacketHandler.receive(packet);
-		Networking.send(packet);
-	}
-	
 	public void deleteCanvas(long canvasId)
 	{
 		CalicoPacket packet = new CalicoPacket();
