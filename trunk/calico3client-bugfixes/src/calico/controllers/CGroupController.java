@@ -1689,9 +1689,21 @@ public class CGroupController
 		}
 	}
 	
+	/**
+	 * 
+	 * Example of call:
+	 * new_uuid = Calico.uuid();
+	 * CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, CalicoDataStore.ScreenWidth / 3, CalicoDataStore.ScreenHeight / 3);
+	 * 
+	 * @param uuid - get it using this call: Calico.uuid();
+	 * @param cuuid - get it using this call: CCanvasController.getCurrentUUID()
+	 * @param text - 
+	 * @param x - can get using default screen position: CalicoDataStore.ScreenWidth
+	 * 			- or using mouse position - CalicoInputManager.mostRecentPoint
+	 * @param y
+	 */
 	public static void no_notify_create_text_scrap(long uuid, long cuuid, String text, int x, int y)
 	{
-
 		CGroupController.no_notify_start(uuid, cuuid, 0l, true);
 		CGroupController.setCurrentUUID(uuid);
 		CGroupController.no_notify_append(uuid, x, y);

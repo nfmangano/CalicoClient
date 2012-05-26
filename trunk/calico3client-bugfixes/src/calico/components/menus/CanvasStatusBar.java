@@ -98,32 +98,33 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 
 		}
 
-		if (!Networking.synchroized)
-		{
-			addSpacer(ALIGN_CENTER);
-			addTextCenterAligned(
-					" LOST SYNC!!  ", 
-					new Font("Verdana", Font.BOLD, 12),
-					new CanvasTextButton(cuid) {
-						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
-							if (event.getAction() == InputEventInfo.ACTION_PRESSED)
-							{
-								isPressed = true;
-							}
-							else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
-							{
-								int result = JOptionPane.showOptionDialog(null, "The canvas is not synchronized with the server. Press OK to synchronize", "Out of Sync Alert!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-								if (result == 0)
-								{
-									Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
-								}
-								
-								isPressed = false;
-							}
-						}
-					}
-			);
-		}
+// 		BY MOTTA.LRD: FOR THE MOMENT I DO NOT WANT TO BE SYNCHRONIZED
+//		if (!Networking.synchroized)
+//		{
+//			addSpacer(ALIGN_CENTER);
+//			addTextCenterAligned(
+//					" LOST SYNC!!  ", 
+//					new Font("Verdana", Font.BOLD, 12),
+//					new CanvasTextButton(cuid) {
+//						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//							if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//							{
+//								isPressed = true;
+//							}
+//							else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//							{
+//								int result = JOptionPane.showOptionDialog(null, "The canvas is not synchronized with the server. Press OK to synchronize", "Out of Sync Alert!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+//								if (result == 0)
+//								{
+//									Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+//								}
+//								
+//								isPressed = false;
+//							}
+//						}
+//					}
+//			);
+//		}
 		
 		try
 		{

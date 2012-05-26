@@ -358,8 +358,12 @@ public class BubbleMenu {
 		{
 			return 4;
 		}
-		
-	
+		//motta.lrd
+		//Analysis Plugin button
+		if (className.compareTo("calico.plugins.analysis.components.buttons.BubbleTagButton") == 0)
+		{
+			return 3;
+		}
 		//IIP Pluging Buttons
 		if (className.compareTo("calico.plugins.iip.components.piemenu.canvas.CreateDesignInsideLinkButton") == 0)
 		{

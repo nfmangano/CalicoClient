@@ -1,8 +1,8 @@
 #calico.settings
-#Sun Mar 04 16:09:42 PST 2012
-resw=1200
+#Fri May 25 23:42:44 PDT 2012
+resw=800
 port=27000
 password=
-resh=900
+resh=600
 host=localhost
 username=b

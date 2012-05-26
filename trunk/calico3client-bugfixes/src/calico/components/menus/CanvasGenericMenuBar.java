@@ -464,7 +464,8 @@ public class CanvasGenericMenuBar extends PComposite
 		
 		//g2.drawImage(img,  3, 3, null);
 		
-		textImage = (BufferedImage)textImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
+		//motta.lrd: commented out because generates exception in linux
+		//textImage = (BufferedImage)textImage.getSubimage(0, 0, (int)strbounds.getWidth(), (int)strbounds.getHeight());
 		
 		switch (this.position)
 		{
