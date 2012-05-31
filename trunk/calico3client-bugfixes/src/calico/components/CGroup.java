@@ -72,6 +72,7 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.utils.Geometry;
 import calico.utils.RoundPolygon;
 import edu.umd.cs.piccolo.PNode;
@@ -198,6 +199,7 @@ public class CGroup extends PPath implements Serializable {
 		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
 		pieMenuButtons.addAll(internal_getPieMenuButtons());
 		pieMenuButtons.addAll(CGroup.pieMenuButtons);
+		
 		return pieMenuButtons;
 	}
 	
@@ -222,7 +224,23 @@ public class CGroup extends PPath implements Serializable {
 	{
 		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
 		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
-		pieMenuButtons.addAll(CGroup.pieMenuButtons); //5
+		//motta.lrd: fix for distinguishing between a normal scrap
+		//and an analysis scrap
+		for(Class<?> pmb : CGroup.pieMenuButtons){
+			//This is not an analysis bubble button, just add it
+			System.out.println(pmb.getName());
+			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.BubbleTagButton")){
+				pieMenuButtons.add(pmb);
+			}
+			//This is an analysis bubble button, and this is an activity node, add it!
+			else if(this instanceof ActivityNode){
+				pieMenuButtons.add(pmb);
+			}
+			//this is an analysis button, but this is not an activity node, do not add
+			else{
+				//
+			}
+		}
 		return pieMenuButtons;
 	}
 	
