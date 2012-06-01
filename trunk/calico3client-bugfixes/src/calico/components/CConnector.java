@@ -594,6 +594,10 @@ public class CConnector extends PComposite{
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton.class);
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveHeadButton.class);
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveTailButton.class);
+		//motta.lrd: the probability distribution button for the analysis
+		if(CGroupController.groupdb.get(anchorHeadUUID) instanceof calico.plugins.analysis.components.activitydiagram.ActivityNode && CGroupController.groupdb.get(anchorTailUUID) instanceof calico.plugins.analysis.components.activitydiagram.DecisionNode){
+			bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityDistributionBubbleButton.class);
+		}
 		return bubbleMenuButtons;
 	}
 	

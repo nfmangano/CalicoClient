@@ -229,7 +229,7 @@ public class CGroup extends PPath implements Serializable {
 		for(Class<?> pmb : CGroup.pieMenuButtons){
 			//This is not an analysis bubble button, just add it
 			System.out.println(pmb.getName());
-			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.BubbleTagButton")){
+			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.ActivityServiceTimeBubbleButton")){
 				pieMenuButtons.add(pmb);
 			}
 			//This is an analysis bubble button, and this is an activity node, add it!

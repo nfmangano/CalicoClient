@@ -352,6 +352,12 @@ public class BubbleMenu {
 		{
 			return 0;
 		}
+		//motta.lrd
+		//Analysis button for probability on decisions
+		if (className.compareTo("calico.plugins.analysis.components.buttons.ProbabilityDistributionBubbleButton") == 0)
+		{
+			return 3;
+		}
 		
 		//Palette Plugin Buttons
 		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
@@ -360,7 +366,7 @@ public class BubbleMenu {
 		}
 		//motta.lrd
 		//Analysis Plugin button
-		if (className.compareTo("calico.plugins.analysis.components.buttons.BubbleTagButton") == 0)
+		if (className.compareTo("calico.plugins.analysis.components.buttons.ActivityServiceTimeBubbleButton") == 0)
 		{
 			return 3;
 		}
