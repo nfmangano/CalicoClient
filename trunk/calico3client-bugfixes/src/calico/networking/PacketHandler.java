@@ -767,12 +767,26 @@ public class PacketHandler
 	
 	private static void CONSISTENCY_FAILED(CalicoPacket p)
 	{
-		Networking.synchroized = false;
-		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
+		Networking.timesFailed++;
+		System.out.println("Consistency Failed " + Networking.timesFailed + " times.");
+		
+		if (Networking.timesFailed == 1)
+		{
+			Networking.synchroized = false;
+			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
+		}
+		
+		if (Networking.timesFailed >= 3)
+		{
+			System.out.println("Resynching with server");
+			
+			Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+		}
 	}
 	
 	private static void CONSISTENCY_RESYNCED(CalicoPacket p)
 	{
+		Networking.timesFailed = 0;
 		Networking.synchroized = true;
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
@@ -900,6 +914,9 @@ public class PacketHandler
 	{
 		String msg = p.getString();
 		MessageObject.showNotice(msg);
+		
+		//This is required because when there are no undo steps left, this event would never be fired and the progress monitor would linger.
+		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, 0.1d, 1d, ""));
 	}
 
 	

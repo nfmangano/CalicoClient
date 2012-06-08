@@ -61,6 +61,8 @@ public class CalicoInputManager
 
 
 	private static long lockInputHandler = 0L;
+	
+	private static boolean enabled = true;
 
 	public static Point mostRecentPoint;
 
@@ -349,6 +351,10 @@ public class CalicoInputManager
 
 	public static void handleDeviceInput(InputEventInfo ev)
 	{
+		//Prevent all inputs if the input manager is disabled
+		if (!enabled)
+			return;
+		
 		//Only allow left mouse button events right now
 		if (!ev.isLeftButton())
 			return;
@@ -691,6 +697,11 @@ public class CalicoInputManager
 				return sticky.getUUID();
 		}
 		return 0;
+	}
+	
+	public static void setEnabled(boolean b)
+	{
+		enabled = b;
 	}
 	
 

@@ -30,6 +30,7 @@ import calico.components.arrow.CArrow;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.events.CalicoEventHandler;
+import calico.inputhandlers.CalicoInputManager;
 import calico.modules.MessageObject;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -126,10 +127,11 @@ public class CCanvasController
 		// TODO: This should somehow cache the groups
 
 		// RepaintManager.currentManager(canvasdb.get(uuid)).
-		// canvasdb.get(uuid).setBuffering(true);
 		//canvasdb.get(uuid).getLayer().setVisible(false);
-		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
-		canvasdb.get(uuid).setEnabled(false);
+		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
+		//canvasdb.get(uuid).setEnabled(false);
+		CalicoInputManager.setEnabled(false);
+		canvasdb.get(uuid).setBuffering(true);
 
 		// canvasdb.get(uuid).setEnabled(false);
 		// canvasdb.get(uuid).setDoubleBuffered(true);
@@ -181,7 +183,8 @@ public class CCanvasController
 			}
 		}
 
-		CCanvasController.canvasdb.get(uuid).repaint();
+		//CCanvasController.canvasdb.get(uuid).repaint();
+		//CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
 		// GridRemoval: CalicoDataStore.gridObject.updateCell(uuid);
 
 	}
@@ -189,8 +192,8 @@ public class CCanvasController
 	public static void no_notify_state_change_complete(long uuid)
 	{
 		// just repaint it
-		canvasdb.get(uuid).validate();
-
+		//canvasdb.get(uuid).validate();
+		Networking.timesFailed = 0;
 		Networking.synchroized = true;
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
 			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
@@ -198,12 +201,15 @@ public class CCanvasController
 		// canvasdb.get(uuid).setInteracting(false);
 		// canvasdb.get(uuid).setIgnoreRepaint(false);
 		// canvasdb.get(uuid).setDoubleBuffered(false);
-		canvasdb.get(uuid).setEnabled(true);
+		CalicoInputManager.setEnabled(true);
+		canvasdb.get(uuid).setBuffering(false);
+		//canvasdb.get(uuid).setEnabled(true);
+		
 		//canvasdb.get(uuid).getLayer().setVisible(true);
-		CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
-
-		canvasdb.get(uuid).repaint();
-		// canvasdb.get(uuid).setBuffering(false);
+		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
+		
+		//canvasdb.get(uuid).repaint();
+		CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
 
 		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED,
 				CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED, 1d, 1d, ""));
