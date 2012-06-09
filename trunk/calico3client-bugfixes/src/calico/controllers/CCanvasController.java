@@ -61,9 +61,13 @@ public class CCanvasController
 
 	public static CGroup currentGroup = null;
 
-	static long currentCanvasUUID = 0L;
+	private static long currentCanvasUUID = 0L;
 	
-	static long lastActiveCanvasUUID = 0L;
+	private static long lastActiveCanvasUUID = 0L;
+	
+	//If we are changing the state of the canvas, save the canvasID in case it changes
+	//mid state change.
+	private static long stateChangeCanvasUUID = 0;
 
 	// Does nothing right now
 	public static void setup()
@@ -125,7 +129,7 @@ public class CCanvasController
 	public static void no_notify_clear_for_state_change(long uuid)
 	{
 		// TODO: This should somehow cache the groups
-
+		setStateChangeUUID(uuid);
 		// RepaintManager.currentManager(canvasdb.get(uuid)).
 		//canvasdb.get(uuid).getLayer().setVisible(false);
 		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
@@ -204,7 +208,7 @@ public class CCanvasController
 		CalicoInputManager.setEnabled(true);
 		canvasdb.get(uuid).setBuffering(false);
 		//canvasdb.get(uuid).setEnabled(true);
-		
+		setStateChangeUUID(0l);
 		//canvasdb.get(uuid).getLayer().setVisible(true);
 		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
 		
@@ -238,6 +242,16 @@ public class CCanvasController
 	public static void setLastActiveUUID(long u)
 	{
 		lastActiveCanvasUUID = u;
+	}
+	
+	public static long getStateChangeUUID()
+	{
+		return stateChangeCanvasUUID;
+	}
+	
+	public static void setStateChangeUUID(long u)
+	{
+		stateChangeCanvasUUID = u;
 	}
 
 	public static void windowResized()

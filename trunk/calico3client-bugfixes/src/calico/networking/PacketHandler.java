@@ -767,20 +767,25 @@ public class PacketHandler
 	
 	private static void CONSISTENCY_FAILED(CalicoPacket p)
 	{
-		Networking.timesFailed++;
-		System.out.println("Consistency Failed " + Networking.timesFailed + " times.");
-		
-		if (Networking.timesFailed == 1)
+		if (!Networking.ignoreConsistencyCheck)
 		{
-			Networking.synchroized = false;
-			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
-		}
-		
-		if (Networking.timesFailed >= 3)
-		{
-			System.out.println("Resynching with server");
+			Networking.timesFailed++;
+			System.out.println("Consistency Failed " + Networking.timesFailed + " times.");
 			
-			Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+			if (Networking.timesFailed == 1)
+			{
+				Networking.synchroized = false;
+				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
+			}
+			
+			//Resync automatically if 3 or more consistency failed packets have arrived in a row.
+			//A resync cannot occur more than twice in 30 seconds
+			if (Networking.timesFailed >= 3 && (System.currentTimeMillis() - Networking.lastResync > 20000))
+			{
+				System.out.println("Resynching with server");
+				Networking.lastResync = System.currentTimeMillis();
+				Networking.send(NetworkCommand.CONSISTENCY_RESYNC_CANVAS, CCanvasController.getCurrentUUID());
+			}
 		}
 	}
 	

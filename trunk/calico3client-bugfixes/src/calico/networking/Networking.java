@@ -52,6 +52,8 @@ public class Networking
 	
 	public static boolean synchroized = true;
 	public static int timesFailed = 0;
+	public static boolean ignoreConsistencyCheck = false;
+	public static long lastResync = 0l;
 
 	public static boolean sendingPacketsToServer;
 	public static boolean receivingPacketsFromServer;

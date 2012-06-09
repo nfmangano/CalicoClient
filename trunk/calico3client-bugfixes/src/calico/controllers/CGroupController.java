@@ -730,6 +730,10 @@ public class CGroupController
 	{
 		if(!exists(uuid)){return;}// old one doesnt exist
 		
+		//Since this operation can potentially take a long time, we don't want the client
+		//trying to resync during it
+		Networking.ignoreConsistencyCheck = true;
+		
 		CGroup temp = groupdb.get(uuid);
 		long new_uuid = UUIDMappings.get(uuid).longValue();
 		long canvasuuid = temp.getCanvasUID();
@@ -890,6 +894,8 @@ public class CGroupController
 				}
 			}
 		}
+		
+		Networking.ignoreConsistencyCheck = false;
 	}//no_notify_copy
 	
 	private static ArrayList<Long> getSubGroups(long uuid)

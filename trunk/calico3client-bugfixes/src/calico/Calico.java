@@ -112,8 +112,9 @@ public class Calico extends JFrame
 		if (uuidlist.size() == 0)
 		{
 			System.out.println("UUID Allocation: Pending");
-			int waitTimes = 1000;
+			int waitTimes = 10;
 			int count = 0;
+			Networking.ignoreConsistencyCheck = true;
 			
 			//Will wait 10 seconds, then resend allocation packet. 
 			//If no uuid_blocks arrive, program will hang here. It can't do anything without uuid's anyways
@@ -128,12 +129,13 @@ public class Calico extends JFrame
 				
 				if (uuidlist.size() > 0)
 				{
+					Networking.ignoreConsistencyCheck = true;
 					System.out.println("UUID Allocation: Complete");
 					break;
 				}
 				count++;
 				try {
-					Thread.sleep(10);
+					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}

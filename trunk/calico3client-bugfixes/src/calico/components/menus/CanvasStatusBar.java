@@ -103,7 +103,7 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 			addSpacer(ALIGN_CENTER);
 			addTextCenterAligned(
 					//" LOST SYNC!!  ", 
-					" RESYNCING ",
+					" RESYNCING... ",
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
 						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {

@@ -166,6 +166,7 @@ public class CConnectorController {
 	public static void no_notify_move_group_anchor_start(long uuid, int type)
 	{
 		CConnector tempConnector = CConnectorController.connectors.get(uuid);
+		tempConnector.savePosition(type);
 		if (tempConnector.getAnchorUUID(CConnector.TYPE_HEAD) != tempConnector.getAnchorUUID(CConnector.TYPE_TAIL))
 		{
 			CGroupController.no_notify_delete_child_connector(tempConnector.getAnchorUUID(type), uuid);
@@ -228,7 +229,11 @@ public class CConnectorController {
 		long guuid = CGroupController.get_smallest_containing_group_for_point(tempConnector.getCanvasUUID(), p);
 		if (guuid == 0l)
 		{
-			CConnectorController.make_stroke(uuid);
+			tempConnector.loadPosition(type);	
+			if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
+			{
+				BubbleMenu.moveIconPositions(CConnectorController.connectors.get(uuid).getBounds());
+			}
 		}
 		else
 		{
