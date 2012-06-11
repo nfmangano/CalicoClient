@@ -345,13 +345,6 @@ public abstract class CalicoAbstractInputHandler
 		{
 			CStrokeController.show_stroke_bubblemenu(group, false);
 		}
-		
-		else if (group != 0l // the group must exist
-				&& !CGroupController.group_contains_stroke(group, potentialScrap)) // and the group must not contain a
-																				   // potential scrap
-		{
-			CGroupController.show_group_bubblemenu(group);
-		}
 		else if (potentialScrap > 0l || (potentialScrap) > 0l)
 		{
 			CStroke stroke = CStrokeController.strokes.get(potentialScrap);
@@ -362,6 +355,13 @@ public abstract class CalicoAbstractInputHandler
 			// }
 
 		}
+		else if (group != 0l // the group must exist
+				&& !CGroupController.group_contains_stroke(group, potentialScrap)) // and the group must not contain a
+																				   // potential scrap
+		{
+			CGroupController.show_group_bubblemenu(group);
+		}
+		
 		else
 		{
 			// CCanvasController.show_canvas_piemenu(point);

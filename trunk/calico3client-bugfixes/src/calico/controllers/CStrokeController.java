@@ -850,7 +850,8 @@ public class CStrokeController
 			long tailUUID = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(temp.xpoints[0], temp.ypoints[0]));
 			long headUUID = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), new Point(temp.xpoints[temp.npoints - 1], temp.ypoints[temp.npoints - 1]));
 			
-			if (tailUUID != 0l && headUUID != 0l && tailUUID != headUUID
+			if (tailUUID != 0l && headUUID != 0l 
+					&& !(tailUUID == headUUID && CGroupController.groupdb.get(headUUID).containsShape(temp))
 					&& !(CGroupController.groupdb.get(tailUUID) instanceof CListDecorator) && !(CGroupController.groupdb.get(headUUID) instanceof CListDecorator))
 			{
 				double minSegmentDistance = java.lang.Double.MAX_VALUE;

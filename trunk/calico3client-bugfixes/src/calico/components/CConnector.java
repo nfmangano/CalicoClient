@@ -19,6 +19,7 @@ import calico.Calico;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.networking.netstuff.ByteUtils;
@@ -59,6 +60,12 @@ public class CConnector extends PComposite{
 	//The data model for the connector
 	private Point pointHead = null;
 	private Point pointTail = null;
+	
+	//Save the current anchor location and parent before moving
+	private Point savedHeadPoint = null;
+	private Point savedTailPoint = null;
+	private long savedAnchorHeadUUID = 0l;
+	private long savedAnchorTailUUID = 0l;
 	//Orthogonal distance from the direct head to tail line
 	private double[] orthogonalDistance;
 	//Percent along the direct head to tail line (Percentage in decimal format; Can be negative)
@@ -266,6 +273,56 @@ public class CConnector extends PComposite{
 		redraw();
 	}
 	
+	public void savePosition(int anchorType)
+	{
+		switch(anchorType)
+		{
+		case TYPE_HEAD: savedHeadPoint = (Point) pointHead.clone();
+						savedAnchorHeadUUID = anchorHeadUUID;
+			break;
+		case TYPE_TAIL: savedTailPoint = (Point) pointTail.clone();
+						savedAnchorTailUUID = anchorTailUUID;
+			break;
+		}
+	}
+	
+	public void loadPosition(int anchorType)
+	{
+		switch(anchorType)
+		{
+		case TYPE_HEAD: 
+			if (CGroupController.groupdb.get(savedAnchorHeadUUID).containsPoint(savedHeadPoint.x, savedHeadPoint.y))
+			{
+				setAnchorUUID(savedAnchorHeadUUID, anchorType);
+				CGroupController.no_notify_add_connector(savedAnchorHeadUUID, this.uuid);
+				setAnchorPoint(anchorType, savedHeadPoint);
+			}		
+			else
+			{
+				CConnectorController.no_notify_delete(this.uuid);
+			}
+			
+			savedHeadPoint = null;
+			savedAnchorHeadUUID = 0l;
+			break;
+		case TYPE_TAIL: 
+			if (CGroupController.groupdb.get(savedAnchorTailUUID).containsPoint(savedTailPoint.x, savedTailPoint.y))
+			{
+				setAnchorUUID(savedAnchorTailUUID, anchorType);
+				CGroupController.no_notify_add_connector(savedAnchorTailUUID, this.uuid);
+				setAnchorPoint(anchorType, savedTailPoint);
+			}
+			else
+			{
+				CConnectorController.no_notify_delete(this.uuid);
+			}
+			
+			savedTailPoint = null;
+			savedAnchorTailUUID = 0l;
+			break;
+		}
+	}
+	
 	public void setAnchorUUID(long uuid, int anchorType)
 	{
 		switch(anchorType)
@@ -289,15 +346,29 @@ public class CConnector extends PComposite{
 		}
 	}
 	
-	public Point getAnchorPoint(long guuid)
+	public void setAnchorPoint(int anchorType, Point point)
 	{
-		if (anchorHeadUUID == guuid)
+		switch(anchorType)
 		{
-			return pointHead;
+		case TYPE_HEAD: pointHead = (Point) point.clone();
+			break;
+
+		case TYPE_TAIL: pointTail = (Point) point.clone();
+			break;
+
 		}
-		else if (anchorTailUUID == guuid)
+		
+		redraw();
+	}
+	
+	public Point getAnchorPoint(int anchorType)
+	{
+		switch(anchorType)
 		{
-			return pointTail;
+		case TYPE_HEAD: return pointHead;
+
+		case TYPE_TAIL: return pointTail;
+
 		}
 		return null;
 	}

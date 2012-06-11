@@ -102,11 +102,12 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 		{
 			addSpacer(ALIGN_CENTER);
 			addTextCenterAligned(
-					" LOST SYNC!!  ", 
+					//" LOST SYNC!!  ", 
+					" RESYNCING... ",
 					new Font("Verdana", Font.BOLD, 12),
 					new CanvasTextButton(cuid) {
 						public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
-							if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+							/*if (event.getAction() == InputEventInfo.ACTION_PRESSED)
 							{
 								isPressed = true;
 							}
@@ -119,7 +120,7 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 								}
 								
 								isPressed = false;
-							}
+							}*/
 						}
 					}
 			);

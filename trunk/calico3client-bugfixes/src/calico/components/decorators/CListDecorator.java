@@ -776,5 +776,17 @@ public class CListDecorator extends CGroupDecorator {
 		return pieMenuButtons;
 	}
 	
+	@Override
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>(); 
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDropButton.class);
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
+		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class);
+		return pieMenuButtons;
+	}
+	
 	
 }

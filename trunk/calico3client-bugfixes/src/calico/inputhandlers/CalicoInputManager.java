@@ -61,6 +61,9 @@ public class CalicoInputManager
 
 
 	private static long lockInputHandler = 0L;
+	
+	private static boolean enabled = true;
+	private static long timeDisabled = 0l;
 
 	public static Point mostRecentPoint;
 
@@ -349,6 +352,27 @@ public class CalicoInputManager
 
 	public static void handleDeviceInput(InputEventInfo ev)
 	{
+		//Prevent all inputs if the input manager is disabled
+		//The input manager can only be disabled for 5 seconds at a time. This prevents the entire
+		//application locking up.
+		if (!enabled)
+		{
+			if (System.currentTimeMillis() - timeDisabled > 5000 && ev.getAction() == InputEventInfo.MOUSE_PRESSED)
+			{
+				setEnabled(true);
+				//Make sure that the canvas isn't still using the buffer, otherwise it will never update
+				if (CCanvasController.getStateChangeUUID() != 0l)
+				{
+					CCanvasController.canvasdb.get(CCanvasController.getStateChangeUUID()).setBuffering(false);
+					CCanvasController.setStateChangeUUID(0l);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		
 		//Only allow left mouse button events right now
 		if (!ev.isLeftButton())
 			return;
@@ -691,6 +715,24 @@ public class CalicoInputManager
 				return sticky.getUUID();
 		}
 		return 0;
+	}
+	
+	public static void setEnabled(boolean b)
+	{
+		if (b)
+		{
+			timeDisabled = 0l;
+		}
+		else
+		{
+			timeDisabled = System.currentTimeMillis();
+		}
+		enabled = b;
+	}
+	
+	public static boolean getEnabled()
+	{
+		return enabled;
 	}
 	
 
