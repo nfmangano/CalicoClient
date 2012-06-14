@@ -1,6 +1,7 @@
 package calico.components;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -13,11 +14,22 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.GeneralPath;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 import calico.Calico;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
+import calico.components.composable.Composable;
+import calico.components.composable.ComposableElement;
+import calico.components.composable.ComposableElementController;
+import calico.components.composable.connectors.ArrowheadElement;
+import calico.components.composable.connectors.HighlightElement;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
@@ -26,13 +38,14 @@ import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.Geometry;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PAffineTransform;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
-public class CConnector extends PComposite{
+public class CConnector extends PComposite implements Composable{
 	
 	private static Logger logger = Logger.getLogger(CConnector.class.getName());
 	
@@ -53,13 +66,12 @@ public class CConnector extends PComposite{
 	private long anchorTailUUID = 0l;
 	
 	//The components that are drawn by Piccolo
-	private PPath connectorHead = null;
-	private PPath connectorTail = null;
 	private PPath connectorLine = null;
 	
 	//The data model for the connector
 	private Point pointHead = null;
 	private Point pointTail = null;
+	private Polygon rawPolygon = null;
 	
 	//Save the current anchor location and parent before moving
 	private Point savedHeadPoint = null;
@@ -198,10 +210,11 @@ public class CConnector extends PComposite{
 		return this.canvasUID;
 	}
 	
-	//Calculate the raw polygon from the internal data model
-	public Polygon getRawPolygon()
+	//Now that getRawPolygon gets called multiple times per redraw due to compositional notations
+	//We want to calculate this only once and then return the cached polygon when someone calls getRawPolygon
+	public void calcRawPolygon()
 	{
-		Polygon points = new Polygon();
+		rawPolygon = new Polygon();
 		double[] tail = {pointTail.getX(), pointTail.getY()};
 		double[] head = {pointHead.getX(), pointHead.getY()};
 		double dx = pointHead.getX() - pointTail.getX();
@@ -214,15 +227,24 @@ public class CConnector extends PComposite{
 			double[] pointOnTailHead = Geometry.computePointOnLine(tail[0],tail[1], head[0], head[1], travelDistance[i]);
 			double x = pointOnTailHead[0] + (orthogonalDistance[i] * (idx / magnitude));
 			double y = pointOnTailHead[1] + (orthogonalDistance[i] * (idy / magnitude));
-			points.addPoint((int)x, (int)y);
+			rawPolygon.addPoint((int)x, (int)y);
 		}
-		
-		return points;
+	}
+	
+	//Return the cached polygon
+	public Polygon getRawPolygon()
+	{
+		return rawPolygon;
 	}
 	
 	public Polygon getPolygon()
 	{
 		return calico.utils.Geometry.getPolyFromPath(connectorLine.getPathReference().getPathIterator(null));
+	}
+	
+	public GeneralPath getPathReference()
+	{
+		return connectorLine.getPathReference();
 	}
 	
 	public double[] getOrthogonalDistance()
@@ -247,6 +269,9 @@ public class CConnector extends PComposite{
 	
 	public void delete()
 	{		
+		//Remove all elements
+		ComposableElementController.no_notify_removeAllElements(this.uuid);
+		
 		// remove from canvas
 		CCanvasController.no_notify_delete_child_connector(this.canvasUID, this.uuid);
 		
@@ -378,9 +403,28 @@ public class CConnector extends PComposite{
 		return this.uuid;
 	}
 	
+	public void setColor(Color color)
+	{
+		this.color = color;
+		
+		redraw();
+	}
+	
 	public Color getColor()
 	{
 		return color;
+	}
+	
+	public void setStroke(Stroke stroke)
+	{
+		this.stroke = stroke;
+		
+		redraw();
+	}
+	
+	public Stroke getStroke()
+	{
+		return stroke;
 	}
 	
 	public float getThickness()
@@ -391,7 +435,7 @@ public class CConnector extends PComposite{
 	@Override
 	public PBounds getBounds()
 	{
-		Rectangle bounds = connectorLine.getBounds().getBounds();
+		Rectangle bounds = this.getFullBounds().getBounds();
 		double buffer = 30;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
 		return bufferBounds;
@@ -399,101 +443,69 @@ public class CConnector extends PComposite{
 	
 	public void redraw()
 	{
-		addRenderingElements();
+		calcRawPolygon();
+		
+		calcConnectorLine();
+		
+		//First cache the nodes such as arrowheads and cardinality objects
+		//because the CalicoDraw methods (Event Dispatch Thread) should not be performing heavy calculations
+		ArrayList<PNode> nodes = new ArrayList<PNode>();
+		if (ComposableElementController.elementList.containsKey(this.uuid))
+		{
+			for (Map.Entry<Long, ComposableElement> entry : ComposableElementController.elementList.get(this.uuid).entrySet())
+			{
+				ComposableElement element = entry.getValue();
+				if (element.isDrawable())
+				{
+					PNode node = element.getNode();
+					if (node != null)
+					{
+						nodes.add(node);
+					}
+				}
+			}
+		}
+				
 		CalicoDraw.removeAllChildrenFromNode(this);
 
-		CalicoDraw.addChildToNode(this, connectorHead, 0);
-		CalicoDraw.addChildToNode(this, connectorTail, 0);
+		//Now we actually add the child nodes to the connector PComposite
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			CalicoDraw.addChildToNode(this, nodes.get(i), 0);
+		}
+
 		CalicoDraw.addChildToNode(this, connectorLine, 0);
 		//this.repaint();
 		CalicoDraw.repaintNode(this);
 	}
 	
-	protected void addRenderingElements()
+	protected void calcConnectorLine()
 	{
 		Polygon linePoints = getRawPolygon();
-		
-		double[] p0 = new double[]{linePoints.xpoints[linePoints.npoints-1], linePoints.ypoints[linePoints.npoints-1], 0};
-		int pointForArrow = Math.min(10, linePoints.npoints);
-		double[] p1 = new double[]{linePoints.xpoints[linePoints.npoints-pointForArrow], linePoints.ypoints[linePoints.npoints-pointForArrow], 0};
-		Geometry.extendLine(p0, p1, 50);
-
-		connectorHead = null;
-		//int[] apoints = Geometry.createArrow(linePoints.xpoints[0], linePoints.ypoints[0], linePoints.xpoints[linePoints.npoints-1], linePoints.ypoints[linePoints.npoints-1],
-		//		CalicoOptions.arrow.length, CalicoOptions.arrow.angle, CalicoOptions.arrow.inset);
-		int[] apoints = Geometry.createArrow((int)p1[0], (int)p1[1], (int)p0[0], (int)p0[1],
-				CalicoOptions.arrow.length, CalicoOptions.arrow.angle, CalicoOptions.arrow.inset);
-
-		connectorHead = new PPath();
-		connectorHead.moveTo((float) apoints[0], (float) apoints[1]);
-		for (int i = 2; i < apoints.length; i = i + 2)
-		{
-			connectorHead.lineTo((float) apoints[i], (float) apoints[i + 1]);
-		}
-		connectorHead.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
-		connectorHead.setStrokePaint(this.color);
-		connectorHead.setPaint(this.color);
-
-		//int[] bpoints = Geometry.createArrow(mousePoints.xpoints[mousePoints.npoints-1], mousePoints.ypoints[mousePoints.npoints-1], mousePoints.xpoints[0], mousePoints.ypoints[0],
-		//		CalicoOptions.arrow.length, CalicoOptions.arrow.angle, CalicoOptions.arrow.inset);
-		int[] bpoints = Geometry.createCircle(linePoints.xpoints[0], linePoints.ypoints[0], 3);
-
-		connectorTail = new PPath();
-		connectorTail.moveTo((float) bpoints[0], (float) bpoints[1]);
-		for (int i = 2; i < bpoints.length; i = i + 2)
-		{
-			connectorTail.lineTo((float) bpoints[i], (float) bpoints[i + 1]);
-		}
-		connectorTail.setStroke(new BasicStroke(CalicoOptions.arrow.stroke_size));
-		connectorTail.setStrokePaint(this.color);
-		connectorTail.setPaint(this.color);
-
 
 		connectorLine = new PPath();
 		connectorLine.setStroke(stroke);
 		connectorLine.setStrokePaint(this.color);
-		//connectorLine.setPaint(strokePaint);
+		
 		applyAffineTransform(linePoints);
-
-		//this.addChild(0, arrowLine);
-		//CalicoDraw.addChildToNode(this, arrowLine, 0);
 	}
 	
-	@Override
-	protected void paint(final PPaintContext paintContext)
-	{
-		final Graphics2D g2 = paintContext.getGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		Composite temp = g2.getComposite();
-		if (isHighlighted)
-		{
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, CalicoOptions.stroke.background_transparency));
-			g2.setStroke(new BasicStroke(CalicoOptions.pen.stroke_size + 8));
-			g2.setPaint(Color.blue);
-			g2.draw(connectorLine.getPathReference());
-		}	
-		
-		//g2.draw(connectorLine.getPathReference());
-		
-		g2.setComposite(temp);
-		//super.paint(paintContext);
-		
-		
-	}
 	
 	public void highlight_on() {
 		isHighlighted = true;
-		highlight_repaint();
+
+		redraw();
 	}
 	
 	public void highlight_off() {
 		isHighlighted = false;
-		highlight_repaint();
-	}
 
-	public void highlight_repaint()
+		redraw();
+	}
+	
+	public boolean isHighlighted()
 	{
-		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getLayer(), this.getBounds(), this);
+		return isHighlighted;
 	}
 	
 	public void moveAnchor(long guuid, int deltaX, int deltaY)
@@ -526,26 +538,10 @@ public class CConnector extends PComposite{
 	
 	protected void applyAffineTransform(Polygon points)
 	{
-		Rectangle oldBounds = getBounds().getBounds();
-		
 		PAffineTransform piccoloTextTransform = getPTransform(points);
 		GeneralPath p = (GeneralPath) getBezieredPoly(points).createTransformedShape(piccoloTextTransform);
 		connectorLine.setPathTo(p);
-//		if (p.getBounds().width == 0 || p.getBounds().height == 0)
-//		{
-//			this.setBounds(new java.awt.geom.Rectangle2D.Double(p.getBounds2D().getX(), p.getBounds2D().getY(), 1d, 1d));
-//		}
-//		else
-//		{
-//			this.setBounds(p.getBounds());
-//		}
-//		this.repaintFrom(this.getBounds(), this);
-//		invalidatePaint();
-		
-//		CCanvasController.canvasdb.get(canvasUID).getCamera().validateFullPaint();
 
-		//CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
-		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getCamera(), new PBounds(calico.utils.Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
 	}
 	
 	public PAffineTransform getPTransform(Polygon points) {
@@ -625,6 +621,7 @@ public class CConnector extends PComposite{
 	
 	public CalicoPacket[] getStrokePackets()
 	{			
+		calcRawPolygon();
 		Polygon mousePoints = getRawPolygon();
 		int packetSize = ByteUtils.SIZE_OF_INT + (3 * ByteUtils.SIZE_OF_LONG) + ByteUtils.SIZE_OF_INT + ByteUtils.SIZE_OF_SHORT + (2 * mousePoints.npoints * ByteUtils.SIZE_OF_SHORT);
 		
@@ -674,5 +671,54 @@ public class CConnector extends PComposite{
 
 //		System.out.println("Debug sig for group " + uuid + ": " + sig + ", 1) " + this.points.npoints + ", 2) " + isPermanent() + ", 3) " + this.points.xpoints[0] + ", 4) " + this.points.xpoints[0] + ", 5) " + this.points.ypoints[0] + ", 6) " + (int)(this.rotation*10) + ", 7) " + (int)(this.scaleX*10) + ", 8) " + (int)(this.scaleY*10));
 		return sig;
+	}
+
+
+	@Override
+	public CalicoPacket[] getComposableElements() {
+		if (!ComposableElementController.elementList.containsKey(uuid))
+		{
+			return new CalicoPacket[0];
+		}
+		
+		CalicoPacket[] packets = new CalicoPacket[ComposableElementController.elementList.get(uuid).size()];
+		int count = 0;
+		for (Map.Entry<Long, ComposableElement> entry : ComposableElementController.elementList.get(uuid).entrySet())
+		{
+			packets[count] = entry.getValue().getPacket();
+			count++;
+		}
+		
+		return packets;
+	}
+
+
+	@Override
+	public void resetToDefaultElements() {
+		removeAllElements();
+		
+		ComposableElementController.addElement(new ArrowheadElement(Calico.uuid(), uuid, CConnector.TYPE_HEAD, CalicoOptions.arrow.stroke_size, Color.black, Color.red, ArrowheadElement.getDefaultArrow()));
+		ComposableElementController.addElement(new ArrowheadElement(Calico.uuid(), uuid, CConnector.TYPE_TAIL, CalicoOptions.arrow.stroke_size, Color.black, Color.black, ArrowheadElement.getDefaultCircle()));
+		ComposableElementController.addElement(new HighlightElement(Calico.uuid(), uuid, CalicoOptions.stroke.background_transparency, new BasicStroke(CalicoOptions.pen.stroke_size + 8), Color.blue));
+	
+		redraw();
+	}
+
+
+	@Override
+	public void removeAllElements() {
+		if (!ComposableElementController.elementList.containsKey(uuid))
+			return;
+		
+		for (Map.Entry<Long, ComposableElement> entry : ComposableElementController.elementList.get(uuid).entrySet())
+		{
+			ComposableElementController.removeElement(entry.getValue().getElementUUID(), uuid);
+		}
+	}
+	
+	@Override
+	public int getComposableType()
+	{
+		return Composable.TYPE_CONNECTOR;
 	}
 }

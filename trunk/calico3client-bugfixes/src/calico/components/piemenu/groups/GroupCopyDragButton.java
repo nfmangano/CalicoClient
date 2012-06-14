@@ -78,9 +78,8 @@ public class GroupCopyDragButton extends PieMenuButton
 		mouseDownPoint = null;
 		cuuid = canvasUUID;
 
-		
+		super.onPressed(ev);
 		ev.stop();
-		BubbleMenu.isPerformingBubbleMenuAction = true;
 		
 		System.out.println("CLICKED GROUP COPY BUTTON");
 	}
@@ -138,7 +137,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		//Update the menu location in case it was dropped into a list
 		//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
-		
+		super.onReleased(ev);
 		ev.stop();
 		isActive = false;
 	}
