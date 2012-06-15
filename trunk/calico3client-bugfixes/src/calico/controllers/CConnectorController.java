@@ -22,6 +22,10 @@ import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.plugins.analysis.components.activitydiagram.ActivityNode;
+import calico.plugins.analysis.components.activitydiagram.AnalysisComponent;
+import calico.plugins.analysis.components.activitydiagram.ControlFlow;
+import calico.plugins.analysis.components.activitydiagram.DecisionNode;
 
 public class CConnectorController {
 	/**
@@ -75,6 +79,10 @@ public class CConnectorController {
 		if (anchorHead == 0l && anchorTail == 0l)
 		{
 			connectors.put(uuid, new CConnector(uuid, cuid, color, thickness, points));
+		}
+		//motta.lrd: check if we want an activity diagram control flow
+		else if(CGroupController.groupdb.get(anchorTail) instanceof AnalysisComponent && CGroupController.groupdb.get(anchorHead) instanceof AnalysisComponent){
+			connectors.put(uuid, new ControlFlow(uuid, cuid, color, thickness, points, anchorHead, anchorTail));
 		}
 		else
 		{
