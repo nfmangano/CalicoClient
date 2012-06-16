@@ -75,14 +75,20 @@ public class CConnectorController {
 		{
 			no_notify_delete(uuid);
 		}
-		// add to the DB
+		// add to the DB	
 		if (anchorHead == 0l && anchorTail == 0l)
 		{
-			connectors.put(uuid, new CConnector(uuid, cuid, color, thickness, points));
-		}
-		//motta.lrd: check if we want an activity diagram control flow
-		else if(CGroupController.groupdb.get(anchorTail) instanceof AnalysisComponent && CGroupController.groupdb.get(anchorHead) instanceof AnalysisComponent){
-			connectors.put(uuid, new ControlFlow(uuid, cuid, color, thickness, points, anchorHead, anchorTail));
+			//motta.lrd: check if we want an activity diagram control flow
+			Point pointHead = new Point(points.xpoints[points.npoints-1], points.ypoints[points.npoints-1]);
+			Point pointTail = new Point(points.xpoints[0], points.ypoints[0]);
+			long anchorHeadUUID = CGroupController.get_smallest_containing_group_for_point(cuid, pointHead);
+			long anchorTailUUID = CGroupController.get_smallest_containing_group_for_point(cuid, pointTail);
+			if(CGroupController.groupdb.get(anchorTailUUID) instanceof AnalysisComponent && CGroupController.groupdb.get(anchorHeadUUID) instanceof AnalysisComponent){
+				connectors.put(uuid, new ControlFlow(uuid, cuid, color, thickness, points));
+			}
+			else{
+				connectors.put(uuid, new CConnector(uuid, cuid, color, thickness, points));				
+			}
 		}
 		else
 		{

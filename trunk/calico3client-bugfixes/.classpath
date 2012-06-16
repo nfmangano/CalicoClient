@@ -26,5 +26,7 @@
 	<classpathentry kind="lib" path="lib/piccolo2d-swt-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/pop3.jar"/>
 	<classpathentry kind="lib" path="lib/smtp.jar"/>
+	<classpathentry kind="lib" path="/AnalysisPlugin/lib/jshapes.jar"/>
+	<classpathentry kind="lib" path="/home/motta/Desktop/Calico/CalicoSoft/AnalysisPlugin/dist/analysispluginclient-trunk/analysispluginclient.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
