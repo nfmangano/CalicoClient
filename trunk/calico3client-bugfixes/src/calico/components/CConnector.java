@@ -41,7 +41,7 @@ public class CConnector extends PComposite{
 	
 	private static final long serialVersionUID = 1L;
 	
-	private long uuid = 0L;
+	protected long uuid = 0L;
 	private long canvasUID = 0L;
 	
 	private Color color = null;
