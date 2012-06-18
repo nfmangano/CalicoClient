@@ -73,6 +73,7 @@ import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
+import calico.plugins.analysis.components.componentdiagram.Component;
 import calico.utils.Geometry;
 import calico.utils.RoundPolygon;
 import edu.umd.cs.piccolo.PNode;
@@ -228,12 +229,11 @@ public class CGroup extends PPath implements Serializable {
 		//and an analysis scrap
 		for(Class<?> pmb : CGroup.pieMenuButtons){
 			//This is not an analysis bubble button, just add it
-			System.out.println(pmb.getName());
-			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.ActivityServiceTimeBubbleButton")){
+			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")){
 				pieMenuButtons.add(pmb);
 			}
-			//This is an analysis bubble button, and this is an activity node, add it!
-			else if(this instanceof ActivityNode){
+			//This is an analysis bubble button, and this is a component, add it!
+			else if(this instanceof Component){
 				pieMenuButtons.add(pmb);
 			}
 			//this is an analysis button, but this is not an activity node, do not add
@@ -2282,6 +2282,7 @@ public class CGroup extends PPath implements Serializable {
 		CGroupController.no_notify_add_child_group(smallestGUID, this.uuid, x, y);
 
 		CGroupController.no_notify_set_parent(this.uuid, smallestGUID);
+		
 	}
 	
 	public void moveGroupInFrontOf(PNode node)

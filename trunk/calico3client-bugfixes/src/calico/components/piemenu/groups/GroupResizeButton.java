@@ -44,6 +44,7 @@ public class GroupResizeButton extends PieMenuButton
 			return;
 		}
 		
+		
 		isActive = true;
 		
 		cuuid = CGroupController.groupdb.get(uuid).getCanvasUID();

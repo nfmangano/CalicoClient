@@ -23,7 +23,7 @@ import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.components.activitydiagram.AnalysisComponent;
+import calico.plugins.analysis.components.AnalysisComponent;
 import calico.plugins.analysis.components.activitydiagram.ControlFlow;
 import calico.plugins.analysis.components.activitydiagram.DecisionNode;
 
