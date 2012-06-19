@@ -146,8 +146,8 @@ public class IntentionGraph
 	{
 		Point2D.Double translation = new Point2D.Double(x, y);
 		getLayer(Layer.CONTENT).setGlobalTranslation(translation);
-		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
-		
+		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation); 
+
 		if (BubbleMenu.isBubbleMenuActive())
 		{
 			BubbleMenu.clearMenu();
@@ -252,6 +252,16 @@ public class IntentionGraph
 		}
 	}
 
+	public void zoomToCell(long cellId)
+	{
+		setScale(1.0);
+
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
+		Point2D center = cell.getCenter();
+		Dimension canvasSize = contentCanvas.getBounds().getSize();
+		translateGlobal((canvasSize.width / 2.0) - center.getX(), (canvasSize.height / 2.0) - center.getY());
+	}
+
 	public void zoomToCluster(long memberCanvasId)
 	{
 		long clusterRootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(memberCanvasId);
@@ -261,7 +271,7 @@ public class IntentionGraph
 		{
 			return; // no zooming on atomic clusters
 		}
-		
+
 		double margin = maxRingBounds.width * 0.03;
 		maxRingBounds.x -= margin;
 		maxRingBounds.y -= margin;

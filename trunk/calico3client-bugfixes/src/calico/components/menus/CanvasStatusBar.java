@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 import calico.Calico;
 import calico.CalicoDraw;
 import calico.components.menus.buttons.EmailButton;
+import calico.components.menus.buttons.ExitButton;
+import calico.components.menus.buttons.HistoryNavigationButton;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
@@ -45,20 +47,12 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 		addTextEndAligned(
 				"  Exit  ", 
 				new Font("Verdana", Font.BOLD, 12),
-				new CanvasTextButton(cuid) {
-					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
-						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
-						{
-							isPressed = true;
-						}
-						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
-						{
-							isPressed = false;
-							Calico.exit();
-						}
-					}
-				}
+				new ExitButton(cuid)
 		);
+
+		addSpacer(ALIGN_END);
+		addIconRightAligned(new HistoryNavigationButton(cuid, HistoryNavigationButton.Type.FORWARD));
+		addIconRightAligned(new HistoryNavigationButton(cuid, HistoryNavigationButton.Type.BACK));
 		
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailButton(cuid));

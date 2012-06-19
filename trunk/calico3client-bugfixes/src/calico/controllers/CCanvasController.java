@@ -29,6 +29,7 @@ import calico.components.CStroke;
 import calico.components.arrow.CArrow;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
+import calico.controllers.CHistoryController.Frame;
 import calico.events.CalicoEventHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.modules.MessageObject;
@@ -62,11 +63,11 @@ public class CCanvasController
 	public static CGroup currentGroup = null;
 
 	private static long currentCanvasUUID = 0L;
-	
+
 	private static long lastActiveCanvasUUID = 0L;
-	
-	//If we are changing the state of the canvas, save the canvasID in case it changes
-	//mid state change.
+
+	// If we are changing the state of the canvas, save the canvasID in case it changes
+	// mid state change.
 	private static long stateChangeCanvasUUID = 0;
 
 	// Does nothing right now
@@ -99,7 +100,7 @@ public class CCanvasController
 		PacketHandler.receive(p);
 		Networking.send(p);
 	}
-	
+
 	public static CCanvas getCanvasByIndex(int index)
 	{
 		for (CCanvas canvas : canvasdb.values())
@@ -111,7 +112,7 @@ public class CCanvasController
 		}
 		return null;
 	}
-	
+
 	public static Color getActiveCanvasBackgroundColor()
 	{
 		return CalicoOptions.canvas.background_color;
@@ -131,9 +132,9 @@ public class CCanvasController
 		// TODO: This should somehow cache the groups
 		setStateChangeUUID(uuid);
 		// RepaintManager.currentManager(canvasdb.get(uuid)).
-		//canvasdb.get(uuid).getLayer().setVisible(false);
-		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
-		//canvasdb.get(uuid).setEnabled(false);
+		// canvasdb.get(uuid).getLayer().setVisible(false);
+		// CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), false);
+		// canvasdb.get(uuid).setEnabled(false);
 		CalicoInputManager.setEnabled(false);
 		canvasdb.get(uuid).setBuffering(true);
 
@@ -153,7 +154,7 @@ public class CCanvasController
 		{
 			for (int i = 0; i < strokes.length; i++)
 			{
-				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
+				// CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CStrokeController.strokes.get(strokes[i]));
 				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CStrokeController.strokes.get(strokes[i]));
 				CStrokeController.no_notify_delete(strokes[i]);
 			}
@@ -163,17 +164,17 @@ public class CCanvasController
 		{
 			for (int i = 0; i < arrows.length; i++)
 			{
-				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
+				// CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CArrowController.arrows.get(arrows[i]));
 				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CArrowController.arrows.get(arrows[i]));
 				CArrowController.no_notify_delete(arrows[i]);
 			}
 		}
-		
+
 		if (connectors.length > 0)
 		{
 			for (int i = 0; i < connectors.length; i++)
 			{
-				//CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CConnectorController.connectors.get(connectors[i]));
+				// CCanvasController.canvasdb.get(uuid).getLayer().removeChild(CConnectorController.connectors.get(connectors[i]));
 				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(uuid).getLayer(), CConnectorController.connectors.get(connectors[i]));
 				CConnectorController.no_notify_delete(connectors[i]);
 			}
@@ -187,8 +188,8 @@ public class CCanvasController
 			}
 		}
 
-		//CCanvasController.canvasdb.get(uuid).repaint();
-		//CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
+		// CCanvasController.canvasdb.get(uuid).repaint();
+		// CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
 		// GridRemoval: CalicoDataStore.gridObject.updateCell(uuid);
 
 	}
@@ -196,7 +197,7 @@ public class CCanvasController
 	public static void no_notify_state_change_complete(long uuid)
 	{
 		// just repaint it
-		//canvasdb.get(uuid).validate();
+		// canvasdb.get(uuid).validate();
 		Networking.timesFailed = 0;
 		Networking.synchroized = true;
 		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
@@ -207,12 +208,12 @@ public class CCanvasController
 		// canvasdb.get(uuid).setDoubleBuffered(false);
 		CalicoInputManager.setEnabled(true);
 		canvasdb.get(uuid).setBuffering(false);
-		//canvasdb.get(uuid).setEnabled(true);
+		// canvasdb.get(uuid).setEnabled(true);
 		setStateChangeUUID(0l);
-		//canvasdb.get(uuid).getLayer().setVisible(true);
-		//CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
-		
-		//canvasdb.get(uuid).repaint();
+		// canvasdb.get(uuid).getLayer().setVisible(true);
+		// CalicoDraw.setVisible(canvasdb.get(uuid).getLayer(), true);
+
+		// canvasdb.get(uuid).repaint();
 		CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
 
 		CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED,
@@ -233,22 +234,22 @@ public class CCanvasController
 	{
 		currentCanvasUUID = u;
 	}
-	
+
 	public static long getLastActiveUUID()
 	{
 		return lastActiveCanvasUUID;
 	}
-	
+
 	public static void setLastActiveUUID(long u)
 	{
 		lastActiveCanvasUUID = u;
 	}
-	
+
 	public static long getStateChangeUUID()
 	{
 		return stateChangeCanvasUUID;
 	}
-	
+
 	public static void setStateChangeUUID(long u)
 	{
 		stateChangeCanvasUUID = u;
@@ -313,6 +314,8 @@ public class CCanvasController
 
 	public static void loadCanvas(long uuid)
 	{
+		CHistoryController.getInstance().push(new HistoryFrame(uuid));
+
 		// if (CCanvasController.getCurrentUUID() == uuid)
 		// return;
 		//
@@ -360,7 +363,7 @@ public class CCanvasController
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
 
 		cal.getContentPane().add(canvas.getComponent());
-		
+
 		cal.setJMenuBar(null);
 		cal.pack();
 		loadCanvasImages(uuid);
@@ -373,6 +376,19 @@ public class CCanvasController
 		cal.requestFocus();
 	}
 
+	public static void removeCanvas(final long uuid)
+	{
+		CHistoryController.getInstance().purgeFrames(new CHistoryController.FrameSelector() {
+			@Override
+			public boolean match(Frame frame)
+			{
+				return (frame instanceof HistoryFrame) && (((HistoryFrame) frame).canvasId == uuid);
+			}
+		});
+
+		canvasdb.remove(uuid);
+	}
+
 	public static void initializeCanvas(long uuid)
 	{
 		// Networking.send(NetworkCommand.CLICK_CANVAS, cellid);
@@ -381,14 +397,14 @@ public class CCanvasController
 
 			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), uuid);
 		}
-		
+
 		CCanvasController.setLastActiveUUID(uuid);
 		CCanvasController.setCurrentUUID(uuid);
-		
+
 		Networking.send(NetworkCommand.PRESENCE_VIEW_CANVAS, uuid);
-		
-		//Why was this even here? -Wayne
-		//Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
+
+		// Why was this even here? -Wayne
+		// Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS, uuid);
 
 		CArrowController.setOutstandingAnchorPoint(null);
 		// calico.events.CalicoEventHandler.getInstance().fireEvent(NetworkCommand.PRESENCE_CANVAS_USERS,
@@ -403,11 +419,11 @@ public class CCanvasController
 
 		MessageObject.showNotice("Viewing canvas " + CCanvasController.canvasdb.get(uuid).getIndex());
 	}
-	
-	//Load all images in the canvas to memory to they are visible
+
+	// Load all images in the canvas to memory to they are visible
 	public static void loadCanvasImages(long uuid)
 	{
-		//System.out.println("loading canvas: " + uuid);
+		// System.out.println("loading canvas: " + uuid);
 		if (uuid != 0)
 		{
 			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
@@ -421,11 +437,11 @@ public class CCanvasController
 			}
 		}
 	}
-	
-	//Remove all image in the canvas from memory as they are not needed right now
+
+	// Remove all image in the canvas from memory as they are not needed right now
 	public static void unloadCanvasImages(long uuid)
 	{
-		//System.out.println("unloading canvas: " + uuid);
+		// System.out.println("unloading canvas: " + uuid);
 		if (uuid != 0)
 		{
 			long[] groups = CCanvasController.canvasdb.get(uuid).getChildGroups();
@@ -472,11 +488,11 @@ public class CCanvasController
 		// add to the painter
 		if (addToPiccolo)
 		{
-			//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+			// canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
 			CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CStrokeController.strokes.get(uuid));
 		}
 	}
-	
+
 	public static void no_notify_add_child_connector(long cuid, long uuid)
 	{
 		if (!canvasdb.containsKey(cuid))
@@ -486,8 +502,8 @@ public class CCanvasController
 		}
 
 		canvasdb.get(cuid).addChildConnector(uuid);
-		
-		//canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
+
+		// canvasdb.get(cuid).getLayer().addChild(CStrokeController.strokes.get(uuid));
 		CalicoDraw.addChildToNode(canvasdb.get(cuid).getLayer(), CConnectorController.connectors.get(uuid));
 	}
 
@@ -532,7 +548,7 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildStroke(((CStroke) childobj).getUUID()))
 					{
-						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						// canvasdb.get(cuids[i]).getLayer().removeChild(c);
 						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
@@ -540,7 +556,7 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildGroup(((CGroup) childobj).getUUID()))
 					{
-						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						// canvasdb.get(cuids[i]).getLayer().removeChild(c);
 						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
@@ -548,7 +564,7 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildArrow(((CArrow) childobj).getUUID()))
 					{
-						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						// canvasdb.get(cuids[i]).getLayer().removeChild(c);
 						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
@@ -556,7 +572,7 @@ public class CCanvasController
 				{
 					if (!canvasdb.get(cuids[i]).hasChildConnector(((CConnector) childobj).getUUID()))
 					{
-						//canvasdb.get(cuids[i]).getLayer().removeChild(c);
+						// canvasdb.get(cuids[i]).getLayer().removeChild(c);
 						CalicoDraw.removeChildFromNode(canvasdb.get(cuids[i]).getLayer(), c);
 					}
 				}
@@ -585,7 +601,7 @@ public class CCanvasController
 
 		return (canvasdb.get(cuid).getLayer().indexOfChild(CStrokeController.strokes.get(uuid)) != -1);
 	}
-	
+
 	public static boolean canvas_has_child_connector_node(long cuid, long uuid)
 	{
 		if (!CConnectorController.exists(uuid))
@@ -611,9 +627,9 @@ public class CCanvasController
 		}
 
 		canvasdb.get(canvas).setCanvasLock(lock, lockedBy, time);
-		/* // GridRemoval: 
-		if (CalicoDataStore.gridObject != null)
-			CalicoDataStore.gridObject.updateCell(canvas); */
+		/*
+		 * // GridRemoval: if (CalicoDataStore.gridObject != null) CalicoDataStore.gridObject.updateCell(canvas);
+		 */
 
 		canvasdb.get(canvas).drawMenuBars();
 	}
@@ -754,7 +770,7 @@ public class CCanvasController
 				// this canvas is being deleted, so stop notifying about it
 				return;
 			}
-			
+
 			synchronized (changedCanvasIds)
 			{
 				changedCanvasIds.add(canvas_uuid);
@@ -795,30 +811,30 @@ public class CCanvasController
 	public static class Factory
 	{
 		private static final Factory INSTANCE = new Factory();
-		
+
 		public static Factory getInstance()
 		{
 			return INSTANCE;
 		}
-		
+
 		private final Long2ReferenceOpenHashMap<PendingCanvas> pendingCanvases = new Long2ReferenceOpenHashMap<PendingCanvas>();
-		
+
 		public CCanvas createNewCanvas()
 		{
 			long canvasId = Calico.uuid();
-			
+
 			PendingCanvas pendingCanvas = new PendingCanvas();
 			pendingCanvases.put(canvasId, pendingCanvas);
-			
+
 			CalicoPacket packet = new CalicoPacket();
 			packet.putInt(NetworkCommand.CANVAS_CREATE);
 			packet.putLong(canvasId);
 			packet.rewind();
 			Networking.send(packet);
-			
+
 			return pendingCanvas.waitForCanvas();
 		}
-		
+
 		public void canvasCreated(CCanvas canvas)
 		{
 			PendingCanvas pendingCanvas = pendingCanvases.get(canvas.uuid);
@@ -827,17 +843,17 @@ public class CCanvasController
 				pendingCanvas.canvasArrived(canvas);
 			}
 		}
-		
+
 		private class PendingCanvas
 		{
 			private CCanvas canvas = null;
-			
+
 			synchronized void canvasArrived(CCanvas canvas)
 			{
 				this.canvas = canvas;
 				notify();
 			}
-			
+
 			synchronized CCanvas waitForCanvas()
 			{
 				while (canvas == null)
@@ -854,6 +870,22 @@ public class CCanvasController
 				pendingCanvases.remove(canvas.uuid);
 				return canvas;
 			}
+		}
+	}
+
+	public static class HistoryFrame extends CHistoryController.Frame
+	{
+		long canvasId;
+
+		HistoryFrame(long canvasId)
+		{
+			this.canvasId = canvasId;
+		}
+
+		@Override
+		protected void restore()
+		{
+			loadCanvas(canvasId);
 		}
 	}
 }

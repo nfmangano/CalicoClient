@@ -56,6 +56,7 @@ import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
+import calico.controllers.CHistoryController;
 import calico.controllers.CStrokeController;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
@@ -298,6 +299,7 @@ public class Calico extends JFrame
 		CGroupController.setup();
 		CStrokeController.setup();
 		CConnectorController.setup();
+		CHistoryController.setup();
 		BubbleMenu.setup();
 
 		// Load the icon theme

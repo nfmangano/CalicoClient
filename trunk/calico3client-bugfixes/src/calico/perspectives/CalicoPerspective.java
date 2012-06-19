@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
@@ -18,7 +19,7 @@ public abstract class CalicoPerspective
 		Registry.register(this);
 	}
 
-	protected abstract void displayPerspective();
+	protected abstract void displayPerspective(long contextCanvasId);
 	
 	protected abstract boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer);
 
@@ -65,6 +66,11 @@ public abstract class CalicoPerspective
 
 		public static void activateNavigationPerspective()
 		{
+			activateNavigationPerspective(CCanvasController.getCurrentUUID());
+		}
+		
+		public static void activateNavigationPerspective(long contextCanvasId)
+		{
 			while (navigationPerspective == null)
 			{
 				try {
@@ -78,7 +84,7 @@ public abstract class CalicoPerspective
 			
 			if (navigationPerspective != null)
 			{
-				navigationPerspective.displayPerspective();
+				navigationPerspective.displayPerspective(contextCanvasId);
 			}
 		}
 	}
