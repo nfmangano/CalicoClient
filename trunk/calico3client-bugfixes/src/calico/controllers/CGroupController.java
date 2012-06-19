@@ -1,5 +1,6 @@
 package calico.controllers;
 
+import it.unimi.dsi.fastutil.longs.Long2ReferenceAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
@@ -17,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.swing.SwingUtilities;
@@ -32,6 +34,8 @@ import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.composable.ComposableElement;
+import calico.components.composable.ComposableElementController;
 import calico.components.decorators.CGroupDecorator;
 import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
@@ -890,6 +894,19 @@ public class CGroupController
 						CConnectorController.no_notify_create(new_connector_uuid, canvasuuid, tempConnector.getColor(), tempConnector.getThickness(), head, tail,
 								tempConnector.getOrthogonalDistance(), tempConnector.getTravelDistance(), 
 								UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_HEAD)), UUIDMappings.get(tempConnector.getAnchorUUID(CConnector.TYPE_TAIL)));
+						if (ComposableElementController.elementList.containsKey(connector_uuids[i]))
+						{
+							Long2ReferenceAVLTreeMap<ComposableElement> componentElements = ComposableElementController.elementList.get(connector_uuids[i]);
+							for (Map.Entry<Long, ComposableElement> entry : componentElements.entrySet())
+							{
+								if (UUIDMappings.containsKey(entry.getKey()))
+								{
+									long new_element_uuid = UUIDMappings.get(entry.getKey()).longValue();
+									packets = new CalicoPacket[]{entry.getValue().getPacket(new_element_uuid, new_connector_uuid)};
+									batchReceive(packets);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1038,6 +1055,15 @@ public class CGroupController
 				{
 					long new_ctr_uuids = Calico.uuid();
 					UUIDMappings.put(connector_uuids[i], new Long(new_ctr_uuids));
+					if (ComposableElementController.elementList.containsKey(connector_uuids[i]))
+					{
+						Long2ReferenceAVLTreeMap<ComposableElement> componentElements = ComposableElementController.elementList.get(connector_uuids[i]);
+						for (Map.Entry<Long, ComposableElement> entry : componentElements.entrySet())
+						{
+							long new_element_uuid = Calico.uuid();
+							UUIDMappings.put(entry.getKey(), new Long(new_element_uuid));
+						}
+					}
 				}
 			}
 		}
