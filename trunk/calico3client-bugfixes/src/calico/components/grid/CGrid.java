@@ -172,10 +172,10 @@ public class CGrid
 
 		int topHeaderIconHeight = CalicoOptions.grid.topHeaderIconHeight;
 		int leftHeaderIconWidth = CalicoOptions.grid.leftHeaderIconWidth;
-
-		imgw = (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / CalicoDataStore.GridCols );
-		imgh = (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / CalicoDataStore.GridRows );
-
+		
+		imgw = (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / 7 );
+		imgh = (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / 7 );
+		
 		CGrid.gwidth = imgw;
 		CGrid.gheight = imgh;
 		

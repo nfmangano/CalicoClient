@@ -226,6 +226,8 @@ public class CalicoPluginManager
 		{
 			registerPlugin(Class.forName("calico.plugins.palette.PalettePlugin"));
 			registerPlugin(Class.forName("calico.plugins.userlist.UserListPlugin"));
+			registerPlugin(Class.forName("calico.plugins.analysis.AnalysisPlugin"));
+			
 			
 		}
 		catch (Exception e)
