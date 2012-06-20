@@ -17,6 +17,7 @@ import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
+import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -189,7 +190,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		if (CanvasPerspective.getInstance().isActive() && (CCanvasController.getCurrentUUID() == cell.getCanvasId()))
 		{
-			CanvasTagPanel.getInstance().refresh();
+			CanvasTitlePanel.getInstance().refresh();
 		}
 		IntentionalInterfacesCanvasContributor.getInstance().notifyContentChanged(cell.getCanvasId());
 	}

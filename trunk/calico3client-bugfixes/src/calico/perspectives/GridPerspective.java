@@ -15,7 +15,7 @@ public class GridPerspective extends CalicoPerspective
 	}
 	
 	@Override
-	protected void displayPerspective()
+	protected void displayPerspective(long contextCanvasId)
 	{
 	}
 
