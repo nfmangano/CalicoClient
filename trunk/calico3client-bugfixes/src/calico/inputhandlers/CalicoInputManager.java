@@ -69,6 +69,21 @@ public class CalicoInputManager
 
 	public static long group;
 
+	public static void setup()
+	{
+		CalicoPerspective.addListener(new CalicoPerspective.PerspectiveChangeListener() {
+			@Override
+			public void perspectiveChanged(CalicoPerspective perspective)
+			{
+				// unlock the active input handler and clear the bubble menu
+				lockInputHandler = 0L;
+				if (BubbleMenu.isBubbleMenuActive())
+				{
+					BubbleMenu.clearMenu();
+				}
+			}
+		});
+	}
 
 	public static void addGroupInputHandler(long uuid)
 	{
@@ -174,17 +189,6 @@ public class CalicoInputManager
 		if (lockInputHandler == 0l)
 			lockInputHandler = uuid;
 	}
-
-	public static void perspectiveChanged()
-	{
-		// unlock the active input handler and clear the bubble menu
-		lockInputHandler = 0L;
-		if (BubbleMenu.isBubbleMenuActive())
-		{
-			BubbleMenu.clearMenu();
-		}
-	}
-
 
 	public static void determineObjectsAtPoint(long canvasuid, Point2D p)
 	{

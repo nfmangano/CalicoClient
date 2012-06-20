@@ -41,7 +41,7 @@ public class CHistoryController
 	{
 		execute(new CreateFrameAction(frame));
 	}
-	
+
 	public void purgeFrames(FrameSelector selector)
 	{
 		execute(new PurgeFramesAction(selector));
@@ -118,7 +118,7 @@ public class CHistoryController
 			frames.add(frame);
 			index++;
 		}
-		
+
 		void purge(FrameSelector selector)
 		{
 			for (int i = (frames.size() - 1); i >= 0; i--)
@@ -127,6 +127,11 @@ public class CHistoryController
 				{
 					frames.remove(i);
 				}
+			}
+
+			if (index >= frames.size())
+			{
+				index = frames.size() - 1;
 			}
 		}
 	}
@@ -140,7 +145,7 @@ public class CHistoryController
 	{
 		boolean match(Frame frame);
 	}
-	
+
 	private abstract class NavigationAction
 	{
 		abstract void execute();
@@ -177,7 +182,7 @@ public class CHistoryController
 			return true;
 		}
 	}
-	
+
 	private final class PurgeFramesAction extends NavigationAction
 	{
 		private final FrameSelector selector;
@@ -186,13 +191,13 @@ public class CHistoryController
 		{
 			this.selector = selector;
 		}
-		
+
 		@Override
 		void execute()
 		{
 			history.purge(selector);
 		}
-		
+
 		@Override
 		boolean isValid()
 		{

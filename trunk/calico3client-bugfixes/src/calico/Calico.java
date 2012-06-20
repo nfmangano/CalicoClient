@@ -62,6 +62,7 @@ import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
 import calico.input.CalicoKeyListener;
+import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputQueue;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -301,6 +302,7 @@ public class Calico extends JFrame
 		CConnectorController.setup();
 		CHistoryController.setup();
 		BubbleMenu.setup();
+		CalicoInputManager.setup();
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme(CalicoOptions.core.icontheme);
