@@ -188,4 +188,29 @@ public class ArrowheadElement extends ComposableElement {
 		
 		return poly;
 	}
+
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		int type = packet.getInt();
+		float strokeSize = packet.getFloat();
+		Color outlineColor = packet.getColor();
+		Color fillColor = packet.getColor();
+		
+		Polygon polygon = new Polygon();
+		int npoints = packet.getInt();
+		for (int i = 0; i < npoints; i++)
+		{
+			polygon.addPoint(packet.getInt(), packet.getInt());
+		}
+		
+		return new ArrowheadElement(uuid, cuuid, type, strokeSize, outlineColor, fillColor, polygon);
+	}
 }

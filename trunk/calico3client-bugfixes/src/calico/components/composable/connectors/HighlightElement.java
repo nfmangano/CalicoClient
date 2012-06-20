@@ -109,4 +109,38 @@ public class HighlightElement extends ComposableElement {
 		return getPacket(this.uuid, this.cuuid);
 	}
 
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		
+		////////  BEGIN STANDARD
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		//////// END STANDARD
+		
+		float transparency = packet.getFloat();
+		
+		float lineWidth = packet.getFloat();
+		int endCap = packet.getInt();
+		int lineJoin = packet.getInt();
+		float miterLimit = packet.getFloat();
+		int dashLength = packet.getInt();
+		float[] dash = (dashLength == 0) ? null : new float[dashLength];
+		for (int i = 0; i < dashLength; i++)
+		{
+			dash[i] = packet.getFloat();
+		}
+		float dashPhase = packet.getFloat();
+		BasicStroke stroke = new BasicStroke(lineWidth, endCap, lineJoin, miterLimit, dash, dashPhase);
+		
+		Color color = packet.getColor();
+		
+		return new HighlightElement(uuid, cuuid, transparency, stroke, color);
+	}
+	
 }

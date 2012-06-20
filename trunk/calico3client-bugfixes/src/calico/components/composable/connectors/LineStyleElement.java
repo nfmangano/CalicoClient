@@ -1,6 +1,7 @@
 package calico.components.composable.connectors;
 
 import java.awt.BasicStroke;
+import java.awt.Font;
 import java.awt.Stroke;
 
 import calico.components.CConnector;
@@ -99,5 +100,48 @@ public class LineStyleElement extends ComposableElement {
 	public CalicoPacket getPacket()
 	{
 		return getPacket(this.uuid, this.cuuid);
+	}
+	
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		
+		////////  BEGIN STANDARD
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		//////// END STANDARD
+		
+		float lineWidth = packet.getFloat();
+		int endCap = packet.getInt();
+		int lineJoin = packet.getInt();
+		float miterLimit = packet.getFloat();
+		int dashLength = packet.getInt();
+		float[] dash = (dashLength == 0) ? null : new float[dashLength];
+		for (int i = 0; i < dashLength; i++)
+		{
+			dash[i] = packet.getFloat();
+		}
+		float dashPhase = packet.getFloat();
+		BasicStroke newStroke = new BasicStroke(lineWidth, endCap, lineJoin, miterLimit, dash, dashPhase);
+		
+		lineWidth = packet.getFloat();
+		endCap = packet.getInt();
+		lineJoin = packet.getInt();
+		miterLimit = packet.getFloat();
+		dashLength = packet.getInt();
+		dash = (dashLength == 0) ? null : new float[dashLength];
+		for (int i = 0; i < dashLength; i++)
+		{
+			dash[i] = packet.getFloat();
+		}
+		dashPhase = packet.getFloat();
+		BasicStroke originalStroke = new BasicStroke(lineWidth, endCap, lineJoin, miterLimit, dash, dashPhase);
+		
+		return new LineStyleElement(uuid, cuuid, newStroke, originalStroke);
 	}
 }

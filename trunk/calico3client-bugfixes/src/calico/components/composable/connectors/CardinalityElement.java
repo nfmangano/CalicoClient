@@ -1,5 +1,6 @@
 package calico.components.composable.connectors;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -108,5 +109,29 @@ public class CardinalityElement extends ComposableElement {
 	public CalicoPacket getPacket()
 	{
 		return getPacket(this.uuid, this.cuuid);
+	}
+	
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		
+		////////  BEGIN STANDARD
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		//////// END STANDARD
+		
+		type = packet.getInt();
+		String text = packet.getString();
+		String fontName = packet.getString();
+		int fontStyle = packet.getInt();
+		int fontSize = packet.getInt();
+		Font font = new Font(fontName, fontStyle, fontSize);
+		
+		return new CardinalityElement(uuid, cuuid, type, text, font);
 	}
 }

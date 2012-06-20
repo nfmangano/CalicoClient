@@ -1,5 +1,7 @@
 package calico.components.composable.connectors;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -93,5 +95,29 @@ public class LabelElement extends ComposableElement{
 	public CalicoPacket getPacket()
 	{
 		return getPacket(this.uuid, this.cuuid);
+	}
+	
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		
+		////////  BEGIN STANDARD
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		//////// END STANDARD
+		
+		text = packet.getString();
+		String fontName = packet.getString();
+		int fontStyle = packet.getInt();
+		int fontSize = packet.getInt();
+		
+		font = new Font(fontName, fontStyle, fontSize);
+		
+		return new LabelElement(uuid, cuuid, text, font);
 	}
 }

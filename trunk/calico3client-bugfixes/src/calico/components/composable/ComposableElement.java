@@ -95,4 +95,6 @@ public abstract class ComposableElement {
 		return null;
 	}
 	
+	protected abstract ComposableElement getInstanceFromPacket(CalicoPacket packet);
+	
 }

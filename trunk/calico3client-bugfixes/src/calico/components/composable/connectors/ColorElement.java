@@ -1,6 +1,7 @@
 package calico.components.composable.connectors;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import calico.components.CConnector;
 import calico.components.composable.Composable;
@@ -63,5 +64,25 @@ public class ColorElement extends ComposableElement {
 	public CalicoPacket getPacket()
 	{
 		return getPacket(this.uuid, this.cuuid);
+	}
+	
+	@Override
+	public ComposableElement getInstanceFromPacket(CalicoPacket packet) {
+		
+		////////  BEGIN STANDARD
+		packet.rewind();
+		if (packet.getInt() != NetworkCommand.ELEMENT_ADD)
+			return null;
+		
+		int elementType = packet.getInt();
+		long uuid = packet.getLong();
+		long cuuid = packet.getLong();
+		
+		//////// END STANDARD
+		
+		Color newColor = packet.getColor();
+		Color originalColor = packet.getColor();
+		
+		return new ColorElement(uuid, cuuid, newColor, originalColor);
 	}
 }
