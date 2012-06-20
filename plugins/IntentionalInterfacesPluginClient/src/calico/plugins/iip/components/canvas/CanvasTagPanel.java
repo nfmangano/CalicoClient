@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,8 @@ import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
+import calico.plugins.iip.util.IntentionalInterfacesGraphics;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
@@ -33,7 +37,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
-public class CanvasTagPanel implements StickyItem
+public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 {
 	public static CanvasTagPanel getInstance()
 	{
@@ -49,11 +53,6 @@ public class CanvasTagPanel implements StickyItem
 
 	private final PanelNode panel;
 
-	private final Image addButtonImage;
-	private final Image removeButtonImage;
-	private final Image editButtonImage;
-	private final Image paletteButtonImage;
-
 	private final long uuid;
 	private long canvas_uuid;
 
@@ -68,14 +67,6 @@ public class CanvasTagPanel implements StickyItem
 		this.canvas_uuid = 0L;
 
 		CalicoInputManager.addCustomInputHandler(uuid, new InputHandler());
-
-		addButtonImage = CalicoIconManager.getIconImage("intention.add-button");
-		removeButtonImage = CalicoIconManager.getIconImage("intention.remove-button");
-		editButtonImage = CalicoIconManager.getIconImage("intention.edit-button");
-		paletteButtonImage = CalicoIconManager.getIconImage("intention.palette-button");
-		IntentionTypeRowEditMode.RENAME.image = editButtonImage;
-		IntentionTypeRowEditMode.SET_COLOR.image = paletteButtonImage;
-		IntentionTypeRowEditMode.REMOVE.image = removeButtonImage;
 
 		panel = new PanelNode();
 
@@ -95,6 +86,16 @@ public class CanvasTagPanel implements StickyItem
 	public boolean containsPoint(Point p)
 	{
 		return panel.getBounds().contains(p);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event)
+	{
+		if (visible && event.getPropertyName().equals(PNode.PROPERTY_CHILDREN))
+		{
+			updatePanelBounds();
+			panel.repaint();
+		}
 	}
 
 	public boolean isVisible()
@@ -137,10 +138,12 @@ public class CanvasTagPanel implements StickyItem
 
 		if (panel.getParent() != null)
 		{
+			panel.getParent().removePropertyChangeListener(this);
 			panel.getParent().removeChild(panel);
 		}
 		refresh();
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
+		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addPropertyChangeListener(this);
 	}
 
 	public void refresh()
@@ -202,52 +205,6 @@ public class CanvasTagPanel implements StickyItem
 		this.layout = layout;
 	}
 
-	private class TitleRow extends PComposite
-	{
-		private final PText text = new PText();
-
-		public TitleRow()
-		{
-			text.setConstrainWidthToTextWidth(true);
-			text.setConstrainHeightToTextHeight(true);
-			text.setFont(text.getFont().deriveFont(20f));
-
-			addChild(text);
-		}
-
-		void tap(Point point)
-		{
-			CanvasTitleDialog.Action action = CanvasTitleDialog.getInstance().queryUserForLabel(
-					CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid));
-
-			if (action == Action.OK)
-			{
-				CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-						CanvasTitleDialog.getInstance().getText(), false);
-			}
-		}
-
-		double getMaxWidth()
-		{
-			return text.getBounds().width + (2 * PANEL_COMPONENT_INSET);
-		}
-
-		void refresh()
-		{
-			text.setText(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getTitle());
-		}
-
-		@Override
-		protected void layoutChildren()
-		{
-			PBounds bounds = getBounds();
-
-			text.recomputeLayout();
-			PBounds textBounds = text.getBounds();
-			text.setBounds(bounds.x + PANEL_COMPONENT_INSET, bounds.y + ROW_TEXT_INSET, textBounds.width, textBounds.getHeight());
-		}
-	}
-
 	private enum IntentionTypeRowEditMode
 	{
 		NONE,
@@ -262,10 +219,8 @@ public class CanvasTagPanel implements StickyItem
 	{
 		private final CIntentionType type;
 		private final PText label;
-		private final PImage editButton = new PImage(removeButtonImage);
 
 		private boolean selected = false;
-		private IntentionTypeRowEditMode editMode = IntentionTypeRowEditMode.NONE;
 
 		public IntentionTypeRow(CIntentionType type)
 		{
@@ -276,85 +231,19 @@ public class CanvasTagPanel implements StickyItem
 			label.setFont(label.getFont().deriveFont(20f));
 
 			addChild(label);
-			addChild(editButton);
-
-			editButton.setVisible(false);
 		}
 
 		void tap(Point point)
 		{
-			if (editButton.getVisible() && editButton.getBounds().contains(point))
-			{
-				switch (editMode)
-				{
-					case RENAME:
-					{
-						IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(type);
-						if (action == IntentionTypeNameDialog.Action.OK)
-						{
-							IntentionCanvasController.getInstance().renameIntentionType(type.getId(), IntentionTypeNameDialog.getInstance().getText());
-						}
-					}
-						break;
-					case SET_COLOR:
-					{
-						ColorPaletteDialog.Action action = ColorPaletteDialog.getInstance().queryUserForColor(type);
-						if (action == ColorPaletteDialog.Action.OK)
-						{
-							IntentionCanvasController.getInstance().setIntentionTypeColorIndex(type.getId(), ColorPaletteDialog.getInstance().getColorIndex());
-						}
-					}
-						break;
-					case REMOVE:
-						int count = CIntentionCellController.getInstance().countIntentionTypeUsage(type.getId());
-						if (count > 0)
-						{
-							int userOption = JOptionPane.showConfirmDialog(CalicoDataStore.calicoObj, "<html>The intention tag '" + type.getName()
-									+ "' is currently assigned to " + count + " whiteboards.<br>Are you sure you want to delete it?</html>",
-									"Warning - intention tag in use", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-							if (userOption != JOptionPane.YES_OPTION)
-							{
-								break;
-							}
-						}
-
-						IntentionCanvasController.getInstance().removeIntentionType(type.getId());
-						break;
-				}
-
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.NONE);
-			}
-			else
-			{
-				CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-						type.getId(), !selected, false);
-			}
-		}
-
-		void activateEditMode(IntentionTypeRowEditMode mode)
-		{
-			if (editMode == mode)
-			{
-				mode = IntentionTypeRowEditMode.NONE;
-			}
-
-			this.editMode = mode;
-
-			if (mode == IntentionTypeRowEditMode.NONE)
-			{
-				editButton.setVisible(false);
-			}
-			else
-			{
-				editButton.setImage(mode.image);
-				editButton.setVisible(true);
-			}
+			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
+					type.getId(), !selected, false);
+			IntentionCanvasController.getInstance().linkCreatedCanvasFromOrigin();
+			IntentionCanvasController.getInstance().showTagPanel(false);
 		}
 
 		double getMaxWidth()
 		{
-			return label.getBounds().width + editButton.getBounds().width + (PANEL_COMPONENT_INSET * 3);
+			return label.getBounds().width + (PANEL_COMPONENT_INSET * 3);
 		}
 
 		void setSelected(boolean b)
@@ -369,11 +258,8 @@ public class CanvasTagPanel implements StickyItem
 		{
 			PBounds rowBounds = getBounds();
 			PBounds labelBounds = label.getBounds();
-			PBounds buttonBounds = editButton.getBounds();
 
 			label.setBounds(rowBounds.x + PANEL_COMPONENT_INSET, rowBounds.y + ROW_TEXT_INSET, labelBounds.width, ROW_HEIGHT - (2 * ROW_TEXT_INSET));
-			editButton.setBounds((rowBounds.x + rowBounds.width) - (buttonBounds.width + PANEL_COMPONENT_INSET), rowBounds.y
-					+ ((rowBounds.height - buttonBounds.height) / 2.0), buttonBounds.width, buttonBounds.height);
 		}
 
 		@Override
@@ -393,125 +279,25 @@ public class CanvasTagPanel implements StickyItem
 		}
 	}
 
-	private class MetaButton extends PComposite
-	{
-		private final PImage icon;
-
-		public MetaButton(Image image)
-		{
-			icon = new PImage(image);
-			addChild(icon);
-		}
-
-		@Override
-		protected void layoutChildren()
-		{
-			PBounds bounds = getBounds();
-			icon.centerBoundsOnPoint(bounds.x + (bounds.width / 2.0), bounds.y + (bounds.height / 2.0));
-		}
-	}
-
-	private class MetaRow extends PComposite
-	{
-		private final MetaButton addButton = new MetaButton(addButtonImage);
-		private final MetaButton removeButton = new MetaButton(removeButtonImage);
-		private final MetaButton editButton = new MetaButton(editButtonImage);
-		private final MetaButton colorButton = new MetaButton(paletteButtonImage);
-
-		public MetaRow()
-		{
-			addChild(addButton);
-			addChild(removeButton);
-			addChild(editButton);
-			addChild(colorButton);
-		}
-
-		void tap(Point point)
-		{
-			if (point.x < removeButton.getBoundsReference().x)
-			{
-				IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(null);
-				if (action == IntentionTypeNameDialog.Action.OK)
-				{
-					IntentionCanvasController.getInstance().addIntentionType(IntentionTypeNameDialog.getInstance().getText());
-				}
-			}
-			else if (point.x < editButton.getBoundsReference().x)
-			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.REMOVE);
-			}
-			else if (point.x < colorButton.getBoundsReference().x)
-			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.RENAME);
-			}
-			else if (point.x < (colorButton.getBoundsReference().x + colorButton.getBoundsReference().width))
-			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.SET_COLOR);
-			}
-		}
-
-		@Override
-		protected void layoutChildren()
-		{
-			PBounds rowBounds = getBounds();
-			double buttonWidth = (rowBounds.getBounds().width / 4.0);
-
-			double x = rowBounds.x;
-			addButton.setBounds(x, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			removeButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			editButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			colorButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
-		}
-	}
-
 	private class PanelNode extends PComposite
 	{
-		private final TitleRow titleRow = new TitleRow();
 		private final List<IntentionTypeRow> typeRows = new ArrayList<IntentionTypeRow>();
-		private final MetaRow metaRow = new MetaRow();
-
-		private PPath border;
-
-		public PanelNode()
-		{
-			addChild(titleRow);
-			addChild(metaRow);
-		}
 
 		void tap(Point point)
-		{
-			if (titleRow.getBoundsReference().contains(point))
-			{
-				titleRow.tap(point);
-			}
-			else if (metaRow.getBoundsReference().contains(point))
-			{
-				metaRow.tap(point);
-			}
-			else
-			{
-				for (IntentionTypeRow row : typeRows)
-				{
-					if (row.getBoundsReference().contains(point))
-					{
-						row.tap(point);
-						break;
-					}
-				}
-			}
-		}
-
-		void activateIntentionRowEditMode(IntentionTypeRowEditMode mode)
 		{
 			for (IntentionTypeRow row : typeRows)
 			{
-				row.activateEditMode(mode);
+				if (row.getBoundsReference().contains(point))
+				{
+					row.tap(point);
+					break;
+				}
 			}
 		}
 
 		double calculateWidth()
 		{
-			double width = titleRow.getMaxWidth();
+			double width = 0;
 			for (IntentionTypeRow row : typeRows)
 			{
 				double rowWidth = row.getMaxWidth();
@@ -525,7 +311,7 @@ public class CanvasTagPanel implements StickyItem
 
 		double calculateHeight()
 		{
-			return (typeRows.size() + 2) * ROW_HEIGHT;
+			return typeRows.size() * ROW_HEIGHT;
 		}
 
 		void updateIntentionTypes()
@@ -543,15 +329,6 @@ public class CanvasTagPanel implements StickyItem
 				typeRows.add(row);
 			}
 
-			if (border != null)
-			{
-				removeChild(border);
-			}
-			border = new PPath(new Rectangle2D.Double(0, 0, calculateWidth(), calculateHeight()));
-			border.setStrokePaint(Color.black);
-			border.setStroke(new BasicStroke(1f));
-			addChild(border);
-			
 			repaint();
 		}
 
@@ -561,8 +338,6 @@ public class CanvasTagPanel implements StickyItem
 			{
 				return;
 			}
-
-			titleRow.refresh();
 
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 			for (IntentionTypeRow row : typeRows)
@@ -581,14 +356,28 @@ public class CanvasTagPanel implements StickyItem
 
 			PBounds bounds = panel.getBounds();
 			double y = bounds.y;
-			titleRow.setBounds(bounds.x, y, bounds.width, ROW_HEIGHT);
 			for (IntentionTypeRow row : typeRows)
 			{
-				row.setBounds(bounds.x, y += ROW_HEIGHT, bounds.width, ROW_HEIGHT);
+				row.setBounds(bounds.x, y, bounds.width, ROW_HEIGHT);
+				y += ROW_HEIGHT;
 			}
-			metaRow.setBounds(bounds.x, y += ROW_HEIGHT, bounds.width, ROW_HEIGHT);
+		}
 
-			border.setBounds(bounds);
+		@Override
+		protected void paint(PPaintContext paintContext)
+		{
+			super.paint(paintContext);
+
+			Graphics2D g = paintContext.getGraphics();
+			Color c = g.getColor();
+
+			PBounds bounds = getBounds();
+			g.setColor(Color.black);
+			g.translate(bounds.x, bounds.y);
+			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 14, 14);
+
+			g.translate(-bounds.x, -bounds.y);
+			g.setColor(c);
 		}
 	}
 
@@ -634,7 +423,7 @@ public class CanvasTagPanel implements StickyItem
 				// not a drag, completely ignore this event
 				return;
 			}
-			
+
 			synchronized (stateLock)
 			{
 				if (state == InputState.PRESSED)

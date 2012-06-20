@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.canvas.CanvasInputProximity;
 
 public class CIntentionCellFactory
 {
@@ -18,12 +19,22 @@ public class CIntentionCellFactory
 
 	public CIntentionCell createNewCell()
 	{
+		return createNewCell(0L, CanvasInputProximity.NONE);
+	}
+
+	public CIntentionCell createNewCell(long originatingCanvasId, CanvasInputProximity proximity)
+	{
 		PendingCell pendingCell = new PendingCell();
-		
+
 		synchronized (pendingCellsByCanvasId)
 		{
 			long canvasId = CCanvasController.Factory.getInstance().createNewCanvas().uuid;
 			pendingCellsByCanvasId.put(canvasId, pendingCell);
+
+			if (originatingCanvasId > 0L)
+			{
+				IntentionCanvasController.getInstance().canvasCreatedLocally(canvasId, originatingCanvasId, proximity);
+			}
 		}
 
 		return pendingCell.waitForCell();
@@ -34,7 +45,6 @@ public class CIntentionCellFactory
 		synchronized (pendingCellsByCanvasId)
 		{
 			PendingCell pendingCell = pendingCellsByCanvasId.get(cell.getCanvasId());
-			boolean install;
 			if (pendingCell != null)
 			{
 				cell.setNew(true);

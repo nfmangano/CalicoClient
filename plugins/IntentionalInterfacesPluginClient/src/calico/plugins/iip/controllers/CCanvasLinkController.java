@@ -46,7 +46,7 @@ public class CCanvasLinkController
 
 	private long traversedLinkSourceCanvas = 0L;
 	private long traversedLinkDestinationCanvas = 0L;
-	
+
 	private boolean arrowColorsInitialized = false;
 
 	public void initializeArrowColors()
@@ -57,7 +57,7 @@ public class CCanvasLinkController
 			{
 				continue;
 			}
-			
+
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(anchor.getCanvasId());
 			if (cell == null)
 			{
@@ -69,10 +69,10 @@ public class CCanvasLinkController
 			arrow.setColor(color);
 			arrow.redraw();
 		}
-		
+
 		arrowColorsInitialized = true;
 	}
-	
+
 	public boolean hasTraversedLink()
 	{
 		return traversedLinkSourceCanvas > 0L;
@@ -97,24 +97,27 @@ public class CCanvasLinkController
 			traversedLinkSourceCanvas = traversedLinkDestinationCanvas = 0L;
 		}
 	}
-	
+
 	public void canvasIntentionTypeChanged(CIntentionCell cell)
 	{
 		if (!arrowColorsInitialized)
 		{
 			return;
 		}
-		
+
 		Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(cell.getIntentionTypeId());
 		List<Long> anchorIds = anchorsIdsByCanvasId.get(cell.getCanvasId());
-		for (Long anchorId : anchorIds)
+		if (anchorIds != null)
 		{
-			CCanvasLinkAnchor anchor = anchorsById.get(anchorId);
-			if (anchor.getLink().getAnchorB() == anchor)
+			for (Long anchorId : anchorIds)
 			{
-				CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(anchor.getLink().getId());
-				arrow.setColor(color);
-				arrow.redraw();
+				CCanvasLinkAnchor anchor = anchorsById.get(anchorId);
+				if (anchor.getLink().getAnchorB() == anchor)
+				{
+					CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(anchor.getLink().getId());
+					arrow.setColor(color);
+					arrow.redraw();
+				}
 			}
 		}
 	}
@@ -316,7 +319,7 @@ public class CCanvasLinkController
 		packet.putInt(CCanvasLinkAnchor.ArrowEndpointType.INTENTION_CELL.ordinal());
 		packet.putInt(0);
 		packet.putInt(0);
-		
+
 		packet.rewind();
 		PacketHandler.receive(packet);
 		Networking.send(packet);

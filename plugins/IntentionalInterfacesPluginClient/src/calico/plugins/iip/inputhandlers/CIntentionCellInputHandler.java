@@ -2,18 +2,18 @@ package calico.plugins.iip.inputhandlers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.Timer;
 
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.ContextMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
-import calico.plugins.iip.components.piemenu.iip.CreateCanvasCopyButton;
+import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
-import calico.plugins.iip.components.piemenu.iip.CreateNewCanvasLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
-import calico.plugins.iip.components.piemenu.iip.EnterCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -46,11 +46,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private Point mouseDragAnchor;
 	private Point2D cellDragAnchor;
 
-	private final EnterCanvasButton enterCanvasButton = new EnterCanvasButton();
+	private final BubbleMenuTimer bubbleMenuTimer = new BubbleMenuTimer();
+
 	private final DeleteCanvasButton deleteCanvasButton = new DeleteCanvasButton();
 	private final CreateLinkButton linkButton = new CreateLinkButton();
-	private final CreateNewCanvasLinkButton newCanvasButton = new CreateNewCanvasLinkButton();
-	private final CreateCanvasCopyButton copyCanvasButton = new CreateCanvasCopyButton();
 	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
 
 	private CIntentionCellInputHandler()
@@ -124,13 +123,16 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 
 			mouseDragAnchor = event.getGlobalPoint();
 			cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentCellId).getLocation();
+
+			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
+			bubbleMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 		}
 	}
 
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
-		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
+		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
 
 		synchronized (stateLock)
 		{
@@ -142,25 +144,15 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				case ACTIVATED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
 					{
-						state = State.MENU;
-
-						if (CCanvasController.canvasdb.size() > 1)
-						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, enterCanvasButton, linkButton,
-									newCanvasButton, copyCanvasButton, zoomToClusterButton);
-						}
-						else
-						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, enterCanvasButton, linkButton, newCanvasButton,
-									copyCanvasButton, zoomToClusterButton);
-						}
+						CCanvasController.loadCanvas(cell.getCanvasId());
 					}
 					break;
 			}
-
+			
 			if (state != State.MENU)
 			{
 				state = State.IDLE;
+				cell.setHighlighted(false);
 			}
 		}
 	}
@@ -178,6 +170,54 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void menuDisplayed(ContextMenu menu)
 	{
+	}
+
+	private class BubbleMenuTimer extends Timer
+	{
+		private Point point;
+
+		void start(Point point)
+		{
+			this.point = point;
+
+			schedule(new Task(), 200L);
+		}
+
+		private class Task extends PieMenuTimerTask
+		{
+			@Override
+			public void run()
+			{
+				synchronized (stateLock)
+				{
+					if (state == State.ACTIVATED)
+					{
+						startAnimation(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), point);
+					}
+				}
+			}
+
+			@Override
+			protected void animationCompleted()
+			{
+				synchronized (stateLock)
+				{
+					if (state == State.ACTIVATED)
+					{
+						state = State.MENU;
+
+						if (CCanvasController.canvasdb.size() > 1)
+						{
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, zoomToClusterButton);
+						}
+						else
+						{
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton, zoomToClusterButton);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
@@ -201,25 +241,13 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				return 1;
 			}
-			if (buttonClassname.equals(EnterCanvasButton.class.getName()))
+			if (buttonClassname.equals(CreateLinkButton.class.getName()))
 			{
 				return 2;
 			}
-			if (buttonClassname.equals(CreateLinkButton.class.getName()))
-			{
-				return 3;
-			}
-			if (buttonClassname.equals(CreateNewCanvasLinkButton.class.getName()))
-			{
-				return 4;
-			}
-			if (buttonClassname.equals(CreateCanvasCopyButton.class.getName()))
-			{
-				return 5;
-			}
 			if (buttonClassname.equals(ZoomToClusterButton.class.getName()))
 			{
-				return 6;
+				return 3;
 			}
 
 			return 0;

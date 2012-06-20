@@ -2,6 +2,7 @@ package calico.plugins.iip.controllers;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
+import java.awt.Color;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -93,12 +94,20 @@ public class IntentionGraphController
 	public void addLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
+
+		CIntentionCell destination = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
+		if (destination != null)
+		{
+			Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(destination.getIntentionTypeId());
+			arrow.setColor(color);
+		}
+
 		arrowsByLinkId.put(link.getId(), arrow);
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
 		arrow.moveToBack();
 		arrow.redraw();
 	}
-	
+
 	public CCanvasLinkArrow getArrowByLinkId(long uuid)
 	{
 		return arrowsByLinkId.get(uuid);
@@ -183,7 +192,7 @@ public class IntentionGraphController
 				throw new IllegalArgumentException("Unknown anchor type " + anchor.getArrowEndpointType());
 		}
 	}
-	
+
 	public void removeLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
@@ -210,19 +219,19 @@ public class IntentionGraphController
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
-		
+
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
 		if ((cell != null) && cell.isNew())
 		{
 			arrow.setVisible(false);
 			return;
 		}
-		
+
 		if (!arrow.getVisible())
 		{
 			arrow.setVisible(true);
 		}
-		
+
 		alignAnchors(link);
 		arrow.redraw();
 	}
@@ -253,7 +262,7 @@ public class IntentionGraphController
 
 			CCanvasLinkController.getInstance().moveLinkAnchor(anchor, edgePosition);
 		}
-		
+
 		if (BubbleMenu.isBubbleMenuActive() && (BubbleMenu.activeUUID == cellId))
 		{
 			BubbleMenu.moveIconPositions(cell.getGlobalBounds());

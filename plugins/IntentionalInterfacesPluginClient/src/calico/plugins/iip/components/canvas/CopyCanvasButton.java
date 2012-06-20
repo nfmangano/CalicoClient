@@ -5,6 +5,7 @@ import calico.controllers.CCanvasController;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.CIntentionCellFactory;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
@@ -39,12 +40,13 @@ public class CopyCanvasButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
-		long newCanvas = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(currentCanvasId);
-		CCanvasLinkController.getInstance().copyCanvas(currentCanvasId, newCanvas);
+		long newCanvasId = CIntentionCellFactory.getInstance()
+				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
+		CCanvasLinkController.getInstance().copyCanvas(currentCanvasId, newCanvasId);
 
 		if (CanvasPerspective.getInstance().isActive())
 		{
-			CCanvasController.loadCanvas(newCanvas);
-		} 
+			CCanvasController.loadCanvas(newCanvasId);
+		}
 	}
 }

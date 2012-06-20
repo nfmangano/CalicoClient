@@ -31,6 +31,8 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 	public void displayPerspective(final long contextCanvasId)
 	{
+		boolean initializing = notYetDisplayed;
+
 		CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
 
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
@@ -40,24 +42,24 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		CalicoDataStore.calicoObj.repaint();
 		activate();
 
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run()
-			{
-				CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
-				if (cell == null)
+		if (!initializing)
+		{
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run()
 				{
-					cell = CIntentionCellController.getInstance().getCellByCanvasId(CCanvasController.canvasdb.values().iterator().next().uuid);
-					
+					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
 					if (cell == null)
 					{
-						System.out.println("No intention cells are available to center on.");
-						return;
+						IntentionGraph.getInstance().fitContents();
+					}
+					else
+					{
+						long cellId = cell.getId();
+						IntentionGraph.getInstance().zoomToCell(cellId);
 					}
 				}
-				long cellId = cell.getId();
-				IntentionGraph.getInstance().zoomToCell(cellId);
-			}
-		});
+			});
+		}
 	}
 
 	@Override

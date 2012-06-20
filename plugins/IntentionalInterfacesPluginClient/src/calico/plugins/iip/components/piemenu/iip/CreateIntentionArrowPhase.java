@@ -171,10 +171,6 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		IntentionGraph.getInstance().removeMouseListener(this);
 		IntentionGraph.getInstance().removeMouseMotionListener(this);
 
-		if (fromCell != null)
-		{
-			fromCell.setHighlighted(false);
-		}
 		if (toCell != null)
 		{
 			toCell.setHighlighted(false);
@@ -230,11 +226,7 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		{
 			if (toCell == null)
 			{
-				if (mode == Mode.LINK_EXISTING)
-				{
-					CCanvasLinkController.getInstance().createOrphanedLink(fromCell.getCanvasId(), graphPosition.getX(), graphPosition.getY());
-				}
-				else
+				if (mode != Mode.LINK_EXISTING)
 				{
 					CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId(), graphPosition.getX(), graphPosition.getY(),
 							(mode == Mode.LINK_TO_COPY));
