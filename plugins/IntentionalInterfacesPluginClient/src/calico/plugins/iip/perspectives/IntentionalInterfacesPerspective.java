@@ -2,9 +2,14 @@ package calico.plugins.iip.perspectives;
 
 import java.awt.event.MouseListener;
 
+import javax.swing.SwingUtilities;
+
 import calico.CalicoDataStore;
+import calico.controllers.CCanvasController;
+import calico.controllers.CHistoryController;
 import calico.inputhandlers.InputEventInfo;
 import calico.perspectives.CalicoPerspective;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -24,16 +29,39 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 	private boolean notYetDisplayed = true;
 
-	public void displayPerspective()
+	public void displayPerspective(final long contextCanvasId)
 	{
+		boolean initializing = notYetDisplayed;
+
+		CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
+
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
 		activate();
+
+		if (!initializing)
+		{
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run()
+				{
+					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
+					if (cell == null)
+					{
+						IntentionGraph.getInstance().fitContents();
+					}
+					else
+					{
+						long cellId = cell.getId();
+						IntentionGraph.getInstance().zoomToCell(cellId);
+					}
+				}
+			});
+		}
 	}
-	
+
 	@Override
 	public void activate()
 	{
@@ -123,5 +151,20 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	protected boolean isNavigationPerspective()
 	{
 		return true;
+	}
+
+	private class HistoryFrame extends CHistoryController.Frame
+	{
+		private final long contextCanvasId;
+
+		public HistoryFrame(long contextCanvasId)
+		{
+			this.contextCanvasId = contextCanvasId;
+		}
+
+		protected void restore()
+		{
+			displayPerspective(contextCanvasId);
+		}
 	}
 }

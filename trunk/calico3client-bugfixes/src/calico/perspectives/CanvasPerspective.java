@@ -20,9 +20,9 @@ public class CanvasPerspective extends CalicoPerspective
 	}
 	
 	@Override
-	protected void displayPerspective()
+	protected void displayPerspective(long contextCanvasId)
 	{
-		CCanvasController.loadCanvas(CCanvasController.getCanvasByIndex(1).uuid);
+		CCanvasController.loadCanvas(contextCanvasId);
 	}
 	
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)

@@ -46,7 +46,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
 	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
-	
+
 	private Point mouseDragAnchor;
 
 	private boolean isNearestSideA;
@@ -84,7 +84,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	{
 		// no moving arrows anymore
 	}
-	
+
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{
@@ -96,7 +96,7 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 			}
 
 			mouseDragAnchor = event.getGlobalPoint();
-			
+
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
 			pieMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 		}
@@ -105,7 +105,10 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
-		state = State.IDLE;
+		synchronized (stateLock)
+		{
+			state = State.IDLE;
+		}
 		IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(false);
 	}
 

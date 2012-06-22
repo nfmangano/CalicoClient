@@ -56,11 +56,13 @@ import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
+import calico.controllers.CHistoryController;
 import calico.controllers.CStrokeController;
 import calico.events.CalicoEventHandler;
 import calico.iconsets.CalicoIconManager;
 import calico.input.CInputMode;
 import calico.input.CalicoKeyListener;
+import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputQueue;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
@@ -298,7 +300,9 @@ public class Calico extends JFrame
 		CGroupController.setup();
 		CStrokeController.setup();
 		CConnectorController.setup();
+		CHistoryController.setup();
 		BubbleMenu.setup();
+		CalicoInputManager.setup();
 
 		// Load the icon theme
 		CalicoIconManager.setIconTheme(CalicoOptions.core.icontheme);

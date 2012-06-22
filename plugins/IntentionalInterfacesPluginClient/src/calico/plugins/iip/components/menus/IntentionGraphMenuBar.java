@@ -1,14 +1,13 @@
 package calico.plugins.iip.components.menus;
 
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 
 import calico.components.menus.CanvasGenericMenuBar;
-import calico.components.menus.buttons.ReturnToGrid;
+import calico.components.menus.buttons.ExitButton;
+import calico.components.menus.buttons.HistoryNavigationButton;
 import calico.inputhandlers.InputEventInfo;
-import calico.plugins.iip.components.canvas.CopyCanvasButton;
-import calico.plugins.iip.components.canvas.NewCanvasButton;
-import calico.plugins.iip.components.graph.IconifyButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.menus.buttons.NewClusterButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
@@ -36,6 +35,11 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addChild(zoomSlider);
 		zoomSlider.setBounds(zoomSliderBounds);
 		zoomSlider.repaint();
+		
+		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());		
+		addSpacer(ALIGN_END);
+		addIconRightAligned(new HistoryNavigationButton(HistoryNavigationButton.Type.FORWARD));
+		addIconRightAligned(new HistoryNavigationButton(HistoryNavigationButton.Type.BACK));
 	}
 
 	public void initialize()

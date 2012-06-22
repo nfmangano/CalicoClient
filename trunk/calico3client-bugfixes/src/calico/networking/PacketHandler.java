@@ -1483,6 +1483,6 @@ public class PacketHandler
 			CalicoPerspective.Registry.activateNavigationPerspective();
 		}
 		
-		CCanvasController.canvasdb.remove(canvasId);
+		CCanvasController.removeCanvas(canvasId);
 	}
 }

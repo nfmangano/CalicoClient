@@ -6,19 +6,38 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.PNode;
 
 public abstract class CalicoPerspective
 {
+	public interface PerspectiveChangeListener
+	{
+		void perspectiveChanged(CalicoPerspective perspective);
+	}
+	
+	private static final List<PerspectiveChangeListener> listeners = new ArrayList<PerspectiveChangeListener>();
+
+	public static void addListener(PerspectiveChangeListener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	public static void removeListener(PerspectiveChangeListener listener)
+	{
+		listeners.remove(listener);
+	}
+	
 	protected CalicoPerspective()
 	{
 		Registry.register(this);
 	}
 
-	protected abstract void displayPerspective();
+	protected abstract void displayPerspective(long contextCanvasId);
 	
 	protected abstract boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer);
 
@@ -45,7 +64,10 @@ public abstract class CalicoPerspective
 	{
 		Active.INSTANCE.currentPerspective = this;
 
-		CalicoInputManager.perspectiveChanged();
+		for (PerspectiveChangeListener listener : listeners)
+		{
+			listener.perspectiveChanged(this);
+		}
 	}
 
 	public static class Registry
@@ -65,6 +87,11 @@ public abstract class CalicoPerspective
 
 		public static void activateNavigationPerspective()
 		{
+			activateNavigationPerspective(CCanvasController.getCurrentUUID());
+		}
+		
+		public static void activateNavigationPerspective(long contextCanvasId)
+		{
 			while (navigationPerspective == null)
 			{
 				try {
@@ -78,7 +105,7 @@ public abstract class CalicoPerspective
 			
 			if (navigationPerspective != null)
 			{
-				navigationPerspective.displayPerspective();
+				navigationPerspective.displayPerspective(contextCanvasId);
 			}
 		}
 	}

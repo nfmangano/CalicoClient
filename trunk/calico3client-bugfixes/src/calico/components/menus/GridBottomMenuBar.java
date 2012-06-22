@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.menus.buttons.EmailGridButton;
+import calico.components.menus.buttons.ExitButton;
 import calico.inputhandlers.InputEventInfo;
 
 public class GridBottomMenuBar extends CanvasGenericMenuBar
@@ -63,27 +64,7 @@ public class GridBottomMenuBar extends CanvasGenericMenuBar
 
 		// addSpacer();
 
-		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new CanvasTextButton(cuid) {
-			public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox)
-			{
-				if (event.getAction() == InputEventInfo.ACTION_PRESSED)
-				{
-					isPressed = true;
-				}
-				else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
-				{
-					isPressed = false;
-
-					int userOption = JOptionPane.showConfirmDialog(CalicoDataStore.calicoObj, "Would you like to exit Calico?", "Exit requested!",
-							JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-					if (userOption == JOptionPane.YES_OPTION)
-					{
-						Calico.exit();
-					}
-				}
-			}
-		});
+		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton(cuid));		
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailGridButton());
 
