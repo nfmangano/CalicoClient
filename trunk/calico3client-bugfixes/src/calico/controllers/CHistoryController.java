@@ -75,11 +75,11 @@ public class CHistoryController
 	private static class History
 	{
 		private List<Frame> frames = new ArrayList<Frame>();
-		private int index = 0;
+		private int index = -1;
 
 		Frame back()
 		{
-			if (index == 0)
+			if (index <= 0)
 			{
 				throw new IllegalStateException("Can't go back because there are no more frames to go back to.");
 			}
