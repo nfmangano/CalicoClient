@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -68,17 +67,17 @@ public class CIntentionCell
 		shell = new Shell(location.getX(), location.getY());
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
-	
+
 	public boolean isNew()
 	{
 		return isNew;
 	}
-	
+
 	public void setNew(boolean isNew)
 	{
 		this.isNew = isNew;
 	}
-	
+
 	public void initialize()
 	{
 		shell.updateContents();
@@ -86,7 +85,7 @@ public class CIntentionCell
 
 	public void delete()
 	{
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(shell);
+		shell.delete();
 	}
 
 	private Color currentBorderColor()
@@ -264,6 +263,12 @@ public class CIntentionCell
 
 			userList.moveToFront();
 			repaint();
+		}
+
+		void delete()
+		{
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(this);
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removePropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 		}
 
 		void updateIconification()

@@ -28,7 +28,7 @@ public class CIntentionCellFactory
 
 		synchronized (pendingCellsByCanvasId)
 		{
-			long canvasId = CCanvasController.Factory.getInstance().createNewCanvas().uuid;
+			long canvasId = CCanvasController.Factory.getInstance().createNewCanvas(originatingCanvasId).uuid;
 			pendingCellsByCanvasId.put(canvasId, pendingCell);
 
 			if (originatingCanvasId > 0L)
