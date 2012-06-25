@@ -51,6 +51,10 @@ public class IntentionalInterfacesNetworkCommands
 		 */
 		CIC_TOPOLOGY,
 		/**
+		 * Describe the graph of the CIC clusters. This is not used on the client, only for backup and restore.
+		 */
+		CIC_CLUSTER_GRAPH,
+		/**
 		 * Create a new CIntentionType
 		 */
 		CIT_CREATE,
