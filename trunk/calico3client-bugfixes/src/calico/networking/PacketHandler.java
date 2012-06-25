@@ -1475,14 +1475,6 @@ public class PacketHandler
 		p.getInt();
 		long canvasId = p.getLong();
 		
-		if (CCanvasController.getCurrentUUID() == canvasId)
-		{
-			// randomly choose a canvas to be current, so things don't crash
-			CCanvasController.setCurrentUUID(CCanvasController.canvasdb.values().iterator().next().uuid);
-			
-			CalicoPerspective.Registry.activateNavigationPerspective();
-		}
-		
 		CCanvasController.removeCanvas(canvasId);
 	}
 }

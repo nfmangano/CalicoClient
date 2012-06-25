@@ -37,6 +37,7 @@ import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.utils.TaskBuffer;
@@ -387,6 +388,15 @@ public class CCanvasController
 		});
 
 		canvasdb.remove(uuid);
+
+		if (currentCanvasUUID == uuid)
+		{
+			// randomly choose a canvas to be current, so things don't crash
+			currentCanvasUUID = CCanvasController.canvasdb.values().iterator().next().uuid;
+
+			if (CanvasPerspective.getInstance().isActive())
+				CalicoPerspective.Registry.activateNavigationPerspective();
+		}
 	}
 
 	public static void initializeCanvas(long uuid)
@@ -819,7 +829,7 @@ public class CCanvasController
 
 		private final Long2ReferenceOpenHashMap<PendingCanvas> pendingCanvases = new Long2ReferenceOpenHashMap<PendingCanvas>();
 
-		public CCanvas createNewCanvas()
+		public CCanvas createNewCanvas(long originatingCanvasId)
 		{
 			long canvasId = Calico.uuid();
 
@@ -829,6 +839,7 @@ public class CCanvasController
 			CalicoPacket packet = new CalicoPacket();
 			packet.putInt(NetworkCommand.CANVAS_CREATE);
 			packet.putLong(canvasId);
+			packet.putLong(originatingCanvasId);
 			packet.rewind();
 			Networking.send(packet);
 

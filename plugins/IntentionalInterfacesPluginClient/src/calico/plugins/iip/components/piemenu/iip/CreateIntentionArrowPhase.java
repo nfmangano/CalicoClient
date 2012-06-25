@@ -71,6 +71,9 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 
 	public void startMove(CCanvasLink link, MoveLinkEndpointMode moveMode, Point dragStartPoint)
 	{
+		throw new UnsupportedOperationException("Moving arrows is not presently supported.");
+		
+		/** <pre>
 		this.mode = (moveMode == MoveLinkEndpointMode.MOVE_ANCHOR_A) ? Mode.MOVE_ANCHOR_A : Mode.MOVE_ANCHOR_B;
 		this.link = link;
 		this.fromCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorA().getCanvasId());
@@ -83,6 +86,7 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 
 		startPhase();
 		startDrag();
+		*/
 	}
 
 	void startCreate(CIntentionCell fromCell, Point dragStartPoint, NewLinkMode mode)

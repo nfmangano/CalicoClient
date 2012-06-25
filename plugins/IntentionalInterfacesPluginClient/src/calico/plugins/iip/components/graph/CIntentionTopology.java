@@ -10,11 +10,13 @@ import java.util.StringTokenizer;
 
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolox.nodes.PClip;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 public class CIntentionTopology
 {
 	private static final Color RING_COLOR = new Color(0xEEEEEE);
+	private static final Color BOUNDING_BOX_COLOR = new Color(0x0, 0x0, 0x0, 0x0);
 
 	public class Cluster extends PComposite
 	{
@@ -31,6 +33,15 @@ public class CIntentionTopology
 			setX(x);
 			setY(y);
 
+			int xBox = Integer.parseInt(tokens.nextToken());
+			int yBox = Integer.parseInt(tokens.nextToken());
+			int wBox = Integer.parseInt(tokens.nextToken());
+			int hBox = Integer.parseInt(tokens.nextToken());
+			PClip box = new PClip();
+			box.setPathToRectangle(xBox, yBox, wBox, hBox);
+			box.setStrokePaint(BOUNDING_BOX_COLOR);
+			addChild(box);
+
 			while (tokens.hasMoreTokens())
 			{
 				int radius = Integer.parseInt(tokens.nextToken());
@@ -41,7 +52,7 @@ public class CIntentionTopology
 
 			for (int i = (rings.size() - 1); i >= 0; i--)
 			{
-				addChild(rings.get(i));
+				box.addChild(rings.get(i));
 			}
 		}
 
@@ -51,9 +62,9 @@ public class CIntentionTopology
 			{
 				return null;
 			}
-			
+
 			double span = rings.get(rings.size() - 1).getWidth();
-			return new PBounds(getX() - (span / 2.0), getY() - (span / 2.0), span , span);
+			return new PBounds(getX() - (span / 2.0), getY() - (span / 2.0), span, span);
 		}
 	}
 
