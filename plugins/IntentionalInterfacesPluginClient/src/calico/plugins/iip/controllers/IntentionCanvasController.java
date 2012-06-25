@@ -47,9 +47,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 		INSTANCE.initializeComponents();
 
-		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
-		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
-		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
+
 
 		CalicoPerspective.addListener(INSTANCE);
 	}

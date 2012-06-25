@@ -29,6 +29,7 @@ import edu.umd.cs.piccolox.pswing.*;
 import java.net.*;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import edu.umd.cs.piccolo.event.*;
 
@@ -64,87 +65,41 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			for (Class<?> button : externalButtonsPreAppended)
 			{
-				if (button.getClass().getName().compareTo(SpacerButton.class.getName()) == 0)
+				if (button.getName().compareTo(SpacerButton.class.getName()) == 0)
 					addSpacer();
 				else
 					addIcon((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
 			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-//		clients = addText(
-//				CCanvasController.canvasdb.get(cuid).getClients().length+" clients", 
-//				new Font("Verdana", Font.BOLD, 12),
-//				new CanvasTextButton(cuid) {
-//					public void actionMouseClicked(Rectangle boundingBox) {
-//						CCanvasController.canvasdb.get(cuid).drawClientList(boundingBox);
-//					}
-//				}
-//				);
-		
-//		addSpacer();
-		
-		
-		// viewport buttons
-//		addIcon(new ViewportChangeButton(cuid, ViewportChangeButton.BUT_ZOOMIN));
-//		addIcon(new ViewportChangeButton(cuid, ViewportChangeButton.BUT_ZOOMOUT));
-//		addIcon(new ViewportChangeButton(cuid, ViewportChangeButton.BUT_ZOOMTOCANVAS));
-		
-		
-//		addSpacer();
-		
 
-		//addCap();
-//		addIcon(new DoNotEraseButton(cuid));
-//		addIcon(new CanEraseButton(cuid));
-//		addIcon(new ClearButton(cuid));
-//		addSpacer();
-		
-//		setLock_button_array_index = text_button_array_index++;
-//		setLock();
-//		addSpacer();
-		
-		addIcon(new UndoButton(cuid));
-		addIcon(new RedoButton(cuid));
-		addSpacer();
-		
-		for(int i=0;i<CalicoOptions.menu.colorlist.length;i++)
-		{
-			addIcon(new MBColorButton(cuid, CalicoOptions.menu.colorlist[i], CalicoOptions.menu.colorlist_icons[i], rect_default));
-		}
-		addSpacer();
-		
-		for(int i=0;i<CalicoOptions.menu.pensize.length;i++)
-		{
-			addIcon(new MBSizeButton(cuid, CalicoOptions.menu.pensize[i], CalicoOptions.menu.pensize_icons[i], rect_default));
-		}
-//		addIcon(new MBModeChangeButton(cuid, CInputMode.ARROW));
-		addSpacer();
-		
-		// Mode buttons
-		addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
+			for(int i=0;i<CalicoOptions.menu.colorlist.length;i++)
+			{
+				addIcon(new MBColorButton(cuid, CalicoOptions.menu.colorlist[i], CalicoOptions.menu.colorlist_icons[i], rect_default));
+			}
+			addSpacer();
+			
 
-//		addIcon(new MBModeChangeButton(cuid, CInputMode.EXPERT));
-		addIcon(new MBModeChangeButton(cuid, CInputMode.POINTER));
+			addIcon(new MBModeChangeButton(cuid, CInputMode.POINTER));
+			addSpacer();
+			
+			for(int i=0;i<CalicoOptions.menu.pensize.length;i++)
+			{
+				addIcon(new MBSizeButton(cuid, CalicoOptions.menu.pensize[i], CalicoOptions.menu.pensize_icons[i], rect_default));
+			}
+	
+			addSpacer();
+			
+			// Mode buttons
+			addIcon(new MBModeChangeButton(cuid, CInputMode.DELETE));
+			addSpacer();
+			addIcon(new UndoButton(cuid));
+			addIcon(new RedoButton(cuid));
+			
+	
+					
+			addSpacer();
+			addIcon(new TextCreateButton(cuid));
+			addIcon(new ImageCreateButton(cuid));
 		
-		addSpacer();
-		addIcon(new TextCreateButton(cuid));
-		addIcon(new ImageCreateButton(cuid));
-		
-		
-		
-		
-		//Begin align right
-
-		
-	//	addSpacer();addSpacer();
-		//addIcon(new MBDeveloperButton(cuid, "canvas_clear"));
-		
-		try
-		{
 			for (Class<?> button : externalButtons)
 			{
 				addSpacer();
@@ -161,6 +116,29 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			e.printStackTrace();
 		}
+				
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() {
+					double lowest = Integer.MAX_VALUE;
+					double highest = Integer.MIN_VALUE;
+					for (int i = 0; i < button_array_index; i++)
+					{
+						PNode child = button_array[i];
+						if (child.getBounds().y < lowest)
+							lowest = child.getBounds().y;
+						if (child.getBounds().y + child.getBounds().height > highest)
+							highest = child.getBounds().y + child.getBounds().height;
+					}
+					
+					final double delta = getBounds().y + getBounds().height / 2 - (lowest + (highest - lowest)/2);
+					
+					for (int i = 0; i < button_array_index; i++)
+					{
+						button_array[i].translate(0, delta);
+						rect_array[i].translate(0, (new Double(delta)).intValue());
+					}
+				}});
+
 		
 		
 		//this.invalidatePaint();

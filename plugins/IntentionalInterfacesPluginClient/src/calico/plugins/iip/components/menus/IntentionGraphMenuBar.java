@@ -6,7 +6,8 @@ import java.awt.Rectangle;
 
 import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ExitButton;
-import calico.components.menus.buttons.HistoryNavigationButton;
+import calico.components.menus.buttons.HistoryNavigationBackButton;
+import calico.components.menus.buttons.HistoryNavigationForwardButton;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.menus.buttons.NewClusterButton;
@@ -38,8 +39,8 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		
 		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());		
 		addSpacer(ALIGN_END);
-		addIconRightAligned(new HistoryNavigationButton(HistoryNavigationButton.Type.FORWARD));
-		addIconRightAligned(new HistoryNavigationButton(HistoryNavigationButton.Type.BACK));
+		addIconRightAligned(new HistoryNavigationBackButton());
+		addIconRightAligned(new HistoryNavigationForwardButton());
 	}
 
 	public void initialize()
@@ -68,7 +69,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		}
 	}
 
-	@Override
+//	@Override
 	public void clickMenu(InputEventInfo event, Point point)
 	{
 		if (zoomSliderBounds.contains(point))
