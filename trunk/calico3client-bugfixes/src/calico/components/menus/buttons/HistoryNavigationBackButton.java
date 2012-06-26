@@ -10,12 +10,24 @@ public class HistoryNavigationBackButton extends CanvasMenuButton
 	
 	public HistoryNavigationBackButton()
 	{
-		setImage(CalicoIconManager.getIconImage("arrow.left"));
+		super();
+		
+		iconString = "arrow.left";
+		try
+		{
+			setImage(CalicoIconManager.getIconImage(iconString));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public HistoryNavigationBackButton(long canvasId)
 	{
 		this();
+
+		cuid = canvasId;
 	}
 	
 	@Override

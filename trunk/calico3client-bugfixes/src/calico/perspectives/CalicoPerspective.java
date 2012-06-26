@@ -145,6 +145,12 @@ public abstract class CalicoPerspective
 		public static void removeMouseListener(MouseListener listener)
 		{
 			INSTANCE.currentPerspective.removeMouseListener(listener);
+			
+		}
+		
+		public static void displayPerspective(long contextCanvasId)
+		{
+			INSTANCE.currentPerspective.displayPerspective(contextCanvasId);
 		}
 
 		private static final Active INSTANCE = new Active();

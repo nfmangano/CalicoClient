@@ -8,15 +8,26 @@ import calico.inputhandlers.InputEventInfo;
 public class HistoryNavigationForwardButton extends CanvasMenuButton
 {
 
-	
 	public HistoryNavigationForwardButton()
 	{
-		setImage(CalicoIconManager.getIconImage("arrow.right"));
+		super();
+		
+		iconString = "arrow.right";
+		try
+		{
+			setImage(CalicoIconManager.getIconImage(iconString));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public HistoryNavigationForwardButton(long canvasId)
 	{
 		this();
+		
+		cuid = canvasId;
 	}
 	
 	@Override
