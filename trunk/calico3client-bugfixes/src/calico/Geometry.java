@@ -1703,4 +1703,16 @@ public final class Geometry
 
 		return new double[]{xp, yp};
 	}
+	
+	/**
+     * Determines the angle of a straight line drawn between point one and two. The number returned, which is a double in degrees, tells us how much we have to rotate a horizontal line clockwise for it to match the line between the two points.
+     * If you prefer to deal with angles using radians instead of degrees, just change the last line to: "return Math.atan2(yDiff, xDiff);"
+     */
+    public static double computeAngleOfLineBetweenTwoPoints(double x0, double y0, double x1, double y1)
+    {
+        double xDiff = x1 - x0;
+        double yDiff = y1 - y0;
+        //return Math.toDegrees(Math.atan2(yDiff, xDiff));
+        return Math.atan2(yDiff, xDiff);
+    }
 }

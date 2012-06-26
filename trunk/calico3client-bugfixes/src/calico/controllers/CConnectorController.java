@@ -1,5 +1,6 @@
 package calico.controllers;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -12,11 +13,20 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import org.apache.log4j.Logger;
 
+import calico.Calico;
+import calico.CalicoOptions;
 import calico.Geometry;
 import calico.components.CConnector;
 import calico.components.CStroke;
 import calico.components.arrow.CArrow;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.composable.ComposableElementController;
+import calico.components.composable.connectors.ArrowheadElement;
+import calico.components.composable.connectors.CardinalityElement;
+import calico.components.composable.connectors.ColorElement;
+import calico.components.composable.connectors.HighlightElement;
+import calico.components.composable.connectors.LabelElement;
+import calico.components.composable.connectors.LineStyleElement;
 import calico.components.piemenu.PieMenuButton;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -30,7 +40,7 @@ public class CConnectorController {
 	private static Logger logger = Logger.getLogger(CConnectorController.class.getName());
 	
 	/**
-	 * This is the database of all the BGElements
+	 * This is the database of all the connectors
 	 */
 	public static Long2ReferenceAVLTreeMap<CConnector> connectors = new Long2ReferenceAVLTreeMap<CConnector>();
 	
@@ -55,6 +65,8 @@ public class CConnectorController {
 		no_notify_create(uuid, cuid, color, thickness, points, anchorHead, anchorTail);
 		
 		Networking.send(connectors.get(uuid).getUpdatePackets()[0]);
+		
+		CConnectorController.connectors.get(uuid).resetToDefaultElements();
 	}
 	
 	/**

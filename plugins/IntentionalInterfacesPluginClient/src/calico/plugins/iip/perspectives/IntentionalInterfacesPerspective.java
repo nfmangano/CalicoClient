@@ -33,7 +33,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	{
 		boolean initializing = notYetDisplayed;
 
-		CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
+//		CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
 
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());

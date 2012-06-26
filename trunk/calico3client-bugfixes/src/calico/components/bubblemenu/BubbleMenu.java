@@ -56,6 +56,8 @@ public class BubbleMenu {
 	public static boolean isPerformingBubbleMenuAction = false;
 	//The UUID of the component
 	public static long activeUUID = 0l;
+	//DELETEME: FOR CN TESTING ONLY
+	public static long lastUUID = 0;
 	@Deprecated
 	public static Point lastOpenedPosition = null;
 	
@@ -115,6 +117,7 @@ public class BubbleMenu {
 			fadeIn = false;
 		}
 		activeUUID = uuid;
+		lastUUID = uuid;
 		activeType = type;
 
 		ComponentType componentType = componentTypes.get(activeType);

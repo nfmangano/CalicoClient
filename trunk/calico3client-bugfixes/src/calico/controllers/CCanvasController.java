@@ -39,6 +39,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CanvasPerspective;
+import calico.perspectives.CalicoPerspective.Active;
 import calico.plugins.CalicoPluginManager;
 import calico.utils.TaskBuffer;
 import edu.umd.cs.piccolo.PCamera;
@@ -896,7 +897,8 @@ public class CCanvasController
 		@Override
 		protected void restore()
 		{
-			loadCanvas(canvasId);
+			CalicoPerspective.Active.displayPerspective(canvasId);
+//			loadCanvas(canvasId);
 		}
 	}
 }

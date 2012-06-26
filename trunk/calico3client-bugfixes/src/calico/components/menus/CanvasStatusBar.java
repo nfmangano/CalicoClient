@@ -2,6 +2,8 @@ package calico.components.menus;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
 
@@ -9,10 +11,21 @@ import javax.swing.JOptionPane;
 
 import calico.Calico;
 import calico.CalicoDraw;
+import calico.CalicoOptions;
+import calico.components.CConnector;
+import calico.components.bubblemenu.BubbleMenu;
+import calico.components.composable.ComposableElementController;
+import calico.components.composable.connectors.ArrowheadElement;
+import calico.components.composable.connectors.CardinalityElement;
+import calico.components.composable.connectors.ColorElement;
+import calico.components.composable.connectors.HighlightElement;
+import calico.components.composable.connectors.LabelElement;
+import calico.components.composable.connectors.LineStyleElement;
 import calico.components.menus.buttons.EmailButton;
 import calico.components.menus.buttons.ExitButton;
-import calico.components.menus.buttons.HistoryNavigationButton;
+import calico.components.menus.buttons.HistoryNavigationForwardButton;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
 import calico.networking.netstuff.NetworkCommand;
@@ -49,10 +62,6 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 				new Font("Verdana", Font.BOLD, 12),
 				new ExitButton(cuid)
 		);
-
-		addSpacer(ALIGN_END);
-		addIconRightAligned(new HistoryNavigationButton(cuid, HistoryNavigationButton.Type.FORWARD));
-		addIconRightAligned(new HistoryNavigationButton(cuid, HistoryNavigationButton.Type.BACK));
 		
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailButton(cuid));
@@ -138,6 +147,152 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 		{
 			e.printStackTrace();
 		}
+		
+//		addTextEndAligned(
+//				"Arrow", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new ArrowheadElement(Calico.uuid(), BubbleMenu.lastUUID, CConnector.TYPE_HEAD, CalicoOptions.arrow.stroke_size, Color.black, Color.black, ArrowheadElement.getDefaultCircle()));
+//							ComposableElementController.addElement(new ArrowheadElement(Calico.uuid(), BubbleMenu.lastUUID, CConnector.TYPE_TAIL, CalicoOptions.arrow.stroke_size, Color.black, Color.red, ArrowheadElement.getDefaultArrow()));
+//							
+//						}
+//						
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Card", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new CardinalityElement(Calico.uuid(), BubbleMenu.lastUUID, CConnector.TYPE_HEAD, "20", CalicoOptions.group.font));
+//							ComposableElementController.addElement(new CardinalityElement(Calico.uuid(), BubbleMenu.lastUUID, CConnector.TYPE_TAIL, "30", CalicoOptions.group.font));
+//							
+//						}
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Color", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new ColorElement(Calico.uuid(), BubbleMenu.lastUUID, Color.red, CConnectorController.connectors.get(BubbleMenu.lastUUID).getColor()));
+//							
+//						}
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Highlight", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new HighlightElement(Calico.uuid(), BubbleMenu.lastUUID, CalicoOptions.stroke.background_transparency, new BasicStroke(CalicoOptions.pen.stroke_size + 8), Color.green));
+//							
+//						}
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Label", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new LabelElement(Calico.uuid(), BubbleMenu.lastUUID, "Test Annotation", CalicoOptions.group.font));
+//						}
+//						
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Line", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							ComposableElementController.addElement(new LineStyleElement(Calico.uuid(), BubbleMenu.lastUUID, 
+//									new BasicStroke(CalicoOptions.group.stroke_size,BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{2.0f}, 0.0f), 
+//									CConnectorController.connectors.get(BubbleMenu.lastUUID).getStroke()));
+//						}
+//						
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//					}
+//				}
+//		);
+//		addSpacer(ALIGN_END);
+//		addTextEndAligned(
+//				"Remove All", 
+//				new Font("Verdana", Font.BOLD, 12),
+//				new CanvasTextButton(cuid) {
+//					public void actionMouseClicked(InputEventInfo event, Rectangle boundingBox) {
+//						if (event.getAction() == InputEventInfo.ACTION_PRESSED)
+//						{
+//							isPressed = true;
+//						}
+//						else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
+//						{
+//							isPressed = false;
+//							CConnectorController.connectors.get(BubbleMenu.lastUUID).removeAllElements();
+//						}
+//						
+//						//CConnectorController.connectors.get(BubbleMenu.lastUUID).redraw();
+//
+//					}
+//				}
+//		);
 		
 		//this.invalidatePaint();
 		CalicoDraw.invalidatePaint(this);

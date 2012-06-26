@@ -12,6 +12,9 @@ import java.util.*;
 
 import calico.components.*;
 import calico.components.arrow.AnchorPoint;
+import calico.components.composable.Composable;
+import calico.components.composable.ComposableElement;
+import calico.components.composable.ComposableElementController;
 import calico.components.grid.*;
 import calico.components.menus.buttons.UndoButton;
 import calico.controllers.*;
@@ -154,6 +157,9 @@ public class PacketHandler
 			case NetworkCommand.CONNECTOR_MOVE_ANCHOR:CONNECTOR_MOVE_ANCHOR(packet);break;
 			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_START:CONNECTOR_MOVE_ANCHOR_START(packet);break;
 			case NetworkCommand.CONNECTOR_MOVE_ANCHOR_END:CONNECTOR_MOVE_ANCHOR_END(packet);break;
+			
+			case NetworkCommand.ELEMENT_ADD:ELEMENT_ADD(packet);break;
+			case NetworkCommand.ELEMENT_REMOVE:ELEMENT_REMOVE(packet);break;
 			
 			case NetworkCommand.AUTH_OK:AUTH_OK(packet);break;
 			case NetworkCommand.AUTH_FAIL:AUTH_FAIL(packet);break;
@@ -1047,6 +1053,24 @@ public class PacketHandler
 		
 		CConnectorController.no_notify_move_group_anchor_end(uuid, type);
 
+	}
+	
+	public static void ELEMENT_ADD(CalicoPacket p)
+	{
+		ComposableElement element = ComposableElementController.getElementFromPacket(p);
+	
+		if (element != null)
+		{
+			ComposableElementController.no_notify_addElement(element);
+		}
+	}
+	
+	public static void ELEMENT_REMOVE(CalicoPacket p)
+	{
+		long euuid = p.getLong();
+		long cuuid = p.getLong();
+		
+		ComposableElementController.no_notify_removeElement(euuid, cuuid);
 	}
 	
 	/*

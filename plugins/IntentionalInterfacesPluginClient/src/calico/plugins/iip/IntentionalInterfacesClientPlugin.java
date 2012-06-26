@@ -4,6 +4,10 @@ import java.awt.Point;
 
 import calico.Calico;
 import calico.CalicoOptions;
+import calico.components.menus.CanvasMenuBar;
+import calico.components.menus.buttons.HistoryNavigationBackButton;
+import calico.components.menus.buttons.HistoryNavigationForwardButton;
+import calico.components.menus.buttons.SpacerButton;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
@@ -18,6 +22,9 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.canvas.CanvasTitlePanel;
+import calico.plugins.iip.components.canvas.CopyCanvasButton;
+import calico.plugins.iip.components.canvas.NewCanvasButton;
+import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -69,6 +76,17 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		IntentionGraphController.initialize();
 		IntentionCanvasController.initialize();
 		IntentionalInterfacesPerspective.getInstance(); // load the class
+		
+		
+		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
+		
+		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationBackButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationForwardButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
+
 	}
 
 	@Override

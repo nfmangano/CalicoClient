@@ -39,6 +39,7 @@ public class StrokeMakeConnectorButton extends PieMenuButton
 					CalicoDataStore.PenThickness, CStrokeController.strokes.get(uuid).getRawPolygon(), 0l, 0l);
 			CStrokeController.strokes.get(uuid).highlight_off();
 			CStrokeController.delete(uuid);
+
 			
 			CConnectorController.show_stroke_bubblemenu(new_uuid, false);
 			
