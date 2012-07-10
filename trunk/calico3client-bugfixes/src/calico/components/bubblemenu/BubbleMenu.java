@@ -338,10 +338,10 @@ public class BubbleMenu {
 		{
 			return 1;
 		}
-		if (className.compareTo("calico.plugins.analysis.components.buttons.AddActivityToComponentBubbleButton") == 0)
-		{
-			return 2;
-		}
+		//if (className.compareTo("calico.plugins.analysis.components.buttons.AddActivityToComponentBubbleButton") == 0)
+		//{
+		//	return 2;
+		//}
 		
 		//Connector Buttons
 		if (className.compareTo("calico.components.bubblemenu.connectors.ConnectorLinearizeButton") == 0)
