@@ -228,17 +228,16 @@ public class CGroup extends PPath implements Serializable {
 		//motta.lrd: fix for distinguishing between a normal scrap
 		//and an analysis scrap
 		for(Class<?> pmb : CGroup.pieMenuButtons){
-			//This is not an analysis bubble button, just add it
-			if(!pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")){
-				pieMenuButtons.add(pmb);
+			if(pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")
+					&& !(this instanceof ActivityNode)){
+				//In this case I do not want to see the special bubble button
 			}
-			//This is an analysis bubble button, and this is a component, add it!
-			else if(this instanceof Component){
-				pieMenuButtons.add(pmb);
+			else if(pmb.getName().equals("calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton")
+					&& !(this instanceof ActivityNode)){
+				//In this case I do not want to see the special bubble button
 			}
-			//this is an analysis button, but this is not an activity node, do not add
 			else{
-				//
+				pieMenuButtons.add(pmb);
 			}
 		}
 		return pieMenuButtons;
