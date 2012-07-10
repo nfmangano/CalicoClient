@@ -13,6 +13,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+
 import org.apache.log4j.Logger;
 
 import calico.Calico;
@@ -49,6 +51,9 @@ public class CConnector extends PComposite{
 	Stroke stroke;
 	Color strokePaint;
 	float thickness;
+	
+	protected String text = "";
+	private boolean textSet = false;
 	
 	final public static int TYPE_HEAD = 1;
 	final public static int TYPE_TAIL = 2;
@@ -392,6 +397,11 @@ public class CConnector extends PComposite{
 		//CalicoDraw.addChildToNode(this, arrowLine, 0);
 	}
 	
+	public void setText(String text) {
+		this.text = text;
+		this.textSet = true;
+	}
+	
 	@Override
 	protected void paint(final PPaintContext paintContext)
 	{
@@ -405,6 +415,13 @@ public class CConnector extends PComposite{
 			g2.setPaint(Color.blue);
 			g2.draw(connectorLine.getPathReference());
 		}	
+		
+		if (textSet) {
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+			g2.setColor(Color.BLACK);
+			g2.setFont(CalicoOptions.group.font);
+			g2.drawString(text, (float) connectorLine.getBounds().getCenterX()+10, (float) connectorLine.getBounds().getCenterY()+10);
+		}
 		
 		//g2.draw(connectorLine.getPathReference());
 		
