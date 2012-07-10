@@ -366,11 +366,15 @@ public class BubbleMenu {
 		//Palette Plugin Buttons
 		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)
 		{
-			return 4;
+			return 0;
 		}
 		//motta.lrd
 		//Analysis Plugin button
 		if (className.compareTo("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton") == 0)
+		{
+			return 4;
+		}
+		if (className.compareTo("calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton") == 0)
 		{
 			return 3;
 		}

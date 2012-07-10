@@ -1058,7 +1058,7 @@ public class CStroke extends PPath
 	{
 		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
 		bubbleMenuButtons.add(calico.components.bubblemenu.strokes.StrokeMakeConnectorButton.class); //12
-		bubbleMenuButtons.add(AddActivityToComponentBubbleButton.class); //12
+		//bubbleMenuButtons.add(AddActivityToComponentBubbleButton.class); //12
 		
 		return bubbleMenuButtons;
 	}
