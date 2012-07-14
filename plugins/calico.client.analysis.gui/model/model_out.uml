@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_43ljUL_YEeGxmKpxWepmZg" name="Calico model">
-  <packagedElement xmi:type="uml:Activity" xmi:id="_43n_kL_YEeGxmKpxWepmZg" name="Activity"/>
-</uml:Model>
