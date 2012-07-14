@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-i386"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.common_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.ecore_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.ecore.xmi_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.mapping.ecore2xml_2.7.0.v20120130-0943.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.uml2.common_1.6.0.v201105021727.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.uml2.uml_3.2.100.v201108110105.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

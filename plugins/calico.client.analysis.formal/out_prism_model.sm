@@ -1,0 +1,50 @@
+ctmc
+
+module adActivity1_fork0
+
+adActivity1_fork0 : [0..5] init 0;
+
+[] adActivity1_fork0 = 0 -> 1.0 : (adActivity1_fork0' = 1);
+[] adActivity1_fork0 = 1 -> 1.0 : (adActivity1_fork0' = 2);
+[] adActivity1_fork0 = 2 -> 1.0 : (adActivity1_fork0' = 3);
+[] adActivity1_fork0 = 3 -> 0.5 : (adActivity1_fork0' = 4) + 0.5 : (adActivity1_fork0' = 5);
+[] adActivity1_fork0 = 4 -> 1.0 : (adActivity1_fork0' = 1);
+[a_0] true -> 1.0 : (adActivity1_fork0' = 4);
+
+
+endmodule
+
+module adActivity1_fork1
+
+adActivity1_fork1 : [0..2] init 0;
+
+[] adActivity1_fork0 = 5 & adActivity1_fork1 = 0 -> 1.0 : (adActivity1_fork1' = 1);
+[] adActivity1_fork1 = 1 -> 1.0 : (adActivity1_fork1' = 2);
+[a_0] adActivity1_fork1 = 2 -> 1.0 : (adActivity1_fork1' = 0);
+
+
+endmodule
+
+module adActivity1_fork2
+
+adActivity1_fork2 : [0..2] init 0;
+
+[] adActivity1_fork0 = 5 & adActivity1_fork2 = 0 -> 1.0 : (adActivity1_fork2' = 1);
+[] adActivity1_fork2 = 1 -> 1.0 : (adActivity1_fork2' = 2);
+[a_0] adActivity1_fork2 = 2 -> 1.0 : (adActivity1_fork2' = 0);
+
+
+endmodule
+
+module adActivity1_fork3
+
+adActivity1_fork3 : [0..2] init 0;
+
+[] adActivity1_fork0 = 5 & adActivity1_fork3 = 0 -> 1.0 : (adActivity1_fork3' = 1);
+[] adActivity1_fork3 = 1 -> 1.0 : (adActivity1_fork3' = 2);
+[a_0] adActivity1_fork3 = 2 -> 1.0 : (adActivity1_fork3' = 0);
+
+
+endmodule
+
+

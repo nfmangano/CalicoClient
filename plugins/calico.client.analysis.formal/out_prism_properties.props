@@ -1,0 +1,13 @@
+filter(avg, P=? [ F<=10 adActivity1_fork0=0 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork0=4 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork2=0 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork3=1 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork3=0 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork2=1 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork3=2 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork1=0 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork0=2 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork0=1 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork0=5 ], adActivity1_fork0=3)
+filter(avg, P=? [ F<=10 adActivity1_fork1=1 ], adActivity1_fork0=3)
+

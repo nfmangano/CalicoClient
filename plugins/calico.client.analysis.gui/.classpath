@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-i386"/>
+	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>
+	<classpathentry kind="lib" path="lib/calico_conf.jar"/>
+	<classpathentry kind="lib" path="lib/calico_icons.jar"/>
+	<classpathentry kind="lib" path="lib/calico_icons.jar.r368"/>
+	<classpathentry kind="lib" path="lib/calico_icons.jar.r384"/>
+	<classpathentry kind="lib" path="lib/calico_plugin_icons.jar"/>
+	<classpathentry kind="lib" path="lib/calico3client.jar" sourcepath="/home/motta/Desktop/Calico/CalicoSoft/CalicoServer/calico3server/src"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/dsiutils-1.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/dsn.jar"/>
+	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/imap.jar"/>
+	<classpathentry kind="lib" path="lib/iText-5.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/jpen-2.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/mailapi.jar"/>
+	<classpathentry kind="lib" path="lib/piccolo2d-core-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/piccolo2d-extras-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/piccolo2d-swt-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/pop3.jar"/>
+	<classpathentry kind="lib" path="lib/shodor.jar"/>
+	<classpathentry kind="lib" path="lib/smtp.jar"/>
+	<classpathentry kind="lib" path="lib/jshapes.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.common_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.ecore_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.ecore.xmi_2.7.0.v20120127-1122.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.emf.mapping.ecore2xml_2.7.0.v20120130-0943.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.uml2.common_1.6.0.v201105021727.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.uml2.uml_3.2.100.v201108110105.jar"/>
+	<classpathentry kind="lib" path="lib/calico.analysis.formal.jar" sourcepath="/home/motta/Desktop/Calico/CalicoSoft/calico.analysis.formal/src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
