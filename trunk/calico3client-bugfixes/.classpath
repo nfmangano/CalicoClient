@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/shodor.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-i386"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_04"/>
 	<classpathentry kind="lib" path="lib/dsn.jar"/>
 	<classpathentry kind="lib" path="lib/imap.jar"/>
 	<classpathentry kind="lib" path="lib/iText-5.0.6.jar"/>

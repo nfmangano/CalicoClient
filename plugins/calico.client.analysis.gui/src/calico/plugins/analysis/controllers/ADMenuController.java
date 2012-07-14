@@ -21,9 +21,8 @@ import calico.plugins.analysis.components.activitydiagram.DecisionNode;
 import calico.plugins.analysis.components.activitydiagram.FinalNode;
 import calico.plugins.analysis.components.activitydiagram.ForkNode;
 import calico.plugins.analysis.components.activitydiagram.InitialNode;
-import calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton;
+import calico.plugins.analysis.components.buttons.ServiceTimeBubbleButton;
 import calico.plugins.analysis.components.buttons.CreateActivityNodeButton;
-import calico.plugins.analysis.components.componentdiagram.Component;
 import calico.plugins.analysis.utils.ActivityShape;
 import calico.utils.Geometry;
 import edu.umd.cs.piccolo.PCamera;
@@ -72,7 +71,7 @@ public class ADMenuController {
 
 	}
 	
-	public static void create_diamond_node(){
+	public static void create_decision_node(){
 		int x=CalicoDataStore.ScreenWidth / 3;
 		int y=CalicoDataStore.ScreenHeight / 3;
 		long new_uuid = Calico.uuid();
@@ -105,16 +104,6 @@ public class ADMenuController {
 		long new_uuid = Calico.uuid();
 		//I reuse this method even if the name is not the best one because I am creating a component (component diagram)
 		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, ForkNode.class, ActivityShape.FORK, "");
-		//TODO: make it server side
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
-	}
-	
-	public static void create_component_node() {
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		//I reuse this method even if the name is not the best one because I am creating a component (component diagram)
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, Component.class, ActivityShape.ACTIVITY, "component");
 		//TODO: make it server side
 		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
 	}

@@ -9,13 +9,8 @@ import calico.plugins.analysis.components.AnalysisComponent;
 
 public class DecisionNode extends CGroup implements AnalysisComponent{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
-	private HashMap<Long,Double> probabilityPaths=new HashMap<Long,Double>();
-
 	public DecisionNode(long uuid, long cuid, long puid) {
 		super(uuid, cuid, puid);
 		// TODO Auto-generated constructor stub
@@ -45,18 +40,10 @@ public class DecisionNode extends CGroup implements AnalysisComponent{
 		return outgoingpaths;				
 	}
 	
-	public void addProbabilityPath(long controlFlowID, double probability){
-		this.probabilityPaths.put(controlFlowID, probability);
-	}
-
-	public HashMap<Long, Double> getProbabilityPaths(){
-		return probabilityPaths;
-	}
-	
 	public String toString(){
 		String s="Decision node: ";
-		for(long cuuid: probabilityPaths.keySet()){
-			s=s+" "+ cuuid + "[" +probabilityPaths.get(cuuid) + "]";
+		for(ControlFlow c: this.getOutgoingPaths()){
+			s=s+" "+ c.getCanvasUUID() + "[" +c.getProbability() + "]";
 		}
 		return s+"\n";
 	}

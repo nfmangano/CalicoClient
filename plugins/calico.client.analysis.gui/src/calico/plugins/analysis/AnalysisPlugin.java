@@ -18,14 +18,18 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.CalicoPlugin;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton;
+import calico.plugins.analysis.components.activitydiagram.DecisionNode;
+import calico.plugins.analysis.components.activitydiagram.FinalNode;
+import calico.plugins.analysis.components.activitydiagram.ForkNode;
+import calico.plugins.analysis.components.activitydiagram.InitialNode;
+import calico.plugins.analysis.components.buttons.ServiceTimeBubbleButton;
 import calico.plugins.analysis.components.buttons.CreateActivityNodeButton;
-import calico.plugins.analysis.components.buttons.CreateComponentButton;
 import calico.plugins.analysis.components.buttons.CreateDecisionNodeButton;
 import calico.plugins.analysis.components.buttons.CreateFinalNodeButton;
 import calico.plugins.analysis.components.buttons.CreateForkNodeButton;
 import calico.plugins.analysis.components.buttons.CreateInitialNodeButton;
 import calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton;
+import calico.plugins.analysis.controllers.ADAnalysisController;
 import calico.plugins.analysis.controllers.ADBubbleMenuController;
 import calico.plugins.analysis.controllers.ADMenuController;
 import calico.plugins.analysis.iconsets.CalicoIconManager;
@@ -49,9 +53,10 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 		calico.plugins.analysis.iconsets.CalicoIconManager.setIconTheme(this.getClass(), CalicoOptions.core.icontheme);
 	}
 
-
 	/*************************************************
-	 * INHERITED
+	 * CALICO PLUGIN METHODS
+	 * The standard methods of an entry point
+	 * class for a Calico Plugin
 	 *************************************************/
 	
 	@Override
@@ -70,70 +75,17 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 			case AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD:
 				ANALYSIS_ACTIVITY_NODE_LOAD(p);
 				break;
+			case AnalysisNetworkCommands.ANALYSIS_CREATE_ACTIVITY_NODE_TYPE:
+				this.ANALYSIS_CREATE_ACTIVITY_NODE_TYPE(p);
+				break;
+			case AnalysisNetworkCommands.ANALYSIS_ADD_PROBABILITY_TO_DECISION_NODE:
+				this.ANALYSIS_ADD_PROBABILITY_TO_DECISION_NODE(p);
+				break;
+			case AnalysisNetworkCommands.ANALYSIS_RUN_ANALYSIS:
+				this.ANALYSIS_RUN_ANALYSIS(p);
+				break;
 		}
 	}
-
-	
-	private void ANALYSIS_ACTIVITY_NODE_LOAD(CalicoPacket p) {
-		p.rewind();
-		p.getInt();
-		//taken from PacketHandler.GROUP_LOAD()		
-		long uuid = p.getLong();
-		long cuid = p.getLong();
-		long puid = p.getLong();
-		boolean isperm = p.getBoolean();
-		int count = p.getCharInt();
-		
-		if(count<=0)
-		{
-			return;
-		}
-		
-		int[] xArr = new int[count], yArr = new int[count];
-		for(int i=0;i<count;i++)
-		{
-			xArr[i] = p.getInt();
-			yArr[i] = p.getInt();
-		}
-		boolean captureChildren = p.getBoolean();
-		double rotation = p.getDouble();
-		double scaleX = p.getDouble();
-		double scaleY = p.getDouble();
-		String text = p.getString();
-		//begin analysis node
-		
-		Polygon poly = new Polygon(xArr, yArr, count);
-		
-		double servicetime=p.getDouble();
-		ADMenuController.no_notify_create_activitydiagram_node(uuid, cuid, poly, ActivityNode.class, ActivityShape.ACTIVITY, "activity");
-		ADBubbleMenuController.add_servicetime(uuid, servicetime);
-	}
-
-	/**
-	 * Called by the User interface
-	 * @param uuid
-	 * @param servicetime
-	 */
-	public static void UI_add_service_time(long uuid, double servicetime){
-		//Create the packet
-		CalicoPacket p=CalicoPacket.getPacket(AnalysisNetworkCommands.ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE, uuid, servicetime);
-		//Send the packet locally
-		PacketHandler.receive(p);
-		//Send the packet to the network (server)
-		Networking.send(p);	
-	}
-	
-	private void ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE(CalicoPacket p) {
-		//CalicoPacket.getPacket(AnalysisNetworkCommands.ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE, uuid, response.doubleValue())
-		//Rewind the packet
-		p.rewind();
-		p.getInt();
-		long uuid=p.getLong();
-		double servicetime=p.getDouble();
-		
-		ADBubbleMenuController.add_servicetime(uuid, servicetime);
-	}
-
 
 	@Override
 	public void onException(Exception arg0) {
@@ -176,8 +128,121 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 	}
 	
 	/*************************************************
-	 * COMMANDS
+	 * UI ENTRY POINTS
+	 * The user interface calls those methods
+	 * which create the command packets to send
+	 * to the network
 	 *************************************************/
+	
+	public static void UI_send_command(int com, Object... params){
+		//Create the packet
+		CalicoPacket p;
+		if(params!=null){
+			p=CalicoPacket.getPacket(com, params);
+		}
+		else{
+			p=CalicoPacket.getPacket(com);
+		}
+		
+		//Send the packet locally
+		PacketHandler.receive(p);
+		//Send the packet to the network (server)
+		Networking.send(p);	
+	}
+	
+	/*************************************************
+	 * COMMANDS
+	 * This is where the actual commands are 
+	 * received and processed by the different
+	 * controllers
+	 *************************************************/
+
+	private void ANALYSIS_CREATE_ACTIVITY_NODE_TYPE(CalicoPacket p){
+		p.rewind();
+		p.getInt();
+		String type_name=p.getString();
+		
+		if(type_name.equals(ActivityNode.class.getName())){
+			ADMenuController.create_activity_node();
+		}
+		else if(type_name.equals(DecisionNode.class.getName())){
+			ADMenuController.create_decision_node();
+		}
+		else if(type_name.equals(ForkNode.class.getName())){
+			ADMenuController.create_fork_node();
+		}
+		else if(type_name.equals(InitialNode.class.getName())){
+			ADMenuController.create_initial_node();
+		}
+		else if(type_name.equals(FinalNode.class.getName())){
+			ADMenuController.create_final_node();
+		}
+		
+	}
+		
+	private void ANALYSIS_ADD_PROBABILITY_TO_DECISION_NODE(CalicoPacket p){
+		p.rewind();
+		p.getInt();
+		long uuid=p.getLong();
+		double probability=p.getDouble();
+		
+		ADBubbleMenuController.add_probability(uuid, probability);
+	}
+	
+	private void ANALYSIS_RUN_ANALYSIS(CalicoPacket p){
+		p.rewind();
+		p.getInt();
+		long uuid=p.getLong();
+		double distance=p.getDouble();
+		
+		ADAnalysisController.runAnalysis(uuid, distance);
+	}
+	
+	private void ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE(CalicoPacket p) {
+		//CalicoPacket.getPacket(AnalysisNetworkCommands.ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE, uuid, response.doubleValue())
+		//Rewind the packet
+		p.rewind();
+		p.getInt();
+		long uuid=p.getLong();
+		double servicetime=p.getDouble();
+		
+		ADBubbleMenuController.add_servicetime(uuid, servicetime);
+	}
+	
+	private void ANALYSIS_ACTIVITY_NODE_LOAD(CalicoPacket p) {
+		p.rewind();
+		p.getInt();
+		//taken from PacketHandler.GROUP_LOAD()		
+		long uuid = p.getLong();
+		long cuid = p.getLong();
+		long puid = p.getLong();
+		boolean isperm = p.getBoolean();
+		int count = p.getCharInt();
+		
+		if(count<=0)
+		{
+			return;
+		}
+		
+		int[] xArr = new int[count], yArr = new int[count];
+		for(int i=0;i<count;i++)
+		{
+			xArr[i] = p.getInt();
+			yArr[i] = p.getInt();
+		}
+		boolean captureChildren = p.getBoolean();
+		double rotation = p.getDouble();
+		double scaleX = p.getDouble();
+		double scaleY = p.getDouble();
+		String text = p.getString();
+		//begin analysis node
+		
+		Polygon poly = new Polygon(xArr, yArr, count);
+		
+		double servicetime=p.getDouble();
+		ADMenuController.no_notify_create_activitydiagram_node(uuid, cuid, poly, ActivityNode.class, ActivityShape.ACTIVITY, "activity");
+		ADBubbleMenuController.add_servicetime(uuid, servicetime);
+	}
 	
 	private void VIEWING_SINGLE_CANVAS(CalicoPacket p) {
 		p.rewind();
@@ -186,10 +251,13 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 		
 		//If you have to do some actions
 		//when the canvas is opened do it here (using one of your controllers)
-		CGroup.registerPieMenuButton(ComponentServiceTimeBubbleButton.class);
+		CGroup.registerPieMenuButton(ServiceTimeBubbleButton.class);
 		CGroup.registerPieMenuButton(RunAnalysisBubbleButton.class);
 		//example: MenuController.getInstance().showMenu(cuid);
 	}
+
+
+
 
 
 }

@@ -9,6 +9,7 @@ import calico.inputhandlers.InputEventInfo;
 import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.AnalysisPlugin;
+import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.controllers.ADMenuController;
 import calico.plugins.analysis.iconsets.CalicoIconManager;
 
@@ -36,7 +37,7 @@ public class CreateActivityNodeButton extends CanvasMenuButton {
 			super.onMouseDown();
 		} else if (event.getAction() == InputEventInfo.ACTION_RELEASED
 				&& isPressed) {
-			ADMenuController.create_activity_node();
+			AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_CREATE_ACTIVITY_NODE_TYPE, ActivityNode.class.getName());
 			super.onMouseUp();
 		}
 

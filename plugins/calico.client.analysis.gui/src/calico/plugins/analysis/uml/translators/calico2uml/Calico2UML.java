@@ -194,7 +194,7 @@ public class Calico2UML {
 			//non si tratta di un merge
 			if(d.getOutgoingPaths().size()>1){
 				Comment c=newcf.createOwnedComment();
-				c.setBody("Probability: "+Double.toString(d.getProbabilityPaths().get(controlFlow.getUUID())));
+				c.setBody("Probability: "+Double.toString(controlFlow.getProbability()));
 			}
 		}
 		

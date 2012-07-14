@@ -9,15 +9,18 @@ import calico.plugins.analysis.components.AnalysisComponent;
 
 public class ActivityNode extends CGroup implements AnalysisComponent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	/** The response time of this activity node */
 	double responseTime = 1.0d;
 	
+	/** Declares that we are able to load this activity node */
 	protected int networkLoadCommand = AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD;
 
+	public ActivityNode(long uuid, long cuid, long puid) {
+		super(uuid, cuid, puid);
+	}
+	
 	public double getResponseTime() {
 		return responseTime;
 	}
@@ -26,12 +29,9 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 		this.responseTime = responseTime;
 	}
 
-	public ActivityNode(long uuid, long cuid, long puid) {
-		super(uuid, cuid, puid);
-	}
-
 	/**
 	 * Returns the incoming connector
+	 * TODO: Refactor for usability. We can have more than one incoming connector
 	 */
 	public ControlFlow getIncomingConnector() {
 		for (long cuuid : this.childConnectors) {
@@ -48,6 +48,7 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 
 	/**
 	 * Returns the outgoing connector
+	 * TODO: Refactor for usability. We can have more than one incoming connector
 	 */
 	public ControlFlow getOutgoingConnector() {
 		for (long cuuid : this.childConnectors) {
@@ -62,10 +63,9 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 		return null;
 	}
 
-	public String toString() {
-		return "Activity Node: " + this.uuid + "\n";
-	}
-
+	/**
+	 * Serialize this activity node in a packet
+	 */
 	@Override
 	public CalicoPacket[] getUpdatePackets(long uuid, long cuid, long puid,
 			int dx, int dy, boolean captureChildren) {
@@ -79,5 +79,11 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 		return new CalicoPacket[] { packet };
 
 	}
+
+	public String toString() {
+		return "Activity Node: " + this.uuid + "\n";
+	}
+
+
 
 }

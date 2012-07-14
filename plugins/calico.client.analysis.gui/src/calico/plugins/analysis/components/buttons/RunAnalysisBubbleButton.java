@@ -12,6 +12,7 @@ import calico.controllers.*;
 import calico.inputhandlers.*;
 import calico.networking.*;
 import calico.networking.netstuff.*;
+import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.AnalysisPlugin;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.controllers.ADAnalysisController;
@@ -50,7 +51,7 @@ public class RunAnalysisBubbleButton extends PieMenuButton {
 
 	    Integer response=(Integer)optionPane.getInputValue();
 		
-		ADAnalysisController.runAnalysis(uuid, response.doubleValue());
+		AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_RUN_ANALYSIS, uuid, response.doubleValue());
 		isActive = false;
 	}
 

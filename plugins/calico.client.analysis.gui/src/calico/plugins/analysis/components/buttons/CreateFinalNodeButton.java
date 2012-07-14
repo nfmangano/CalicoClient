@@ -5,6 +5,9 @@ import javax.swing.SwingUtilities;
 import calico.CalicoDraw;
 import calico.components.menus.CanvasMenuButton;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.analysis.AnalysisNetworkCommands;
+import calico.plugins.analysis.AnalysisPlugin;
+import calico.plugins.analysis.components.activitydiagram.FinalNode;
 import calico.plugins.analysis.controllers.ADMenuController;
 import calico.plugins.analysis.iconsets.CalicoIconManager;
 
@@ -32,7 +35,7 @@ public class CreateFinalNodeButton extends CanvasMenuButton {
 			super.onMouseDown();
 		} else if (event.getAction() == InputEventInfo.ACTION_RELEASED
 				&& isPressed) {
-			ADMenuController.create_final_node();
+			AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_CREATE_ACTIVITY_NODE_TYPE, FinalNode.class.getName());
 			super.onMouseUp();
 		}
 

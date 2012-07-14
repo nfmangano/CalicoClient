@@ -12,16 +12,17 @@ import calico.controllers.*;
 import calico.inputhandlers.*;
 import calico.networking.*;
 import calico.networking.netstuff.*;
+import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.AnalysisPlugin;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.components.activitydiagram.ControlFlow;
 import calico.plugins.analysis.controllers.ADBubbleMenuController;
 
-public class ProbabilityDistributionBubbleButton extends PieMenuButton {
+public class ProbabilityBubbleButton extends PieMenuButton {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
 
-	public ProbabilityDistributionBubbleButton(long uuid) {
+	public ProbabilityBubbleButton(long uuid) {
 		super("plugins.analysis.service");
 
 		this.uuid = uuid;
@@ -56,7 +57,7 @@ public class ProbabilityDistributionBubbleButton extends PieMenuButton {
 	    Double response=(Double)optionPane.getInputValue();
 
 		if (response != null) {
-			ADBubbleMenuController.add_probability(uuid, response);
+			AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_ADD_PROBABILITY_TO_DECISION_NODE, uuid, response);
 		}
 		isActive = false;
 	}

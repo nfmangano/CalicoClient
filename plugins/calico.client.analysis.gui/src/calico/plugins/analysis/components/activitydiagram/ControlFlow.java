@@ -10,11 +10,19 @@ import calico.plugins.analysis.components.AnalysisComponent;
 
 public class ControlFlow extends CConnector implements AnalysisComponent{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
+	/** If this control flow is going out from a decision node then this represents its probability*/
+	double probability;
+	
+	public double getProbability() {
+		return probability;
+	}
+
+	public void setProbability(double probability) {
+		this.probability = probability;
+	}
+
 	public ControlFlow(long uuid, long cuid, Color color, float thickness,
 			Polygon polygon) {
 		super(uuid, cuid, color, thickness, polygon);

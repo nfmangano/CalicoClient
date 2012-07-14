@@ -19,11 +19,11 @@ import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.controllers.ADBubbleMenuController;
 import calico.plugins.analysis.AnalysisPlugin;
 
-public class ComponentServiceTimeBubbleButton extends PieMenuButton {
+public class ServiceTimeBubbleButton extends PieMenuButton {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
 
-	public ComponentServiceTimeBubbleButton(long uuid) {
+	public ServiceTimeBubbleButton(long uuid) {
 		super("plugins.analysis.service");
 
 		this.uuid = uuid;
@@ -55,11 +55,7 @@ public class ComponentServiceTimeBubbleButton extends PieMenuButton {
 	    Integer response=(Integer)optionPane.getInputValue();
 	    
 		if (response != null) {
-			//don't do this
-			//ADBubbleMenuController.add_servicetime(uuid, response.doubleValue());
-			
-			//do this
-			AnalysisPlugin.UI_add_service_time(uuid, response.doubleValue());
+			AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE, uuid, response.doubleValue());
 		}
 		isActive = false;
 	}
