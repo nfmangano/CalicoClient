@@ -1,5 +1,7 @@
 package calico.plugins.analysis;
 
+import java.awt.Color;
+import java.awt.Point;
 import java.awt.Polygon;
 
 import org.apache.log4j.Logger;
@@ -9,6 +11,7 @@ import calico.components.CGroup;
 import calico.components.bubblemenu.BubbleMenuButton;
 import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
@@ -21,6 +24,7 @@ import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.components.activitydiagram.DecisionNode;
 import calico.plugins.analysis.components.activitydiagram.FinalNode;
 import calico.plugins.analysis.components.activitydiagram.ForkNode;
+import calico.plugins.analysis.components.activitydiagram.ControlFlow;
 import calico.plugins.analysis.components.activitydiagram.InitialNode;
 import calico.plugins.analysis.components.buttons.ServiceTimeBubbleButton;
 import calico.plugins.analysis.components.buttons.CreateActivityNodeButton;
@@ -71,6 +75,9 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 				break;	
 			case AnalysisNetworkCommands.ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE:
 				ANALYSIS_ADD_SERVICETIME_TO_ACTIVITY_NODE(p);
+				break;
+			case AnalysisNetworkCommands.ANALYSIS_CONTROL_FLOW_LOAD:
+				ANALYSIS_CONTROL_FLOW_LOAD(p);
 				break;
 			case AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD:
 				ANALYSIS_ACTIVITY_NODE_LOAD(p);
@@ -207,6 +214,37 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 		double servicetime=p.getDouble();
 		
 		ADBubbleMenuController.add_servicetime(uuid, servicetime);
+	}
+
+	private void ANALYSIS_CONTROL_FLOW_LOAD(CalicoPacket p) {
+		//START
+		//TAKEN FRON PACKET HANDLER 
+		long uuid = p.getLong();
+		long cuid = p.getLong();
+		Color color = p.getColor();
+		float thickness = p.getFloat();
+		
+		Point head = new Point(p.getInt(), p.getInt());
+		Point tail = new Point(p.getInt(), p.getInt());
+		
+		int nPoints = p.getInt();
+		double[] orthogonalDistance = new double[nPoints];
+		double[] travelDistance = new double[nPoints];
+		for (int i = 0; i < nPoints; i++)
+		{
+			orthogonalDistance[i] = p.getDouble();
+			travelDistance[i] = p.getDouble();
+		}
+		
+		long anchorHead = p.getLong();
+		long anchorTail = p.getLong();
+		
+		CConnectorController.no_notify_create(uuid, cuid, color, thickness, head, tail, orthogonalDistance, travelDistance, anchorHead, anchorTail);
+		//TAKEN FROM PACKET HANDLER
+		//END
+		
+		double probability=p.getDouble();
+		ADBubbleMenuController.add_probability(uuid, probability);
 	}
 	
 	private void ANALYSIS_ACTIVITY_NODE_LOAD(CalicoPacket p) {

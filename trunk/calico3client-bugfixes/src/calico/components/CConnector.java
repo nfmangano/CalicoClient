@@ -402,6 +402,10 @@ public class CConnector extends PComposite{
 		this.textSet = true;
 	}
 	
+	public String getText() {
+		return this.text;
+	}
+	
 	@Override
 	protected void paint(final PPaintContext paintContext)
 	{

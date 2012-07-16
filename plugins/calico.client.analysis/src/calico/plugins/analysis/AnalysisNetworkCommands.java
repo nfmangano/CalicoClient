@@ -20,5 +20,6 @@ public class AnalysisNetworkCommands {
 	 * SCRAP TRANSFERS COMMANDS	*
 	 ****************************/	
 	public static final int ANALYSIS_ACTIVITY_NODE_LOAD = 7810;
+	public static final int ANALYSIS_CONTROL_FLOW_LOAD = 7811;
 
 }
