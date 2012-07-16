@@ -167,22 +167,26 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 	private void ANALYSIS_CREATE_ACTIVITY_NODE_TYPE(CalicoPacket p){
 		p.rewind();
 		p.getInt();
+		long new_uuid=p.getLong();
+		long cuuid=p.getLong();
+		int x=p.getInt();
+		int y=p.getInt();
 		String type_name=p.getString();
 		
 		if(type_name.equals(ActivityNode.class.getName())){
-			ADMenuController.create_activity_node();
+			ADMenuController.create_activity_node(new_uuid,cuuid,x,y);
 		}
 		else if(type_name.equals(DecisionNode.class.getName())){
-			ADMenuController.create_decision_node();
+			ADMenuController.create_decision_node(new_uuid,cuuid,x,y);
 		}
 		else if(type_name.equals(ForkNode.class.getName())){
-			ADMenuController.create_fork_node();
+			ADMenuController.create_fork_node(new_uuid,cuuid,x,y);
 		}
 		else if(type_name.equals(InitialNode.class.getName())){
-			ADMenuController.create_initial_node();
+			ADMenuController.create_initial_node(new_uuid,cuuid,x,y);
 		}
 		else if(type_name.equals(FinalNode.class.getName())){
-			ADMenuController.create_final_node();
+			ADMenuController.create_final_node(new_uuid,cuuid,x,y);
 		}
 		
 	}

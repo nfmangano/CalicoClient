@@ -62,50 +62,24 @@ public class ADMenuController {
 	 * The summary of the actions that can be
 	 * invoked by the view elements
 	 *************************************************/	
-	public static void create_activity_node(){
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, ActivityNode.class, ActivityShape.ACTIVITY, "activity");
-
+	public static void create_activity_node(long new_uuid, long cuuid, int x, int y){
+		no_notify_create_activitydiagram_node(new_uuid, cuuid, x, y, ActivityNode.class, ActivityShape.ACTIVITY, "activity");
 	}
 	
-	public static void create_decision_node(){
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, DecisionNode.class, ActivityShape.DECISION, "");
-		//TODO: make it server side
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
+	public static void create_decision_node(long new_uuid, long cuuid, int x, int y){
+		no_notify_create_activitydiagram_node(new_uuid, cuuid, x, y, DecisionNode.class, ActivityShape.DECISION, "");	
 	}
 	
-	public static void create_initial_node(){
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, InitialNode.class, ActivityShape.INITIALNODE, "");
-		//TODO: make it server side
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
+	public static void create_initial_node(long new_uuid, long cuuid, int x, int y){
+		no_notify_create_activitydiagram_node(new_uuid, cuuid, x, y, InitialNode.class, ActivityShape.INITIALNODE, "");	
 	}		
 	
-	public static void create_final_node(){
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, FinalNode.class, ActivityShape.FINALNODE, "");
-		//TODO: make it server side
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
+	public static void create_final_node(long new_uuid, long cuuid, int x, int y){
+		no_notify_create_activitydiagram_node(new_uuid, cuuid, x, y, FinalNode.class, ActivityShape.FINALNODE, "");
 	}	
 
-	public static void create_fork_node() {
-		int x=CalicoDataStore.ScreenWidth / 3;
-		int y=CalicoDataStore.ScreenHeight / 3;
-		long new_uuid = Calico.uuid();
-		//I reuse this method even if the name is not the best one because I am creating a component (component diagram)
-		no_notify_create_activitydiagram_node(new_uuid, CCanvasController.getCurrentUUID(), x, y, ForkNode.class, ActivityShape.FORK, "");
-		//TODO: make it server side
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, new_uuid, CCanvasController.getCurrentUUID(), "", x, y);
+	public static void create_fork_node(long new_uuid, long cuuid, int x, int y) {
+		no_notify_create_activitydiagram_node(new_uuid, cuuid, x, y, ForkNode.class, ActivityShape.FORK, "");
 	}
 	
 	/*************************************************
