@@ -9,7 +9,7 @@ import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.OpaqueAction;
 
 import calico.CalicoDraw;
-import calico.analysis.uml.ModelDecorator;
+import calico.plugins.analysis.transformation.uml2prism.uml.ModelDecorator;
 import calico.components.CGroup;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
@@ -39,7 +39,7 @@ public class ADAnalysisController {
 		
 		//solve it!
 		org.eclipse.uml2.uml.ActivityNode node=translator.getTraceabilityMap().get(target_uuid);
-        new calico.analysis.Main().solve(model, node, distance);
+        new calico.plugins.analysis.transformation.uml2prism.Main().solve(model, node, distance);
         
         //Annotate the results in calico
         annotateResults(translator, target_uuid);

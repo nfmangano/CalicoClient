@@ -28,8 +28,8 @@ import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.InitialNode;
 
-import calico.analysis.Main;
-import calico.analysis.translators.AtopTranslator;
+import calico.plugins.analysis.transformation.uml2prism.Main;
+import calico.plugins.analysis.transformation.uml2prism.translators.AtopTranslator;
 import calico.components.CGroup;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;

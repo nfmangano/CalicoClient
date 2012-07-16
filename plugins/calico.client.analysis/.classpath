@@ -38,6 +38,5 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.emf.mapping.ecore2xml_2.7.0.v20120130-0943.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.uml2.common_1.6.0.v201105021727.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.uml2.uml_3.2.100.v201108110105.jar"/>
-	<classpathentry kind="lib" path="lib/calico.analysis.formal.jar" sourcepath="/home/motta/Desktop/Calico/CalicoSoft/calico.analysis.formal/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
