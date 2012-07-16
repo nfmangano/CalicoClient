@@ -16,7 +16,7 @@ import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.plugins.analysis.components.AnalysisComponent;
 import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.uml.translators.calico2uml.Calico2UML;
+import calico.plugins.analysis.transformation.calico2uml.Calico2UML;
 
 /**
  * The Analysis Menu Controller is in managing the analysis actions
