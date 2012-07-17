@@ -76,9 +76,8 @@ public class ControlFlow extends CConnector implements AnalysisComponent{
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveHeadButton.class);
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveTailButton.class);
 		//motta.lrd: the probability distribution button for the analysis
-		if(this instanceof ControlFlow){
-			bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityBubbleButton.class);
-		}
+		bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityBubbleButton.class);
+
 		return bubbleMenuButtons;
 	}
 	
