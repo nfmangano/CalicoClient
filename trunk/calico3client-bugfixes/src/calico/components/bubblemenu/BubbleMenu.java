@@ -356,12 +356,6 @@ public class BubbleMenu {
 		{
 			return 0;
 		}
-		//motta.lrd
-		//Analysis button for probability on decisions
-		if (className.compareTo("calico.plugins.analysis.components.buttons.ProbabilityBubbleButton") == 0)
-		{
-			return 3;
-		}
 		
 		//Palette Plugin Buttons
 		if (className.compareTo("calico.plugins.palette.SaveToPaletteButton") == 0)

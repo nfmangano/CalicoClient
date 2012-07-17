@@ -79,12 +79,7 @@ public class CConnectorController {
 			Point pointTail = new Point(points.xpoints[0], points.ypoints[0]);
 			long anchorHeadUUID = CGroupController.get_smallest_containing_group_for_point(cuid, pointHead);
 			long anchorTailUUID = CGroupController.get_smallest_containing_group_for_point(cuid, pointTail);
-//			if(CGroupController.groupdb.get(anchorTailUUID) instanceof AnalysisComponent && CGroupController.groupdb.get(anchorHeadUUID) instanceof AnalysisComponent){
-//				connectors.put(uuid, new ControlFlow(uuid, cuid, color, thickness, points));
-//			}
-//			else{
-				connectors.put(uuid, new CConnector(uuid, cuid, color, thickness, points));				
-//			}
+			connectors.put(uuid, new CConnector(uuid, cuid, color, thickness, points));				
 		}
 		else
 		{
