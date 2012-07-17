@@ -1,30 +1,25 @@
 package calico.plugins.analysis.components.buttons;
 
+import java.awt.Point;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 
-import calico.Calico;
-import calico.CalicoDataStore;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.*;
 import calico.inputhandlers.*;
-import calico.networking.*;
-import calico.networking.netstuff.*;
 import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.AnalysisPlugin;
-import calico.plugins.analysis.components.activitydiagram.ActivityNode;
 import calico.plugins.analysis.components.activitydiagram.ControlFlow;
-import calico.plugins.analysis.controllers.ADBubbleMenuController;
 
 public class ProbabilityBubbleButton extends PieMenuButton {
 	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
 
 	public ProbabilityBubbleButton(long uuid) {
-		super("plugins.analysis.service");
-
+		super(calico.plugins.analysis.iconsets.CalicoIconManager.getIconImage("analysis.service"));
 		this.uuid = uuid;
 
 	}
@@ -61,5 +56,15 @@ public class ProbabilityBubbleButton extends PieMenuButton {
 		}
 		isActive = false;
 	}
+	
+	@Override
+	public Point getPreferredPosition()
+	{
+		Point p = new Point(CConnectorController.connectors.get(uuid).getTail());
+		p.x = p.x - 0;
+		p.y = p.y - 60;
+		return p;
+	}
+	
 
 }

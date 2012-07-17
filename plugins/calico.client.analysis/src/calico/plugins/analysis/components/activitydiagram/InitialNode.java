@@ -1,7 +1,13 @@
 package calico.plugins.analysis.components.activitydiagram;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+
+import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.components.CConnector;
 import calico.components.CGroup;
+import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.plugins.analysis.components.AnalysisComponent;
 
@@ -15,6 +21,7 @@ public class InitialNode extends CGroup implements AnalysisComponent{
 	public InitialNode(long uuid, long cuid, long puid) {
 		super(uuid, cuid, puid);
 		// TODO Auto-generated constructor stub
+		color = new Color(245,245,245);
 	}
 	
 	public String toString(){

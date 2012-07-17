@@ -1,8 +1,14 @@
 package calico.plugins.analysis.components.activitydiagram;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.components.CConnector;
 import calico.components.CGroup;
+import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.analysis.AnalysisNetworkCommands;
@@ -18,10 +24,13 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 	double responseTime = 1.0d;
 	
 	/** Declares that we are able to load this activity node */
-	protected int networkLoadCommand = AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD;
+//	protected int networkLoadCommand = AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD;
 
 	public ActivityNode(long uuid, long cuid, long puid) {
 		super(uuid, cuid, puid);
+		
+		networkLoadCommand = AnalysisNetworkCommands.ANALYSIS_ACTIVITY_NODE_LOAD;
+		color = new Color(245,245,245);
 	}
 	
 	public double getResponseTime() {

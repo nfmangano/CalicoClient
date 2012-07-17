@@ -137,6 +137,8 @@ public class CGroup extends PPath implements Serializable {
 
 	protected boolean isPermanent = false;
 	
+	protected Color color = CalicoOptions.group.background_color;
+	
 	//This allows multiple groups to be highlighted at the same time
 	protected boolean isHighlighted = false;
 
@@ -330,7 +332,7 @@ public class CGroup extends PPath implements Serializable {
 		if (isPermanent()) {
 			setStroke(new BasicStroke(CalicoOptions.group.stroke_size));
 			setStrokePaint(CalicoOptions.group.stroke_color);
-			setPaint(CalicoOptions.group.background_color);
+			setPaint(color /*CalicoOptions.group.background_color*/);
 //			setTransparency(CalicoOptions.group.background_transparency);
 		} else {
 			setStroke(new BasicStroke(CalicoOptions.group.stroke_size,

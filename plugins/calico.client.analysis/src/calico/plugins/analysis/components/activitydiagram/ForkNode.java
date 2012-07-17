@@ -1,10 +1,15 @@
 package calico.plugins.analysis.components.activitydiagram;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.components.CConnector;
 import calico.components.CGroup;
+import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.plugins.analysis.components.AnalysisComponent;
 
@@ -17,6 +22,7 @@ public class ForkNode extends CGroup implements AnalysisComponent {
 	public ForkNode(long uuid, long cuid, long puid) {
 		super(uuid, cuid, puid);
 		// TODO Auto-generated constructor stub
+		color = new Color(245,245,245);
 	}
 
 	public HashSet<ControlFlow> getIncomingPaths(){

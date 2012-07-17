@@ -23,7 +23,7 @@ public class RunAnalysisBubbleButton extends PieMenuButton {
 	private boolean isActive = false;
 
 	public RunAnalysisBubbleButton(long uuid) {
-		super("plugins.analysis.runanalysis");
+		super(calico.plugins.analysis.iconsets.CalicoIconManager.getIconImage("analysis.runanalysis"));
 
 		this.uuid = uuid;
 
