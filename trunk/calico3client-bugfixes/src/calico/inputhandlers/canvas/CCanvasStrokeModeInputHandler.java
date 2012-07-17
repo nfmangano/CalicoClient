@@ -18,6 +18,7 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.PressAndHoldAction;
 import calico.inputhandlers.groups.CGroupExpertModeInputHandler;
+import calico.inputhandlers.CGroupInputHandler;
 import calico.utils.Geometry;
 import calico.utils.Ticker;
 
@@ -245,7 +246,12 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 				if (guuidA != 0l && guuidB != 0l && guuidA != guuidB 
 						&& !(CGroupController.groupdb.get(guuidA) instanceof CListDecorator) && !(CGroupController.groupdb.get(guuidB) instanceof CListDecorator))
 				{
-					CStrokeController.show_stroke_bubblemenu(strokeUID, false);
+					/**
+					 * Refactored so that the originating group can choose what to do. 
+					 */
+					CalicoAbstractInputHandler groupInputHandler = CalicoInputManager.getInputHandler(guuidA);
+					if (groupInputHandler instanceof CGroupInputHandler)
+						((CGroupInputHandler)CalicoInputManager.getInputHandler(guuidA)).actionStrokeToAnotherGroup(strokeUID, guuidB);
 					//CConnectorController.no_notify_create(Calico.uuid(), CCanvasController.getCurrentUUID(), 0l, CalicoDataStore.PenColor, CalicoDataStore.PenThickness, guuidA, guuidB, strokeUID);
 					//CStrokeController.delete(strokeUID);
 				}

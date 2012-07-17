@@ -1,5 +1,7 @@
 package calico.plugins.analysis.components.activitydiagram;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.awt.Color;
 import java.awt.Polygon;
 
@@ -63,6 +65,21 @@ public class ControlFlow extends CConnector implements AnalysisComponent{
 
 		return new CalicoPacket[] { packet };
 
+	}
+	
+	@Override
+	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
+	{
+		ObjectArrayList<Class<?>> bubbleMenuButtons = new ObjectArrayList<Class<?>>(); 
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorLinearizeButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMakeStrokeButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveHeadButton.class);
+		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveTailButton.class);
+		//motta.lrd: the probability distribution button for the analysis
+		if(this instanceof ControlFlow){
+			bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityBubbleButton.class);
+		}
+		return bubbleMenuButtons;
 	}
 	
 	public String toString(){

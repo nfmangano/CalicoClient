@@ -8,8 +8,6 @@ import calico.input.CInputMode;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.*;
 import calico.networking.netstuff.*;
-import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.components.buttons.AddActivityToComponentBubbleButton;
 import calico.utils.Geometry;
 
 import java.awt.*;

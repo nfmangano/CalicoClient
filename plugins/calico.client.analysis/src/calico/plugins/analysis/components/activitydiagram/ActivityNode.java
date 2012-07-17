@@ -1,11 +1,14 @@
 package calico.plugins.analysis.components.activitydiagram;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.controllers.CConnectorController;
 import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.components.AnalysisComponent;
+import calico.plugins.analysis.components.activitydiagram.inputhandlers.CActivityNodeInputHandler;
+import calico.inputhandlers.CalicoInputManager;
 
 public class ActivityNode extends CGroup implements AnalysisComponent {
 
@@ -83,6 +86,35 @@ public class ActivityNode extends CGroup implements AnalysisComponent {
 	public String toString() {
 		return "Activity Node: " + this.uuid + "\n";
 	}
+	
+	@Override
+	public void setInputHandler()
+	{
+		CalicoInputManager.addCustomInputHandler(this.uuid, new CActivityNodeInputHandler(this.uuid));
+	}
+	
+//	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+//	{
+//		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
+//		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
+//		//motta.lrd: fix for distinguishing between a normal scrap
+//		//and an analysis scrap
+//		for(Class<?> pmb : CGroup.pieMenuButtons){
+//			if(pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")
+//					&& !(this instanceof ActivityNode)){
+//				//In this case I do not want to see the special bubble button
+//			}
+//			else if(pmb.getName().equals("calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton")
+//					&& !(this instanceof ActivityNode)){
+//				//In this case I do not want to see the special bubble button
+//			}
+//			else{
+//				pieMenuButtons.add(pmb);
+//			}
+//		}
+//		return pieMenuButtons;
+//	}
+	
 
 
 

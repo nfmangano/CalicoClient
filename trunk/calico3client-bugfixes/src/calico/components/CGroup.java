@@ -72,8 +72,6 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
-import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.components.componentdiagram.Component;
 import calico.utils.Geometry;
 import calico.utils.RoundPolygon;
 import edu.umd.cs.piccolo.PNode;
@@ -225,23 +223,31 @@ public class CGroup extends PPath implements Serializable {
 	{
 		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
 		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
-		//motta.lrd: fix for distinguishing between a normal scrap
-		//and an analysis scrap
-		for(Class<?> pmb : CGroup.pieMenuButtons){
-			if(pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")
-					&& !(this instanceof ActivityNode)){
-				//In this case I do not want to see the special bubble button
-			}
-			else if(pmb.getName().equals("calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton")
-					&& !(this instanceof ActivityNode)){
-				//In this case I do not want to see the special bubble button
-			}
-			else{
-				pieMenuButtons.add(pmb);
-			}
-		}
+		pieMenuButtons.addAll(CGroup.pieMenuButtons); //5
 		return pieMenuButtons;
 	}
+	
+//	public ObjectArrayList<Class<?>> getBubbleMenuButtons()
+//	{
+//		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>();
+//		pieMenuButtons.addAll(internal_getBubbleMenuButtons());
+//		//motta.lrd: fix for distinguishing between a normal scrap
+//		//and an analysis scrap
+//		for(Class<?> pmb : CGroup.pieMenuButtons){
+//			if(pmb.getName().equals("calico.plugins.analysis.components.buttons.ComponentServiceTimeBubbleButton")
+//					&& !(this instanceof ActivityNode)){
+//				//In this case I do not want to see the special bubble button
+//			}
+//			else if(pmb.getName().equals("calico.plugins.analysis.components.buttons.RunAnalysisBubbleButton")
+//					&& !(this instanceof ActivityNode)){
+//				//In this case I do not want to see the special bubble button
+//			}
+//			else{
+//				pieMenuButtons.add(pmb);
+//			}
+//		}
+//		return pieMenuButtons;
+//	}
 	
 	protected ObjectArrayList<Class<?>> internal_getBubbleMenuButtons()
 	{
@@ -763,7 +769,7 @@ public class CGroup extends PPath implements Serializable {
 		this.finished = true;
 
 		this.groupArea = PolygonUtils.PolygonArea(this.points);
-		CalicoInputManager.addGroupInputHandler(this.uuid);
+		this.setInputHandler();
 //		smoothedPath = Geometry.getBezieredPoly(points);
 		
 //		setPathTo(smoothedPath);
@@ -801,6 +807,11 @@ public class CGroup extends PPath implements Serializable {
 		else
 			//setTransparency(transparency);
 			CalicoDraw.setNodeTransparency(this, transparency);
+	}
+	
+	public void setInputHandler()
+	{
+		CalicoInputManager.addGroupInputHandler(this.uuid);
 	}
 
 	public void setText(String text) {

@@ -7,6 +7,7 @@ import calico.components.*;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.controllers.CGroupController;
+import calico.controllers.CStrokeController;
 import calico.input.CInputManager;
 import calico.input.CInputMode;
 import calico.inputhandlers.groups.*;
@@ -29,7 +30,7 @@ import edu.umd.cs.piccolox.nodes.PLine;
 
 public class CGroupInputHandler extends CalicoAbstractInputHandler
 {	
-	private long uuid = 0L;
+	protected long uuid = 0L;
 	
 	
 	private CGroupExpertModeInputHandler modehandler_expert = null;
@@ -510,5 +511,14 @@ public class CGroupInputHandler extends CalicoAbstractInputHandler
 		
 		
 	}*/
+	
+	/**
+	 * Refactored so that the originating group can choose what to do. 
+	 * 
+	 * Will likely be refactored later so that this action can be decided using compositional notations
+	 */
+	public void actionStrokeToAnotherGroup(long strokeUID, long targetGroup) {
+		CStrokeController.show_stroke_bubblemenu(strokeUID, false);
+	}
 
 }

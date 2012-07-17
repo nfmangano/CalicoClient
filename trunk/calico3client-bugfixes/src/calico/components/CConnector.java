@@ -26,10 +26,6 @@ import calico.controllers.CStrokeController;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
-import calico.plugins.analysis.components.AnalysisComponent;
-import calico.plugins.analysis.components.activitydiagram.ActivityNode;
-import calico.plugins.analysis.components.activitydiagram.ControlFlow;
-import calico.plugins.analysis.components.componentdiagram.Component;
 import calico.Geometry;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PAffineTransform;
@@ -620,9 +616,9 @@ public class CConnector extends PComposite{
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveHeadButton.class);
 		bubbleMenuButtons.add(calico.components.bubblemenu.connectors.ConnectorMoveTailButton.class);
 		//motta.lrd: the probability distribution button for the analysis
-		if(this instanceof ControlFlow){
-			bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityDistributionBubbleButton.class);
-		}
+//		if(this instanceof ControlFlow){
+//			bubbleMenuButtons.add(calico.plugins.analysis.components.buttons.ProbabilityDistributionBubbleButton.class);
+//		}
 		return bubbleMenuButtons;
 	}
 	
