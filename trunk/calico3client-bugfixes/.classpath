@@ -26,7 +26,7 @@
 	<classpathentry kind="lib" path="lib/piccolo2d-swt-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/pop3.jar"/>
 	<classpathentry kind="lib" path="lib/smtp.jar"/>
-	<classpathentry kind="lib" path="lib/analysispluginclient.jar" sourcepath="/home/motta/Desktop/Calico/CalicoSoft/calico.analysis.gui/src"/>
+	<classpathentry kind="lib" path="lib/analysispluginclient.jar" sourcepath="/calico.client.analysis/src"/>
 	<classpathentry kind="lib" path="lib/calico.analysis.formal.jar" sourcepath="/home/motta/Desktop/Calico/CalicoSoft/calico.analysis.formal/src"/>
 	<classpathentry kind="lib" path="lib/jshapes.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.emf.common_2.7.0.v20120127-1122.jar"/>

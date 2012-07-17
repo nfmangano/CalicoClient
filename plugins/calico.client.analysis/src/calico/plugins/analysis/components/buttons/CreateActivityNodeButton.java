@@ -2,6 +2,8 @@ package calico.plugins.analysis.components.buttons;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
@@ -9,6 +11,7 @@ import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.analysis.AnalysisNetworkCommands;
 import calico.plugins.analysis.AnalysisPlugin;
@@ -44,9 +47,10 @@ public class CreateActivityNodeButton extends CanvasMenuButton {
 			long cuuid=CCanvasController.getCurrentUUID();
 			int x=CalicoDataStore.ScreenWidth / 3;
 			int y=CalicoDataStore.ScreenHeight / 3;
-			
+			Logger.getLogger(PacketHandler.class.getName()).debug("###############[NOT CRAZY 1]###############");
 			AnalysisPlugin.UI_send_command(AnalysisNetworkCommands.ANALYSIS_CREATE_ACTIVITY_NODE_TYPE,new_uuid, cuuid, x, y, ActivityNode.class.getName());
 			super.onMouseUp();
+			System.out.println("###############[NOT CRAZY 4]###############");
 		}
 
 	}

@@ -143,6 +143,7 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 	
 	public static void UI_send_command(int com, Object... params){
 		//Create the packet
+		System.out.println("###############[NOT CRAZY 2]###############");
 		CalicoPacket p;
 		if(params!=null){
 			p=CalicoPacket.getPacket(com, params);
@@ -155,6 +156,7 @@ public class AnalysisPlugin extends CalicoPlugin implements CalicoEventListener 
 		PacketHandler.receive(p);
 		//Send the packet to the network (server)
 		Networking.send(p);	
+		System.out.println("###############[NOT CRAZY 3]###############");
 	}
 	
 	/*************************************************
