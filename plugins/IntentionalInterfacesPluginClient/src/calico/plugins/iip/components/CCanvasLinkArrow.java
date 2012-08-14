@@ -11,6 +11,12 @@ import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Represents a <code>CCanvasLink</code> in the Piccolo component hierarchy of the Intention View. May have a label in
+ * the middle of the arrow stem.
+ * 
+ * @author Byron Hawkins
+ */
 public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 {
 	public static final Color NORMAL_COLOR = Color.black;

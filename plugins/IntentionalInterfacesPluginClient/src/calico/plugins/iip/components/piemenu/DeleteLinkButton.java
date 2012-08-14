@@ -5,6 +5,12 @@ import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple button for deleting a link. The layout is reconstructed from the set of CICs and arrows on every iteration, so
+ * it does not need to be specifically updated.
+ * 
+ * @author Byron Hawkins
+ */
 public class DeleteLinkButton extends PieMenuButton
 {
 	private CCanvasLink link = null;
