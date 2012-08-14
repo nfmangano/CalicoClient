@@ -4,6 +4,11 @@ import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CIntentionCell;
 
+/**
+ * Implements this plugin's interface point to the <code>CCanvas</code> structure.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentContributor
 {
 	public static IntentionalInterfacesCanvasContributor getInstance()
@@ -23,6 +28,9 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 		CCanvasController.addContentContributor(this);
 	}
 
+	/**
+	 * Notify the <code>CCanvasController</code> that some change has been made to <code>canvasId</code>.
+	 */
 	public void notifyContentChanged(long canvasId)
 	{
 		CCanvasController.notifyContentChanged(this, canvasId);

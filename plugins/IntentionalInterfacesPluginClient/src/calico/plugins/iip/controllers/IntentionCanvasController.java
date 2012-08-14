@@ -35,6 +35,11 @@ import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Coordinates the visual components of this plugin which are installed in the Canvas View.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionCanvasController implements CalicoPerspective.PerspectiveChangeListener
 {
 	public static IntentionCanvasController getInstance()
@@ -48,8 +53,6 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 		INSTANCE.initializeComponents();
 
-
-
 		CalicoPerspective.addListener(INSTANCE);
 	}
 
@@ -58,16 +61,40 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	// kind of a hack here, would be better to ask the menubar what dimensions it is using
 	private static final double MENUBAR_WIDTH = (CalicoOptions.menu.menubar.defaultIconDimension + (CalicoOptions.menu.menubar.iconBuffer * 2));
 
+	/**
+	 * Map of the canvas tags which are currently available for user selection, indexed by id.
+	 */
 	private final Long2ReferenceArrayMap<CIntentionType> activeIntentionTypes = new Long2ReferenceArrayMap<CIntentionType>();
 
+	/**
+	 * State field referring to the canvas currently displayed in the Canvas View.
+	 */
 	private long currentCanvasId = 0L;
 
+	/**
+	 * State flag indicating whether the tag panel is currently visible.
+	 */
 	private boolean tagPanelVisible = false;
+	/**
+	 * State flag indicating whether the linkpanel is currently visible.
+	 */
 	private boolean linkPanelVisible = false;
 
+	/**
+	 * Layout delegate for the title panel, responsible for keeping the title panel in its designated position when
+	 * related dimensions and positions change.
+	 */
 	private final TitlePanelBounds titlePanelBounds = new TitlePanelBounds();
+	/**
+	 * Layout delegate for the tag panel, responsible for keeping the tag panel in its designated position when related
+	 * dimensions and positions change.
+	 */
 	private final TagPanelBounds tagPanelBounds = new TagPanelBounds();
 
+	/**
+	 * State container for values related to the creation of a new canvas, such as whether the mouse was on the left or
+	 * right half of the screen when the new canvas was requested.
+	 */
 	private CanvasCreationContext canvasCreationContext = null;
 
 	private void initializeComponents()
@@ -85,11 +112,18 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		}
 	}
 
+	/**
+	 * Copy the contents of <code>sourceCanvasId</code> into <code>targetCanvasId</code>, sending the request directly
+	 * to the server.
+	 */
 	public void copyCanvas(long sourceCanvasId, long targetCanvasId)
 	{
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_COPY, sourceCanvasId, targetCanvasId));
 	}
 
+	/**
+	 * Add a new tag to this plugin's internal model
+	 */
 	public void localAddIntentionType(CIntentionType type)
 	{
 		activeIntentionTypes.put(type.getId(), type);
@@ -97,6 +131,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		CanvasTagPanel.getInstance().updateIntentionTypes();
 	}
 
+	/**
+	 * Rename a tag in this plugin's internal model
+	 */
 	public void localRenameIntentionType(long typeId, String name)
 	{
 		activeIntentionTypes.get(typeId).setName(name);
@@ -104,6 +141,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		CanvasTagPanel.getInstance().updateIntentionTypes();
 	}
 
+	/**
+	 * Change the color of a tag in this plugin's internal model
+	 */
 	public void localSetIntentionTypeColor(long typeId, int colorIndex)
 	{
 		activeIntentionTypes.get(typeId).setColorIndex(colorIndex);
@@ -114,6 +154,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		}
 	}
 
+	/**
+	 * Remove a tag from this plugin's internal model
+	 */
 	public void localRemoveIntentionType(long typeId)
 	{
 		activeIntentionTypes.remove(typeId);
@@ -121,6 +164,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		CanvasTagPanel.getInstance().updateIntentionTypes();
 	}
 
+	/**
+	 * Create a new intention type, sending the command directly to the server without doing anything else.
+	 */
 	public void addIntentionType(String name)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -133,6 +179,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		Networking.send(packet);
 	}
 
+	/**
+	 * Rename an intention type, sending the command directly to the server without doing anything else.
+	 */
 	public void renameIntentionType(long typeId, String name)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -145,6 +194,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		Networking.send(packet);
 	}
 
+	/**
+	 * Change the color of an intention type, sending the command directly to the server without doing anything else.
+	 */
 	public void setIntentionTypeColorIndex(long typeId, int colorIndex)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -157,6 +209,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		Networking.send(packet);
 	}
 
+	/**
+	 * Remove an intention type, sending the command directly to the server without doing anything else.
+	 */
 	public void removeIntentionType(long typeId)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -212,11 +267,26 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		}
 	}
 
+	/**
+	 * Notify this controller that canvas <code>newCanvsaId</code> was created by this client.
+	 * 
+	 * @param newCanvasId
+	 *            identifies the newly created canvas
+	 * @param originatingCanvasId
+	 *            identifies the canvas that was last displayed in the Canvas View when the new canvas was requested (if
+	 *            any).
+	 * @param proximity
+	 *            specifies which side of the screen the mouse was on at the new canvas request time.
+	 */
 	public void canvasCreatedLocally(long newCanvasId, long originatingCanvasId, CanvasInputProximity proximity)
 	{
 		canvasCreationContext = new CanvasCreationContext(newCanvasId, originatingCanvasId, proximity);
 	}
 
+	/**
+	 * Notify this controller that the Canvas View is now showing <code>canvasId</code>. Updates all visual components
+	 * accordingly.
+	 */
 	public void canvasChanged(long canvasId)
 	{
 		currentCanvasId = canvasId;
@@ -241,7 +311,12 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		}
 	}
 
-	public void linkCreatedCanvasFromOrigin()
+	/**
+	 * Notify this controller that the most recently created canvas has been tagged, such that if it is also linked,
+	 * this controller can discern whether to collapse the chain and make the new canvsa sibling of the canvas it was
+	 * created from.
+	 */
+	public void collapseLikeIntentionTypes()
 	{
 		if (canvasCreationContext != null)
 		{
@@ -256,7 +331,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 					break;
 				}
 			}
-			
+
 			if (parentCanvasId > 0L)
 			{
 				CIntentionCell newCell = CIntentionCellController.getInstance().getCellByCanvasId(canvasCreationContext.newCanvasId);
@@ -271,6 +346,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		}
 	}
 
+	/**
+	 * Discern whether teh scrap <code>groupId</code> exists in the currently displayed canvas (if any).
+	 */
 	private boolean isCurrentlyDisplayed(long groupId)
 	{
 		if (!CanvasPerspective.getInstance().isActive())
@@ -351,7 +429,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 					}
 				}
 			}
-			
+
 			node.setBounds(bounds);
 		}
 
@@ -403,7 +481,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 					}
 				}
 			}
-			
+
 			node.setBounds(bounds);
 		}
 	}

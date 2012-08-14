@@ -25,6 +25,16 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 
+/**
+ * Maintains this plugin's internal model of links in the intention graph.
+ * 
+ * Every link contains two anchors for its head and tail, each of which may be attached to a CIC. The link anchors are
+ * not physically attached to the endpoints, so anytime a CIC moves, the link anchor position must be updated
+ * accordingly. Each link position will be adjusted by the <code>IntentionGraphController</code> such that it appears
+ * attached to the edge of its CIC.
+ * 
+ * @author Byron Hawkins
+ */
 public class CCanvasLinkController
 {
 	public static CCanvasLinkController getInstance()
@@ -39,13 +49,36 @@ public class CCanvasLinkController
 
 	private static CCanvasLinkController INSTANCE;
 
+	/**
+	 * Map of all links in the intention graph, indexed by id
+	 */
 	private static Long2ReferenceArrayMap<CCanvasLink> linksById = new Long2ReferenceArrayMap<CCanvasLink>();
+	/**
+	 * Map of all link anchors in the intention graph, indexed by id
+	 */
 	private static Long2ReferenceArrayMap<CCanvasLinkAnchor> anchorsById = new Long2ReferenceArrayMap<CCanvasLinkAnchor>();
+	/**
+	 * Map of all link anchors in the intention graph, indexed by the canvas id of the canvas to which the anchor is
+	 * attached.
+	 */
 	private static Long2ReferenceArrayMap<List<Long>> anchorsIdsByCanvasId = new Long2ReferenceArrayMap<List<Long>>();
 
+	/**
+	 * User interaction state marker, indicating the "from" canvas of the last link that was traversed via the
+	 * <code>CanvasLinkPanel</code>. A value of <code>0L</code> indicates that some other navigation event has occured
+	 * since the last link traversal (if any), such that no link traversal is in effect. This feature is obsolete.
+	 */
 	private long traversedLinkSourceCanvas = 0L;
+	/**
+	 * Complement of <code>traversedLinkSourceCanvas</code>, for the "to" canvas.
+	 */
 	private long traversedLinkDestinationCanvas = 0L;
 
+	/**
+	 * Arrow colors are derived from the canvas tags (i.e., <code>CIntentionType</code>s). The initialization sequence
+	 * is unreliable, so this state flag marks whether the colors for all existing arrows have been assigned to them
+	 * yet.
+	 */
 	private boolean arrowColorsInitialized = false;
 
 	public void initializeArrowColors()
@@ -72,6 +105,9 @@ public class CCanvasLinkController
 		arrowColorsInitialized = true;
 	}
 
+	/**
+	 * Return true when the last navigation action taken by the user was a traversal of a link.
+	 */
 	public boolean hasTraversedLink()
 	{
 		return traversedLinkSourceCanvas > 0L;
@@ -82,6 +118,13 @@ public class CCanvasLinkController
 		return traversedLinkSourceCanvas;
 	}
 
+	/**
+	 * Indicate to this controller that a link was just traversed by the user. It is assumed that the link referred to
+	 * by <code>anchor</code> is attached on both ends.
+	 * 
+	 * @param anchor
+	 *            the "from" anchor of the traversed link.
+	 */
 	public void traverseLinkToCanvas(CCanvasLinkAnchor anchor)
 	{
 		this.traversedLinkSourceCanvas = anchor.getCanvasId();
@@ -89,6 +132,9 @@ public class CCanvasLinkController
 		CCanvasController.loadCanvas(traversedLinkDestinationCanvas);
 	}
 
+	/**
+	 * Indicate to this controller that <code>canvasId</code> has just been displayed in the Canvas View.
+	 */
 	public void showingCanvas(long canvasId)
 	{
 		if (canvasId != traversedLinkDestinationCanvas)
@@ -97,6 +143,10 @@ public class CCanvasLinkController
 		}
 	}
 
+	/**
+	 * Indicate to this controller that the tag for the canvsa associated with <code>cell</code> has just changed. This
+	 * controller responds by updating the color of the corresonding incoming arrow to <code>cell</code> (if any).
+	 */
 	public void canvasIntentionTypeChanged(CIntentionCell cell)
 	{
 		if (!arrowColorsInitialized)
@@ -126,6 +176,9 @@ public class CCanvasLinkController
 		return anchorsById.get(uuid);
 	}
 
+	/**
+	 * Get the ids of all anchors attached to <code>canvas_uuid</code>.
+	 */
 	public List<Long> getAnchorIdsByCanvasId(long canvas_uuid)
 	{
 		List<Long> anchorIds = anchorsIdsByCanvasId.get(canvas_uuid);
@@ -137,6 +190,10 @@ public class CCanvasLinkController
 		return anchorIds;
 	}
 
+	/**
+	 * Get the first link intersecting <code>point</code>, according to the intersection rules of
+	 * <code>CCanvasLink.contains()</code> (if any link is at that <code>point</code>).
+	 */
 	public long getLinkAt(Point point)
 	{
 		for (CCanvasLink link : linksById.values())
@@ -149,6 +206,9 @@ public class CCanvasLinkController
 		return -1L;
 	}
 
+	/**
+	 * Add a link to this plugin's internal model and also install its arrow in the Intention View.
+	 */
 	public void addLink(CCanvasLink link)
 	{
 		linksById.put(link.getId(), link);
@@ -172,6 +232,10 @@ public class CCanvasLinkController
 		}
 	}
 
+	/**
+	 * Move a link anchor, possibly changing the canvas to which it is attached. This method updates all visual
+	 * components associated with the anchor.
+	 */
 	public void localMoveLinkAnchor(long anchor_uuid, long canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType type, int x, int y)
 	{
 		CCanvasLinkAnchor anchor = anchorsById.get(anchor_uuid);
@@ -189,6 +253,9 @@ public class CCanvasLinkController
 		IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
 	}
 
+	/**
+	 * Move the pixel position of a link anchor, without making any change to its canvas attachment (if any).
+	 */
 	public void moveLinkAnchor(CCanvasLinkAnchor anchor, Point2D newPosition)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -218,6 +285,10 @@ public class CCanvasLinkController
 		return linksById.get(uuid);
 	}
 
+	/**
+	 * Discern whether an input event at <code>point</code> is nearest to the head or tail of the arrow referred to by
+	 * <code>uuid</code>.
+	 */
 	public boolean isNearestSideA(long uuid, Point2D point)
 	{
 		CCanvasLink link = linksById.get(uuid);
@@ -232,6 +303,9 @@ public class CCanvasLinkController
 		return a < b;
 	}
 
+	/**
+	 * Remove a link and its anchors from the plugin's data model and all visual components.
+	 */
 	public void removeLinkById(long uuid)
 	{
 		CCanvasLink link = linksById.remove(uuid);
@@ -266,6 +340,10 @@ public class CCanvasLinkController
 		}
 	}
 
+	/**
+	 * Create an empty canvas and a new link to it from <code>fromCanvasId</code>, positioning the new canvas such that
+	 * the new link's arrowhead sits adjacent to the canvas at exactly <code>xLinkEndpoint, yLinkEndpoint</code>.
+	 */
 	public void createLinkToEmptyCanvas(long fromCanvasId, double xLinkEndpoint, double yLinkEndpoint, boolean copy)
 	{
 		long toCanvasId = createLinkToEmptyCanvas(fromCanvasId);
@@ -289,6 +367,9 @@ public class CCanvasLinkController
 		return toCanvasId;
 	}
 
+	/**
+	 * Detach <code>anchor</code> and place it at <code>x,y</code>.
+	 */
 	public void orphanLink(CCanvasLinkAnchor anchor, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -304,6 +385,11 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Move <code>anchor</code> from its current canvas attachment (if any) to <code>canvasId</code>. The change will be
+	 * sent directly to the server with no coordinates for the new anchor position. When the server broadcasts the
+	 * change to clients, each client will position the anchor according to policy.
+	 */
 	public void moveLink(CCanvasLinkAnchor anchor, long canvasId)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -319,6 +405,10 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Create a link from <code>fromCanvasId</code> with no canvas attached to the arrowhead, and place the arrowhead at
+	 * <code>x, y</code>.
+	 */
 	public void createOrphanedLink(long fromCanvasId, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -333,6 +423,10 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Create a new link, sending the request directly to the server. Instantiation and placement of rendering
+	 * components will occur on each client when the server broadcasts the new link.
+	 */
 	public void createLink(long fromCanvasId, long toCanvasId)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -394,6 +488,10 @@ public class CCanvasLinkController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Delete a link, sending the command directly to the server. Removal of visual components will occur in each client
+	 * when the server broadcasts the link removal.
+	 */
 	public void deleteLink(long uuid, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -408,6 +506,9 @@ public class CCanvasLinkController
 		}
 	}
 
+	/**
+	 * Return true if any links are attached to <code>canvas_uuid</code>.
+	 */
 	boolean hasLinks(long canvas_uuid)
 	{
 		for (CCanvasLink link : linksById.values())
@@ -424,6 +525,9 @@ public class CCanvasLinkController
 		return false;
 	}
 
+	/**
+	 * Remove all links attached to <code>canvas_uuid</code>, delegating to <code>deleteLink()</code> for each link.
+	 */
 	void clearLinks(long canvas_uuid)
 	{
 		Set<Long> linkIdsToDelete = new HashSet<Long>();
