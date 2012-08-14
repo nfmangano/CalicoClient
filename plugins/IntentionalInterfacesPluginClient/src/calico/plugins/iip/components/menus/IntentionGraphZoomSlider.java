@@ -11,6 +11,15 @@ import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * Represents the zoom slider in the Piccolo component hierarchy. The zoom ratio is maintained directly as a
+ * <code>double</code>, so <code>1.0</code> is correlated with the center of the slider. The knob may be positioned by
+ * dragging, or a click anywhere in the slider will move the knob to that position. When the zoom ratio changes, whether
+ * by an action on this slider or some other action, this slider expects to be notified with a call to
+ * <code>refreshState()</code>.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionGraphZoomSlider extends PComposite implements PropertyChangeListener
 {
 	public static final int SPAN = 400;
@@ -37,7 +46,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 	}
-	
+
 	public void refreshState()
 	{
 		updateKnobPosition();

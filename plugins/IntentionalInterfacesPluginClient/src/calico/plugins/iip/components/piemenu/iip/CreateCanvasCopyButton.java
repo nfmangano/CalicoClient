@@ -8,6 +8,11 @@ import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
+/**
+ * Bubble menu button to copy a canvas. This features is obsolete.
+ *
+ * @author Byron Hawkins
+ */
 public class CreateCanvasCopyButton extends PieMenuButton
 {
 	public CreateCanvasCopyButton()
