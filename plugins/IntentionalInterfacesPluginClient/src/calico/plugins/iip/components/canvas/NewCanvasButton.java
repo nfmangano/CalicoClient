@@ -1,16 +1,16 @@
 package calico.plugins.iip.components.canvas;
 
-import calico.CalicoDataStore;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.perspectives.CanvasPerspective;
-import calico.plugins.iip.controllers.CCanvasLinkController;
-import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.CIntentionCellFactory;
-import calico.plugins.iip.controllers.IntentionCanvasController;
-import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple button for copying a canvas, delegating to <code>CIntentionCellFactory</code> to create a new canvas/CIC pair.
+ * 
+ * @author Byron Hawkins
+ */
 public class NewCanvasButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;

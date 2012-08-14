@@ -13,11 +13,24 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PClip;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * Represents the intention topology of the Intention View. It draws each <code>CIntentionRing</code> from the server's
+ * intention layout, along with a bounding box around each cluster.
+ * 
+ * @author Byron Hawkins
+ */
 public class CIntentionTopology
 {
 	private static final Color RING_COLOR = new Color(0xEEEEEE);
 	private static final Color BOUNDING_BOX_COLOR = new Color(0x0, 0x0, 0x0, 0x0);
 
+	/**
+	 * Represents one cluster in the Piccolo component hierarchy of the IntentionView. It is constructed from the
+	 * topology that was serialized on the server, taking one cluster out of the serialized topology data and inflating
+	 * it into a set of <code>PPath</code>s for the rings and a last <code>PPath</code> for the bounding box.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	public class Cluster extends PComposite
 	{
 		private final long rootCanvasId;

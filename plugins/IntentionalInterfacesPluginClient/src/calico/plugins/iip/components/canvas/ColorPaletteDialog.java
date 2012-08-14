@@ -23,6 +23,11 @@ import calico.CalicoDataStore;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 
+/**
+ * Simple popup offering a selection of tag colors to the user. This feature is obsolete. 
+ *
+ * @author Byron Hawkins
+ */
 public class ColorPaletteDialog
 {
 	private static final ColorPaletteDialog INSTANCE = new ColorPaletteDialog();

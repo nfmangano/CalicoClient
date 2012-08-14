@@ -20,6 +20,11 @@ import calico.CalicoDataStore;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 
+/**
+ * Simple dialog containing a text field in which the user enters a new tag name. This feature is obsolete.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionTypeNameDialog
 {
 	private static final IntentionTypeNameDialog INSTANCE = new IntentionTypeNameDialog();

@@ -18,6 +18,15 @@ import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * Simple panel containing the canvas title, which is attached to the upper left corner of the Canvas View. Tapping the
+ * panel pops up the <code>CanvasTitleDialog</code>, and this panel acts as the controller for that dialog. Title
+ * changes are applied via <code>CIntentionCellController</code>. There is only one instance of this panel, and it is
+ * moved from canvas to canvas as the user navigates. When the title of the current canvas changes, this panel expects a
+ * call to <code>refresh()</code> so it can update the display.
+ * 
+ * @author Byron Hawkins
+ */
 public class CanvasTitlePanel implements StickyItem
 {
 	public static CanvasTitlePanel getInstance()
@@ -113,6 +122,11 @@ public class CanvasTitlePanel implements StickyItem
 		this.layout = layout;
 	}
 
+	/**
+	 * Represents the title panel in the Piccolo component hierarchy.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class PanelNode extends PComposite
 	{
 		private final PText text = new PText();
@@ -125,7 +139,7 @@ public class CanvasTitlePanel implements StickyItem
 
 			addChild(text);
 		}
-		
+
 		void tap(Point point)
 		{
 			CanvasTitleDialog.Action action = CanvasTitleDialog.getInstance().queryUserForLabel(
@@ -154,7 +168,7 @@ public class CanvasTitlePanel implements StickyItem
 			{
 				return;
 			}
-			
+
 			text.setText(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getTitle());
 		}
 
@@ -174,12 +188,24 @@ public class CanvasTitlePanel implements StickyItem
 		}
 	}
 
+	/**
+	 * Only tap input is recognized, so it is only necessary to track the pressed state.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private enum InputState
 	{
 		IDLE,
 		PRESSED
 	}
 
+	/**
+	 * Recognizes a press as a tap if it is not held longer than the <code>tapDuration</code> and no drag extends beyond
+	 * the <code>dragThreshold</code>. The <code>state</code> is voluntarily read/write locked under
+	 * <code>stateLock</code>.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class InputHandler extends CalicoAbstractInputHandler
 	{
 		private final Object stateLock = new Object();

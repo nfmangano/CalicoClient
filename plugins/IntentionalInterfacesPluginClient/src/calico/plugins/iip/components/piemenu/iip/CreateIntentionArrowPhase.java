@@ -9,7 +9,6 @@ import java.awt.geom.Point2D;
 
 import calico.components.arrow.AbstractArrow;
 import calico.components.arrow.AbstractArrowAnchorPoint;
-import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
 import calico.plugins.iip.components.CCanvasLinkArrow;
@@ -17,6 +16,7 @@ import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 
 public class CreateIntentionArrowPhase implements MouseListener, MouseMotionListener
@@ -246,7 +246,7 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 			long newCanvasId = CCanvasLinkController.getInstance().createLinkToEmptyCanvas(fromCell.getCanvasId());
 			if (copy)
 			{
-				CCanvasLinkController.getInstance().copyCanvas(fromCell.getCanvasId(), newCanvasId);
+				IntentionCanvasController.getInstance().copyCanvas(fromCell.getCanvasId(), newCanvasId);
 			}
 		}
 

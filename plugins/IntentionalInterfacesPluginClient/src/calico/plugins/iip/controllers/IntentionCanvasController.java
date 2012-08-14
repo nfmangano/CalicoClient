@@ -17,6 +17,7 @@ import calico.controllers.CGroupController;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
+import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
@@ -82,6 +83,11 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		{
 			canvasCreationContext = null;
 		}
+	}
+
+	public void copyCanvas(long sourceCanvasId, long targetCanvasId)
+	{
+		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_COPY, sourceCanvasId, targetCanvasId));
 	}
 
 	public void localAddIntentionType(CIntentionType type)

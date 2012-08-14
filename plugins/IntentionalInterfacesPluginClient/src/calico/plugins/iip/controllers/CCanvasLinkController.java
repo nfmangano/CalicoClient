@@ -16,7 +16,6 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
-import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
@@ -274,7 +273,7 @@ public class CCanvasLinkController
 		{
 			return;
 		}
-		CCanvasLinkController.getInstance().copyCanvas(fromCanvasId, toCanvasId);
+		IntentionCanvasController.getInstance().copyCanvas(fromCanvasId, toCanvasId);
 
 		Point2D cellOrigin = IntentionGraphController.getInstance().alignCellEdgeAtLinkEndpoint(fromCanvasId, xLinkEndpoint, yLinkEndpoint);
 
@@ -288,11 +287,6 @@ public class CCanvasLinkController
 		createLink(fromCanvasId, toCanvasId);
 
 		return toCanvasId;
-	}
-
-	public void copyCanvas(long sourceCanvasId, long targetCanvasId)
-	{
-		Networking.send(CalicoPacket.getPacket(NetworkCommand.CANVAS_COPY, sourceCanvasId, targetCanvasId));
 	}
 
 	public void orphanLink(CCanvasLinkAnchor anchor, double x, double y)
