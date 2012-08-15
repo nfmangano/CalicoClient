@@ -12,6 +12,11 @@ import org.apache.log4j.Logger;
 import calico.CalicoDataStore;
 import calico.modules.ErrorMessage;
 
+/**
+ * Loads icons from the classpath.
+ *
+ * @author Byron Hawkins
+ */
 public class CalicoIconManager
 {
 	private static Properties iconTheme = new Properties();

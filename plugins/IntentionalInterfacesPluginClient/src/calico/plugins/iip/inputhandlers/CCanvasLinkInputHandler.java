@@ -18,6 +18,19 @@ import calico.plugins.iip.components.piemenu.iip.CreateIntentionArrowPhase;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 
+/**
+ * Custom <code>CalicoInputManager</code>handler for events related to arrows in the Intention View. The main Calico
+ * event handling mechanism will determine whether input relates to an arrow by calling
+ * <code>IntentionalInterfacesPerspective.getEventTarget()</code>. When that method returns an arrow, the associated
+ * input event will be sent here.
+ * 
+ * The only supported operation is press&hold on an arrow to obtain a pie menu for it. An arrow is highlighted on
+ * press, and the menu appears after the timer's duration of 200ms expires.
+ * 
+ * Moving arrows by dragging either endpoint has been supported in past versions.
+ * 
+ * @author Byron Hawkins
+ */
 public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
 {
 	public static CCanvasLinkInputHandler getInstance()
@@ -37,18 +50,43 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		PIE;
 	}
 
+	/**
+	 * Identifies the currently pressed link.
+	 */
 	private long currentLinkId;
 
+	/**
+	 * State token, protected voluntarily under <code>stateLock</code>.
+	 */
 	private State state = State.IDLE;
+	/**
+	 * Voluntary lock for <code>state</code>.
+	 */
 	private final Object stateLock = new Object();
 
+	/**
+	 * Governs the press&hold delay for the pie menu.
+	 */
 	private final PieMenuTimer pieMenuTimer = new PieMenuTimer();
 
+	/**
+	 * Delete button in the pie menu for arrows.
+	 */
 	private final DeleteLinkButton deleteLinkButton = new DeleteLinkButton();
+	/**
+	 * Button for setting link labels, which appears in the pie menu for arrows.
+	 */
 	private final SetLinkLabelButton setLinkLabelButton = new SetLinkLabelButton();
 
+	/**
+	 * Identifies the pixel position of the mouse at the time drag was initiated. Obsolete.
+	 */
 	private Point mouseDragAnchor;
 
+	/**
+	 * State flag indicating whether the currently active press occurred nearest the head or tail of the arrow. This
+	 * flag has no meaning at times when no arrow input sequence is in progress.
+	 */
 	private boolean isNearestSideA;
 
 	private CCanvasLinkInputHandler()
@@ -56,6 +94,10 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		PieMenu.addListener(this);
 	}
 
+	/**
+	 * Activate the input sequence for the arrow representing <code>currentLinkId</code>, with initial mouse contact at
+	 * <code>point</code>.
+	 */
 	public void setCurrentLinkId(long currentLinkId, Point point)
 	{
 		this.currentLinkId = currentLinkId;
@@ -69,6 +111,10 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 		IntentionGraphController.getInstance().getArrowByLinkId(currentLinkId).setHighlighted(true);
 	}
 
+	/**
+	 * Get the link that the current input sequence is operating on, <code>-1L</code> if no arrow input sequence is in
+	 * progress.
+	 */
 	public long getActiveLink()
 	{
 		if (state == State.IDLE)
@@ -132,6 +178,11 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	{
 	}
 
+	/**
+	 * Displays the pie menu after press is held for 200ms.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class PieMenuTimer extends Timer
 	{
 		private Point point;

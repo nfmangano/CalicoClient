@@ -17,6 +17,11 @@ import calico.controllers.CCanvasController;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Graphical utilities for the Intention View.
+ *
+ * @author Byron Hawkins
+ */
 public class IntentionalInterfacesGraphics
 {
 	private static final Color COORDINATES_COLOR = new Color(0x77777766);

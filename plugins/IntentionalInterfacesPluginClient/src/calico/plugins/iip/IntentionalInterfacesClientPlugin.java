@@ -36,6 +36,12 @@ import calico.plugins.iip.controllers.IntentionalInterfacesCanvasContributor;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
+/**
+ * Integration point for the Intention View with the Calico plugin mechanism. All network commands are received and
+ * initially processed in <code>handleCalicoEvent()</code>.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements CalicoEventListener
 {
 	public IntentionalInterfacesClientPlugin()
@@ -46,9 +52,11 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		CalicoIconManager.setIconTheme(this.getClass(), CalicoOptions.core.icontheme);
 	}
 
+	/**
+	 * Registers for network command notification, initializes controllers, adds buttons to the Canvas View's menu bar.
+	 */
 	public void onPluginStart()
 	{
-		// register for palette events
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.PRESENCE_CANVAS_USERS, this, CalicoEventHandler.PASSIVE_LISTENER);
@@ -76,12 +84,11 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		IntentionGraphController.initialize();
 		IntentionCanvasController.initialize();
 		IntentionalInterfacesPerspective.getInstance(); // load the class
-		
-		
+
 		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
-		
+
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationBackButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationForwardButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
@@ -254,9 +261,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	{
 		p.rewind();
 		IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.verify(p);
-		
+
 		long cellId = p.getLong();
-		
+
 		CIntentionCellController.getInstance().localDeleteCell(cellId);
 	}
 
@@ -268,7 +275,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		CIntentionTopology topology = new CIntentionTopology(p.getString());
 		IntentionGraph.getInstance().setTopology(topology);
 	}
-	
+
 	private static void CIT_CREATE(CalicoPacket p)
 	{
 		p.rewind();

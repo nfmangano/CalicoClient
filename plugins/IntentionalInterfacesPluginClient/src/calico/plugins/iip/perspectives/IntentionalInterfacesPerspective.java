@@ -18,6 +18,17 @@ import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import edu.umd.cs.piccolo.PNode;
 
+/**
+ * Integration point for the Intention View with the <code>CalicoPerspective.Registry</code>. When the user requests to
+ * see the Intention View, <code>displayPerspective()</code> is called to install the Intention View in the display
+ * area.
+ * 
+ * User input in the IntentionView is initially sent here to determine which object it most specifically relates to.
+ * 
+ * Navigation history for the Intention View is implemented here.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionalInterfacesPerspective extends CalicoPerspective
 {
 	private static final IntentionalInterfacesPerspective INSTANCE = new IntentionalInterfacesPerspective();
@@ -33,7 +44,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	{
 		boolean initializing = notYetDisplayed;
 
-//		CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
+		// CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
 
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());

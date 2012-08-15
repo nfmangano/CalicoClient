@@ -2,6 +2,12 @@ package calico.plugins.iip;
 
 import calico.networking.netstuff.CalicoPacket;
 
+/**
+ * Defines the network commands for the Intention View. See the server plugin's peer of this class for more details
+ * about individual commands.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionalInterfacesNetworkCommands
 {
 	public static final int CIC_CREATE = Command.CIC_CREATE.id;
@@ -22,69 +28,21 @@ public class IntentionalInterfacesNetworkCommands
 
 	public enum Command
 	{
-		/**
-		 * Create a new CIntentionCell
-		 */
 		CIC_CREATE,
-		/**
-		 * Move a CIntentionCell's (x,y) position and set its inUse flag
-		 */
 		CIC_MOVE,
-		/**
-		 * Set the title of a CIntentionCell
-		 */
 		CIC_SET_TITLE,
-		/**
-		 * Tag a CIntentionCell with a CIntentionType
-		 */
 		CIC_TAG,
-		/**
-		 * Untag a CIntentionCell with a CIntentionType
-		 */
 		CIC_UNTAG,
-		/**
-		 * Delete a CIntentionCell
-		 */
 		CIC_DELETE,
-		/**
-		 * Describe the topology of the CIC clusters
-		 */
 		CIC_TOPOLOGY,
-		/**
-		 * Describe the graph of the CIC clusters. This is not used on the client, only for backup and restore.
-		 */
 		CIC_CLUSTER_GRAPH,
-		/**
-		 * Create a new CIntentionType
-		 */
 		CIT_CREATE,
-		/**
-		 * Rename a new CIntentionType
-		 */
 		CIT_RENAME,
-		/**
-		 * Set the color of a new CIntentionType
-		 */
 		CIT_SET_COLOR,
-		/**
-		 * Delete a CIntentionType
-		 */
 		CIT_DELETE,
-		/**
-		 * Create a new CCanvasLink
-		 */
 		CLINK_CREATE,
-		/**
-		 * Move one enpoint of a CCanvasLink
-		 */
 		CLINK_MOVE_ANCHOR,
-		/**
-		 * Set the label of a CCanvasLink
-		 */
 		CLINK_LABEL,
-		/**
-		 * Delete a CCanvasLink
-		 */
 		CLINK_DELETE;
 
 		public final int id;
