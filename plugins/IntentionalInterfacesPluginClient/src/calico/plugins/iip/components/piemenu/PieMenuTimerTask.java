@@ -7,6 +7,11 @@ import calico.CalicoOptions;
 import calico.inputhandlers.CalicoAbstractInputHandler.MenuAnimation;
 import edu.umd.cs.piccolo.PLayer;
 
+/**
+ * Pie menu animation task.
+ *
+ * @author Byron Hawkins
+ */
 public abstract class PieMenuTimerTask extends TimerTask
 {
 	private PLayer layer;

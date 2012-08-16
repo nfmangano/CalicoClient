@@ -22,6 +22,11 @@ import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
+/**
+ * Maintains this plugins internal model of CICs in the intenttion graph.
+ * 
+ * @author Byron Hawkins
+ */
 public class CIntentionCellController
 {
 	public static CIntentionCellController getInstance()
@@ -36,9 +41,18 @@ public class CIntentionCellController
 
 	private static CIntentionCellController INSTANCE;
 
+	/**
+	 * Map of all CICs in the Intention View, indexed by id.
+	 */
 	private static Long2ReferenceArrayMap<CIntentionCell> cells = new Long2ReferenceArrayMap<CIntentionCell>();
+	/**
+	 * Map of all CICs in the Intention View, indexed by associated canvas id.
+	 */
 	private static Long2ReferenceArrayMap<CIntentionCell> cellsByCanvasId = new Long2ReferenceArrayMap<CIntentionCell>();
 
+	/**
+	 * Clear all content from this CIC, including tags and title.
+	 */
 	public void clearCell(long cellId)
 	{
 		CIntentionCell cell = cells.get(cellId);
@@ -56,6 +70,10 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Get the CIC at <code>point</code> in the Intention View coordinate space, according to the intersection rules of
+	 * <code>CIntentionCell.contains()</code>, or <code>-1L</code> if no cell is there.
+	 */
 	public long getCellAt(Point point)
 	{
 		for (CIntentionCell cell : cells.values())
@@ -67,7 +85,10 @@ public class CIntentionCellController
 		}
 		return -1L;
 	}
-	
+
+	/**
+	 * Get the canvas id for the root canvas of the cluster containing <code>memberCanvasId</code>.
+	 */
 	public long getClusterRootCanvasId(long memberCanvasId)
 	{
 		long parentCanvasId = -1L;
@@ -80,15 +101,18 @@ public class CIntentionCellController
 				break;
 			}
 		}
-		
+
 		if (parentCanvasId < 0L)
 		{
 			return memberCanvasId;
 		}
-		
+
 		return getClusterRootCanvasId(parentCanvasId);
 	}
 
+	/**
+	 * Initialize all CICs.
+	 */
 	public void initializeDisplay()
 	{
 		for (CIntentionCell cell : cells.values())
@@ -97,6 +121,9 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Return the number of canvases which are tagged with <code>typeId</code>.
+	 */
 	public int countIntentionTypeUsage(long typeId)
 	{
 		int count = 0;
@@ -110,6 +137,9 @@ public class CIntentionCellController
 		return count;
 	}
 
+	/**
+	 * Untag all canvases which are currently tagged with <code>typeId</code>.
+	 */
 	public void removeIntentionTypeReferences(long typeId)
 	{
 		for (CIntentionCell cell : cells.values())
@@ -121,6 +151,9 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Enable or disable iconification mode. This feature is obsolete.
+	 */
 	public void activateIconifyMode(boolean b)
 	{
 		IntentionGraph.getInstance().activateIconifyMode(b);
@@ -130,7 +163,11 @@ public class CIntentionCellController
 			cell.updateIconification();
 		}
 	}
-	
+
+	/**
+	 * Notify all CICs that the user presence in at least one CIC has changed (not sure why it doesn't just update the
+	 * changed CICs--probably an unchaged CIC will not do anything anyway).
+	 */
 	public void updateUserLists()
 	{
 		for (CIntentionCell cell : cells.values())
@@ -139,6 +176,10 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Delete <code>canvsaId</code>, sending the command directly to the server. Removal of visual components and
+	 * related plugin model elements will occur on each client when the server broadcasts deletion.
+	 */
 	public void deleteCanvas(long canvasId)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -150,12 +191,21 @@ public class CIntentionCellController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Move the pixel position of the Piccolo component of CIC <code>cellId</code> in the Intention View to
+	 * <code>x, y</code>. Does not contact the server.
+	 */
 	public void moveCellLocal(long cellId, double x, double y)
 	{
 		cells.get(cellId).setLocation(x, y);
 		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
 	}
 
+	/**
+	 * Move the CIC <code>cellId</code> to <code>x, y</code> in the Intention View's coordinate space, sending the
+	 * command directly to the server and adjusting no visual components. Each client will render the change when the
+	 * server broadcasts it.
+	 */
 	public void moveCell(long cellId, double x, double y)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -169,6 +219,11 @@ public class CIntentionCellController
 		Networking.send(packet);
 	}
 
+	/**
+	 * Change the title of the canvas associated with <code>cellId</code> by dropping a command in this client's
+	 * incoming command pipeline. If <code>!local</code>, the command will also be sent to the server and broadcast to
+	 * all other clients.
+	 */
 	public void setCellTitle(long cellId, String title, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -184,6 +239,11 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Toggle tag <code>typeId</code> of the canvas associated with <code>cellId</code> by dropping a command in this
+	 * client's incoming command pipeline. If <code>!local</code>, the command will also be sent to the server and
+	 * broadcast to all other clients.
+	 */
 	public void toggleCellIntentionType(long cellId, long typeId, boolean add, boolean local)
 	{
 		CalicoPacket packet = new CalicoPacket();
@@ -199,15 +259,21 @@ public class CIntentionCellController
 		}
 	}
 
+	/**
+	 * Delete the plugin model elements and visual components associated with <code>cellId</code>.
+	 */
 	public void localDeleteCell(long cellId)
 	{
 		CIntentionCell cell = cells.remove(cellId);
 		cellsByCanvasId.remove(cell.getCanvasId());
 		cell.delete();
-		
+
 		IntentionGraph.getInstance().repaint();
 	}
 
+	/**
+	 * Create and install plugin model elements and visual components for new CIC <code>cell</code>.
+	 */
 	public void addCell(CIntentionCell cell)
 	{
 		cells.put(cell.getId(), cell);
@@ -230,6 +296,7 @@ public class CIntentionCellController
 		return cellsByCanvasId.get(canvas_uuid);
 	}
 
+	// debug info
 	public String listVisibleCellAddresses()
 	{
 		StringBuilder buffer = new StringBuilder("{");
@@ -250,6 +317,7 @@ public class CIntentionCellController
 		return buffer.toString();
 	}
 
+	// for debug info
 	private static class CellAddressSorter implements Comparator<CIntentionCell>
 	{
 		public int compare(CIntentionCell first, CIntentionCell second)

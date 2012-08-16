@@ -6,6 +6,13 @@ import calico.controllers.CCanvasController;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.canvas.CanvasInputProximity;
 
+/**
+ * Manages this plugin's role in the 2-phase process of creating a new canvas, which consumers request via
+ * <code>createNewCell()</code>. First a new canvas is created by request to the <code>CCanvasController.Factory</code>.
+ * When the server responds with the new canvas, this class continues by creating and returning a new CIC.
+ * 
+ * @author Byron Hawkins
+ */
 public class CIntentionCellFactory
 {
 	private static final CIntentionCellFactory INSTANCE = new CIntentionCellFactory();
@@ -54,6 +61,11 @@ public class CIntentionCellFactory
 		}
 	}
 
+	/**
+	 * Synchronization device to wait for the new canvas to be created on the server.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class PendingCell
 	{
 		private CIntentionCell cell = null;

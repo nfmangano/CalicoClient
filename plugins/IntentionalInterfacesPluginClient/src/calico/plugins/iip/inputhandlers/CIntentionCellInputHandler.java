@@ -18,6 +18,17 @@ import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Custom <code>CalicoInputManager</code>handler for events related to CICs in the Intention View. The main Calico event
+ * handling mechanism will determine whether input relates to a CIC by calling
+ * <code>IntentionalInterfacesPerspective.getEventTarget()</code>. When that method returns a CIC, the associated input
+ * event will be sent here.
+ * 
+ * The current behavior is to enter a canvas on tap, show a bubble menu for the CIC on press&hold, and move the CIC when
+ * dragged more than 20 pixels.
+ * 
+ * @author Byron Hawkins
+ */
 public class CIntentionCellInputHandler extends CalicoAbstractInputHandler implements ContextMenu.Listener
 {
 	public static CIntentionCellInputHandler getInstance()
@@ -38,18 +49,48 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		MENU;
 	}
 
+	/**
+	 * Identifies the CIC which input is currently operating on, if any.
+	 */
 	private long currentCellId;
 
+	/**
+	 * State token, voluntarily protected under the <code>stateLock</code>.
+	 */
 	private State state = State.IDLE;
+	/**
+	 * Voluntary lock for the <code>state</code>.
+	 */
 	private final Object stateLock = new Object();
 
+	/**
+	 * Keeps the initial mouse position at the moment a drag was initiated. The value has no meaning when no drag is in
+	 * progress.
+	 */
 	private Point mouseDragAnchor;
+	/**
+	 * Keeps the initial CIC position at the moment a drag was initiated. The value has no meaning when no drag is in
+	 * progress.
+	 */
 	private Point2D cellDragAnchor;
 
+	/**
+	 * Time governing the display delay for the bubble menu.
+	 */
 	private final BubbleMenuTimer bubbleMenuTimer = new BubbleMenuTimer();
 
+	/**
+	 * Simple button to delete a canvas and its associated CIC.
+	 */
 	private final DeleteCanvasButton deleteCanvasButton = new DeleteCanvasButton();
+	/**
+	 * Button for initiating the arrow creation phase, which is governed by <code>CIntentionArrowPhase</code>.
+	 */
 	private final CreateLinkButton linkButton = new CreateLinkButton();
+	/**
+	 * Simple button to zoom and pan the Intention View such that the cluster containing the selected CIC fits neatly in
+	 * the Intention View.
+	 */
 	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
 
 	private CIntentionCellInputHandler()
@@ -57,6 +98,9 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		BubbleMenu.addListener(this);
 	}
 
+	/**
+	 * Initiate the input sequence on <code>currentCellId</code>. The sequence will terminate on input release.
+	 */
 	public void setCurrentCellId(long currentCellId)
 	{
 		this.currentCellId = currentCellId;
@@ -64,6 +108,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(true);
 	}
 
+	/**
+	 * Get the CIC which is currently the subject of input, or <code>-1L</code> if no input sequence is presently active
+	 * on a CIC.
+	 */
 	public long getActiveCell()
 	{
 		if (state == State.IDLE)
@@ -148,7 +196,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					}
 					break;
 			}
-			
+
 			if (state != State.MENU)
 			{
 				state = State.IDLE;
@@ -172,6 +220,12 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 	}
 
+	/**
+	 * Show the bubble menu after a press&hold delay of 200ms, unless the input is released or dragged more than 20
+	 * pixels before the timer expires.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class BubbleMenuTimer extends Timer
 	{
 		private Point point;
@@ -220,6 +274,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		}
 	}
 
+	/**
+	 * Integration point for a CIC with the bubble menu.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
 	{
 		@Override

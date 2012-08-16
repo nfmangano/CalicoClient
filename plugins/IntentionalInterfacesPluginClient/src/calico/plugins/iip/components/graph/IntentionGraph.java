@@ -26,8 +26,22 @@ import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Visual container for the Intention View. The <code>contentCanvas</code> contains canvas thumbnails and arrows, and
+ * the <code>canvas</code> contains tools and handlers and such things. The <code>menuBar</code> sits along the bottom
+ * of the screen, and the <code>topology</code> renders the visible elements of the layout topology. Methods should be
+ * self explanatory by name.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionGraph
 {
+	/**
+	 * Represents the 3 layers of the Intention View. The order and indexing is deliberate--changing it would probably
+	 * break the entire view.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	public enum Layer
 	{
 		TOPOLOGY(0),
@@ -53,15 +67,39 @@ public class IntentionGraph
 
 	private static IntentionGraph INSTANCE;
 
+	/**
+	 * Piccolo layer containing the painted topology elements.
+	 */
 	private final PLayer topologyLayer = new PLayer();
+	/**
+	 * Piccolo layer containing the bubble and pie menus.
+	 */
 	private final PLayer toolLayer = new PLayer();
 
+	/**
+	 * Piccolo canvas containing the topology, tool and content layers. The content layer is constructed within
+	 * <code>contentCanvas</code>, and then added to this <code>canvas</code>, to prevent zoom from getting tangled up
+	 * with menus and other statically sized stuff.
+	 */
 	private final ContainedCanvas canvas = new ContainedCanvas();
+	/**
+	 * Piccolo canvas containing the <code>CIntentionCell</code>s. This canvas is never added to the Intention View
+	 * directly; instead, its only layer is extracted and added to the <code>canvas</code> above.
+	 */
 	private final ContainedCanvas contentCanvas = new ContainedCanvas();
+	/**
+	 * Simple menu bar sitting at the bottom of the Intention View.
+	 */
 	private IntentionGraphMenuBar menuBar;
 
+	/**
+	 * Contains the Piccolo components which render the topology of the cluster layout.
+	 */
 	private CIntentionTopology topology;
 
+	/**
+	 * obsolete
+	 */
 	private boolean iconifyMode = false;
 
 	private final long uuid;
@@ -146,7 +184,7 @@ public class IntentionGraph
 	{
 		Point2D.Double translation = new Point2D.Double(x, y);
 		getLayer(Layer.CONTENT).setGlobalTranslation(translation);
-		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation); 
+		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
 
 		if (BubbleMenu.isBubbleMenuActive())
 		{
@@ -367,6 +405,11 @@ public class IntentionGraph
 		canvas.removeMouseMotionListener(listener);
 	}
 
+	/**
+	 * Wrap the Piccolo canvas to gain access to one protected method.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class ContainedCanvas extends PCanvas
 	{
 		public ContainedCanvas()

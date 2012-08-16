@@ -44,6 +44,12 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * A panel in the Canvas View which shows all the intention links that are attached to the current canvas. This feature
+ * is obsolete.
+ * 
+ * @author Byron Hawkins
+ */
 public class CanvasLinkPanel implements StickyItem
 {
 	private static CanvasLinkPanel getInstance()
@@ -585,8 +591,10 @@ public class CanvasLinkPanel implements StickyItem
 
 		public CanvasThumbnail()
 		{
-			// GridRemoval: double gridCellWidth = CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
-			// GridRemoval: double gridCellHeight = CGrid.getInstance().getImgh() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
+			// GridRemoval: double gridCellWidth = CGrid.getInstance().getImgw() - (CGridCell.ROUNDED_RECTANGLE_OVERFLOW
+			// + CGridCell.CELL_MARGIN);
+			// GridRemoval: double gridCellHeight = CGrid.getInstance().getImgh() -
+			// (CGridCell.ROUNDED_RECTANGLE_OVERFLOW + CGridCell.CELL_MARGIN);
 			// GridRemoval: setBounds(0.0, 0.0, gridCellWidth * 3.0, gridCellHeight * 3.0);
 			setPaint(Color.white);
 
@@ -690,7 +698,7 @@ public class CanvasLinkPanel implements StickyItem
 				// not a drag, completely ignore this event
 				return;
 			}
-			
+
 			synchronized (stateLock)
 			{
 				if (state == InputState.THUMBNAIL)

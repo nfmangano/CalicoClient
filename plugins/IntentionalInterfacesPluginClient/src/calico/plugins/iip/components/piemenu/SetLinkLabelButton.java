@@ -6,6 +6,11 @@ import calico.plugins.iip.components.LinkLabelDialog;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple button for the user to request changing the label on a link. This feature is obsolete.
+ * 
+ * @author Byron Hawkins
+ */
 public class SetLinkLabelButton extends PieMenuButton
 {
 	private CCanvasLink link = null;
@@ -19,7 +24,7 @@ public class SetLinkLabelButton extends PieMenuButton
 	{
 		this.link = link;
 	}
-	
+
 	@Override
 	public void onClick()
 	{
@@ -28,7 +33,7 @@ public class SetLinkLabelButton extends PieMenuButton
 			System.out.println("Warning: set link label button displayed without having been prepared with a link!");
 			return;
 		}
-		
+
 		LinkLabelDialog.Action action = LinkLabelDialog.getInstance().queryUserForLabel(link);
 		switch (action)
 		{

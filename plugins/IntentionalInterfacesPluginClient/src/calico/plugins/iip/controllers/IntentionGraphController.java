@@ -25,8 +25,19 @@ import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Coordinates visual components of the Intention View with this plugin's internal model and the server.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionGraphController
 {
+	/**
+	 * Utility for calculating the intersection of a line with the bounds of a CIC, used for placing arrow endpoints
+	 * adjacent to cell edges.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private enum CellEdge
 	{
 		TOP
@@ -89,8 +100,15 @@ public class IntentionGraphController
 
 	private static IntentionGraphController INSTANCE;
 
+	/**
+	 * Map of all arrows in the Intention View, indexed by <code>CCanvasLink</code> id.
+	 */
 	private final Long2ReferenceArrayMap<CCanvasLinkArrow> arrowsByLinkId = new Long2ReferenceArrayMap<CCanvasLinkArrow>();
 
+	/**
+	 * Notify this controller that a link has been created, so that it can create and install the corresponding
+	 * <code>CCanvsaLinkArrow</code>.
+	 */
 	public void addLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = new CCanvasLinkArrow(link);
@@ -113,6 +131,10 @@ public class IntentionGraphController
 		return arrowsByLinkId.get(uuid);
 	}
 
+	/**
+	 * Move the pixel coordinates of <code>linkSourceCanvasId</code> such that it aligns with a link endpoint at
+	 * <code>xLinkEndpoint, yLinkEndpoint</code>.
+	 */
 	public Point2D alignCellEdgeAtLinkEndpoint(long linkSourceCanvasId, double xLinkEndpoint, double yLinkEndpoint)
 	{
 		CIntentionCell sourceCell = CIntentionCellController.getInstance().getCellByCanvasId(linkSourceCanvasId);
@@ -193,12 +215,19 @@ public class IntentionGraphController
 		}
 	}
 
+	/**
+	 * Remove the visual components associated with <code>link</code>.
+	 */
 	public void removeLink(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(arrow);
 	}
 
+	/**
+	 * Notify this controller that the contents of <code>canvas_uuid</code> have changed, so that the thumbnail image
+	 * can be updated.
+	 */
 	public void contentChanged(long canvas_uuid)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
@@ -216,6 +245,10 @@ public class IntentionGraphController
 		IntentionGraph.getInstance().initialize();
 	}
 
+	/**
+	 * Notify this controller that <code>link</code> or any of its display-related components has changed in some way
+	 * that affects the display of the arrow, so that the display components can be updated accordingly.
+	 */
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
@@ -236,6 +269,11 @@ public class IntentionGraphController
 		arrow.redraw();
 	}
 
+	/**
+	 * Notify this controller that CIC <code>cellId</code> has moved to pixel position <code>x, y</code> in the
+	 * Intention View coordinate system, so that the attached arrow anchors can be moved accordingly. Anchor positions
+	 * will be adjusted to keep them aligned to the edge of the CIC.
+	 */
 	public void localUpdateAttachedArrows(long cellId, double x, double y)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
@@ -250,6 +288,12 @@ public class IntentionGraphController
 		}
 	}
 
+	/**
+	 * Notify this controller that the CIC <code>cellId</code> has moved to pixel position <code>x, y</code> in the
+	 * Intention View's coordinate space. The arrow anchor positions in this plugin's internal model will be updated
+	 * accordingly, and the anchor position changes will be sent to the server (via <code>CCanvasLinkController</code>).
+	 * Related visual components will also be adjusted, such as the position of the bubble menu.
+	 */
 	public void cellMoved(long cellId, double x, double y)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(cellId);
@@ -292,6 +336,9 @@ public class IntentionGraphController
 		return alignAnchorAtCellEdge(cell.copyBounds(), xOpposite, yOpposite);
 	}
 
+	/**
+	 * Trig machinery to align arrow anchors with CIC edges.
+	 */
 	private void alignAnchors(CCanvasLink link)
 	{
 		CIntentionCell fromCell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorA().getCanvasId());
@@ -335,16 +382,25 @@ public class IntentionGraphController
 		link.getAnchorB().getPoint().setLocation(bPosition);
 	}
 
+	/**
+	 * Trig machinery to align arrow anchors with CIC edges.
+	 */
 	private Point2D alignAnchorAtCellEdge(double xCell, double yCell, Dimension2D cellSize, Point2D opposite)
 	{
 		return alignAnchorAtCellEdge(new PBounds(xCell, yCell, cellSize.getWidth(), cellSize.getHeight()), opposite.getX(), opposite.getY());
 	}
 
+	/**
+	 * Trig machinery to align arrow anchors with CIC edges.
+	 */
 	private Point2D alignAnchorAtCellEdge(PBounds cellBounds, Point2D opposite)
 	{
 		return alignAnchorAtCellEdge(cellBounds, opposite.getX(), opposite.getY());
 	}
 
+	/**
+	 * Trig machinery to align arrow anchors with CIC edges.
+	 */
 	private Point2D alignAnchorAtCellEdge(PBounds cellBounds, double xOpposite, double yOpposite)
 	{
 		double[] intersection = new double[2];

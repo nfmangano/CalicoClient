@@ -24,6 +24,13 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * Represents a canvas thumbnail in the Intention View, both in the plugin's internal model and in the Piccolo component
+ * hierarchy (with inner class <code>Shell</code>). The classname <code>CIntentionCell</code> is generally abbreviated
+ * "CIC" throughout the documentation.
+ * 
+ * @author Byron Hawkins
+ */
 public class CIntentionCell
 {
 	public static final String DEFAULT_TITLE = "<default>";
@@ -46,17 +53,47 @@ public class CIntentionCell
 		}
 	}
 
+	/**
+	 * Identifies this cell.
+	 */
 	private long uuid;
+	/**
+	 * Identifies the canvas for which this cell renders thumbnails.
+	 */
 	private long canvas_uuid;
+	/**
+	 * Pixel position in the Intention View of the upper left corner of the canvas thumbnail.
+	 */
 	private Point2D location;
+	/**
+	 * Title of the canvas, which appears both on the CIC and on the canvas itself (represented there by
+	 * <code>CanvasTitlePanel</code>). The title is maintained in this class because it is a feature of this plugin, but
+	 * the title is still effectively associated with the canvas.
+	 */
 	private String title;
+	/**
+	 * Tag associated with the canvas of this CIC. The tag is maintained in this class because it is a feature of this
+	 * plugin, but the tag is still effectively associated with the canvas.
+	 */
 	private long intentionTypeId = -1L;
 
+	/**
+	 * Rendering state flag indicating that the border of the CIC is currently drawn in the highlighted color.
+	 */
 	private boolean highlighted = false;
+	/**
+	 * State flag used in the construction process of a canvas. See <code>CIntentionCellFactory</code> for details.
+	 */
 	private boolean isNew = false;
 
+	/**
+	 * Represents the CIC in the Piccolo component hierarchy of the Intention View.
+	 */
 	private final Shell shell;
 
+	/**
+	 * Create a new CIC and add it to the Intention View.
+	 */
 	public CIntentionCell(long uuid, long canvas_uuid, Point2D location, String title)
 	{
 		this.uuid = uuid;
@@ -78,11 +115,17 @@ public class CIntentionCell
 		this.isNew = isNew;
 	}
 
+	/**
+	 * Create and install the thumbnail image.
+	 */
 	public void initialize()
 	{
 		shell.updateContents();
 	}
 
+	/**
+	 * Detach all the resources of the CIC from the Intention View.
+	 */
 	public void delete()
 	{
 		shell.delete();
@@ -119,6 +162,10 @@ public class CIntentionCell
 		return title;
 	}
 
+	/**
+	 * Return true if the user has set a title on the canvas associated to this CIC, or false if the canvas uses the
+	 * default title.
+	 */
 	public boolean hasUserTitle()
 	{
 		return !title.equals(DEFAULT_TITLE);
@@ -140,27 +187,43 @@ public class CIntentionCell
 		this.intentionTypeId = intentionTypeId;
 	}
 
+	/**
+	 * Return true if the user has assigned a tag to the canvas associated to this CIC.
+	 */
 	public boolean hasIntentionType()
 	{
 		return intentionTypeId >= 0L;
 	}
 
+	/**
+	 * Remove any tag that may have been assigned to the canvas associated with this CIC.
+	 */
 	public void clearIntentionType()
 	{
 		intentionTypeId = -1L;
 	}
 
+	/**
+	 * Return true when <code>point</code> contacts the physical coordinate region occupied by the canvas thumbnail of
+	 * this CIC in the Intention View. It is assumed that <code>point</code> specifies screen coordinates.
+	 */
 	public boolean contains(Point2D point)
 	{
 		PBounds bounds = shell.getGlobalBounds();
 		return ((point.getX() > bounds.x) && (point.getY() > bounds.y) && ((point.getX() - bounds.x) < bounds.width) && (point.getY() - bounds.y) < bounds.height);
 	}
 
+	/**
+	 * Get the pixel position of this CIC within the Intention View.
+	 */
 	public Point2D getLocation()
 	{
 		return shell.getBounds().getOrigin();
 	}
 
+	/**
+	 * Get the bounds of this CIC in screen coordinates.
+	 */
 	public PBounds getGlobalBounds()
 	{
 		PBounds bounds = shell.getBounds();
@@ -168,11 +231,17 @@ public class CIntentionCell
 		return new PBounds(shell.localToGlobal(bounds)); // getBounds();
 	}
 
+	/**
+	 * Get the center point of this CIC in Intention View coordinates.
+	 */
 	public Point2D getCenter()
 	{
 		return shell.thumbnailBounds.getCenter2D();
 	}
 
+	/**
+	 * Set the location of this CIC in Intention View coordinates.
+	 */
 	public void setLocation(double x, double y)
 	{
 		location.setLocation(x, y);
@@ -187,6 +256,9 @@ public class CIntentionCell
 		return shell.thumbnailBounds.getSize();
 	}
 
+	/**
+	 * Clone the bounds of this CIC, which occur in Intention View coordinates.
+	 */
 	public PBounds copyBounds()
 	{
 		return (PBounds) shell.thumbnailBounds.clone();
@@ -198,27 +270,44 @@ public class CIntentionCell
 		shell.repaint();
 	}
 
+	/**
+	 * Return true if this CIC can be seen in the present visible area of the Intention View.
+	 */
 	public boolean isInGraphFootprint()
 	{
 		return IntentionGraph.getInstance().getLocalBounds(IntentionGraph.Layer.CONTENT).intersects(shell.getBounds());
 	}
 
+	/**
+	 * Update the canvas thumbnail to reflect its most recent contents.
+	 */
 	public void contentsChanged()
 	{
 		shell.canvasSnapshot.contentsChanged();
 	}
 
+	/**
+	 * Update the iconification state of this CIC, based on the current zoom ratio and whether iconification mode is
+	 * enabled. This feature is obsolete.
+	 */
 	public void updateIconification()
 	{
 		shell.updateIconification();
 		shell.repaint();
 	}
 
+	/**
+	 * Update the list of users drawn in the upper right corner of this CIC.
+	 */
 	public void updateUserList()
 	{
 		shell.userList.updateUsers();
 	}
 
+	/**
+	 * Return true if the present zoom ratio allows the thumbnail to be drawn. This is used for iconification, which is
+	 * obsolete.
+	 */
 	private boolean scaleAllowsSnapshot()
 	{
 		return ((!IntentionGraph.getInstance().getIconifyMode()) || (IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale() >= MINIMUM_SNAPSHOT_SCALE));
@@ -226,21 +315,50 @@ public class CIntentionCell
 
 	private static final int BORDER_WIDTH = 1;
 
+	/**
+	 * Represents the CIC in the Piccolo component hierarchy of the Intention View. The size of a CIC is statically
+	 * defined as <code>THUMBNAIL_SIZE</code>, so all scaling occurs globally to the Intention View.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class Shell extends PComposite implements PropertyChangeListener
 	{
 		private final Color BACKGROUND_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xCC);
 
+		/**
+		 * Renders the canvas number in the upper left corner.
+		 */
 		private final PImage canvasAddress;
+		/**
+		 * Renders the thumbnail image.
+		 */
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
+		/**
+		 * Renders the title of the canvas, above the CIC and left justified.
+		 */
 		private final TitleBar titleBar = new TitleBar();
+		/**
+		 * Renders the list of users currently viewing the canvas associated with this CIC.
+		 */
 		private final UserList userList = new UserList();
 
+		/**
+		 * State flag indicating that the thumbnail is currently being displayed. This flag supports iconification,
+		 * which is obsolete.
+		 */
 		private boolean showingSnapshot = false;
 
+		/**
+		 * Bounds of the thumbnail rectangle, not including the title sitting above the CIC.
+		 */
 		private PBounds thumbnailBounds = new PBounds();
 
+		/**
+		 * Maintains the last zoom ratio, to avoid regenerating the thumbnail image when the Intention View display
+		 * changes in any way that does not affect the rendering of this thumbnail (including miniscule zoom changes
+		 * that have no net effect).
+		 */
 		private double lastScale = Double.MIN_VALUE;
-		boolean updateIconification = false;
 
 		public Shell(double x, double y)
 		{

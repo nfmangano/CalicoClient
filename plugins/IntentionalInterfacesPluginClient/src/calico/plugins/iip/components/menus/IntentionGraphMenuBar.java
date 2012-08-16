@@ -13,6 +13,12 @@ import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.menus.buttons.NewClusterButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
+/**
+ * Menu bar for the Intention View. Includes simple buttons and a zoom slider with +/- buttons on either end. Input
+ * events intersecting with the slider are forwarded to it.
+ * 
+ * @author Byron Hawkins
+ */
 public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 {
 	private final Rectangle zoomSliderBounds;
@@ -36,12 +42,12 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addChild(zoomSlider);
 		zoomSlider.setBounds(zoomSliderBounds);
 		zoomSlider.repaint();
-		
-		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());		
+
+		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new HistoryNavigationForwardButton());
 		addIconRightAligned(new HistoryNavigationBackButton());
-		
+
 	}
 
 	public void initialize()
@@ -70,7 +76,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		}
 	}
 
-//	@Override
+	// @Override
 	public void clickMenu(InputEventInfo event, Point point)
 	{
 		if (zoomSliderBounds.contains(point))

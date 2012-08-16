@@ -10,6 +10,13 @@ import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple button for copying a canvas, delegating first to <code>CIntentionCellFactory</code> to create a new canvas/CIC
+ * pair, and then delegating to <code>IntentionCanvasController</code> to copy the contents of the current canvas into
+ * the new one.
+ * 
+ * @author Byron Hawkins
+ */
 public class CopyCanvasButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
@@ -42,7 +49,7 @@ public class CopyCanvasButton extends CanvasMenuButton
 	{
 		long newCanvasId = CIntentionCellFactory.getInstance()
 				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
-		CCanvasLinkController.getInstance().copyCanvas(currentCanvasId, newCanvasId);
+		IntentionCanvasController.getInstance().copyCanvas(currentCanvasId, newCanvasId);
 
 		if (CanvasPerspective.getInstance().isActive())
 		{

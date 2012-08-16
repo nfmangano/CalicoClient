@@ -4,6 +4,11 @@ import calico.components.menus.CanvasMenuButton;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple button to show the tag panel. This feature is obsolete.
+ * 
+ * @author Byron Hawkins
+ */
 public class TagPanelToolBarButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;

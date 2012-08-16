@@ -1,21 +1,17 @@
 package calico.plugins.iip.components.canvas;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
-import calico.CalicoDataStore;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -24,19 +20,29 @@ import calico.inputhandlers.StickyItem;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
-import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
-import calico.plugins.iip.iconsets.CalicoIconManager;
-import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.nodes.PImage;
-import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
+/**
+ * Panel in the Canvas View containing all the available tags in a list. If the current canvas has been tagged, that
+ * tag's row in the panel is highlighted with the tag color as a solid background. When the user clicks on a tag, the
+ * panel disappears and the tag is assigned to the canvas via <code>CIntentionCellController</code>.
+ * 
+ * There is only one instance of the tag panel, and it is moved from canvas to canvas as the user traverses their
+ * design.
+ * 
+ * When tags are added or removed, this tag panel expects to be notified with a call to
+ * <code>updateIntentionTypes()</code> so that it can make the visual changes.
+ * 
+ * Earlier versions of this panel allowed the user to edit the tags in various ways.
+ * 
+ * @author Byron Hawkins
+ */
 public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 {
 	public static CanvasTagPanel getInstance()
@@ -215,6 +221,12 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		Image image;
 	}
 
+	/**
+	 * Represents one tag row panel's Piccolo component hierarchy. Paints the selection highlight in
+	 * <code>paint()</code>.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class IntentionTypeRow extends PComposite
 	{
 		private final CIntentionType type;
@@ -279,6 +291,12 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		}
 	}
 
+	/**
+	 * Represents the panel in the Piccolo component hierarchy. Automatically sizes to fit on
+	 * <code>updateIntentionTypes(). Paints its own outline with rounded corners in <code>paint()</code>.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class PanelNode extends PComposite
 	{
 		private final List<IntentionTypeRow> typeRows = new ArrayList<IntentionTypeRow>();
@@ -381,12 +399,24 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		}
 	}
 
+	/**
+	 * Input only processes tap events, so only the pressed state is tracked.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private enum InputState
 	{
 		IDLE,
 		PRESSED
 	}
 
+	/**
+	 * Recognizes a tap as a press which is held for less than the <code>tapDuration</code> and does not include a drag
+	 * beyond the <code>dragThreshold</code>. The <code>state</code> is voluntarily locked for reading and writing under
+	 * <code>stateLock</code>.
+	 * 
+	 * @author Byron Hawkins
+	 */
 	private class InputHandler extends CalicoAbstractInputHandler
 	{
 		private final Object stateLock = new Object();

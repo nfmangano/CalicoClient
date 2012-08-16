@@ -17,6 +17,11 @@ import javax.swing.KeyStroke;
 
 import calico.CalicoDataStore;
 
+/**
+ * Simple modal dialog in which the user enters a label for a link. 
+ *
+ * @author Byron Hawkins
+ */
 public class LinkLabelDialog
 {
 	private static final LinkLabelDialog INSTANCE = new LinkLabelDialog();

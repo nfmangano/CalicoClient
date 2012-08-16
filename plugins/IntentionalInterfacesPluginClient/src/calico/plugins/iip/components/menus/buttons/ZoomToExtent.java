@@ -4,6 +4,11 @@ import calico.components.menus.CanvasMenuButton;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 
+/**
+ * Simple "zoom to contents" button.
+ *
+ * @author Byron Hawkins
+ */
 public class ZoomToExtent extends CanvasMenuButton
 {
 	public ZoomToExtent()

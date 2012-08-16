@@ -19,6 +19,11 @@ import javax.swing.KeyStroke;
 import calico.CalicoDataStore;
 import calico.plugins.iip.components.CIntentionCell;
 
+/**
+ * Modal text entry dialog containing a single field in which the user enters a new canvas title.
+ * 
+ * @author Byron Hawkins
+ */
 public class CanvasTitleDialog
 {
 	private static final CanvasTitleDialog INSTANCE = new CanvasTitleDialog();

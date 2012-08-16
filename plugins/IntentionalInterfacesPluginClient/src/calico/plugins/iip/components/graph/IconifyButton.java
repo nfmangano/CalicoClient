@@ -5,6 +5,13 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.util.PBounds;
 
+/**
+ * Simple toggle button which alternately enables or disables the icon form of the canvas thumbnails in the Intention
+ * View. When the icon form is enabled and the thumbnails are small, they will appear as icons instead of attempting to
+ * draw a miniscule thumbnail. This feature is obsolete.
+ * 
+ * @author Byron Hawkins
+ */
 public class IconifyButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;

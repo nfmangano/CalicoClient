@@ -10,6 +10,12 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 
+/**
+ * Bubble menu button to zoom and pan the Intention View such that the cluster containing the selected canvas fits
+ * tightly in the Intention View.
+ * 
+ * @author Byron Hawkins
+ */
 public class ZoomToClusterButton extends PieMenuButton
 {
 	public ZoomToClusterButton()
@@ -21,7 +27,7 @@ public class ZoomToClusterButton extends PieMenuButton
 	public void onReleased(InputEventInfo event)
 	{
 		super.onReleased(event);
-		
+
 		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
 		IntentionGraph.getInstance().zoomToCluster(activeCanvasId);
 	}

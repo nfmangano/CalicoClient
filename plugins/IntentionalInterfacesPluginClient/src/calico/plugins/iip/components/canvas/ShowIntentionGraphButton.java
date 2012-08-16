@@ -4,6 +4,11 @@ import calico.components.menus.CanvasMenuButton;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
+/**
+ * Simple button which changes the current view to the Intention View.
+ *
+ * @author Byron Hawkins
+ */
 public class ShowIntentionGraphButton extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
