@@ -20,6 +20,7 @@ import java.util.TimerTask;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.components.CCanvas;
 import calico.components.grid.CGrid;
 import calico.controllers.CCanvasController;
@@ -144,7 +145,8 @@ public class CanvasLinkPanel implements StickyItem
 		if (b)
 		{
 			CalicoInputManager.registerStickyItem(this);
-			panel.repaint();
+			CalicoDraw.repaint(panel);
+//			panel.repaint();
 		}
 		else
 		{
@@ -165,8 +167,10 @@ public class CanvasLinkPanel implements StickyItem
 			thumbnail.getParent().removeChild(thumbnail);
 		}
 		updateLinks();
-		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
-		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(thumbnail);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), panel);
+//		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), thumbnail);
+//		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(thumbnail);
 	}
 
 	public void refresh()
@@ -234,7 +238,8 @@ public class CanvasLinkPanel implements StickyItem
 
 		if (visible)
 		{
-			panel.repaint();
+			CalicoDraw.repaint(panel);
+//			panel.repaint();
 		}
 	}
 
@@ -269,12 +274,14 @@ public class CanvasLinkPanel implements StickyItem
 
 		void installComponents()
 		{
-			panel.addChild(label);
+			CalicoDraw.addChildToNode(panel, label);
+//			panel.addChild(label);
 		}
 
 		void removeAllComponents()
 		{
-			panel.removeChild(label);
+			CalicoDraw.removeChildFromNode(panel, label);
+//			panel.removeChild(label);
 		}
 	}
 
@@ -324,13 +331,15 @@ public class CanvasLinkPanel implements StickyItem
 
 		void installComponents()
 		{
-			panel.addChild(headerCell);
+			CalicoDraw.addChildToNode(panel, headerCell);
+//			panel.addChild(headerCell);
 			updateCheckmarks();
 		}
 
 		void removeAllComponents()
 		{
-			panel.removeChild(headerCell);
+			CalicoDraw.addChildToNode(panel, headerCell);
+//			panel.removeChild(headerCell);
 			removeCheckmarks();
 		}
 
@@ -376,7 +385,8 @@ public class CanvasLinkPanel implements StickyItem
 
 					PImage checkmark = new PImage(paintedCheckmark);
 					checkmarksByIntentionTypeId.put(type.getId(), checkmark);
-					panel.addChild(checkmark);
+					CalicoDraw.addChildToNode(panel, checkmark);
+//					panel.addChild(checkmark);
 				}
 			}
 		}
@@ -399,8 +409,10 @@ public class CanvasLinkPanel implements StickyItem
 
 		public PanelNode()
 		{
-			addChild(contextHighlight);
-			addChild(clickHighlight);
+			CalicoDraw.addChildToNode(this, contextHighlight);
+			CalicoDraw.addChildToNode(this, clickHighlight);
+//			addChild(contextHighlight);
+//			addChild(clickHighlight);
 		}
 
 		void initialize()
@@ -477,7 +489,8 @@ public class CanvasLinkPanel implements StickyItem
 			border = new PPath(new Rectangle2D.Double(0, 0, calculateWidth(), calculateHeight()));
 			border.setStrokePaint(Color.black);
 			border.setStroke(new BasicStroke(1f));
-			addChild(border);
+			CalicoDraw.addChildToNode(this, border);
+//			addChild(border);
 		}
 
 		void updateLinks()
@@ -526,7 +539,8 @@ public class CanvasLinkPanel implements StickyItem
 		private void highlightClickedColumn(LinkColumn column)
 		{
 			showHighlight(clickHighlight, column);
-			repaint();
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
 
 		private void showHighlight(PPath highlight, LinkColumn column)
@@ -599,7 +613,8 @@ public class CanvasLinkPanel implements StickyItem
 			setPaint(Color.white);
 
 			snapshot.setBounds(getBounds());
-			addChild(snapshot);
+			CalicoDraw.addChildToNode(this, snapshot);
+//			addChild(snapshot);
 
 			hide();
 		}
@@ -618,14 +633,18 @@ public class CanvasLinkPanel implements StickyItem
 			snapshot.setImage(canvas.getContentCamera().toImage());
 			snapshot.setBounds(getBounds());
 
-			moveToFront();
-			setVisible(true);
-			repaint();
+			CalicoDraw.moveNodeToFront(this);
+//			moveToFront();
+			CalicoDraw.setVisible(this, true);
+//			setVisible(true);
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
 
 		void hide()
 		{
-			setVisible(false);
+			CalicoDraw.setVisible(this, false);
+//			setVisible(false);
 		}
 
 		@Override

@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
+import calico.CalicoDraw;
 import calico.components.arrow.AbstractArrow;
 import calico.components.arrow.AbstractArrowAnchorPoint;
 import calico.plugins.iip.components.CCanvasLink;
@@ -126,8 +127,10 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 
 	public CreateIntentionArrowPhase()
 	{
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
-		arrow.setVisible(false);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		CalicoDraw.setVisible(arrow, false);
+//		arrow.setVisible(false);
 	}
 
 	public void startMove(CCanvasLink link, MoveLinkEndpointMode moveMode, Point dragStartPoint)

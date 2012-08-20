@@ -9,9 +9,11 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import calico.Calico;
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
@@ -196,14 +198,16 @@ public class IntentionGraph
 	{
 		if (this.topology != null)
 		{
-			topologyLayer.removeAllChildren();
+			CalicoDraw.removeAllChildrenFromNode(topologyLayer);
+//			topologyLayer.removeAllChildren();
 		}
 
 		this.topology = topology;
 
 		for (CIntentionTopology.Cluster cluster : this.topology.getClusters())
 		{
-			topologyLayer.addChild(cluster);
+			CalicoDraw.addChildToNode(topologyLayer, cluster);
+//			topologyLayer.addChild(cluster);
 		}
 
 		repaint();
@@ -340,8 +344,11 @@ public class IntentionGraph
 
 	public void repaint()
 	{
-		canvas.repaint();
-		contentCanvas.repaint();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					canvas.repaint();
+					contentCanvas.repaint();
+				}});
 	}
 
 	public Rectangle getBounds()
@@ -359,6 +366,7 @@ public class IntentionGraph
 
 	public void setBounds(int x, int y, int w, int h)
 	{
+//		CalicoDraw.setNodeBounds(canvas, x, y, w, h);
 		canvas.setBounds(x, y, w, h);
 	}
 
@@ -370,7 +378,8 @@ public class IntentionGraph
 		}
 
 		menuBar = new IntentionGraphMenuBar(CanvasMenuBar.POSITION_BOTTOM);
-		canvas.getCamera().addChild(menuBar);
+		CalicoDraw.addChildToNode(canvas.getCamera(), menuBar);
+//		canvas.getCamera().addChild(menuBar);
 
 		contentCanvas.setBounds(0, 0, CalicoDataStore.ScreenWidth, (int) (CalicoDataStore.ScreenHeight - menuBar.getBounds().height));
 	}

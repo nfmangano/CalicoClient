@@ -6,6 +6,7 @@ import java.awt.Point;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -104,8 +105,10 @@ public class CanvasTitlePanel implements StickyItem
 
 		panel.refresh();
 		updatePanelBounds();
-		panel.setVisible(true);
-		panel.repaint();
+		CalicoDraw.setVisible(panel, true);
+//		panel.setVisible(true);
+		CalicoDraw.repaint(panel);
+//		panel.repaint();
 	}
 
 	private void updatePanelBounds()
@@ -114,7 +117,8 @@ public class CanvasTitlePanel implements StickyItem
 		double height = panel.calculateHeight();
 		layout.updateBounds(panel, width, height);
 
-		panel.repaint();
+		CalicoDraw.repaint(panel);
+//		panel.repaint();
 	}
 
 	public void setLayout(IntentionPanelLayout layout)
@@ -137,7 +141,8 @@ public class CanvasTitlePanel implements StickyItem
 			text.setConstrainHeightToTextHeight(true);
 			text.setFont(text.getFont().deriveFont(20f));
 
-			addChild(text);
+			CalicoDraw.addChildToNode(this, text);
+//			addChild(text);
 		}
 
 		void tap(Point point)

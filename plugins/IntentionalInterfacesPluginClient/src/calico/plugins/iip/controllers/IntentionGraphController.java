@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.Geometry;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.GridBottomMenuBar;
@@ -121,8 +122,10 @@ public class IntentionGraphController
 		}
 
 		arrowsByLinkId.put(link.getId(), arrow);
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
-		arrow.moveToBack();
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		CalicoDraw.moveNodeToBack(arrow);
+//		arrow.moveToBack();
 		arrow.redraw();
 	}
 

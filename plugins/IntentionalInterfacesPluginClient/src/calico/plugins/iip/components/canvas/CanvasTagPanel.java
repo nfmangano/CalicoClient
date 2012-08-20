@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
@@ -100,7 +101,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		if (visible && event.getPropertyName().equals(PNode.PROPERTY_CHILDREN))
 		{
 			updatePanelBounds();
-			panel.repaint();
+			CalicoDraw.repaint(panel);
+//			panel.repaint();
 		}
 	}
 
@@ -130,7 +132,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		if (b)
 		{
 			CalicoInputManager.registerStickyItem(this);
-			panel.repaint();
+			CalicoDraw.repaint(panel);
+//			panel.repaint();
 		}
 		else
 		{
@@ -148,7 +151,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 			panel.getParent().removeChild(panel);
 		}
 		refresh();
-		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), panel);
+//		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addPropertyChangeListener(this);
 	}
 
@@ -172,8 +176,10 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 
 		panel.refresh();
 		updatePanelBounds();
-		panel.setVisible(true);
-		panel.repaint();
+		CalicoDraw.setVisible(panel, true);
+//		panel.setVisible(true);
+		CalicoDraw.repaint(panel);
+//		panel.repaint();
 	}
 
 	public void updateIntentionTypes()
@@ -202,7 +208,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 
 		if (visible)
 		{
-			panel.repaint();
+			CalicoDraw.repaint(panel);
+//			panel.repaint();
 		}
 	}
 
@@ -242,7 +249,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 			label.setConstrainHeightToTextHeight(true);
 			label.setFont(label.getFont().deriveFont(20f));
 
-			addChild(label);
+			CalicoDraw.addChildToNode(this, label);
+//			addChild(label);
 		}
 
 		void tap(Point point)
@@ -262,7 +270,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		{
 			selected = b;
 
-			repaint();
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
 
 		@Override
@@ -343,11 +352,13 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 			for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
 			{
 				IntentionTypeRow row = new IntentionTypeRow(type);
-				addChild(row);
+				CalicoDraw.addChildToNode(this, row);
+//				addChild(row);
 				typeRows.add(row);
 			}
 
-			repaint();
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
 
 		void refresh()

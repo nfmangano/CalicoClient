@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import calico.CalicoDraw;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.PNode;
@@ -39,10 +40,14 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		slider = new PImage(CalicoIconManager.getIconImage("intention-graph.zoom-slider"));
 		zoomInButton = new PImage(CalicoIconManager.getIconImage("intention-graph.zoom-in"));
 
-		addChild(zoomOutButton);
-		addChild(slider);
-		addChild(zoomInButton);
-		addChild(knob);
+//		addChild(zoomOutButton);
+//		addChild(slider);
+//		addChild(zoomInButton);
+//		addChild(knob);
+		CalicoDraw.addChildToNode(this, zoomOutButton);
+		CalicoDraw.addChildToNode(this, slider);
+		CalicoDraw.addChildToNode(this, zoomInButton);
+		CalicoDraw.addChildToNode(this, knob);
 
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 	}

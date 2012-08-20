@@ -5,6 +5,7 @@ import java.awt.event.MouseListener;
 import javax.swing.SwingUtilities;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.controllers.CHistoryController;
 import calico.inputhandlers.InputEventInfo;
@@ -46,12 +47,15 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 		// CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
 
-		CalicoDataStore.calicoObj.getContentPane().removeAll();
-		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
-		CalicoDataStore.calicoObj.pack();
-		CalicoDataStore.calicoObj.setVisible(true);
-		CalicoDataStore.calicoObj.repaint();
-		activate();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					CalicoDataStore.calicoObj.getContentPane().removeAll();
+					CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
+					CalicoDataStore.calicoObj.pack();
+					CalicoDataStore.calicoObj.setVisible(true);
+					CalicoDataStore.calicoObj.repaint();
+					activate();
+				}});
 
 		if (!initializing)
 		{
@@ -153,8 +157,10 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleHighlighter);
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), bubbleHighlighter);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleHighlighter);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), bubbleContainer);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
 		return true;
 	}
 

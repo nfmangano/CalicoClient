@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import calico.CalicoDraw;
+
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PClip;
@@ -22,7 +24,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 public class CIntentionTopology
 {
 	private static final Color RING_COLOR = new Color(0xEEEEEE);
-	private static final Color BOUNDING_BOX_COLOR = new Color(0x0, 0x0, 0x0, 0x0);
+	private static final Color BOUNDING_BOX_COLOR = Color.gray; // new Color(0x0, 0x0, 0x0, 0x0);
 
 	/**
 	 * Represents one cluster in the Piccolo component hierarchy of the IntentionView. It is constructed from the
@@ -36,6 +38,29 @@ public class CIntentionTopology
 		private final long rootCanvasId;
 		private final List<PPath> rings = new ArrayList<PPath>();
 
+//		buffer.append(rootCanvasId);
+//		buffer.append("[");
+//		buffer.append(center.x);
+//		buffer.append(",");
+//		buffer.append(center.y);
+//		buffer.append(",");
+//		buffer.append(boundingBox.x);
+//		buffer.append(",");
+//		buffer.append(boundingBox.y);
+//		buffer.append(",");
+//		buffer.append(boundingBox.width);
+//		buffer.append(",");
+//		buffer.append(boundingBox.height);
+//		buffer.append(",");			
+//		buffer.append(outerBox.x);
+//		buffer.append(",");
+//		buffer.append(outerBox.y);
+//		buffer.append(",");
+//		buffer.append(outerBox.width);
+//		buffer.append(",");
+//		buffer.append(outerBox.height);			
+//		buffer.append(":");
+		
 		Cluster(String serialized)
 		{
 			StringTokenizer tokens = new StringTokenizer(serialized, "[],:");
@@ -53,7 +78,19 @@ public class CIntentionTopology
 			PClip box = new PClip();
 			box.setPathToRectangle(xBox, yBox, wBox, hBox);
 			box.setStrokePaint(BOUNDING_BOX_COLOR);
-			addChild(box);
+			
+			int xOuterBox = Integer.parseInt(tokens.nextToken());
+			int yOuterBox = Integer.parseInt(tokens.nextToken());
+			int wOuterBox = Integer.parseInt(tokens.nextToken());
+			int hOuterBox = Integer.parseInt(tokens.nextToken());		
+			
+			PClip outerBox = new PClip();
+			outerBox.setPathToRectangle(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
+			outerBox.setStrokePaint(BOUNDING_BOX_COLOR);			
+			
+//			addChild(box);
+//			CalicoDraw.addChildToNode(this, box);
+			CalicoDraw.addChildToNode(this, outerBox);
 
 			while (tokens.hasMoreTokens())
 			{
@@ -65,7 +102,8 @@ public class CIntentionTopology
 
 			for (int i = (rings.size() - 1); i >= 0; i--)
 			{
-				box.addChild(rings.get(i));
+				CalicoDraw.addChildToNode(box, rings.get(i));
+//				box.addChild(rings.get(i));
 			}
 		}
 
