@@ -249,7 +249,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		{
 			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
 					type.getId(), !selected, false);
-			IntentionCanvasController.getInstance().linkCreatedCanvasFromOrigin();
+//			IntentionCanvasController.getInstance().linkCreatedCanvasFromOrigin();
 			IntentionCanvasController.getInstance().showTagPanel(false);
 		}
 
