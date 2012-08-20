@@ -259,18 +259,18 @@ public class IntentionGraphController
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
 		if ((cell != null) && cell.isNew())
 		{
-//			CalicoDraw.setVisible(arrow, false);
-			arrow.setVisible(false);
+			CalicoDraw.setVisible(arrow, false);
+//			arrow.setVisible(false);
 			return;
 		}
 
 		if (!arrow.getVisible())
 		{
 			CalicoDraw.setVisible(arrow, true);
-			arrow.setVisible(true);
+//			arrow.setVisible(true);
 		}
 
-//		alignAnchors(link);
+		alignAnchors(link);
 		arrow.redraw();
 	}
 

@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
+import calico.CalicoOptions.menu.menubar;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
 import calico.input.CalicoMouseListener;
@@ -261,7 +262,8 @@ public class IntentionGraph
 		double maxY = Double.MIN_VALUE;
 
 		int visibleCount = 0;
-		for (PNode node : (Iterable<PNode>) contentCanvas.getLayer().getChildrenReference())
+		PLayer layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY); 
+		for (PNode node : (Iterable<PNode>) layer.getChildrenReference())
 		{
 			if (node.getVisible())
 			{
@@ -332,10 +334,10 @@ public class IntentionGraph
 		double xRatio = canvasSize.width / bounds.width;
 		double yRatio = canvasSize.height / bounds.height;
 
-		double scale = Math.min(xRatio, yRatio) * 0.9;
+		double scale = Math.min(xRatio, yRatio) * .71;// * 0.9;
 		setScale(scale);
 		double xMargin = (bounds.width * (xRatio - scale)) / 2;
-		double yMargin = (bounds.height * (yRatio - scale)) / 2;
+		double yMargin = (bounds.height * (yRatio - scale)) / 2 - menubar.defaultIconDimension/2;
 
 		// be very careful, it scales the translation!!!
 		translateGlobal(xMargin - (bounds.x * scale), yMargin - (bounds.y * scale));

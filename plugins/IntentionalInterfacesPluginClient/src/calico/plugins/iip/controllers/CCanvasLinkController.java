@@ -10,8 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
+import calico.controllers.CConnectorController;
 import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
@@ -238,7 +242,7 @@ public class CCanvasLinkController
 	 */
 	public void localMoveLinkAnchor(long anchor_uuid, long canvas_uuid, CCanvasLinkAnchor.ArrowEndpointType type, int x, int y)
 	{
-		CCanvasLinkAnchor anchor = anchorsById.get(anchor_uuid);
+		final CCanvasLinkAnchor anchor = anchorsById.get(anchor_uuid);
 		long originalCanvasId = anchor.getCanvasId();
 
 		if (anchor.getCanvasId() != canvas_uuid)
@@ -250,7 +254,15 @@ public class CCanvasLinkController
 
 		anchor.move(canvas_uuid, type, x, y);
 
-		IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
+		/*
+		 * Given that the positions of the CIntentionCells are calculated on a delay, we must update the position
+		 * of the arrow inside the SwingUtilities thread (otherwise we run into a race condition).
+		 */
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
+				}});
+//		IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
 	}
 
 	/**

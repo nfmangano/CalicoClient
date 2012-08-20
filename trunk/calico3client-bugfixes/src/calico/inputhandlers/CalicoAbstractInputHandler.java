@@ -80,7 +80,7 @@ public abstract class CalicoAbstractInputHandler
 			arcChild.setTransparency(0.7f);
 			arc.addChild(arcChild);
 			arc.repaint();
-			System.out.println("Stepping through PActivity: " + arcLength + ", " + time);
+//			System.out.println("Stepping through PActivity: " + arcLength + ", " + time);
 
 			return false;
 		}

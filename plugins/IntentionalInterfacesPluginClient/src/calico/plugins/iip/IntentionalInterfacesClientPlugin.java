@@ -99,6 +99,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
+//		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
+//			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+
 		switch (event)
 		{
 			case NetworkCommand.VIEWING_SINGLE_CANVAS:
