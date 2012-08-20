@@ -184,14 +184,18 @@ public class IntentionGraph
 
 	public void translateGlobal(double x, double y)
 	{
-		Point2D.Double translation = new Point2D.Double(x, y);
-		getLayer(Layer.CONTENT).setGlobalTranslation(translation);
-		getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
+		final Point2D.Double translation = new Point2D.Double(x, y);
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					getLayer(Layer.CONTENT).setGlobalTranslation(translation);
+					getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
 
-		if (BubbleMenu.isBubbleMenuActive())
-		{
-			BubbleMenu.clearMenu();
-		}
+					if (BubbleMenu.isBubbleMenuActive())
+					{
+						BubbleMenu.clearMenu();
+					}
+				}});
+
 	}
 
 	public void setTopology(CIntentionTopology topology)

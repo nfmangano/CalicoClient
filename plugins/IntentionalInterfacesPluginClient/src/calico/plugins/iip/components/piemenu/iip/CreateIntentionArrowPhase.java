@@ -300,6 +300,7 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 		}
 
 		CCanvasLinkArrow arrow = IntentionGraphController.getInstance().getArrowByLinkId(link.getId());
+//		CalicoDraw.setVisible(arrow, true);
 		arrow.setVisible(true);
 		arrow.setHighlighted(false);
 	}

@@ -122,10 +122,10 @@ public class IntentionGraphController
 		}
 
 		arrowsByLinkId.put(link.getId(), arrow);
-		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
-//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
-		CalicoDraw.moveNodeToBack(arrow);
-//		arrow.moveToBack();
+//		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
+		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+//		CalicoDraw.moveNodeToBack(arrow);
+		arrow.moveToBack();
 		arrow.redraw();
 	}
 
@@ -259,16 +259,18 @@ public class IntentionGraphController
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
 		if ((cell != null) && cell.isNew())
 		{
+//			CalicoDraw.setVisible(arrow, false);
 			arrow.setVisible(false);
 			return;
 		}
 
 		if (!arrow.getVisible())
 		{
+			CalicoDraw.setVisible(arrow, true);
 			arrow.setVisible(true);
 		}
 
-		alignAnchors(link);
+//		alignAnchors(link);
 		arrow.redraw();
 	}
 

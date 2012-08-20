@@ -274,6 +274,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		CIntentionTopology topology = new CIntentionTopology(p.getString());
 		IntentionGraph.getInstance().setTopology(topology);
+		if (Networking.connectionState == Networking.ConnectionState.Connected)
+			IntentionGraph.getInstance().fitContents();
 	}
 
 	private static void CIT_CREATE(CalicoPacket p)
