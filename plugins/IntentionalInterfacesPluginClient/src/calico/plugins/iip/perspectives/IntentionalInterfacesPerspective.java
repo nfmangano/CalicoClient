@@ -65,7 +65,8 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
 					if (cell == null)
 					{
-						IntentionGraph.getInstance().fitContents();
+//						NICKNICKNICK
+//						IntentionGraph.getInstance().fitContents();
 					}
 					else
 					{

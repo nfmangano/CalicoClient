@@ -99,8 +99,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
-//		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
-//			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
+			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
 
 		switch (event)
 		{
@@ -109,6 +109,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				return;
 			case NetworkCommand.CONSISTENCY_FINISH:
 				CCanvasLinkController.getInstance().initializeArrowColors();
+				calico.plugins.iip.components.graph.IntentionGraph.getInstance().fitContents();
 				return;
 			case NetworkCommand.PRESENCE_CANVAS_USERS:
 				CIntentionCellController.getInstance().updateUserLists();
@@ -277,6 +278,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		CIntentionTopology topology = new CIntentionTopology(p.getString());
 		IntentionGraph.getInstance().setTopology(topology);
+
 		if (Networking.connectionState == Networking.ConnectionState.Connected)
 			IntentionGraph.getInstance().fitContents();
 	}

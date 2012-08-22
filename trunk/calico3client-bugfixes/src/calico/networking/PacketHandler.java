@@ -61,9 +61,9 @@ public class PacketHandler
 		
 		int command = packet.getInt();
 
-//		if (command != NetworkCommand.HEARTBEAT
-//				&& command != NetworkCommand.CONSISTENCY_FAILED)
-//			logger.debug("RX "+packet.toString());
+		if (command != NetworkCommand.HEARTBEAT
+				&& command != NetworkCommand.CONSISTENCY_FAILED)
+			logger.debug("RX "+packet.toString());
 		
 		switch(command)
 		{

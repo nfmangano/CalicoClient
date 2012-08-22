@@ -79,6 +79,7 @@ public class CIntentionTopology
 			box.setPathToRectangle(xBox, yBox, wBox, hBox);
 			box.setStrokePaint(BOUNDING_BOX_COLOR);
 			
+			
 			int xOuterBox = Integer.parseInt(tokens.nextToken());
 			int yOuterBox = Integer.parseInt(tokens.nextToken());
 			int wOuterBox = Integer.parseInt(tokens.nextToken());
@@ -86,11 +87,16 @@ public class CIntentionTopology
 			
 			PClip outerBox = new PClip();
 			outerBox.setPathToRectangle(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
-			outerBox.setStrokePaint(BOUNDING_BOX_COLOR);			
+			outerBox.setStrokePaint(BOUNDING_BOX_COLOR);		
+			outerBox.setPaint(Color.white);
+			outerBox.setBounds(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
+
+			System.out.println(serialized);
 			
 //			addChild(box);
 //			CalicoDraw.addChildToNode(this, box);
 			CalicoDraw.addChildToNode(this, outerBox);
+			CalicoDraw.setNodeBounds(this, xOuterBox, yOuterBox, wOuterBox, hOuterBox);
 
 			while (tokens.hasMoreTokens())
 			{
@@ -102,7 +108,7 @@ public class CIntentionTopology
 
 			for (int i = (rings.size() - 1); i >= 0; i--)
 			{
-				CalicoDraw.addChildToNode(box, rings.get(i));
+				CalicoDraw.addChildToNode(outerBox, rings.get(i));
 //				box.addChild(rings.get(i));
 			}
 		}

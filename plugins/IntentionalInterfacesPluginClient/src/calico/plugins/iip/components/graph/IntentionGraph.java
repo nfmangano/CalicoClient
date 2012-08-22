@@ -1,12 +1,15 @@
 package calico.plugins.iip.components.graph;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -27,7 +30,10 @@ import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.util.PAffineTransform;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.util.PDimension;
+import edu.umd.cs.piccolox.nodes.PClip;
 
 /**
  * Visual container for the Intention View. The <code>contentCanvas</code> contains canvas thumbnails and arrows, and
@@ -68,6 +74,8 @@ public class IntentionGraph
 		return INSTANCE;
 	}
 
+	static ArrayList<PClip> boundBorders = new ArrayList<PClip>();
+	
 	private static IntentionGraph INSTANCE;
 
 	/**
@@ -114,7 +122,7 @@ public class IntentionGraph
 		uuid = Calico.uuid();
 
 		// IntentionGraph.exitButtonBounds = new Rectangle(CalicoDataStore.ScreenWidth-32,5,24,24);
-
+		canvas.setBackground(new Color(180, 187, 197));
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
 		translate((CalicoDataStore.ScreenWidth / 2) - (CIntentionCell.THUMBNAIL_SIZE.width / 2), (CalicoDataStore.ScreenHeight / 2)
@@ -190,7 +198,7 @@ public class IntentionGraph
 				new Runnable() { public void run() { 
 					getLayer(Layer.CONTENT).setGlobalTranslation(translation);
 					getLayer(Layer.TOPOLOGY).setGlobalTranslation(translation);
-
+					
 					if (BubbleMenu.isBubbleMenuActive())
 					{
 						BubbleMenu.clearMenu();
@@ -243,6 +251,17 @@ public class IntentionGraph
 			BubbleMenu.clearMenu();
 		}
 	}
+	
+	public void setViewTransform(final AffineTransform transform)
+	{
+		getLayer(IntentionGraph.Layer.CONTENT).setTransform(transform);
+		getLayer(IntentionGraph.Layer.TOPOLOGY).setTransform(transform);
+
+		if (BubbleMenu.isBubbleMenuActive())
+		{
+			BubbleMenu.clearMenu();
+		}
+	}
 
 	public void activateIconifyMode(boolean b)
 	{
@@ -256,19 +275,54 @@ public class IntentionGraph
 
 	public void fitContents()
 	{
+		for (PNode n : boundBorders)
+		{
+			CalicoDraw.removeChildFromNode(getLayer(IntentionGraph.Layer.CONTENT),n); 
+		}
+		boundBorders.clear();
+		
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double maxX = Double.MIN_VALUE;
 		double maxY = Double.MIN_VALUE;
 
 		int visibleCount = 0;
-		PLayer layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY); 
+		PLayer layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT); 
+//		for (PNode node : (Iterable<PNode>) layer.getChildrenReference())
+//		{
+//			if (node.getVisible())
+//			{
+//				visibleCount++;
+//
+//				PBounds bounds = node.getBounds();
+//				if (bounds.x < minX)
+//				{
+//					minX = bounds.x;
+//				}
+//				if (bounds.y < minY)
+//				{
+//					minY = bounds.y;
+//				}
+//				if ((bounds.x + bounds.width) > maxX)
+//				{
+//					maxX = bounds.x + bounds.width;
+//				}
+//				if ((bounds.y + bounds.height) > maxY)
+//				{
+//					maxY = bounds.y + bounds.height;
+//				}
+//			}
+//		}
+		
+		PClip temp;
+		layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY); 
 		for (PNode node : (Iterable<PNode>) layer.getChildrenReference())
 		{
 			if (node.getVisible())
 			{
 				visibleCount++;
 
+//				PBounds bounds = new PBounds(node.localToGlobal(node.getBounds()));
 				PBounds bounds = node.getBounds();
 				if (bounds.x < minX)
 				{
@@ -286,18 +340,27 @@ public class IntentionGraph
 				{
 					maxY = bounds.y + bounds.height;
 				}
+				temp = new PClip();
+				temp.setPathTo(node.getBounds());
+				temp.setStrokePaint(Color.red);
+				temp.setBounds(node.getBounds());
+				boundBorders.add(temp);
 			}
 		}
+		for (PNode n : boundBorders)
+		{
+			CalicoDraw.addChildToNode(getLayer(IntentionGraph.Layer.CONTENT), n);
+		}
 
-		if (visibleCount < 2)
-		{
-			translate(minX, minY);
-			repaint();
-		}
-		else
-		{
+//		if (visibleCount < 2)
+//		{
+//			translate(minX, minY);
+//			repaint();
+//		}
+//		else
+//		{
 			zoomToRegion(new PBounds(minX, minY, (maxX - minX), (maxY - minY)));
-		}
+//		}
 	}
 
 	public void zoomToCell(long cellId)
@@ -328,19 +391,35 @@ public class IntentionGraph
 		zoomToRegion(maxRingBounds);
 	}
 
-	private void zoomToRegion(PBounds bounds)
-	{
-		Dimension canvasSize = contentCanvas.getBounds().getSize();
-		double xRatio = canvasSize.width / bounds.width;
-		double yRatio = canvasSize.height / bounds.height;
+	private void zoomToRegion(final PBounds bounds)
+	{	
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() {
+					final double ZOOM_ADJUSTMENT = .9;
+					
+					final PBounds viewBounds = new PBounds(contentCanvas.getVisibleRect());
+					final PAffineTransform newTransform = new PAffineTransform();
 
-		double scale = Math.min(xRatio, yRatio) * .71;// * 0.9;
-		setScale(scale);
-		double xMargin = (bounds.width * (xRatio - scale)) / 2;
-		double yMargin = (bounds.height * (yRatio - scale)) / 2 - menubar.defaultIconDimension/2;
-
-		// be very careful, it scales the translation!!!
-		translateGlobal(xMargin - (bounds.x * scale), yMargin - (bounds.y * scale));
+					double xRatio = viewBounds.getWidth() / bounds.getWidth();
+					double yRatio = viewBounds.getHeight() / bounds.getHeight();
+					final double s = Math.min(xRatio, yRatio) * ZOOM_ADJUSTMENT;
+					newTransform.scale(s, s);
+					
+					newTransform.translate(bounds.getX() * -1, bounds.getY() * -1);
+					double xMargin = 0;
+					double yMargin = 0;
+					
+					/**
+					 * The below formulas for xMargin and yMargin look like black magic, but make sense if you draw
+					 * out the proportions as boxes.
+					 */
+//					if (xRatio > yRatio)
+						xMargin = (viewBounds.getWidth()/(2*s) - bounds.getWidth()/2);
+//					else
+						yMargin = (viewBounds.getHeight()/(2*s) - bounds.getHeight()/2);
+					newTransform.translate(xMargin, yMargin);
+		            setViewTransform(newTransform);
+		}});
 	}
 
 	public void initialize()
