@@ -352,15 +352,19 @@ public class IntentionGraph
 			CalicoDraw.addChildToNode(getLayer(IntentionGraph.Layer.CONTENT), n);
 		}
 
-//		if (visibleCount < 2)
-//		{
+		if (visibleCount < 2)
+		{
+			PLayer content = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT);
+			if (content.getChildrenCount() == 1)
+				zoomToRegion(content.getChild(0).getBounds());
+//			setViewTransform(new AffineTransform());
 //			translate(minX, minY);
 //			repaint();
-//		}
-//		else
-//		{
+		}
+		else
+		{
 			zoomToRegion(new PBounds(minX, minY, (maxX - minX), (maxY - minY)));
-//		}
+		}
 	}
 
 	public void zoomToCell(long cellId)

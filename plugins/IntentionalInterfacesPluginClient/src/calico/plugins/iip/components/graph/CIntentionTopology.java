@@ -90,8 +90,6 @@ public class CIntentionTopology
 			outerBox.setStrokePaint(BOUNDING_BOX_COLOR);		
 			outerBox.setPaint(Color.white);
 			outerBox.setBounds(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
-
-			System.out.println(serialized);
 			
 //			addChild(box);
 //			CalicoDraw.addChildToNode(this, box);
