@@ -2,6 +2,8 @@ package calico.plugins.iip;
 
 import java.awt.Point;
 
+import javax.swing.SwingUtilities;
+
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.menus.CanvasMenuBar;
@@ -280,7 +282,10 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		IntentionGraph.getInstance().setTopology(topology);
 
 		if (Networking.connectionState == Networking.ConnectionState.Connected)
-			IntentionGraph.getInstance().fitContents();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() {
+						IntentionGraph.getInstance().fitContents();
+					}});
 	}
 
 	private static void CIT_CREATE(CalicoPacket p)
