@@ -94,7 +94,7 @@ public class EmailButton extends CanvasMenuButton
 					
 					// Send a test message
 			        send("smtp.gmail.com", 465, CalicoDataStore.Username + " <ucicalicodev@gmail.com>", response,
-			             "Calico Canvas " + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getIndex() + " - " + time, "Screenshot of Calico Canvas\n\n");
+			        		"Calico Canvas " + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getGridCoordTxt() + " - " + time, "Screenshot of Calico Canvas\n\n");
 				}
 				catch (Exception e)
 				{
@@ -162,7 +162,7 @@ public class EmailButton extends CanvasMenuButton
     {
     	BufferedImage bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);
     	RenderedImage img = (RenderedImage)CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().toImage(bIMG, Color.white);
-    	String fileName = "CalicoCanvas_" + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getIndex() + ".png";
+    	String fileName = "CalicoCanvas_" + CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getGridCoordTxt() + ".png";
     	
     	saveImage(img, fileName);
     	return fileName;

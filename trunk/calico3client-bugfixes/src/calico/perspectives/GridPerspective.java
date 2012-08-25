@@ -2,6 +2,8 @@ package calico.perspectives;
 
 import java.awt.event.MouseListener;
 
+import calico.CalicoDraw;
+import calico.components.grid.CGrid;
 import calico.inputhandlers.InputEventInfo;
 import edu.umd.cs.piccolo.PNode;
 
@@ -9,7 +11,7 @@ public class GridPerspective extends CalicoPerspective
 {
 	private static final GridPerspective INSTANCE = new GridPerspective();
 
-	private static GridPerspective getInstance()
+	public static GridPerspective getInstance()
 	{
 		return INSTANCE;
 	}
@@ -22,8 +24,8 @@ public class GridPerspective extends CalicoPerspective
 	protected void drawPieMenu(PNode pieCrust)
 	{
 		//CGrid.getInstance().getCamera().addChild(pieCrust);
-		// GridRemoval: CalicoDraw.addChildToNode(CGrid.getInstance().getCamera(), pieCrust);
-		// GridRemoval: CGrid.getInstance().getCamera().repaintFrom(pieCrust.getBounds(), pieCrust);
+		CalicoDraw.addChildToNode(CGrid.getInstance().getCamera(), pieCrust);
+		CGrid.getInstance().getCamera().repaintFrom(pieCrust.getBounds(), pieCrust);
 	}
 
 	protected boolean hasPhasicPieMenuActions()
@@ -33,14 +35,13 @@ public class GridPerspective extends CalicoPerspective
 
 	protected boolean processToolEvent(InputEventInfo event)
 	{
-		/* 
-		 * // GridRemoval: 
+ 
 		if(CGrid.getInstance().isPointOnMenuBar(event.getPoint())) {
 			//if (mousePressed != 0)
 			CGrid.getInstance().clickMenuBar(event, event.getPoint());
 			return true;
 		}
-		*/
+
 		return false;
 	}
 
@@ -58,17 +59,17 @@ public class GridPerspective extends CalicoPerspective
 
 	protected void addMouseListener(MouseListener listener)
 	{
-		// GridRemoval: CGrid.getInstance().addMouseListener(listener);
+		CGrid.getInstance().addMouseListener(listener);
 	}
 
 	protected void removeMouseListener(MouseListener listener)
 	{
-		// GridRemoval: CGrid.getInstance().removeMouseListener(listener);
+		CGrid.getInstance().removeMouseListener(listener);
 	}
 
 	@Override
 	protected boolean isNavigationPerspective()
 	{
-		return false;
+		return true;
 	}
 }

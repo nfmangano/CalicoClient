@@ -52,6 +52,7 @@ import org.json.me.JSONObject;
 import calico.components.CCanvasWatermark;
 import calico.components.CSession;
 import calico.components.bubblemenu.BubbleMenu;
+import calico.components.grid.CGrid;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
@@ -68,6 +69,7 @@ import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CalicoPerspective;
+import calico.perspectives.GridPerspective;
 import calico.plugins.CalicoPluginManager;
 import calico.utils.Ticker;
 
@@ -176,7 +178,7 @@ public class Calico extends JFrame
 		// We load the conf/calico.conf file
 		CalicoOptions.setup();
 		CalicoDataStore.setup();
-		// GridRemoval: GridPerspective.getInstance().activate();
+		GridPerspective.getInstance().activate();
 		setPropertiesFromArgs(args);
 		try
 		{
@@ -290,7 +292,8 @@ public class Calico extends JFrame
 			CalicoDataStore.calicoObj.dispose();
 		}
 
-		// GridRemoval: CalicoDataStore.gridObject = null;
+		CGrid.instance = null;
+		CalicoDataStore.gridObject = null;
 		CalicoDataStore.calicoObj = this;
 		CalicoDataStore.messageHandlerObj = StatusMessageHandler.getInstance();
 
@@ -397,6 +400,7 @@ public class Calico extends JFrame
 			(new File(CalicoOptions.images.download_folder)).mkdir();
 
 		// GridRemoval: CGrid.loadGrid();
+		CGrid.loadGrid();
 	}
 
 	public static void exit()
@@ -606,8 +610,8 @@ public class Calico extends JFrame
 		CalicoDataStore.ServerPort = port;
 
 		// XXX: WE MUST RESET THIS TO 0. Otherwise, the client will just hang there like an idiot
-		// GridRemoval: CalicoDataStore.GridRows = 0;
-		// GridRemoval: CalicoDataStore.GridCols = 0;
+		CalicoDataStore.GridRows = 0;
+		CalicoDataStore.GridCols = 0;
 
 		if (Networking.receivePacketThread != null && !Networking.receivePacketThread.isInterrupted())
 		{

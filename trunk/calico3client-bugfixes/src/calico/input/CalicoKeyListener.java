@@ -13,6 +13,7 @@ import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
+import calico.components.grid.CGrid;
 import calico.components.menus.buttons.CanvasNavButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -20,6 +21,7 @@ import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.perspectives.CanvasPerspective;
+import calico.perspectives.GridPerspective;
 
 public class CalicoKeyListener extends KeyAdapter {
 
@@ -47,9 +49,9 @@ public class CalicoKeyListener extends KeyAdapter {
         	moveToCell(buttonType);
         
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-        	/* // GridRemoval: 
+ 
         	if (!GridPerspective.getInstance().isActive())
-        		CGrid.loadGrid(); */
+        		CGrid.loadGrid();
         }
         
         if (CanvasPerspective.getInstance().isActive() && evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -60,13 +62,13 @@ public class CalicoKeyListener extends KeyAdapter {
     private void moveToCell(int button_type)
     {
 		// Grid Size
-		int gridx = 0; // GridRemoval: CalicoDataStore.GridCols-1;
-		int gridy = 0; // GridRemoval: CalicoDataStore.GridRows-1;
+		int gridx = CalicoDataStore.GridCols-1;
+		int gridy = CalicoDataStore.GridRows-1;
 				
 		// Canvas Coords
 		long cuuid = CCanvasController.getLastActiveUUID();
-		int xpos = 0; //CCanvasController.canvasdb.get(cuuid).getGridCol();
-		int ypos = 0; //CCanvasController.canvasdb.get(cuuid).getGridRow();
+		int xpos = CCanvasController.canvasdb.get(cuuid).getGridCol();
+		int ypos = CCanvasController.canvasdb.get(cuuid).getGridRow();
     	
 		switch(button_type)
 		{
@@ -122,7 +124,7 @@ public class CalicoKeyListener extends KeyAdapter {
     
 	private void loadCanvas(int x, int y)
 	{
-		long cuid = 0L; //CCanvasController.getCanvasAtPos(x, y);
+		long cuid = CCanvasController.getCanvasAtPos(x, y);
 		
 		if(cuid==0L)
 		{

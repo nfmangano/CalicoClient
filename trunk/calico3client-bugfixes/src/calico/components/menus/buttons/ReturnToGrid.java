@@ -58,7 +58,7 @@ public class ReturnToGrid extends CanvasMenuButton
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			/* // GridRemoval: 
+
 			CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
 			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
 			CCanvasController.setCurrentUUID(0l);
@@ -81,7 +81,7 @@ public class ReturnToGrid extends CanvasMenuButton
 			GridPerspective.getInstance().activate();
 
 			super.onMouseUp();
-			*/
+
 		}
 		
 	}

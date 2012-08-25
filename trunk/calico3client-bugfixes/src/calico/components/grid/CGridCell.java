@@ -27,7 +27,7 @@ import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PLine;
 
-class CGridCell extends PImage//PComposite
+public class CGridCell extends PImage//PComposite
 {
 	private static final long serialVersionUID = 1L;
 
@@ -55,8 +55,8 @@ class CGridCell extends PImage//PComposite
 		cellWidth = w;
 		cellHeight = h;
 
-		int rc = 0; // CCanvasController.canvasdb.get(canvasUID).getGridRow();
-		int cc = 0; //CCanvasController.canvasdb.get(canvasUID).getGridCol();
+		int rc = CCanvasController.canvasdb.get(canvasUID).getGridRow();
+		int cc = CCanvasController.canvasdb.get(canvasUID).getGridCol();
 
 
 		//setBounds( (cc*cellWidth)+2, 50+( (rc*cellHeight)+2 ),  cellWidth-5,  cellHeight-5);
@@ -84,7 +84,7 @@ class CGridCell extends PImage//PComposite
 					*/
 					render();
 			
-//					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
 				}});
 
 		
@@ -125,7 +125,7 @@ class CGridCell extends PImage//PComposite
 					*/
 					render();
 			
-//					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
 				}});
 
 	}
@@ -215,7 +215,7 @@ class CGridCell extends PImage//PComposite
 
 		repaint();
 		//CalicoDraw.repaint(this);
-		// GridRemoval: CalicoDataStore.gridObject.repaint();
+		CalicoDataStore.gridObject.repaint();
 		
 		updatePresenceText();
 		updateCanvasLockIcon();

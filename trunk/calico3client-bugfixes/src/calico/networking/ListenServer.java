@@ -179,7 +179,7 @@ public class ListenServer implements Runnable
 			            }
 						
 						double cuuid = new Long(tpack.getCUUID()).doubleValue();
-						double numCanvases = 2d;
+						double numCanvases = new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
 						int progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
 						if (progress < previousProgress)
 							progress = previousProgress;

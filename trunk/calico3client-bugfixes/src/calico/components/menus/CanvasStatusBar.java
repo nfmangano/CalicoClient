@@ -45,9 +45,11 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 		
 		cuid = c;
 		
-		String canvasIndex = String.valueOf(CCanvasController.canvasdb.get(cuid).getIndex());
+		String coordtxt = CCanvasController.canvasdb.get(cuid).getGridCoordTxt();
+		addText(coordtxt, new Font("Verdana", Font.BOLD, 12));
+//		String canvasIndex = String.valueOf(CCanvasController.canvasdb.get(cuid).getIndex());
 		
-		addText(canvasIndex, new Font("Verdana", Font.BOLD, 12));
+//		addText(canvasIndex, new Font("Verdana", Font.BOLD, 12));
 		
 		addSpacer();
 		

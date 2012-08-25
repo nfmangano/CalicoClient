@@ -70,6 +70,19 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 				else
 					addIcon((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
 			}
+			
+			addIcon(new ReturnToGrid());
+			
+			addSpacer();
+			
+			
+			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_UP));
+			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_DOWN));
+			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_LEFT));
+			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_RIGHT));
+			
+			//addCap();
+			addSpacer();
 
 			for(int i=0;i<CalicoOptions.menu.colorlist.length;i++)
 			{

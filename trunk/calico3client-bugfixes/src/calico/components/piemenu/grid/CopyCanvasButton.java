@@ -1,6 +1,9 @@
 package calico.components.piemenu.grid;
 
+import calico.components.grid.CGrid;
+import calico.components.piemenu.PieMenu;
 import calico.components.piemenu.PieMenuButton;
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.InputEventInfo;
 
 public class CopyCanvasButton extends PieMenuButton {
@@ -15,10 +18,10 @@ public class CopyCanvasButton extends PieMenuButton {
 	{
 		//confirm with the user?
 		//get the canvas ID
-		long canvasClicked = 0L; // GridRemoval: CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );		
+		long canvasClicked = CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );		
 		if(canvasClicked!=0l){
-			// GridRemoval: CGrid.canvasAction=CGrid.COPY_CANVAS;
-//	GridRemoval: CGrid.getInstance().drawSelectedCell(canvasClicked, ev.getX(), ev.getY());			
+			CGrid.canvasAction=CGrid.COPY_CANVAS;
+			CGrid.getInstance().drawSelectedCell(canvasClicked, ev.getX(), ev.getY());			
 		}		
 	}
 }

@@ -68,7 +68,7 @@ public class CGrid
 	
 	//public static int mode = MODE_NONE;
 
-	private static CGrid instance = null;
+	public static CGrid instance = null;
 	
 	//attributes for dragging a cell to copy or move
 	public static boolean draggingCell=false;
@@ -86,7 +86,7 @@ public class CGrid
 	public static int moveDelta=1;
 	public static int moveDelay=100;
 	
-	private static synchronized CGrid getInstance(){
+	public static synchronized CGrid getInstance(){
 		if(instance==null){
 			instance = new CGrid();
 		}
@@ -127,7 +127,7 @@ public class CGrid
 	{
 //		CGrid.exitButtonBounds = new Rectangle(CalicoDataStore.ScreenWidth-32,5,24,24);
 
-		// GridRemoval: CalicoDataStore.gridObject = this;
+		CalicoDataStore.gridObject = this;
 		
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
@@ -173,15 +173,15 @@ public class CGrid
 		int topHeaderIconHeight = CalicoOptions.grid.topHeaderIconHeight;
 		int leftHeaderIconWidth = CalicoOptions.grid.leftHeaderIconWidth;
 
-		imgw = 0; // GridRemoval: (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / CalicoDataStore.GridCols );
-		imgh = 0; // GridRemoval: (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / CalicoDataStore.GridRows );
+		imgw = (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / CalicoDataStore.GridCols );
+		imgh = (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / CalicoDataStore.GridRows );
 
 		CGrid.gwidth = imgw;
 		CGrid.gheight = imgh;
 		
 		//add header labels... A... B... etc
 		PText headerIcon;
-		/* // GridRemoval: 
+
 		for (int i = 0; i < CalicoDataStore.GridCols; i++)
 		{
 			headerIcon = new PText(" " + ((char)('A' + i)) + " ");
@@ -205,7 +205,6 @@ public class CGrid
 			//getLayer().addChild(0,headerIcon);	
 			CalicoDraw.addChildToNode(getLayer(), headerIcon, 0);
 		}
-		*/
 
 		//sets the initial sizes of the viewports in the viewport controller
 		int cellindex = 0;
@@ -392,7 +391,7 @@ public class CGrid
 	 * @param ev the event where the button was released
 	 */
 	public void execActionCanvas( InputEventInfo ev){
-		long cuidDest = -1L; //CCanvasController.getCanvasAtPoint( ev.getPoint() );
+		long cuidDest = CCanvasController.getCanvasAtPoint( ev.getPoint() );
 		if(cuidDest!=0l){
 
 			//send package to add the contents from the source to dest cell
@@ -459,7 +458,7 @@ public class CGrid
 				if(clients.length>0) {
 					for(int i=0;i<clients.length;i++) {
 						if(CalicoDataStore.clientInfo.containsKey(clients[i])) {
-							str.append("\n"+CalicoDataStore.clientInfo.get(clients[i])+" ("+CCanvasController.canvasdb.get(cuids[x]).getIndex()+")");
+							str.append("\n"+CalicoDataStore.clientInfo.get(clients[i])+" ("+CCanvasController.canvasdb.get(cuids[x]).getGridCoordTxt()+")");
 						} else {
 //							str.append("\nUnknown_"+clients[i]+" ("+CCanvasController.canvasdb.get(cuids[x]).getGridCoordTxt()+")");
 						}
@@ -534,20 +533,20 @@ public class CGrid
 		cells.get(canvas).updatePresenceText();
 	}
 	
-	private static void loadGrid()
+	public static void loadGrid()
 	{
 		CCanvasController.unloadCanvasImages(CCanvasController.getCurrentUUID());
 		Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
 		CCanvasController.setCurrentUUID(0l);
 		
-		// GridRemoval: CalicoDataStore.gridObject = CGrid.getInstance();
+		CalicoDataStore.gridObject = CGrid.getInstance();
 		//CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
 		
-		// GridRemoval: CalicoDataStore.gridObject.drawBottomToolbar();
-		// GridRemoval: CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
+		CalicoDataStore.gridObject.drawBottomToolbar();
+		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
 		
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
@@ -555,7 +554,7 @@ public class CGrid
 		CalicoDataStore.calicoObj.pack();
 		CalicoDataStore.calicoObj.setVisible(true);
 		CalicoDataStore.calicoObj.repaint();
-		// GridRemoval: GridPerspective.getInstance().activate();
+		GridPerspective.getInstance().activate();
 	}
 
 	private class ContainedCanvas extends PCanvas

@@ -10,6 +10,7 @@ import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
+import calico.perspectives.GridPerspective;
 import calico.utils.Ticker;
 import calico.utils.TickerTask;
 import edu.umd.cs.piccolo.PCanvas;
@@ -56,7 +57,7 @@ public class MessageObject extends PComposite
 		
 		public boolean runtask()
 		{
-			if(CCanvasController.getCurrentUUID()==canvasuid) // GridRemoval:  || GridPerspective.getInstance().isActive())
+			if(CCanvasController.getCurrentUUID()==canvasuid|| GridPerspective.getInstance().isActive())
 			{
 				try
 				{
