@@ -129,7 +129,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			e.printStackTrace();
 		}
-				
+		
+		/*
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() {
 					double lowest = Integer.MAX_VALUE;
@@ -151,7 +152,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 						rect_array[i].translate(0, (new Double(delta)).intValue());
 					}
 				}});
-
+		*/
 		
 		
 		//this.invalidatePaint();
