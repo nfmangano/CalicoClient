@@ -746,7 +746,8 @@ public class CGroup extends PPath implements Serializable {
 		this.finished = true;
 
 		this.groupArea = PolygonUtils.PolygonArea(this.points);
-		CalicoInputManager.addGroupInputHandler(this.uuid);
+//		CalicoInputManager.addGroupInputHandler(this.uuid);
+		this.setInputHandler();
 //		smoothedPath = Geometry.getBezieredPoly(points);
 		
 //		setPathTo(smoothedPath);
@@ -784,6 +785,11 @@ public class CGroup extends PPath implements Serializable {
 		else
 			//setTransparency(transparency);
 			CalicoDraw.setNodeTransparency(this, transparency);
+	}
+	
+	public void setInputHandler()
+	{
+		CalicoInputManager.addGroupInputHandler(this.uuid);
 	}
 
 	public void setText(String text) {
