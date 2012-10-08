@@ -704,6 +704,10 @@ public class BubbleMenu {
 			{
 				return 12;
 			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupColorPickerButton") == 0)
+			{
+				return 3;
+			}			
 			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
 			{
 				return 5;

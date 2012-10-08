@@ -283,6 +283,7 @@ public class NetworkCommand
 	public static final int GROUP_CREATE_TEXT_GROUP = 1540;
 	public static final int GROUP_MAKE_RECTANGLE = 1541;
 	public static final int GROUP_COPY_WITH_MAPPINGS = 1542;
+	public static final int GROUP_SET_COLOR = 1543;
 
 
 	public static final int BACKUP_FILE_INFO	= 1600; // 
@@ -403,6 +404,8 @@ public class NetworkCommand
 			formats.put(GROUP_SCALE, new NetCommandFormat("GROUP_SCALE", "Ldd"));
 			formats.put(GROUP_CREATE_TEXT_GROUP, new NetCommandFormat("GROUP_CREATE_TEXT_GROUP", "LLSII"));
 			formats.put(GROUP_MAKE_RECTANGLE, new NetCommandFormat("GROUP_MAKE_RECTANGLE", "LIIII"));
+			formats.put(GROUP_SET_COLOR, new NetCommandFormat("GROUP_SET_COLOR", "LIII"));
+						
 
 			formats.put(GRID_SIZE,new NetCommandFormat("GRID_SIZE","II"));
 			

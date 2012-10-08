@@ -632,6 +632,17 @@ public class CGroupController
 		groupdb.get(uuid).setText(text);
 	}
 	
+	public static void no_notify_set_color(long uuid, Color color)
+	{
+		if(!exists(uuid))
+		{
+			logger.warn("GROUP_SET_COLOR for non-existant group"+uuid);
+			return;
+		}
+		
+		groupdb.get(uuid).setColor(color);
+	}	
+	
 	public static void no_notify_rectify(long uuid)
 	{
 		if(!exists(uuid))
@@ -1186,6 +1197,13 @@ public class CGroupController
 		no_notify_set_text(uuid,str);
 		Networking.send(NetworkCommand.GROUP_SET_TEXT, uuid, str);
 	}
+	
+	public static void set_color(long uuid, Color color) 
+	{
+		if(!exists(uuid)){return;}
+		no_notify_set_color(uuid,color);
+		Networking.send(NetworkCommand.GROUP_SET_COLOR, uuid, color.getRed(), color.getGreen(), color.getBlue());
+	}	
 	
 	public static void create_text_scrap(long uuid, long cuuid, String text, int x, int y)
 	{

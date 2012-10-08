@@ -101,6 +101,7 @@ public class CGroup extends PPath implements Serializable {
 //	protected Point2D origOrigin;
 	protected double scaleX = 1.0d, scaleY = 1.0d;
 	protected double rotation = 0.0d;
+	protected Color color = null;
 	
 	//See method applyAffineTransform() for explanation
 //	private Polygon coordsOriginal;
@@ -169,6 +170,7 @@ public class CGroup extends PPath implements Serializable {
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1,
 				0.0f));
 		setStrokePaint(CalicoOptions.group.stroke_color);
+		this.color = calico.CalicoOptions.group.background_color;
 
 		drawPermTemp(false);
 		//this.setTransparency(0f);
@@ -234,6 +236,7 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupShrinkToContentsButton.class); //2
 		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class); //3
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupColorPickerButton.class); //3
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
@@ -307,7 +310,7 @@ public class CGroup extends PPath implements Serializable {
 		if (isPermanent()) {
 			setStroke(new BasicStroke(CalicoOptions.group.stroke_size));
 			setStrokePaint(CalicoOptions.group.stroke_color);
-			setPaint(CalicoOptions.group.background_color);
+			setPaint(this.color);
 //			setTransparency(CalicoOptions.group.background_transparency);
 		} else {
 			setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
@@ -795,6 +798,11 @@ public class CGroup extends PPath implements Serializable {
 	public void setText(String text) {
 		this.text = text;
 		this.textSet = true;
+	}
+	
+	public void setColor(Color color) {
+		this.color = color;
+		setPaint(this.color);
 	}
 
 	protected void paint(final PPaintContext paintContext) {
@@ -1977,6 +1985,9 @@ public class CGroup extends PPath implements Serializable {
 		packet.putDouble(this.scaleX);
 		packet.putDouble(this.scaleY);
 		packet.putString(this.text);
+		packet.putInt(color.getRed());
+		packet.putInt(color.getGreen());
+		packet.putInt(color.getBlue());
 
 		return new CalicoPacket[] {packet};
 	}

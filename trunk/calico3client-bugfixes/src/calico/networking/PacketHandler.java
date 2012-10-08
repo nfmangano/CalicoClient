@@ -122,6 +122,7 @@ public class PacketHandler
 			case NetworkCommand.GROUP_CREATE_TEXT_GROUP:GROUP_CREATE_TEXT_GROUP(packet);break;
 			case NetworkCommand.GROUP_MAKE_RECTANGLE:GROUP_MAKE_RECTANGLE(packet);break;
 			case NetworkCommand.GROUP_COPY_WITH_MAPPINGS:GROUP_COPY_WITH_MAPPINGS(packet);break;
+			case NetworkCommand.GROUP_SET_COLOR:GROUP_SET_COLOR(packet);break;
 			
 			case NetworkCommand.GRID_SIZE:GRID_SIZE(packet);break;
 			case NetworkCommand.CONSISTENCY_FINISH:CONSISTENCY_FINISH(packet);break;
@@ -549,6 +550,16 @@ public class PacketHandler
 		CGroupController.no_notify_set_children_color(uuid, new Color(red,green,blue));
 	}
 	
+	private static void GROUP_SET_COLOR(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		int red = p.getInt();
+		int green = p.getInt();
+		int blue = p.getInt();
+		
+		CGroupController.no_notify_set_color(uuid, new Color(red,green,blue));
+	}	
+	
 //	private static void GROUP_RECTIFY(CalicoPacket p)
 //	{
 //		long uuid = p.getLong();
@@ -640,12 +651,16 @@ public class PacketHandler
 		double scaleX = p.getDouble();
 		double scaleY = p.getDouble();
 		String text = p.getString();
+		int r = p.getInt();
+		int g = p.getInt();
+		int b = p.getInt();
 		
 		
 //		CGroupController.groupdb.get(uuid).finish();
 		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
 		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
 		CGroupController.groupdb.get(uuid).setText(text);
+		CGroupController.groupdb.get(uuid).setColor(new Color(r,g,b));
 		
 		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
 		
