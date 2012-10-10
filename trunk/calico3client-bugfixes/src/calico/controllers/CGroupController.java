@@ -622,7 +622,10 @@ public class CGroupController
 		
 		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
-			CGroupController.show_group_bubblemenu(uuid, false);
+			if (isperm == false)
+				CGroupController.show_group_bubblemenu(uuid, PieMenuButton.SHOWON_SCRAP_CREATE, true);
+			else
+				CGroupController.show_group_bubblemenu(uuid, false);
 		}
 	}
 	
