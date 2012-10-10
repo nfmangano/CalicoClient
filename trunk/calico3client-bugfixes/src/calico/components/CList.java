@@ -1,6 +1,7 @@
 package calico.components;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -50,6 +51,7 @@ public class CList extends CGroup {
 		final Graphics2D g2 = paintContext.getGraphics();
 		
 		setPaint(Color.white);
+		setStroke(new BasicStroke(5.0f));
 		
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 			       0.3f));
@@ -85,7 +87,8 @@ public class CList extends CGroup {
 					checkImage = (groupCheckValues.get(childGroups[i]).booleanValue())
 						? checkIcon
 						: uncheckedIcon;
-					g2.drawImage(checkImage, iconBounds[i].x, iconBounds[i].y, iconBounds[i].width, iconBounds[i].height, null);
+					if (iconBounds.length > i)
+						g2.drawImage(checkImage, iconBounds[i].x, iconBounds[i].y, iconBounds[i].width, iconBounds[i].height, null);
 					
 				}
 			}
@@ -157,6 +160,11 @@ public class CList extends CGroup {
 	}
 
 	public void recomputeBoundsAroundElements() {
+		long[] children = getChildGroups();
+		for (int i = 0; i < children.length; i++)
+			if (!CGroupController.exists(children[i]) || CGroupController.groupdb.get(children[i]).getPathReference() == null)
+				return;
+		
 		Rectangle bounds = getBoundsOfContents();
 		
 		Rectangle newBounds = new Rectangle(bounds.x - widthBuffer - iconXSpace, bounds.y,
@@ -207,6 +215,9 @@ public class CList extends CGroup {
 	
 	public void setCheck(long guuid, boolean value)
 	{
+		if (!hasChildGroup(guuid))
+			return;
+		
 		groupCheckValues.put(guuid, new Boolean(value));
 
 		CalicoDraw.invalidatePaint(this);
