@@ -838,7 +838,7 @@ public class CStroke extends PPath
 		//CStrokeController.hideStroke(this.uuid, delete);
 		
 		
-		CGroupController.restoreOriginalStroke = true;
+		CGroupController.restoreOriginalStroke = !delete;
 		CGroupController.originalStroke = getUpdatePackets()[0];
 		
 		CStrokeController.delete(this.uuid);

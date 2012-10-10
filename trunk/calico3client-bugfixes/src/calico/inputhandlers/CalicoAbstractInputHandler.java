@@ -331,7 +331,7 @@ public abstract class CalicoAbstractInputHandler
 	{
 		long potentialScrap = potScrap;
 
-		boolean deleteStroke = false;
+		boolean deleteStroke = true;
 		if (potentialScrap == 0l)
 			// deleteStroke = true;
 			// else
