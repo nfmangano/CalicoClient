@@ -16,6 +16,7 @@ import calico.controllers.CStrokeController;
 import calico.iconsets.CalicoIconManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
+import calico.networking.PacketHandler;
 import calico.networking.netstuff.*;
 
 public class ListCreateButton extends PieMenuButton
@@ -55,26 +56,35 @@ public class ListCreateButton extends PieMenuButton
 		
 		if (CGroupController.exists(this.uuid))
 		{
-			long listuuid = createList(this.uuid);
-			CGroupController.show_group_bubblemenu(listuuid);
+//			long listuuid = createList(this.uuid);
+			long new_list_uuid = Calico.uuid();
+			CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CLIST_CREATE, this.uuid, new_list_uuid);
+			PacketHandler.receive(p);
+			Networking.send(p);
+			CGroupController.show_group_bubblemenu(new_list_uuid);
 		}
 		else if (CStrokeController.exists(this.uuid))
 		{
 			long new_uuid = Calico.uuid();
 			CStrokeController.makeScrap(this.uuid, new_uuid);
 			CGroupController.set_permanent(new_uuid, true);
-			long listuuid = createList(new_uuid);
-			CGroupController.show_group_bubblemenu(listuuid);
+			long new_list_uuid = Calico.uuid();
+			CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CLIST_CREATE, new_uuid, new_list_uuid);
+			PacketHandler.receive(p);
+			Networking.send(p);
+			
+//			long listuuid = createList(new_uuid);
+			CGroupController.show_group_bubblemenu(new_list_uuid);
 		}
 		ev.stop();
 		
 		isActive = false;
 	}
-	public long createList(long groupToBeDecorated) {
-		long newuuid = Calico.uuid();
-
-//		CGroupController.shrink_to_contents(groupToBeDecorated);
-		CGroupDecoratorController.list_create(groupToBeDecorated, newuuid);
-		return newuuid;
-	}
+//	public long createList(long groupToBeDecorated) {
+//		long newuuid = Calico.uuid();
+//
+////		CGroupController.shrink_to_contents(groupToBeDecorated);
+//		CGroupDecoratorController.list_create(groupToBeDecorated, newuuid);
+//		return newuuid;
+//	}
 }

@@ -15,6 +15,7 @@ import calico.components.arrow.AnchorPoint;
 import calico.components.composable.Composable;
 import calico.components.composable.ComposableElement;
 import calico.components.composable.ComposableElementController;
+import calico.components.decorators.CListDecorator;
 import calico.components.grid.*;
 import calico.components.menus.buttons.UndoButton;
 import calico.controllers.*;
@@ -58,7 +59,7 @@ public class PacketHandler
 	public static void receive(CalicoPacket packet)
 	{
 		
-		
+		packet.rewind();
 		int command = packet.getInt();
 
 //		if (command != NetworkCommand.HEARTBEAT
@@ -182,6 +183,9 @@ public class PacketHandler
 			case NetworkCommand.LIST_CREATE:LIST_CREATE(packet);break;
 			case NetworkCommand.LIST_LOAD:LIST_LOAD(packet);break;
 			case NetworkCommand.LIST_CHECK_SET:LIST_CHECK_SET(packet);break;
+			case NetworkCommand.CLIST_CREATE:CLIST_CREATE(packet);break;
+			case NetworkCommand.CLIST_LOAD:CLIST_LOAD(packet);break;
+			case NetworkCommand.CLIST_CHECK_SET:CLIST_CHECK_SET(packet);break;
 			
 			case NetworkCommand.IMAGE_TRANSFER:IMAGE_TRANSFER(packet);break;
 
@@ -1366,6 +1370,76 @@ public class PacketHandler
 		boolean value = p.getBoolean();
 		
 		CGroupDecoratorController.no_notify_list_set_check(luuid, cuid, puid, guuid, value);
+	}
+	
+	public static void CLIST_CREATE(CalicoPacket p)
+	{
+		long guuid = p.getLong();
+		long luuid = p.getLong();
+		
+		CGroupController.no_notify_create_clist(guuid, luuid);
+	}
+	
+	public static void CLIST_LOAD(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		long cuid = p.getLong();
+		long puid = p.getLong();
+		boolean isperm = p.getBoolean();
+		int count = p.getCharInt();
+		
+		if(count<=0)
+		{
+			return;
+		}
+		
+
+		int[] xArr = new int[count], yArr = new int[count];
+		for(int i=0;i<count;i++)
+		{
+			xArr[i] = p.getInt();
+			yArr[i] = p.getInt();
+		}
+
+		boolean captureChildren = p.getBoolean();
+		double rotation = p.getDouble();
+		double scaleX = p.getDouble();
+		double scaleY = p.getDouble();
+		String text = p.getString();
+		int r = p.getInt();
+		int g = p.getInt();
+		int b = p.getInt();
+		
+		CList list = new CList(uuid, cuid, puid);
+		
+		int numCheckValues = p.getInt();
+		for (int i = 0; i < numCheckValues; i++)
+		{
+			list.setCheck(p.getLong(), p.getBoolean());
+		}
+		
+		CGroupController.no_notify_start(uuid, cuid, puid, isperm, list);
+		CGroupController.no_notify_set_permanent(uuid, true);		
+		CGroupController.no_notify_append(uuid, xArr, yArr);
+		CGroupController.groupdb.get(uuid).primative_rotate(rotation);
+		CGroupController.groupdb.get(uuid).primative_scale(scaleX, scaleY);
+		CGroupController.groupdb.get(uuid).setText(text);
+		CGroupController.groupdb.get(uuid).setColor(new Color(r,g,b));
+		
+		CGroupController.no_notify_finish(uuid, captureChildren, false, false);
+	}
+	
+	public static void CLIST_CHECK_SET(CalicoPacket p)
+	{
+		long luuid = p.getLong();
+		long guuid = p.getLong();
+		boolean value = p.getBoolean();
+		
+		if (!CGroupController.exists(luuid)) { return; }
+		
+		CList list = (CList)CGroupController.groupdb.get(luuid);
+		list.setCheck(guuid, value);
+		list.recomputeValues();
 	}
 	
 	public static void IMAGE_TRANSFER(CalicoPacket p)

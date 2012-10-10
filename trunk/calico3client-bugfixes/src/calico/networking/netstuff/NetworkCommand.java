@@ -307,6 +307,10 @@ public class NetworkCommand
 	public static final int LIST_LOAD = 2001;
 	public static final int LIST_CHECK_SET = 2002;
 	
+	public static final int CLIST_CREATE = 2003;
+	public static final int CLIST_LOAD = 2004;
+	public static final int CLIST_CHECK_SET = 2005;	
+	
 	public static final int IMAGE_TRANSFER = 2100;
 	public static final int IMAGE_CLUSTER = 2101;
 	public static final int IMAGE_TRANSFER_FILE = 2102;

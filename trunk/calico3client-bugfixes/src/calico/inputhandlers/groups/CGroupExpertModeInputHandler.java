@@ -122,12 +122,14 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		else if(e.isLeftButtonPressed())
 		{
 
-			if (CGroupController.groupdb.get(uuid) instanceof CListDecorator
-				&& ((CListDecorator)CGroupController.groupdb.get(uuid)).getGroupCheckMarkAtPoint(e.getPoint()) != 0)
+			if (CGroupController.groupdb.get(uuid) instanceof CList
+				&& ((CList)CGroupController.groupdb.get(uuid)).getGroupCheckMarkAtPoint(e.getPoint()) != 0)
 			{
-				CListDecorator list = (CListDecorator)CGroupController.groupdb.get(uuid);
+				CList list = (CList)CGroupController.groupdb.get(uuid);
 				long grp = list.getGroupCheckMarkAtPoint(e.getPoint());
-				CGroupDecoratorController.list_set_check(uuid, CCanvasController.getCurrentUUID(), list.getParentUUID(), grp, !list.isChecked(grp));
+				CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CLIST_CHECK_SET, uuid, grp, !list.isChecked(grp));
+				PacketHandler.receive(p);
+				Networking.send(p);
 				onePressActionPerformed = true;
 			}
 			else
