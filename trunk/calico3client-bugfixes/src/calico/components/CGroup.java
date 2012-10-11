@@ -851,7 +851,8 @@ public class CGroup extends PPath implements Serializable {
 			int yTextOffset = Geometry.getTextBounds(text).height;
 			g2.setFont(CalicoOptions.group.font);
 			g2.drawString(this.text,
-					(float) (points.getBounds().getX() + CalicoOptions.group.text_padding + CalicoOptions.group.padding), (float) (points.getBounds().getY() + CalicoOptions.group.padding + (points.getBounds().getHeight()+5)/2 - yTextOffset/2));
+					(float) (getPathReference().getBounds().getX() + CalicoOptions.group.padding + CalicoOptions.group.text_padding), 
+					(float) (getPathReference().getBounds().getY() + CalicoOptions.group.padding*2.4 + CalicoOptions.group.text_padding /* + (points.getBounds().getHeight()+5)/2 - yTextOffset/2*/));
 			paintContext.popTransform(piccoloTextTransform);
 			
 		}
@@ -1166,16 +1167,24 @@ public class CGroup extends PPath implements Serializable {
 		
 		Rectangle childrenBounds = getBoundsOfObjects(childIndices);
 		if ((childrenBounds.width < 1 || childrenBounds.height < 1))
-			if (text.length() > 1)
-				childrenBounds = new Rectangle(this.getPathReference().getBounds().x + CalicoOptions.group.padding, 
-						this.getPathReference().getBounds().y + CalicoOptions.group.padding, 0,0);
-			else
-				childrenBounds = this.getPathReference().getBounds();
-		boundsOfContainedElements.add(childrenBounds);
+		{
+			childrenBounds = new Rectangle(
+					this.getPathReference().getBounds().x + CalicoOptions.group.padding,
+					this.getPathReference().getBounds().y + CalicoOptions.group.padding,
+					this.getPathReference().getBounds().width - CalicoOptions.group.padding*2,
+					this.getPathReference().getBounds().height - CalicoOptions.group.padding*2);
+			if (text.length() > 0)
+				boundsOfContainedElements.add(new Rectangle(childrenBounds.x, childrenBounds.y, 0,0));
+		}
+		else
+			boundsOfContainedElements.add(childrenBounds);
 		
 		Rectangle textDimensions = Geometry.getTextBounds(this.text);
 		Rectangle textBounds;
-		textBounds = new Rectangle(childrenBounds.x, childrenBounds.y, textDimensions.width + CalicoOptions.group.text_padding*2, textDimensions.height + CalicoOptions.group.text_padding*2);
+		textBounds = new Rectangle(this.getPathReference().getBounds().x + CalicoOptions.group.padding, 
+				this.getPathReference().getBounds().y + CalicoOptions.group.padding, 
+				textDimensions.width + CalicoOptions.group.text_padding*2, 
+				textDimensions.height + CalicoOptions.group.text_padding*2);
 		if (textBounds.width > 0 && textBounds.height > 0)
 			boundsOfContainedElements.add(textBounds);
 		
@@ -2428,7 +2437,6 @@ public class CGroup extends PPath implements Serializable {
 	public void recomputeBounds()
 	{
 //		applyAffineTransform();
-		
 		if (CGroupController.exists(puid))
 			CGroupController.groupdb.get(puid).recomputeBounds();
 	}

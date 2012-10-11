@@ -645,8 +645,6 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).setText(text);
-		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
-		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
 		groupdb.get(uuid).recomputeBounds();
 	}
 	
@@ -1770,8 +1768,8 @@ public class CGroupController
 		CGroupController.no_notify_finish(uuid, false, false, true);
 		CGroupController.no_notify_set_text(uuid, text);		
 		//CGroupController.no_notify_set_permanent(uuid, true);
-//		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
-//		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
+		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
+		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
 		CGroupController.recheck_parent(uuid);
 //		CGroupController.no_notify_shrink_to_contents(uuid);
 	}

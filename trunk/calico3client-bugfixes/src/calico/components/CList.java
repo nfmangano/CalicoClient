@@ -31,7 +31,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 public class CList extends CGroup {
 
 	public Long2ReferenceArrayMap<Boolean> groupCheckValues = new Long2ReferenceArrayMap<Boolean>();
-	int iconWidth = 32, iconHeight = 32, iconWidthBuffer = 4;
+	int iconWidth = 32, iconHeight = 32, iconWidthBuffer = 0;
 	int iconXSpace = this.iconWidth + this.iconWidthBuffer*2;
 	int widthBuffer = 5;
 	
@@ -157,6 +157,8 @@ public class CList extends CGroup {
 		resetListElementPositions();
 		
 		recomputeBoundsAroundElements();
+		
+		super.recomputeBounds();
 	}
 
 	public void recomputeBoundsAroundElements() {
@@ -166,8 +168,9 @@ public class CList extends CGroup {
 				return;
 		
 		Rectangle bounds = getBoundsOfContents();
-		
-		Rectangle newBounds = new Rectangle(bounds.x - widthBuffer - iconXSpace, bounds.y,
+		Rectangle newBounds = bounds;
+		if (text.length() < 1)
+			newBounds = new Rectangle(bounds.x - widthBuffer - iconXSpace, bounds.y,
 				bounds.width + widthBuffer*2 + iconXSpace, bounds.height);
 		
 		CGroupController.no_notify_make_rectangle(this.uuid, newBounds.x, newBounds.y, newBounds.width, newBounds.height);
@@ -177,7 +180,7 @@ public class CList extends CGroup {
 		CalicoDraw.invalidatePaint(this);
 		//this.repaint();
 		CalicoDraw.repaint(this);
-		super.recomputeBounds();
+
 	}
 	
 	@Override
@@ -259,7 +262,9 @@ public class CList extends CGroup {
 		int moveToX, moveToY, deltaX, deltaY, elementSpacing = 5;
 		
 		
-		int yOffset = /*elementSpacing + */0;
+		int yOffset = /*elementSpacing + *///0;
+				(this.text.length() > 0) ? CalicoOptions.group.text_padding + new Double(CalicoOptions.group.padding*2).intValue() : 0;
+		
 		int widestWidth = 0;
 		int x, y;
 		

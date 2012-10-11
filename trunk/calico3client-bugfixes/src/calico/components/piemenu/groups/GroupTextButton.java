@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import javax.swing.JOptionPane;
 
 import calico.CalicoDraw;
+import calico.components.CList;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
@@ -48,8 +49,12 @@ public class GroupTextButton extends PieMenuButton
 				  JOptionPane.QUESTION_MESSAGE*/);
 		if (response != null)
 		{
+			CGroupController.groupdb.get(uuid).setText(response);
+			Rectangle rect = CGroupController.groupdb.get(uuid).getBoundsOfContents();			
+			if (!(CGroupController.groupdb.get(uuid) instanceof CList))
+				CGroupController.makeRectangle(uuid, rect.x, rect.y, rect.width, rect.height);			
 			CGroupController.set_text(uuid, response);
-
+			
 			CalicoDraw.repaint(CGroupController.groupdb.get(uuid));
 		}
 		
