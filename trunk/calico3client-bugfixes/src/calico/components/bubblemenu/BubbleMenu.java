@@ -728,6 +728,10 @@ public class BubbleMenu {
 			{
 				return 9;
 			}
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupTextButton") == 0)
+			{
+				return 10;
+			}
 			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupDropButton") == 0)
 			{
 			    return 1;

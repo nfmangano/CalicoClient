@@ -240,6 +240,7 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupTextButton.class); //10
 		//pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
 		//pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
@@ -1164,8 +1165,12 @@ public class CGroup extends PPath implements Serializable {
 		long[] childIndices = ArrayUtils.addAll(strokearr, grouparr);
 		
 		Rectangle childrenBounds = getBoundsOfObjects(childIndices);
-		if (childrenBounds.width < 1 || childrenBounds.height < 1)
-			childrenBounds = this.getPathReference().getBounds();
+		if ((childrenBounds.width < 1 || childrenBounds.height < 1))
+			if (text.length() > 1)
+				childrenBounds = new Rectangle(this.getPathReference().getBounds().x + CalicoOptions.group.padding, 
+						this.getPathReference().getBounds().y + CalicoOptions.group.padding, 0,0);
+			else
+				childrenBounds = this.getPathReference().getBounds();
 		boundsOfContainedElements.add(childrenBounds);
 		
 		Rectangle textDimensions = Geometry.getTextBounds(this.text);

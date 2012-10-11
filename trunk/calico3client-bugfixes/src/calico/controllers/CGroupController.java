@@ -645,6 +645,9 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).setText(text);
+		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
+		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
+		groupdb.get(uuid).recomputeBounds();
 	}
 	
 	public static void no_notify_set_color(long uuid, Color color)
@@ -1764,11 +1767,11 @@ public class CGroupController
 		CGroupController.no_notify_start(uuid, cuuid, 0l, true);
 		CGroupController.setCurrentUUID(uuid);
 		CGroupController.no_notify_append(uuid, x, y);
-		CGroupController.no_notify_set_text(uuid, text);
 		CGroupController.no_notify_finish(uuid, false, false, true);
+		CGroupController.no_notify_set_text(uuid, text);		
 		//CGroupController.no_notify_set_permanent(uuid, true);
-		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
-		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
+//		Rectangle rect = groupdb.get(uuid).getBoundsOfContents();
+//		CGroupController.no_notify_make_rectangle(uuid, rect.x, rect.y, rect.width, rect.height);
 		CGroupController.recheck_parent(uuid);
 //		CGroupController.no_notify_shrink_to_contents(uuid);
 	}
@@ -1926,8 +1929,8 @@ public class CGroupController
 		CGroupController.setCurrentUUID(uuid);
 		create_custom_shape(uuid, p);
 		//Set the optional text to identify the scrap
-		CGroupController.no_notify_set_text(uuid, optText);
 		CGroupController.no_notify_finish(uuid, false, false, true);
+		CGroupController.groupdb.get(uuid).setText(optText);
 		CGroupController.no_notify_set_permanent(uuid, true);
 		//CGroupController.recheck_parent(uuid);
 	}	
