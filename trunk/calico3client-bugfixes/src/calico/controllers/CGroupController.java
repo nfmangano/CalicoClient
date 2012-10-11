@@ -1413,8 +1413,8 @@ public class CGroupController
 						if (pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0
 								&& groupdb.get(uuid).getBoundsOfContents().isEmpty()
 								
-							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
-								&& groupdb.get(uuid).getChildGroups().length == 0)
+							/*|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
+								&& groupdb.get(uuid).getChildGroups().length == 0*/)
 						{
 							buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
 							continue;
@@ -1522,8 +1522,8 @@ public class CGroupController
 						if (pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupShrinkToContentsButton") == 0
 								&& groupdb.get(uuid).getBoundsOfContents().isEmpty()
 								
-							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
-								&& groupdb.get(uuid).getChildGroups().length == 0)
+							/*|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
+								&& groupdb.get(uuid).getChildGroups().length == 0*/)
 						{
 							buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
 							continue;
@@ -1908,11 +1908,12 @@ public class CGroupController
 		long parentUUID = originalGroup.getParentUUID();
 		long[] children = originalGroup.getChildGroups();
 		long canvasUUID = originalGroup.getCanvasUID();
+		String text = originalGroup.getText();
+		Polygon shape = Geometry.getPolyFromPath((new  GeneralPath(originalGroup.getPathReference().getBounds())).getPathIterator(null));
 		CGroupController.no_notify_drop(originalUUID);
 		//create list scrap
-		CList list = new CList(listUUID, canvasUUID, 0l);
-		Polygon shape = Geometry.getPolyFromPath((new  GeneralPath(originalGroup.getBoundsOfContents())).getPathIterator(null));		
-		no_notify_create_custom_scrap_bootstrap(listUUID, canvasUUID, list, shape, "");
+		CList list = new CList(listUUID, canvasUUID, 0l);				
+		no_notify_create_custom_scrap_bootstrap(listUUID, canvasUUID, list, shape, text);
 		//assign list scrap the same parent as the original scrap
 		list.setParentUUID(parentUUID);
 		list.setChildGroups(children);
