@@ -802,7 +802,7 @@ public class CGroup extends PPath implements Serializable {
 	
 	public void setColor(Color color) {
 		this.color = color;
-		setPaint(this.color);
+		drawPermTemp(false);
 	}
 
 	protected void paint(final PPaintContext paintContext) {

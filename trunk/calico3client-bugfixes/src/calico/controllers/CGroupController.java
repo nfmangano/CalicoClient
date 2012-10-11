@@ -71,6 +71,7 @@ public class CGroupController
 	public static boolean restoreOriginalStroke = false;
 	//public static long originalStroke = 0l;
 	public static CalicoPacket originalStroke = null;
+	private static boolean lockTempStroke = false; 
 	
 	private static List<Listener> listeners = new ArrayList<Listener>();
 
@@ -618,12 +619,18 @@ public class CGroupController
 			return;
 		}
 		
+		CGroupController.setCurrentUUID(uuid);
+		
 		groupdb.get(uuid).setPermanent(isperm);
 		
 		if (BubbleMenu.isBubbleMenuActive() && BubbleMenu.activeUUID == uuid)
 		{
 			if (isperm == false)
+			{
+				CGroupController.lockTempStroke = true;
 				CGroupController.show_group_bubblemenu(uuid, PieMenuButton.SHOWON_SCRAP_CREATE, true);
+				CGroupController.lockTempStroke = false;
+			}
 			else
 				CGroupController.show_group_bubblemenu(uuid, false);
 		}
@@ -1132,6 +1139,10 @@ public class CGroupController
 	
 	public static void drop(long uuid)
 	{
+		if (CGroupController.exists(uuid) && !CGroupController.groupdb.get(uuid).isPermanent())
+			if (CGroupController.lockTempStroke == true)
+				return;
+		
 		no_notify_drop(uuid);
 		Networking.send(NetworkCommand.GROUP_DROP, uuid);
 	}

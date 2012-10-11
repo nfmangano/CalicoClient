@@ -11,7 +11,7 @@ public class GroupDropButton extends PieMenuButton
 	
 	public GroupDropButton(long uuid)
 	{
-		super("group.drop");
+		super("group.temp");
 
 		this.uuid = uuid;
 	}

@@ -594,6 +594,7 @@ public class CalicoInputManager
 				inputHandlers.get(itemUUID).actionDragged(ev);
 				break;
 			case InputEventInfo.ACTION_PRESSED:
+				CGroupController.checkToRemoveLastTempGroup();
 				inputHandlers.get(itemUUID).actionPressed(ev);
 //				CalicoEventHandler.getInstance().fireEvent(NetworkCommand.ACTION_PRESSED, 
 //						CalicoPacket.getPacket(NetworkCommand.ACTION_PRESSED, 
