@@ -545,7 +545,7 @@ public class CalicoInputManager
 			lockInputHandler = 0;
 			return;
 		}
-		else if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getPoint()) != 0)
+		if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getPoint()) != 0)
 		{
 			lockInputHandler = getStickyItem(ev.getPoint());
 		}
