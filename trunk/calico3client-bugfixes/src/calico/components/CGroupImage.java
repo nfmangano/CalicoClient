@@ -65,19 +65,27 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		
 		//The server won't always report the correct host name.
 		//The client now uses the host name specified by the user upon connecting.
-		if (img.length() > 0)
+		
+		if (CImageController.imageExists(uuid))
 		{
-			this.imgURL = "http://" + CalicoDataStore.ServerHost + ":" + port + "/" + localPath;
+			setImage();
 		}
 		else
 		{
-			this.imgURL = img;
+			if (img.length() > 0)
+			{
+				this.imgURL = "http://" + CalicoDataStore.ServerHost + ":" + port + "/" + localPath;
+			}
+			else
+			{
+				this.imgURL = img;
+			}
+			
+			Runnable runnable = new LoadImageThread(this, this.imgURL);
+			//Runnable runnable = new LoadImageThread(this, img);
+			Thread thread = new Thread(runnable);
+			thread.start();
 		}
-		
-		Runnable runnable = new LoadImageThread(this, this.imgURL);
-		//Runnable runnable = new LoadImageThread(this, img);
-		Thread thread = new Thread(runnable);
-		thread.start();
 	}
 
 	public CGroupImage(long uuid, long cuid, long puid, Image img, int imgX,
