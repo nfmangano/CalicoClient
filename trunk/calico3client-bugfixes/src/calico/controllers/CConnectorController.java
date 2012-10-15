@@ -256,6 +256,8 @@ public class CConnectorController {
 	
 	public static void make_stroke(long uuid)
 	{
+		if (!exists(uuid))
+			return;
 		CalicoPacket[] p = connectors.get(uuid).getStrokePackets();
 		delete(uuid);
 		batchReceive(p);

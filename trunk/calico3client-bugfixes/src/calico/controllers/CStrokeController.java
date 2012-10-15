@@ -1070,5 +1070,13 @@ public class CStrokeController
 		//strokes.get(uuid).hiding = false;
 		//strokes.get(uuid).setTransparency(1.0f);
 	}
+	
+	public static void recalculateParent(long stroke)
+	{
+		if (!exists(stroke))
+			return;
+		
+		CStrokeController.strokes.get(stroke).calculateParent();
+	}
 
 }

@@ -314,5 +314,12 @@ public class CArrowController
 		return arrows.get(l).get_signature();
 	}
 
+	public static void recheck_parent(long l) {
+		if (!exists(l))
+			return;
+		CArrowController.arrows.get(l).calculateParent();
+		
+	}
+
 
 }

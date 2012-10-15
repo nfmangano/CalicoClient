@@ -495,7 +495,8 @@ public class CGroupController
 		{
 			for(int i=0;i<child_strokes.length;i++)
 			{
-				CStrokeController.strokes.get(child_strokes[i]).calculateParent();
+				CStrokeController.recalculateParent(child_strokes[i]);
+//				CStrokeController.strokes.get(child_strokes[i]).calculateParent();
 			}
 		}
 		
@@ -516,7 +517,8 @@ public class CGroupController
 		{
 			for(int i=0;i<child_arrows.length;i++)
 			{
-				CArrowController.arrows.get(child_arrows[i]).calculateParent();
+				CArrowController.recheck_parent(child_arrows[i]);
+//				CArrowController.arrows.get(child_arrows[i]).calculateParent();
 			}
 		}
 		
