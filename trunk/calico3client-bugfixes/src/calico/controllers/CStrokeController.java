@@ -926,6 +926,11 @@ public class CStrokeController
       
 		    protected void activityStep(long time) {
 		            super.activityStep(time);
+		            if (!CStrokeController.exists(suuid))
+		            {
+		            	this.terminate();
+		            	return;
+		            }
 		            strokes.get(suuid).setTransparency(1.0f - 1.0f * step/50);
 		            if (step > 100)
 		            	step++;
