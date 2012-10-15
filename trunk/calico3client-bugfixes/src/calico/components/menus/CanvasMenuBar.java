@@ -83,6 +83,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 			
 			//addCap();
 			addSpacer();
+			addIcon(new ClearButton(cuid));
+			addSpacer();
 
 			for(int i=0;i<CalicoOptions.menu.colorlist.length;i++)
 			{

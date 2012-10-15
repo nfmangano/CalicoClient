@@ -58,7 +58,7 @@ public class StatusMessageHandler implements CalicoEventListener {
 
 			if (progressMonitor == null)
 				startProgressMonitor(message);
-			progressMonitor.setNote(message);
+//			progressMonitor.setNote(message);
 			progressMonitor.setProgress(progress);
 		}
 		else if (event == NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED)
@@ -86,7 +86,7 @@ public class StatusMessageHandler implements CalicoEventListener {
                 "", 0, 100);
 		progressMonitor.setProgress(0);
 		progressMonitor.setMillisToPopup(1);
-		progressMonitor.setMillisToDecideToPopup(1);
+		progressMonitor.setMillisToDecideToPopup(1000);
 	}
 
 }

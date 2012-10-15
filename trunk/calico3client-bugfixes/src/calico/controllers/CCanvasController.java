@@ -98,7 +98,7 @@ public class CCanvasController
 
 	public static void clear(long uuid)
 	{
-		CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CANVAS_DELETE, uuid);
+		CalicoPacket p = CalicoPacket.getPacket(NetworkCommand.CANVAS_CLEAR, uuid);
 		p.rewind();
 		PacketHandler.receive(p);
 		Networking.send(p);
