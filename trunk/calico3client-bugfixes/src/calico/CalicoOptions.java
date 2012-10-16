@@ -13,9 +13,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Properties;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 
 import calico.input.CInputMode;
@@ -38,11 +40,13 @@ public class CalicoOptions
 		public static String download_folder = getImageFolder();
 		private static String getImageFolder()
 		{
+			String r = (new Long(System.currentTimeMillis() / 1000)).toString();
+			
 			String folder = System.getProperty("java.io.tmpdir");
 			if (!folder.endsWith(File.separator))
 				folder += File.separator;
 			
-			folder += "images" + File.separator;
+			folder += "img-" + r + File.separator;
 			
 			return folder;
 		}
