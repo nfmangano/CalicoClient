@@ -1192,7 +1192,10 @@ public class CGroupController
 	public static void create_text_scrap(long uuid, long cuuid, String text, int x, int y)
 	{
 		no_notify_create_text_scrap(uuid, cuuid, text, x, y);
-		Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, uuid, cuuid, text, x, y);
+		CalicoPacket[] packets = CGroupController.groupdb.get(uuid).getUpdatePackets(false);
+		for (int i = 0; i < packets.length; i++)
+			Networking.send(packets[i]);
+		//Networking.send(NetworkCommand.GROUP_CREATE_TEXT_GROUP, uuid, cuuid, text, x, y);
 	}
 	
 	public static void no_notify_clear_child_strokes(long uuid)
