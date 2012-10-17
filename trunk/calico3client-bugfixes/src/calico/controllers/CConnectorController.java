@@ -379,4 +379,12 @@ public class CConnectorController {
 		
 		return connectors.get(l).get_signature();
 	}
+	
+	public static String get_signature_debug_output(long uuid)
+	{
+		if (!exists(uuid))
+			return "";
+		
+		return connectors.get(uuid).get_signature_debug_output();
+	}		
 }

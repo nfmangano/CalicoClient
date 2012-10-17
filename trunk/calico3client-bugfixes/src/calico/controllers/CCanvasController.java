@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -368,6 +369,14 @@ public class CCanvasController
 		CCanvas canvas = CCanvasController.canvasdb.get(uuid);
 		canvas.drawMenuBars();
 
+		//get ratio of screen dimensions to server screen dimensions
+		Rectangle boundsOfCanvas = CCanvasController.canvasdb.get(uuid).getBounds();
+		double widthRatio = (double)boundsOfCanvas.width / CalicoDataStore.serverScreenWidth;
+		double heightRatio = (double)boundsOfCanvas.height / CalicoDataStore.serverScreenHeight;
+		
+		double ratio = Math.min(widthRatio, heightRatio);
+		CCanvasController.canvasdb.get(uuid).getLayer().setScale(ratio);
+		
 		// //get bounds of contents on canvas
 		// Rectangle boundsOfChildren =
 		// CCanvasController.canvasdb.get(uuid).getLayer().getUnionOfChildrenBounds(null).getBounds();

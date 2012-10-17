@@ -142,6 +142,7 @@ public class PacketHandler
 			case NetworkCommand.CANVAS_LOCK:CANVAS_LOCK(packet);break;
 			case NetworkCommand.CANVAS_LOAD:CANVAS_LOAD(packet);break;
 			case NetworkCommand.CANVAS_DELETE:CANVAS_DELETE(packet);break;
+			case NetworkCommand.CANVAS_SET_DIMENSIONS:CANVAS_SET_DIMENSIONS(packet);break;
 
 			case NetworkCommand.SESSION_INFO:SESSION_INFO(packet);break;
 			
@@ -843,6 +844,15 @@ public class PacketHandler
 					local_debugMsg = CStrokeController.get_signature_debug_output(uuid);
 				}
 			}
+			else if (CConnectorController.exists(uuid))
+			{
+				if (CConnectorController.get_signature(uuid) != sig)
+				{
+					conflict = true;
+					local_sig = CConnectorController.get_signature(uuid);
+					local_debugMsg = CConnectorController.get_signature_debug_output(uuid);
+				}
+			}			
 			
 			if (conflict)
 			{
@@ -1483,5 +1493,16 @@ public class PacketHandler
 		
 		CCanvasController.no_notify_clear(canvasId);
 //		CCanvasController.removeCanvas(canvasId);
+	}
+	
+	public static void CANVAS_SET_DIMENSIONS(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		int width = p.getInt();
+		int height = p.getInt();
+		
+		CalicoDataStore.serverScreenWidth = width;
+		CalicoDataStore.serverScreenHeight = height;
 	}
 }

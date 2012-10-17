@@ -28,6 +28,8 @@ public class CalicoDataStore
 	public static int ScreenHeight = 0;
 	public static boolean isFullScreen = false;
 	public static final Dimension CanvasSnapshotSize = new Dimension();
+	public static int serverScreenWidth = 0;
+	public static int serverScreenHeight = 0;
 
 	public static String SessionName = "";
 	public static String Username = "SDCL-";
