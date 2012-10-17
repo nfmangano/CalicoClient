@@ -34,7 +34,7 @@ public class PaletteInputHandler extends CalicoAbstractInputHandler {
 	public void actionDragged(InputEventInfo ev) {
 		if (ghost != null)
 		{
-			ghost.setOffset(ev.getX() - ghost.getBounds().width/2, ev.getY() - ghost.getBounds().height/2);
+			ghost.setOffset(ev.getGlobalPoint().getX() - ghost.getBounds().width/2, ev.getGlobalPoint().getY() - ghost.getBounds().height/2);
 			CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().repaint();
 		}
 		
@@ -48,7 +48,7 @@ public class PaletteInputHandler extends CalicoAbstractInputHandler {
 		for (int i = 0; i < paletteBar.getChildrenCount(); i++)
 		{
 			if (paletteBar.getChild(i) instanceof PaletteBarItem
-					&& ((PaletteBarItem)paletteBar.getChild(i)).getGlobalBounds().contains(ev.getPoint()))
+					&& ((PaletteBarItem)paletteBar.getChild(i)).getGlobalBounds().contains(ev.getGlobalPoint()))
 			{
 				PaletteBarItem item = (PaletteBarItem)paletteBar.getChild(i);
 				paletteItemUUID = item.getUUID();
@@ -61,7 +61,7 @@ public class PaletteInputHandler extends CalicoAbstractInputHandler {
 				ghost = new PImage();
 				ghost.setImage(item.getImage());
 				ghost.setBounds(item.getBounds());
-				ghost.setOffset(ev.getX() - ghost.getBounds().width/2, ev.getY() - ghost.getBounds().height/2);
+				ghost.setOffset(ev.getGlobalPoint().getX() - ghost.getBounds().width/2, ev.getGlobalPoint().getY() - ghost.getBounds().height/2);
 				ghost.setTransparency(1.0f);
 				CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().addChild(ghost);
 				ghost.setVisible(true);
@@ -69,7 +69,7 @@ public class PaletteInputHandler extends CalicoAbstractInputHandler {
 				return;	
 			}
 			else if(paletteBar.getChild(i) instanceof PaletteBarMenuItem
-					&& ((PaletteBarMenuItem)paletteBar.getChild(i)).getGlobalBounds().contains(ev.getPoint()))
+					&& ((PaletteBarMenuItem)paletteBar.getChild(i)).getGlobalBounds().contains(ev.getGlobalPoint()))
 			{
 				
 				menuItemIndex = i;
