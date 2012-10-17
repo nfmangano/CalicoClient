@@ -545,9 +545,10 @@ public class CalicoInputManager
 			lockInputHandler = 0;
 			return;
 		}
-		if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getPoint()) != 0)
+					
+		if (ev.getAction() == InputEventInfo.ACTION_PRESSED && getStickyItem(ev.getGlobalPoint() /*ev.getPoint()*/) != 0)
 		{
-			lockInputHandler = getStickyItem(ev.getPoint());
+			lockInputHandler = getStickyItem(ev.getGlobalPoint() /*ev.getPoint()*/);
 		}
 		// Are they clicking the menu bar?
 		if(CalicoPerspective.Active.processToolEvent(ev)) 
