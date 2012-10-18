@@ -14,6 +14,9 @@ import java.awt.event.MouseListener;
 import java.util.Date;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+
+import sun.security.jca.GetInstance;
 
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
@@ -21,6 +24,8 @@ import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.components.menus.GridBottomMenuBar;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
@@ -85,6 +90,8 @@ public class CGrid
 	
 	public static int moveDelta=1;
 	public static int moveDelay=100;
+	
+	public static GridLoadListener gridLoadListener = new GridLoadListener();
 	
 	public static synchronized CGrid getInstance(){
 		if(instance==null){
@@ -187,6 +194,36 @@ public class CGrid
 		CGrid.gwidth = imgw;
 		CGrid.gheight = imgh;
 		
+		
+
+		//sets the initial sizes of the viewports in the viewport controller
+		int cellindex = 0;
+
+		long[] canvasuids = CCanvasController.getCanvasIDList();
+		cellLayer = new PLayer();	
+
+		/*for(int can=0;can<canvasuids.length;can++)
+		{
+			long canuuid = canvasuids[can];
+			CGridCell img = new CGridCell(canuuid, cellindex,GRID_EDGE_INSET,GRID_EDGE_INSET,imgw,imgh);
+			cellLayer.addChild(img);
+			cells.put(canuuid, img);			
+			cellindex++;
+		}*/
+		//getLayer().addChild(cellLayer);
+		
+		//Frankly, there is no need to add this one grid cell right now because they all get added later. 
+		//Some other code above is useless but this takes care of what the user sees.
+		//CalicoDraw.addChildToNode(getLayer(), cellLayer);
+		repaint();
+	}
+
+	private void drawHeaderlabels() {
+		int topHeaderIconHeight;
+		int leftHeaderIconWidth;
+		topHeaderIconHeight = CalicoOptions.grid.topHeaderIconHeight;
+		leftHeaderIconWidth = CalicoOptions.grid.leftHeaderIconWidth;
+		
 		//add header labels... A... B... etc
 		PText headerIcon;
 
@@ -213,31 +250,11 @@ public class CGrid
 			//getLayer().addChild(0,headerIcon);	
 			CalicoDraw.addChildToNode(getLayer(), headerIcon, 0);
 		}
-
-		//sets the initial sizes of the viewports in the viewport controller
-		int cellindex = 0;
-
-		long[] canvasuids = CCanvasController.getCanvasIDList();
-		cellLayer = new PLayer();	
-
-		/*for(int can=0;can<canvasuids.length;can++)
-		{
-			long canuuid = canvasuids[can];
-			CGridCell img = new CGridCell(canuuid, cellindex,GRID_EDGE_INSET,GRID_EDGE_INSET,imgw,imgh);
-			cellLayer.addChild(img);
-			cells.put(canuuid, img);			
-			cellindex++;
-		}*/
-		//getLayer().addChild(cellLayer);
-		
-		//Frankly, there is no need to add this one grid cell right now because they all get added later. 
-		//Some other code above is useless but this takes care of what the user sees.
-		//CalicoDraw.addChildToNode(getLayer(), cellLayer);
-		repaint();
 	}
 	
-	
+//	asdfasfdasfdas
 	public void refreshCells(){
+		drawHeaderlabels();
 		cells = new Long2ReferenceOpenHashMap<CGridCell>();
 		//getLayer().removeChild(cellLayer);
 		CalicoDraw.removeChildFromNode(getLayer(), cellLayer);
@@ -573,4 +590,47 @@ public class CGrid
 			super.removeInputSources();
 		}
 	}
+	
+
+	
 }//CGrid
+
+class GridLoadListener implements CalicoEventListener
+{
+	private long prevStrokeCanvas = 0l;
+	
+	public GridLoadListener()
+	{
+		CalicoEventHandler.getInstance().addListener(NetworkCommand.STROKE_LOAD, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
+	}
+
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		// TODO Auto-generated method stub
+		switch (event)
+		{
+			case NetworkCommand.STROKE_LOAD:
+				p.rewind();
+				p.getInt();
+				p.getLong();
+				long canvas = p.getLong();
+				if (prevStrokeCanvas != canvas && prevStrokeCanvas != 0l)
+					CGrid.getInstance().updateCell(prevStrokeCanvas);
+				prevStrokeCanvas = canvas;
+				break;
+			case NetworkCommand.CONSISTENCY_FINISH:
+				if (prevStrokeCanvas != 0l)
+					CGrid.getInstance().updateCell(prevStrokeCanvas);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							CalicoEventHandler.getInstance().removeListener(NetworkCommand.STROKE_LOAD, CGrid.gridLoadListener);
+							CalicoEventHandler.getInstance().removeListener(NetworkCommand.CONSISTENCY_FINISH, CGrid.gridLoadListener);
+							CGrid.gridLoadListener = null;
+						}});
+
+				break;	
+		}
+	}
+	
+}

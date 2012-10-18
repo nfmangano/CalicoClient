@@ -128,6 +128,7 @@ public class PacketHandler
 			case NetworkCommand.CONSISTENCY_FAILED:CONSISTENCY_FAILED(packet);break;
 			case NetworkCommand.CONSISTENCY_DEBUG:CONSISTENCY_DEBUG(packet);break;
 			case NetworkCommand.CONSISTENCY_RESYNCED:CONSISTENCY_RESYNCED(packet);break;
+			case NetworkCommand.CONSISTENCY_CHECK:CONSISTENCY_CHECK(packet);break;
 			
 			case NetworkCommand.CANVAS_CREATE:CANVAS_CREATE(packet);break;
 			case NetworkCommand.CANVAS_INFO:CANVAS_INFO(packet);break;
@@ -757,14 +758,14 @@ public class PacketHandler
 		
 		if( GridPerspective.getInstance().isActive() )
 		{
-			Calico cal = CalicoDataStore.calicoObj;
-			
-			cal.getContentPane().removeAll();
-			cal.getContentPane().add( CGrid.getInstance().getComponent() );
-			CGrid.getInstance().refreshCells();
-	        cal.pack();
-	        cal.setVisible(true);
-			cal.repaint();
+//			Calico cal = CalicoDataStore.calicoObj;
+//			
+//			cal.getContentPane().removeAll();
+//			cal.getContentPane().add( CGrid.getInstance().getComponent() );
+//			CGrid.getInstance().refreshCells();
+//	        cal.pack();
+//	        cal.setVisible(true);
+//			cal.repaint();
 		}
 
 		//StatusMessage.msg("The grid has loaded!");
@@ -812,6 +813,23 @@ public class PacketHandler
 		Networking.synchroized = true;
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
+	
+	private static void CONSISTENCY_CHECK(CalicoPacket p)
+	{
+		if( GridPerspective.getInstance().isActive() && Calico.isGridLoading)
+		{
+			Calico cal = CalicoDataStore.calicoObj;
+			
+			cal.getContentPane().removeAll();
+			cal.getContentPane().add( CGrid.getInstance().getComponent() );
+			CGrid.getInstance().refreshCells();
+	        cal.pack();
+	        cal.setVisible(true);
+			cal.repaint();
+		}	
+	}
+	
+
 	
 	private static void CONSISTENCY_DEBUG(CalicoPacket p)
 	{
@@ -922,12 +940,12 @@ public class PacketHandler
 
 	}
 
-	@Deprecated
+	//@Deprecated
 	private static void GRID_SIZE(CalicoPacket p)
 	{ 
 		CalicoDataStore.GridRows = p.getInt();
 		CalicoDataStore.GridCols = p.getInt();
-
+		
 		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
 		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
 		
