@@ -699,6 +699,13 @@ public class CCanvas
 			if (uuid != CCanvasController.getCurrentUUID())
 				CCanvasController.loadCanvasImages(uuid);
 			
+			Rectangle boundsOfCanvas = CCanvasController.canvasdb.get(uuid).getBounds();
+			double widthRatio = (double)boundsOfCanvas.width / CalicoDataStore.serverScreenWidth;
+			double heightRatio = (double)boundsOfCanvas.height / CalicoDataStore.serverScreenHeight;
+			
+			double ratio = Math.min(widthRatio, heightRatio);
+			CCanvasController.canvasdb.get(uuid).getLayer().setScale(ratio);
+			
 			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
 //			Image img = contentCamera.toImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, backgroundColor);
 			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);

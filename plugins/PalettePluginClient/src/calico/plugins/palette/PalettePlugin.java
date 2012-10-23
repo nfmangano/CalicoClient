@@ -770,9 +770,10 @@ public class PalettePlugin extends CalicoPlugin
 //				CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0, 
 //				images.length, "Loading images into palette... "));	
 		
+		String paletteStatusMessage = "Loading images into palette... ";
 		
 		if (showProgressBar)
-			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0, 1, "Loading images into palette... "));
+			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_START, 0, 1, paletteStatusMessage));
 		for (int i = 0; i < images.length; i++)
 		{	
 			Image image = null;
@@ -791,6 +792,8 @@ public class PalettePlugin extends CalicoPlugin
 					0l,
 					-50l,
 					-100l,
+					"",
+					"",
 					"",
 					-1 * image.getWidth(null) / 2 + 10,
 					-1 * image.getHeight(null) / 2 + 10,
@@ -811,7 +814,7 @@ public class PalettePlugin extends CalicoPlugin
 	        if (showProgressBar)
 				CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, 
 						CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, (double)i, 
-						(double)images.length, "Loading images into palette... "));	
+						(double)images.length, paletteStatusMessage));	
 		}
 		
 		
@@ -823,7 +826,7 @@ public class PalettePlugin extends CalicoPlugin
 		setActivePalette(paletteUUID);
 		
 		if (showProgressBar)
-			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED));
+			CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED, CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE_FINISHED, 100d, 100d, paletteStatusMessage));
 		
 		Networking.send(palettes.get(paletteUUID).getUpdatePacket());
 	}

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import calico.CalicoOptions;
 import calico.components.CGroup;
 import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenuButton;
+import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
@@ -121,7 +123,11 @@ public class BubbleMenu {
 		activeType = type;
 
 		ComponentType componentType = componentTypes.get(activeType);
-		activeBounds = componentType.getBounds(activeUUID);
+		PBounds temp = new PBounds(componentType.getBounds(activeUUID));
+		Rectangle2D global = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(temp);
+		PBounds globalActiveBounds = new PBounds(global);
+		activeBounds = globalActiveBounds;
+		
 		componentType.highlight(true, activeUUID);
 		
 		//Reset buttons
@@ -237,18 +243,21 @@ public class BubbleMenu {
 		for(int i=0;i<buttonList.size();i++)
 		{
 			activeUUID = uuid;
-			activeBounds =  CGroupController.groupdb.get(activeUUID).getBounds();
+			PBounds tempBounds = new PBounds(CGroupController.groupdb.get(activeUUID).getBounds());
+			Rectangle2D global = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().localToGlobal(tempBounds);
+			PBounds globalActiveBounds = new PBounds(global);
 			buttonList.get(i).updateGroupUUID(uuid);
-			moveIconPositions(activeBounds);
+			moveIconPositions(globalActiveBounds);
 		}
 	}
 	
 	//Update the icon buttons and listeners to fit the new bounds
 	public static void moveIconPositions(PBounds componentBounds)
 	{
+		PBounds globalBounds = new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(componentBounds));
 		for(int i=0;i<buttonList.size();i++)
 		{
-			Point pos = getButtonPointFromPosition(i, buttonPosition[i], componentBounds);
+			Point pos = getButtonPointFromPosition(i, buttonPosition[i], globalBounds);
 			buttonList.get(i).setPosition(pos);
 
 			//bubbleContainer.getChild(i).setBounds(pos.getX(), pos.getY(), CalicoOptions.menu.icon_size, CalicoOptions.menu.icon_size);
@@ -352,7 +361,10 @@ public class BubbleMenu {
 				if (p == null) 
 					return new Point(x, y);
 				else
-					return new Point(p.x - centerOffset, p.y - centerOffset);
+				{
+					Point2D globalPoint = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(new Point(p));
+					return new Point((int)globalPoint.getX() - centerOffset, (int)globalPoint.getY() - centerOffset);
+				}
 				
 		case 1: x = (int)componentBounds.getMinX() - startX - centerOffset - small;
 				y = (int)componentBounds.getMinY() - startY - centerOffset + large;

@@ -93,6 +93,14 @@ public class CalicoEventHandler {
 //		System.out.println("Added listener " + listener.getClass().getName() + " for value " + event);
 	}
 	
+	public void removeListener(int event, CalicoEventListener listener)
+	{
+		synchronized (this)
+		{
+			eventListeners.get(event).remove(listener);
+		}
+	}
+	
 	public void addListenerForType(String type, CalicoEventListener listener, int listenerType)
 	{
 		Class<?> rootClass = NetworkCommand.class;
@@ -128,10 +136,13 @@ public class CalicoEventHandler {
 		if (!eventListeners.containsKey(event))
 			return;
 		
-		ArrayList<CalicoEventListener> listeners = eventListeners.get(event);
-		
-		for (CalicoEventListener listener : listeners)
-			listener.handleCalicoEvent(event, p);
+		synchronized (this)
+		{
+			ArrayList<CalicoEventListener> listeners = eventListeners.get(event);
+			
+			for (CalicoEventListener listener : listeners)
+				listener.handleCalicoEvent(event, p);
+		}
 	}
 	
 }

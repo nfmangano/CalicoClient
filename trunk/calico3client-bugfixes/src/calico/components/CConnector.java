@@ -672,6 +672,11 @@ public class CConnector extends PComposite implements Composable{
 //		System.out.println("Debug sig for group " + uuid + ": " + sig + ", 1) " + this.points.npoints + ", 2) " + isPermanent() + ", 3) " + this.points.xpoints[0] + ", 4) " + this.points.xpoints[0] + ", 5) " + this.points.ypoints[0] + ", 6) " + (int)(this.rotation*10) + ", 7) " + (int)(this.scaleX*10) + ", 8) " + (int)(this.scaleY*10));
 		return sig;
 	}
+	
+	public String get_signature_debug_output()
+	{
+		return "Debug sig for connector " + uuid + ": 1) " +this.orthogonalDistance.length + ", 2) " + pointHead.x + ", 3) " + pointHead.y + ", 4) " + anchorTailUUID;
+	}	
 
 
 	@Override

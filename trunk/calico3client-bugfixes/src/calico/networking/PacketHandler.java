@@ -128,6 +128,7 @@ public class PacketHandler
 			case NetworkCommand.CONSISTENCY_FAILED:CONSISTENCY_FAILED(packet);break;
 			case NetworkCommand.CONSISTENCY_DEBUG:CONSISTENCY_DEBUG(packet);break;
 			case NetworkCommand.CONSISTENCY_RESYNCED:CONSISTENCY_RESYNCED(packet);break;
+			case NetworkCommand.CONSISTENCY_CHECK:CONSISTENCY_CHECK(packet);break;
 			
 			case NetworkCommand.CANVAS_CREATE:CANVAS_CREATE(packet);break;
 			case NetworkCommand.CANVAS_INFO:CANVAS_INFO(packet);break;
@@ -142,6 +143,7 @@ public class PacketHandler
 			case NetworkCommand.CANVAS_LOCK:CANVAS_LOCK(packet);break;
 			case NetworkCommand.CANVAS_LOAD:CANVAS_LOAD(packet);break;
 			case NetworkCommand.CANVAS_DELETE:CANVAS_DELETE(packet);break;
+			case NetworkCommand.CANVAS_SET_DIMENSIONS:CANVAS_SET_DIMENSIONS(packet);break;
 
 			case NetworkCommand.SESSION_INFO:SESSION_INFO(packet);break;
 			
@@ -756,14 +758,14 @@ public class PacketHandler
 		
 		if( GridPerspective.getInstance().isActive() )
 		{
-			Calico cal = CalicoDataStore.calicoObj;
-			
-			cal.getContentPane().removeAll();
-			cal.getContentPane().add( CGrid.getInstance().getComponent() );
-			CGrid.getInstance().refreshCells();
-	        cal.pack();
-	        cal.setVisible(true);
-			cal.repaint();
+//			Calico cal = CalicoDataStore.calicoObj;
+//			
+//			cal.getContentPane().removeAll();
+//			cal.getContentPane().add( CGrid.getInstance().getComponent() );
+//			CGrid.getInstance().refreshCells();
+//	        cal.pack();
+//	        cal.setVisible(true);
+//			cal.repaint();
 		}
 
 		//StatusMessage.msg("The grid has loaded!");
@@ -812,6 +814,23 @@ public class PacketHandler
 		CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).drawMenuBars();
 	}
 	
+	private static void CONSISTENCY_CHECK(CalicoPacket p)
+	{
+		if( GridPerspective.getInstance().isActive() && Calico.isGridLoading)
+		{
+			Calico cal = CalicoDataStore.calicoObj;
+			
+			cal.getContentPane().removeAll();
+			cal.getContentPane().add( CGrid.getInstance().getComponent() );
+			CGrid.getInstance().refreshCells();
+	        cal.pack();
+	        cal.setVisible(true);
+			cal.repaint();
+		}	
+	}
+	
+
+	
 	private static void CONSISTENCY_DEBUG(CalicoPacket p)
 	{
 		boolean foundConflict = false;
@@ -843,6 +862,15 @@ public class PacketHandler
 					local_debugMsg = CStrokeController.get_signature_debug_output(uuid);
 				}
 			}
+			else if (CConnectorController.exists(uuid))
+			{
+				if (CConnectorController.get_signature(uuid) != sig)
+				{
+					conflict = true;
+					local_sig = CConnectorController.get_signature(uuid);
+					local_debugMsg = CConnectorController.get_signature_debug_output(uuid);
+				}
+			}			
 			
 			if (conflict)
 			{
@@ -912,12 +940,12 @@ public class PacketHandler
 
 	}
 
-	@Deprecated
+	//@Deprecated
 	private static void GRID_SIZE(CalicoPacket p)
 	{ 
 		CalicoDataStore.GridRows = p.getInt();
 		CalicoDataStore.GridCols = p.getInt();
-
+		
 		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
 		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
 		
@@ -1483,5 +1511,16 @@ public class PacketHandler
 		
 		CCanvasController.no_notify_clear(canvasId);
 //		CCanvasController.removeCanvas(canvasId);
+	}
+	
+	public static void CANVAS_SET_DIMENSIONS(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		int width = p.getInt();
+		int height = p.getInt();
+		
+		CalicoDataStore.serverScreenWidth = width;
+		CalicoDataStore.serverScreenHeight = height;
 	}
 }
