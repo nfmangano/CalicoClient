@@ -11,6 +11,8 @@ import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.SwingUtilities;
+
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.components.CCanvas;
@@ -244,11 +246,16 @@ public class CIntentionCell
 	/**
 	 * Set the location of this CIC in Intention View coordinates.
 	 */
-	public void setLocation(double x, double y)
+	public void setLocation(final double x, final double y)
 	{
-		location.setLocation(x, y);
-		shell.setX(x);
-		shell.setY(y);
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					location.setLocation(x, y);
+					shell.setX(x);
+					shell.setY(y);
+					shell.repaint();
+				}});
+
 
 		CalicoDraw.repaint(shell);
 //		shell.repaint();

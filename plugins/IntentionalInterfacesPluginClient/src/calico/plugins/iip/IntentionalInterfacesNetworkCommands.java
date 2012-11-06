@@ -1,6 +1,10 @@
 package calico.plugins.iip;
 
 import calico.networking.netstuff.CalicoPacket;
+import calico.networking.netstuff.NetCommandFormat;
+import calico.networking.netstuff.NetworkCommand;
+import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.controllers.CIntentionCellController;
 
 /**
  * Defines the network commands for the Intention View. See the server plugin's peer of this class for more details
@@ -25,7 +29,14 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CLINK_MOVE_ANCHOR = Command.CLINK_MOVE_ANCHOR.id;
 	public static final int CLINK_LABEL = Command.CLINK_LABEL.id;
 	public static final int CLINK_DELETE = Command.CLINK_DELETE.id;
-
+	
+	static {
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_CREATE.id, 
+				new NetCommandFormat("CIC_CREATE", "LLIIS"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_MOVE.id, 
+				new NetCommandFormat("CIC_MOVE", "LII"));
+	}
+	
 	public enum Command
 	{
 		CIC_CREATE,

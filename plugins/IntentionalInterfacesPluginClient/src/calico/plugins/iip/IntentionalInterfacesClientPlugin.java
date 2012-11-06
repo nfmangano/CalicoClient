@@ -187,6 +187,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		String title = p.getString();
+		
+		System.out.println("CIC_CREATE, " + uuid + ", " + canvas_uuid + ", " + x + ", " + y);
 
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, new Point(x, y), title);
 		CIntentionCellController.getInstance().addCell(cell);
@@ -205,6 +207,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
+		System.out.println("CIC_MOVE, " + uuid + ", " + x + ", " + y);
 
 		IntentionGraphController.getInstance().cellMoved(cell.getId(), x, y);
 	}
