@@ -68,7 +68,8 @@ public class CanvasStatusBar extends CanvasGenericMenuBar
 		addSpacer(ALIGN_END);
 		addIconRightAligned(new EmailButton(cuid));
 		
-		if (Networking.connectionState == Networking.ConnectionState.Connecting)
+		if (Networking.connectionState == Networking.ConnectionState.Connecting
+				&& CCanvasController.getCurrentUUID() == cuid)
 		{
 			addSpacer(ALIGN_END);
 			addTextEndAligned(
