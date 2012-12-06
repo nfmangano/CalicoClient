@@ -51,6 +51,8 @@ public class CopyCanvasButton extends CanvasMenuButton
 				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
 		IntentionCanvasController.getInstance().copyCanvas(currentCanvasId, newCanvasId);
 
+		IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
+		
 		if (CanvasPerspective.getInstance().isActive())
 		{
 			CCanvasController.loadCanvas(newCanvasId);
