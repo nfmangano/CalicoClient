@@ -116,7 +116,8 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 		{
 			e.printStackTrace();
 		}
-				
+		
+		/*
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() {
 					double lowest = Integer.MAX_VALUE;
@@ -139,7 +140,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 					}
 				}});
 
-		
+		*/
 		
 		//this.invalidatePaint();
 		CalicoDraw.invalidatePaint(this);

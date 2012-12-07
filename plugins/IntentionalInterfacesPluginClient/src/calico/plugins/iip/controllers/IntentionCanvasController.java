@@ -296,7 +296,10 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		CCanvasLinkController.getInstance().showingCanvas(canvasId);
 
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvasId);
-		if (cell == null)
+
+		if (cell == null
+				|| canvasId == 0l
+				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId))
 		{
 			showTagPanel(false);
 		}

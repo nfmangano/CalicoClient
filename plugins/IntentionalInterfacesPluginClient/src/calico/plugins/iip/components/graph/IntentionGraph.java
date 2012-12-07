@@ -10,6 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -381,7 +382,7 @@ public class IntentionGraph
 	{
 		long clusterRootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(memberCanvasId);
 		CIntentionTopology.Cluster cluster = topology.getCluster(clusterRootCanvasId);
-		PBounds maxRingBounds = cluster.getMaxRingBounds();
+		PBounds maxRingBounds = cluster.getVisualBoxBounds();//cluster.getMaxRingBounds();
 		if (maxRingBounds == null)
 		{
 			return; // no zooming on atomic clusters
@@ -514,5 +515,14 @@ public class IntentionGraph
 		{
 			super.removeInputSources();
 		}
+	}
+	
+	public long getClusterAt(Point2D p)
+	{
+		CIntentionTopology.Cluster cluster = topology.getClusterAt(p);
+		if (cluster != null)
+			return cluster.getRootCanvasId();
+		
+		return 0l;
 	}
 }

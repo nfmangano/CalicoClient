@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 
 /**
@@ -39,11 +40,25 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 	public void actionReleased(InputEventInfo event)
 	{
 		state = State.IDLE;
+		Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
+		long clusterId = IntentionGraph.getInstance().getClusterAt(local);
+		
+		
+		
+		if (clusterId > 0)
+			IntentionGraph.getInstance().zoomToCluster(clusterId);
+		else
+			IntentionGraph.getInstance().fitContents();
+		
 	}
 
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
+		lastMouse = event.getGlobalPoint();
+		
+		/*
+		
 		double xMouseDelta = event.getGlobalPoint().x - lastMouse.x;
 		double yMouseDelta = event.getGlobalPoint().y - lastMouse.y;
 
@@ -52,8 +67,9 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		xMouseDelta /= scale;
 		yMouseDelta /= scale;
 
-		lastMouse = event.getGlobalPoint();
+		
 
 		IntentionGraph.getInstance().translate(xMouseDelta, yMouseDelta);
+		*/
 	}
 }

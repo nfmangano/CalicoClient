@@ -15,6 +15,7 @@ import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -188,6 +189,12 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				case DRAG:
 					moveCurrentCell(event.getGlobalPoint(), false);
+					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
+					long clusterId = IntentionGraph.getInstance().getClusterAt(local);
+					if (clusterId != 0l && clusterId != cell.getCanvasId())
+					{
+						CCanvasLinkController.getInstance().createLink(clusterId, cell.getCanvasId());
+					}
 					break;
 				case ACTIVATED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
