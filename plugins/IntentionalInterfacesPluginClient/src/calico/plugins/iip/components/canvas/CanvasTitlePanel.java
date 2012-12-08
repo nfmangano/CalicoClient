@@ -12,9 +12,11 @@ import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
+import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -173,8 +175,30 @@ public class CanvasTitlePanel implements StickyItem
 			{
 				return;
 			}
+			
+			
+			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
+			
+			String tag = "";
+			if (cell.getIntentionTypeId() != -1)
+				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
+			
+			String title =cell.getTitle() + tag;
+			
+			long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+			
+			while (parentUUID != 0l)
+			{
+				cell = CIntentionCellController.getInstance().getCellByCanvasId(parentUUID);
+				tag = "";
+				if (cell.getIntentionTypeId() != -1)
+					tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() +")";
+				title = cell.getTitle() + tag + " > " + title;
+				
+				parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(parentUUID);
+			}
 
-			text.setText(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getTitle());
+			text.setText(title);
 		}
 
 		@Override

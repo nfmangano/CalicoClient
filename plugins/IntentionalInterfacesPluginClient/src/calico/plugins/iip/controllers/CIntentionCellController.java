@@ -109,6 +109,27 @@ public class CIntentionCellController
 
 		return getClusterRootCanvasId(parentCanvasId);
 	}
+	
+	public long getCIntentionCellParent(long memberCanvasId)
+	{
+		long parentCanvasId = -1L;
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(memberCanvasId))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				parentCanvasId = anchor.getOpposite().getCanvasId();
+				break;
+			}
+		}
+
+		if (parentCanvasId < 0L)
+		{
+			parentCanvasId = 0l;
+		}
+		
+		return parentCanvasId;
+	}
 
 	/**
 	 * Initialize all CICs.

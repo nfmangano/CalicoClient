@@ -3,6 +3,7 @@ package calico.plugins.iip.components.canvas;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
 import calico.perspectives.CanvasPerspective;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.CIntentionCellFactory;
 import calico.plugins.iip.controllers.IntentionCanvasController;
@@ -43,10 +44,13 @@ public class NewCanvasButton extends CanvasMenuButton
 
 	public void actionMouseClicked()
 	{
+		long currentCell = CCanvasController.getCurrentUUID();
+		
 		long newCanvasId = CIntentionCellFactory.getInstance()
 				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
 		
-		IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
+//		IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
+		CCanvasLinkController.getInstance().createLink(CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell), newCanvasId);
 		
 		if (CanvasPerspective.getInstance().isActive())
 		{
