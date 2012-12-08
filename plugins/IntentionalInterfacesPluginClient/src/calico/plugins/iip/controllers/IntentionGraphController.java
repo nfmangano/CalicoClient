@@ -255,7 +255,12 @@ public class IntentionGraphController
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
-
+		if (arrow == null)
+		{
+			System.out.println("Warning: arrow is null in IntentionGraphController.updateLinkArrow");
+			return;
+		}
+			
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
 		if ((cell != null) && cell.isNew())
 		{

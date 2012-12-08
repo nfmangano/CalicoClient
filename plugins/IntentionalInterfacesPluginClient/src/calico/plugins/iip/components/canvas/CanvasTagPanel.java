@@ -14,10 +14,14 @@ import javax.swing.SwingUtilities;
 import calico.Calico;
 import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
@@ -44,7 +48,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CanvasTagPanel implements StickyItem, PropertyChangeListener
+public class CanvasTagPanel implements StickyItem, PropertyChangeListener, CalicoEventListener
 {
 	public static CanvasTagPanel getInstance()
 	{
@@ -79,6 +83,9 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 
 		panel.setPaint(Color.white);
 		panel.setVisible(visible = false);
+		
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_CREATE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR, this, CalicoEventHandler.PASSIVE_LISTENER);
 
 		initialized = true;
 	}
@@ -255,10 +262,11 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 
 		void tap(Point point)
 		{
+			IntentionCanvasController.getInstance().showTagPanel(false);
 			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
 					type.getId(), !selected, false);
 			IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
-			IntentionCanvasController.getInstance().showTagPanel(false);
+//			CanvasTitlePanel.getInstance().refresh();
 		}
 
 		double getMaxWidth()
@@ -345,7 +353,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 		{
 			for (IntentionTypeRow row : typeRows)
 			{
-				removeChild(row);
+				CalicoDraw.removeNodeFromParent(row);
+//				removeChild(row);
 			}
 			typeRows.clear();
 
@@ -486,5 +495,16 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener
 				pressAnchor = event.getGlobalPoint();
 			}
 		}
+	}
+
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		
+		if (event == IntentionalInterfacesNetworkCommands.CLINK_CREATE
+				|| event == IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR)
+		{
+			refresh();
+		}
+		
 	}
 }

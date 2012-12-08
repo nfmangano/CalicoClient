@@ -8,10 +8,14 @@ import javax.swing.SwingUtilities;
 import calico.Calico;
 import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
@@ -30,7 +34,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CanvasTitlePanel implements StickyItem
+public class CanvasTitlePanel implements StickyItem, CalicoEventListener
 {
 	public static CanvasTitlePanel getInstance()
 	{
@@ -64,7 +68,9 @@ public class CanvasTitlePanel implements StickyItem
 
 		panel.setPaint(Color.white);
 		CalicoInputManager.registerStickyItem(this);
-
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_CREATE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR, this, CalicoEventHandler.PASSIVE_LISTENER);
+		
 		initialized = true;
 	}
 
@@ -293,5 +299,16 @@ public class CanvasTitlePanel implements StickyItem
 				pressAnchor = event.getGlobalPoint();
 			}
 		}
+	}
+	
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		
+		if (event == IntentionalInterfacesNetworkCommands.CLINK_CREATE
+				|| event == IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR)
+		{
+			refresh();
+		}
+		
 	}
 }
