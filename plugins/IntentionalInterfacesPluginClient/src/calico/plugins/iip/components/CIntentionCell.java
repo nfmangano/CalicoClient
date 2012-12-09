@@ -175,7 +175,10 @@ public class CIntentionCell implements CalicoEventListener
 	{
 		if (title.equals(DEFAULT_TITLE))
 		{
-			return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			if (CCanvasController.canvasdb.containsKey(canvas_uuid))
+				return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			else
+				return "Canvas ";
 		}
 		return title;
 	}

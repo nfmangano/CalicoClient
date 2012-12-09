@@ -111,7 +111,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				return;
 			case NetworkCommand.CONSISTENCY_FINISH:
 				CCanvasLinkController.getInstance().initializeArrowColors();
-				calico.plugins.iip.components.graph.IntentionGraph.getInstance().fitContents();
+				calico.plugins.iip.components.graph.IntentionGraph.getInstance().updateZoom();
+//				calico.plugins.iip.components.graph.IntentionGraph.getInstance().fitContents();
 				return;
 			case NetworkCommand.PRESENCE_CANVAS_USERS:
 				CIntentionCellController.getInstance().updateUserLists();
@@ -287,7 +288,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		if (Networking.connectionState == Networking.ConnectionState.Connected)
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() {
-						IntentionGraph.getInstance().fitContents();
+						IntentionGraph.getInstance().updateZoom();
+//						IntentionGraph.getInstance().fitContents();
 					}});
 	}
 

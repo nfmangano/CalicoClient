@@ -16,6 +16,7 @@ import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.components.piemenu.iip.CreateIntentionArrowPhase;
 import calico.plugins.iip.controllers.CCanvasLinkController;
+import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 
 /**
@@ -215,7 +216,15 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 			{
 				if (state == State.PIE)
 				{
-					PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
+					//getActiveLink;
+					
+					long anchorACanvas = CCanvasLinkController.getInstance().getLinkById(getActiveLink()).getAnchorA().getCanvasId();;
+					boolean isAnchorACanvasRootCanvas = CIntentionCellController.getInstance().isRootCanvas(anchorACanvas);
+					
+					if (!isAnchorACanvasRootCanvas)
+						PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
+					else
+						PieMenu.displayPieMenu(point, setLinkLabelButton);
 				}
 			}
 		}

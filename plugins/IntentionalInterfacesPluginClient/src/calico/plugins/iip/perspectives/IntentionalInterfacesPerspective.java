@@ -78,7 +78,8 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 //						IntentionGraph.getInstance().zoomToCell(cellId);
 //						IntentionGraph.getInstance().fitContents();
 						long canvasId = cell.getCanvasId();
-						IntentionGraph.getInstance().zoomToCluster(canvasId);
+						IntentionGraph.getInstance().setFocusToCluster(canvasId);
+//						IntentionGraph.getInstance().zoomToCluster(canvasId);
 					}
 				}
 			});

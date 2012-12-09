@@ -267,14 +267,17 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					if (state == State.ACTIVATED)
 					{
 						state = State.MENU;
+						
+						boolean isRootCanvas = CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId());
 
-						if (CCanvasController.canvasdb.size() > 1)
+						if (CCanvasController.canvasdb.size() > 1
+								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, zoomToClusterButton);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton /*, zoomToClusterButton*/);
 						}
 						else
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton, zoomToClusterButton);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton /*xxxx, zoomToClusterButton*/);
 						}
 					}
 				}
