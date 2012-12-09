@@ -254,6 +254,11 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	{
 		return activeIntentionTypes.get(typeId);
 	}
+	
+	public boolean intentionTypeExists(long typeId)
+	{
+		return activeIntentionTypes.containsKey(typeId);
+	}
 
 	public Color getIntentionTypeColor(long typeId)
 	{

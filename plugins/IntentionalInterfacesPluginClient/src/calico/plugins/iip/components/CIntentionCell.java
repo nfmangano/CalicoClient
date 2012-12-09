@@ -17,7 +17,13 @@ import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
@@ -34,7 +40,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CIntentionCell
+public class CIntentionCell implements CalicoEventListener
 {
 	public static final String DEFAULT_TITLE = "<default>";
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
@@ -106,6 +112,14 @@ public class CIntentionCell
 
 		shell = new Shell(location.getX(), location.getY());
 		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+		
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY, this, CalicoEventHandler.PASSIVE_LISTENER);
+		 
+		
 //		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
 
@@ -178,7 +192,7 @@ public class CIntentionCell
 	public void setTitle(String title)
 	{
 		this.title = title;
-		shell.titleBar.updateTitle();
+//		shell.titleBar.updateTitle();
 	}
 
 	public Long getIntentionTypeId()
@@ -522,10 +536,23 @@ public class CIntentionCell
 
 		private void updateTitle()
 		{
-			title.setText(getTitle());
+			int index = getSiblingIndex();
+			
+			String tag = "";
+			String titlePrefix = "";
+			if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				titlePrefix = getSiblingIndex() + ". ";
+			
+			if (getIntentionTypeId() != -1
+					&&  IntentionCanvasController.getInstance().intentionTypeExists(getIntentionTypeId()))
+				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(getIntentionTypeId()).getName() + ")";
+			
+			title.setText(titlePrefix + getTitle() + tag);
 			CalicoDraw.repaint(this);
 //			repaint();
 		}
+
+
 
 		@Override
 		protected void layoutChildren()
@@ -549,6 +576,19 @@ public class CIntentionCell
 
 			super.paint(paintContext);
 		}
+	}
+	
+	public int getSiblingIndex() {
+		long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+		long[] siblings = CIntentionCellController.getInstance().getCIntentionCellChildren(parentUUID);
+		
+		int index = 1;
+		for (int i = 0; i < siblings.length; i++)
+		{
+			if (siblings[i] == canvas_uuid)
+				index = i+1;
+		}
+		return index;
 	}
 
 	private class UserList extends PText
@@ -632,5 +672,19 @@ public class CIntentionCell
 			CalicoDraw.repaint(snapshot);
 //			snapshot.repaint();
 		}
+	}
+
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		
+		if (event == IntentionalInterfacesNetworkCommands.CIC_TAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED
+				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
+		{
+			shell.titleBar.updateTitle();
+		}
+		
 	}
 }

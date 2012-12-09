@@ -29,6 +29,8 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CLINK_MOVE_ANCHOR = Command.CLINK_MOVE_ANCHOR.id;
 	public static final int CLINK_LABEL = Command.CLINK_LABEL.id;
 	public static final int CLINK_DELETE = Command.CLINK_DELETE.id;
+	public static final int CIC_UPDATE_FINISHED = Command.CIC_UPDATE_FINISHED.id;
+	public static final int II_PERSPECTIVE_ACTIVATED = Command.II_PERSPECTIVE_ACTIVATED.id;
 	
 	static {
 		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_CREATE.id, 
@@ -54,7 +56,15 @@ public class IntentionalInterfacesNetworkCommands
 		CLINK_CREATE,
 		CLINK_MOVE_ANCHOR,
 		CLINK_LABEL,
-		CLINK_DELETE;
+		CLINK_DELETE,
+		/**
+		 * Alerts the client that the IntentionalInterfaceState update has been sent successfully
+		 */
+		CIC_UPDATE_FINISHED,
+		/**
+		 * Alerts the server that the intention
+		 */
+		II_PERSPECTIVE_ACTIVATED;
 
 		public final int id;
 

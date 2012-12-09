@@ -9,7 +9,11 @@ import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.controllers.CHistoryController;
 import calico.inputhandlers.InputEventInfo;
+import calico.networking.Networking;
+import calico.networking.PacketHandler;
+import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -92,6 +96,9 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		}
 
 		super.activate();
+		
+		PacketHandler.receive(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED));
+		Networking.send(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED));
 	}
 
 	@Override

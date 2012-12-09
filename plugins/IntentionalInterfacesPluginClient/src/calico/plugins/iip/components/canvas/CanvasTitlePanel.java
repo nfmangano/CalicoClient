@@ -6,6 +6,7 @@ import java.awt.Point;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
+import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
@@ -15,6 +16,9 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.StickyItem;
 import calico.networking.netstuff.CalicoPacket;
+import calico.perspectives.CalicoPerspective;
+import calico.perspectives.CalicoPerspective.PerspectiveChangeListener;
+import calico.perspectives.CanvasPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.IntentionPanelLayout;
@@ -34,7 +38,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CanvasTitlePanel implements StickyItem, CalicoEventListener
+public class CanvasTitlePanel implements StickyItem, CalicoEventListener, PerspectiveChangeListener
 {
 	public static CanvasTitlePanel getInstance()
 	{
@@ -70,6 +74,9 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener
 		CalicoInputManager.registerStickyItem(this);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_CREATE, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoPerspective.addListener(this);
+		
 		
 		initialized = true;
 	}
@@ -189,7 +196,11 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener
 			if (cell.getIntentionTypeId() != -1)
 				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
 			
-			String title =cell.getTitle() + tag;
+			String titlePrefix = "";
+			if (! CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				titlePrefix = cell.getSiblingIndex() + ". ";
+			
+			String title = titlePrefix + cell.getTitle() + tag;
 			
 			long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
 			
@@ -197,9 +208,13 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener
 			{
 				cell = CIntentionCellController.getInstance().getCellByCanvasId(parentUUID);
 				tag = "";
+				titlePrefix = "";
+				if (! CIntentionCellController.getInstance().isRootCanvas(parentUUID))
+					titlePrefix = cell.getSiblingIndex() + ". ";
+				
 				if (cell.getIntentionTypeId() != -1)
 					tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() +")";
-				title = cell.getTitle() + tag + " > " + title;
+				title = titlePrefix + cell.getTitle() + tag + " > " + title;
 				
 				parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(parentUUID);
 			}
@@ -309,6 +324,16 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener
 		{
 			refresh();
 		}
+		
+	}
+
+	@Override
+	public void perspectiveChanged(CalicoPerspective perspective) {
+		if (perspective instanceof CanvasPerspective)
+			CalicoInputManager.registerStickyItem(this);
+		else
+			CalicoInputManager.unregisterStickyItem(this);
+		
 		
 	}
 }

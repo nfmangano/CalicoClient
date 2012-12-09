@@ -118,7 +118,7 @@ public class IntentionGraphController
 		if (destination != null)
 		{
 			Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(destination.getIntentionTypeId());
-			arrow.setColor(color);
+			arrow.setColor(Color.black /*color*/);
 		}
 
 		arrowsByLinkId.put(link.getId(), arrow);
