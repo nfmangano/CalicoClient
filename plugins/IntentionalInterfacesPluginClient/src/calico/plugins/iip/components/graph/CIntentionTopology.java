@@ -103,7 +103,8 @@ public class CIntentionTopology
 			while (tokens.hasMoreTokens())
 			{
 				int radius = Integer.parseInt(tokens.nextToken());
-				PPath ring = PPath.createEllipse((float) (getX() - radius), (float) (getY() - radius), radius * 2, radius * 2);
+				PPath ring = PPath.createEllipse((float) (outerBox.getBounds().getCenterX() - radius), 
+						(float) (outerBox.getBounds().getCenterY() - radius), radius * 2, radius * 2);
 				ring.setStrokePaint(RING_COLOR);
 				rings.add(ring);
 			}
