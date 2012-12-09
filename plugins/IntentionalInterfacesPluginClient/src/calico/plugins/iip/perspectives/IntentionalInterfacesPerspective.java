@@ -97,7 +97,10 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 		super.activate();
 		
-		PacketHandler.receive(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED));
+		CalicoPacket packet = CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED);
+		packet.rewind();
+		
+		PacketHandler.receive(packet);
 		Networking.send(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED));
 	}
 
