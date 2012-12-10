@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
@@ -19,7 +20,9 @@ import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.inputhandlers.PressAndHoldAction;
 import calico.inputhandlers.StickyItem;
+import calico.inputhandlers.CalicoAbstractInputHandler.MenuTimer;
 import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CalicoPerspective.PerspectiveChangeListener;
@@ -31,6 +34,9 @@ import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
+import calico.utils.Ticker;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -281,6 +287,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	 * @author Byron Hawkins
 	 */
 	private class InputHandler extends CalicoAbstractInputHandler
+		implements PressAndHoldAction
 	{
 		private final Object stateLock = new Object();
 
@@ -290,10 +297,16 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		private InputState state = InputState.IDLE;
 		private long pressTime = 0L;
 		private Point pressAnchor;
+		private long lastAction = 0;
+		
+		Point lastPoint, mouseDown, mouseUp;
 
 		@Override
 		public void actionReleased(InputEventInfo event)
 		{
+			lastAction = 1l;
+			mouseUp = event.getPoint();
+			lastPoint = event.getPoint();
 			synchronized (stateLock)
 			{
 				if ((state == InputState.PRESSED) && ((System.currentTimeMillis() - pressTime) < tapDuration))
@@ -312,27 +325,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 							ctnc.tap(p);
 					}
 				}
-				else if ((state == InputState.PRESSED) && ((System.currentTimeMillis() - pressTime) >= tapDuration))
-				{
-					Point p = event.getPoint();
-					if (titleNodeContainer.getBounds().contains(p))
-					{
-						long targetCanvas = titleNodeContainer.getCanvasAt(p);
-						if (targetCanvas != 0l)
-							CCanvasController.loadCanvas(targetCanvas);
-					}
-					
-					for (int i = 0; i < titles.size(); i++)
-					{
-						CanvasTitleNodeContainer ctnc = titles.get(i);
-						if (ctnc.getBounds().contains(p))
-						{
-							long targetCanvas = ctnc.getCanvasAt(p);
-							if (targetCanvas != 0l)
-								CCanvasController.loadCanvas(targetCanvas);
-						}
-					}
-				}
+
 				state = InputState.IDLE;
 			}
 
@@ -344,6 +337,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		@Override
 		public void actionDragged(InputEventInfo event)
 		{
+			lastPoint = event.getPoint();
 			if (pressAnchor.distance(event.getGlobalPoint()) < dragThreshold)
 			{
 				// not a drag, completely ignore this event
@@ -363,13 +357,86 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		@Override
 		public void actionPressed(InputEventInfo event)
 		{
+			lastAction = 0l;
+			mouseDown = event.getPoint();
+			lastPoint = event.getPoint();
 			synchronized (stateLock)
 			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
+						mouseDown, 0l, layer);
+				Ticker.scheduleIn(250, menuTimer);
 				state = InputState.PRESSED;
 
 				pressTime = System.currentTimeMillis();
 				pressAnchor = event.getGlobalPoint();
 			}
+		}
+		
+		@Override
+		public long getLastAction() {
+			return lastAction;
+		}
+
+		@Override
+		public Point getMouseDown() {
+			return mouseDown;
+		}
+
+		@Override
+		public Point getMouseUp() {
+			return mouseUp;
+		}
+
+		@Override
+		public Point getLastPoint() {
+			
+			return lastPoint;
+		}
+
+		@Override
+		public double getDraggedDistance() {
+			// TODO Auto-generated method stub
+			return mouseDown.distance(lastPoint);
+		}
+
+		@Override
+		public void pressAndHoldCompleted() {
+			Point p = getLastPoint();
+			if (titleNodeContainer.getBounds().contains(p))
+			{
+				long targetCanvas = titleNodeContainer.getCanvasAt(p);
+				if (targetCanvas > 0l)
+					CCanvasController.loadCanvas(targetCanvas);
+				else if (targetCanvas == CanvasTitleNode.WALL)
+				{
+					IntentionalInterfacesPerspective.getInstance().displayPerspective(this.canvas_uid);
+				}
+			}
+			
+			for (int i = 0; i < titles.size(); i++)
+			{
+				CanvasTitleNodeContainer ctnc = titles.get(i);
+				if (ctnc.getBounds().contains(p))
+				{
+					long targetCanvas = ctnc.getCanvasAt(p);
+					if (targetCanvas != 0l)
+						CCanvasController.loadCanvas(targetCanvas);
+				}
+			}
+			
+		}
+
+		@Override
+		public void pressAndHoldAbortedEarly() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void openMenu(long potScrap, long group, Point point) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
@@ -403,6 +470,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	}
 	
 	private ArrayList<CanvasTitleNodeContainer> titles = new ArrayList<CanvasTitleNodeContainer>();
+
+	private Point lastPoint;
 	
 	private void rebuildTitleNodes()
 	{
@@ -778,4 +847,6 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		return spacer;
 		
 	}
+
+
 }
