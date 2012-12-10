@@ -99,6 +99,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 			addSpacer();
 			addIcon(new TextCreateButton(cuid));
 			addIcon(new ImageCreateButton(cuid));
+			addIcon(new CanvasViewScrapCreateButton(cuid));
 		
 			for (Class<?> button : externalButtons)
 			{

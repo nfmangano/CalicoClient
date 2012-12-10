@@ -641,6 +641,63 @@ public class CCanvas
 		}
 	}
 	
+	public Image toImage(int width, int height)
+	{
+		Color backgroundColor;
+		if (CCanvasController.getLastActiveUUID() == this.uuid)
+			backgroundColor = new Color(200,200,200);
+		else
+			backgroundColor = CCanvasController.getActiveCanvasBackgroundColor();
+
+		if (!isEmpty())
+		{
+			//logger.debug("Canvas "+cell_coord+" render image");
+//			getCamera().removeChild(menuBarLeft);
+//			getCamera().removeChild(menuBarRight);
+//			getCamera().removeChild(statusBar);
+			//getCamera().removeChild(topMenuBar);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.loadCanvasImages(uuid);
+
+			Rectangle boundsOfCanvas = CCanvasController.canvasdb.get(uuid).getBounds();
+			double widthRatio = (double)boundsOfCanvas.width / CalicoDataStore.ScreenWidth;
+			double heightRatio = (double)boundsOfCanvas.height / CalicoDataStore.ScreenHeight;
+
+			double ratio = Math.min(widthRatio, heightRatio);
+			CCanvasController.canvasdb.get(uuid).getLayer().setScale(ratio);
+
+			Image img = contentCamera.toImage(width, height, backgroundColor);
+//			Image img = contentCamera.toImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, backgroundColor);
+			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.unloadCanvasImages(uuid);
+
+//			getCamera().addChild(menuBarLeft);
+//			if (menuBarRight != null)
+//				getCamera().addChild(menuBarRight);
+//			getCamera().addChild(statusBar);
+			//getCamera().addChild(topMenuBar);
+
+			return img;
+		}
+		else
+		{
+			// This makes a solid white image for the canvas
+			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
+//			BufferedImage bimg = new BufferedImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = (Graphics2D)bimg.createGraphics();
+			g.setComposite(AlphaComposite.Src);
+			g.setColor(backgroundColor);
+			g.fill(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
+			g.draw(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
+			g.fill(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
+			g.draw(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
+			g.dispose();
+
+			return bimg;
+		}
+	}
+	
 	
 	
 	public void getBlobs()

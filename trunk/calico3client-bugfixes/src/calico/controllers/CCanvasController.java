@@ -480,6 +480,11 @@ public class CCanvasController
 	{
 		return canvasdb.get(uuid).toImage();
 	}
+	
+	public static Image image(long uuid, int x, int y)
+	{
+		return canvasdb.get(uuid).toImage(x,y);
+	}
 
 	public static int get_signature(long uuid)
 	{
