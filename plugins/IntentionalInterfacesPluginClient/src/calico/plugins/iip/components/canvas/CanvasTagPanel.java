@@ -507,4 +507,5 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 		}
 		
 	}
+	
 }

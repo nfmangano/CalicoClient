@@ -383,7 +383,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	private class TagPanelBounds implements IntentionPanelLayout
 	{
 		private final int X_MARGIN = 20;
-		private final int Y_MARGIN = 20;
+		private final int Y_MARGIN = 50;
 
 		private final ArrayList<?> peers = new ArrayList<Object>();
 

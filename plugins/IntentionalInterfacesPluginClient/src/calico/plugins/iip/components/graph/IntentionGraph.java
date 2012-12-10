@@ -15,6 +15,8 @@ import java.util.Collection;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import com.itextpdf.text.pdf.hyphenation.TernaryTree.Iterator;
+
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
@@ -25,6 +27,7 @@ import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
@@ -537,5 +540,39 @@ public class IntentionGraph {
 			return cluster.getRootCanvasId();
 
 		return 0l;
+	}
+	
+	public long[] getRootsOfAllClusters()
+	{
+		Collection<Cluster> clusters = topology.getClusters();
+		
+		long[] ret = new long[clusters.size()];
+		
+		java.util.Iterator<Cluster> cit =  clusters.iterator();
+		int counter = 0;
+		
+		while (cit.hasNext())
+		{
+			ret[counter] = cit.next().getRootCanvasId();
+			counter++;
+		}
+		
+		return ret;	
+	}
+	
+	public int getClusterIndex(long clusterId)
+	{
+		Collection<Cluster> clusters = topology.getClusters();
+		java.util.Iterator<Cluster> cit =  clusters.iterator();
+		int counter = 0;
+		
+		while (cit.hasNext())
+		{
+			if (cit.next().getRootCanvasId() == clusterId)
+				return counter;
+			counter++;
+		}
+		
+		return -1;			
 	}
 }

@@ -593,6 +593,11 @@ public class CIntentionCell implements CalicoEventListener
 		}
 		return index;
 	}
+	
+	public int getClusterIndex()
+	{
+		return IntentionGraph.getInstance().getClusterIndex(CIntentionCellController.getInstance().getClusterRootCanvasId(canvas_uuid)) + 1;
+	}
 
 	private class UserList extends PText
 	{
