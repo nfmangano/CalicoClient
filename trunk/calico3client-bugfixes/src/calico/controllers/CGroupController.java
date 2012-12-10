@@ -1865,20 +1865,24 @@ public class CGroupController
 	
 	public static void create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas)
 	{
-		no_notify_create_canvas_view_scrap(uuid, cuuid, targetCanvas);
+		create_canvas_view_scrap(uuid, cuuid, targetCanvas, 200, 200, (int)CanvasViewScrap.getDefaultWidth(), (int)CanvasViewScrap.getDefaultHeight());
+	}
+	
+	public static void create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas, int x, int y, int width, int height)
+	{
+		no_notify_create_canvas_view_scrap(uuid, cuuid, targetCanvas, x, y, width, height);
 		
 		CalicoPacket[] packets = CGroupController.groupdb.get(uuid).getUpdatePackets(false);
 		
 		Networking.send(packets[0]);
 	}
 	
-	public static void no_notify_create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas)
+	public static void no_notify_create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas, int x, int y, int width, int height)
 	{	
 		//initialize custom scrap
 		CGroup group = new CanvasViewScrap(uuid, cuuid, targetCanvas);
-		int width = (int)(calico.CalicoDataStore.ScreenWidth * CanvasViewScrap.INITIAL_SIZE_RATIO);
-		int height = (int)(calico.CalicoDataStore.ScreenHeight * CanvasViewScrap.INITIAL_SIZE_RATIO);
-		Rectangle bounds = new Rectangle(200, 200, width, height);
+
+		Rectangle bounds = new Rectangle(x, y, width, height);
 		group.setShapeToRoundedRectangle(bounds, 0);
 
 //		Polygon p = group.getRawPolygon();

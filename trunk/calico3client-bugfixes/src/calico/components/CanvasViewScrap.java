@@ -218,6 +218,17 @@ public class CanvasViewScrap extends CGroup
 				});
 		
 	}
+	
+	public static double getDefaultWidth()
+	{
+		return (calico.CalicoDataStore.ScreenWidth * CanvasViewScrap.INITIAL_SIZE_RATIO);
+		
+	}
+	
+	public static double getDefaultHeight()
+	{
+		return (calico.CalicoDataStore.ScreenHeight * CanvasViewScrap.INITIAL_SIZE_RATIO);
+	}
 
 
 

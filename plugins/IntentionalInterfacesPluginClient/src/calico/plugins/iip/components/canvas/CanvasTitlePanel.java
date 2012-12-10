@@ -1,6 +1,7 @@
 package calico.plugins.iip.components.canvas;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.font.TextAttribute;
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CCanvas;
+import calico.components.CanvasViewScrap;
 import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.inputhandlers.CalicoAbstractInputHandler;
@@ -36,7 +39,9 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 import calico.utils.Ticker;
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
+import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -276,7 +281,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	private enum InputState
 	{
 		IDLE,
-		PRESSED
+		PRESSED,
+		DRAGGING
 	}
 
 	/**
@@ -300,6 +306,11 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		private long lastAction = 0;
 		
 		Point lastPoint, mouseDown, mouseUp;
+		PImage pressedCellMainImage;
+		int imgw;// = CanvasViewScrap.getDefaultWidth()*.25;
+		int imgh;// = CanvasViewScrap.getDefaultHeight()*.25;
+		long cuidDraggedCanvas = 0l;
+		boolean draggingCell;
 
 		@Override
 		public void actionReleased(InputEventInfo event)
@@ -325,6 +336,26 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 							ctnc.tap(p);
 					}
 				}
+				else if (state == InputState.DRAGGING)
+				{
+					if (draggingCell)
+						removeDraggedCell();
+					Point p = pressAnchor;
+					if (titleNodeContainer.getBounds().contains(p))
+					{
+						createCanvasViewScrap(p, titleNodeContainer);
+						
+					}
+					
+					for (int i = 0; i < titles.size(); i++)
+					{
+						CanvasTitleNodeContainer ctnc = titles.get(i);
+						if (ctnc.getBounds().contains(p))
+						{
+							createCanvasViewScrap(p, ctnc);
+						}
+					}
+				}
 
 				state = InputState.IDLE;
 			}
@@ -332,6 +363,18 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			pressTime = 0L;
 
 			CalicoInputManager.unlockHandlerIfMatch(uuid);
+		}
+
+		public void createCanvasViewScrap(Point p, CanvasTitleNodeContainer ctnc) {
+			long targetCanvas = ctnc.getCanvasAt(p);
+			if (targetCanvas > 0l && targetCanvas != this.canvas_uid)
+			{
+				long uuid = Calico.uuid();
+				int width = (int)CanvasViewScrap.getDefaultWidth();
+				int height = (int)CanvasViewScrap.getDefaultHeight();
+				CGroupController.create_canvas_view_scrap(uuid, CCanvasController.getCurrentUUID(), targetCanvas, mouseUp.x - width/2, mouseUp.y - height/2,
+						width, height);
+			}
 		}
 
 		@Override
@@ -346,11 +389,46 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 			synchronized (stateLock)
 			{
-				if (state == InputState.PRESSED)
+				if (state == InputState.DRAGGING)
+				{
+					if (draggingCell)
+						moveDraggedCell(lastPoint.x, lastPoint.y);
+				}
+				else if (state == InputState.PRESSED || state == InputState.IDLE)
+				{
+					state = InputState.DRAGGING;
+					
+					Point p = pressAnchor;
+					if (titleNodeContainer.getBounds().contains(p))
+					{
+						long targetCanvas = titleNodeContainer.getCanvasAt(p);
+						if (targetCanvas > 0l && targetCanvas != this.canvas_uid)
+						{
+							drawSelectedCell(targetCanvas, lastPoint.x, lastPoint.y);
+						}
+						
+					}
+					
+					for (int i = 0; i < titles.size(); i++)
+					{
+						CanvasTitleNodeContainer ctnc = titles.get(i);
+						if (ctnc.getBounds().contains(p))
+						{
+							long targetCanvas = ctnc.getCanvasAt(p);
+							if (targetCanvas > 0l && targetCanvas != this.canvas_uid)
+							{
+								drawSelectedCell(targetCanvas, lastPoint.x, lastPoint.y);
+							}
+						}
+					}
+					
+				}
+				else if (state == InputState.PRESSED)
 				{
 					state = InputState.IDLE;
 					pressTime = 0L;
 				}
+				
 			}
 		}
 
@@ -437,6 +515,59 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		public void openMenu(long potScrap, long group, Point point) {
 			// TODO Auto-generated method stub
 			
+		}
+		
+		/**
+		 * Draws a slightly smaller, yellow background version of a cell in the given position
+		 * @param cuid
+		 * @param x
+		 * @param y
+		 */
+		private void drawSelectedCell(long cuid, int x, int y){		
+//			if(!draggingCell){
+				draggingCell=true;
+				imgw = (int)(CanvasViewScrap.getDefaultWidth()*.5);
+				imgh = (int)(CanvasViewScrap.getDefaultHeight()*.5);
+				CCanvas canvas = CCanvasController.canvasdb.get(cuid);
+				PCamera canvasCam =canvas.getContentCamera();		
+//				canvasCam.removeChild(canvas.menuBar);
+//				canvasCam.removeChild(canvas.topMenuBar);
+				CCanvasController.loadCanvasImages(cuid);
+				Image img = canvasCam.toImage(imgw-16, imgh-16, Color.white);	
+				CCanvasController.unloadCanvasImages(cuid);
+				
+				pressedCellMainImage =  new PImage(img);
+				
+				pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);
+				//pressedCellMainImage.setTransparency(CalicoOptions.group.background_transparency);
+//				CalicoDraw.setNodeTransparency(pressedCellMainImage, CalicoOptions.group.background_transparency);
+				//getLayer().addChild(pressedCellMainImage);
+				CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), pressedCellMainImage);
+				cuidDraggedCanvas=cuid;			
+//			}
+		}
+		
+		/**
+		 * moves a cell that is beeign dragged to cut or copy a canvas
+		 * @param x the new x point to drag to
+		 * @param y the new y point to drag to
+		 */
+		public void moveDraggedCell(int x, int y){
+			//pressedCellMainImage.setBounds(x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);		
+			CalicoDraw.setNodeBounds(pressedCellMainImage, x-((imgw-24)/2), y-((imgh-24)/2), imgw-24, imgh-24);
+		}
+		
+		/**
+		 * removes the dragged cell after copying or cutting
+		 */
+		public void removeDraggedCell(){
+			if(pressedCellMainImage!=null){
+				//getLayer().removeChild(pressedCellMainImage);
+				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), pressedCellMainImage);
+				pressedCellMainImage=null;
+				cuidDraggedCanvas=0l;
+				draggingCell = false;
+			}
 		}
 	}
 	
