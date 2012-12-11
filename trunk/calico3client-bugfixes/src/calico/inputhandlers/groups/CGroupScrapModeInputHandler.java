@@ -4,6 +4,7 @@ import java.awt.*;
 
 import calico.*;
 import calico.components.*;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.*;
 import calico.controllers.*;
 import calico.iconsets.CalicoIconManager;
@@ -39,7 +40,7 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 	private boolean hasStartedBge = false;
 	private boolean isRCMove = false;// is right click move?
 	private boolean weDidSomething = false;
-	
+	public static boolean dragging = false;
 	
 	private boolean serverNotifiedOfMove = false;
 
@@ -113,41 +114,70 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 		int x = e.getX();
 		int y = e.getY();
 		
-
-		if(e.isRightButton() && lastEvent!=null)
+		if (!dragging)
+		{
+			if (pressPoint.distance(e.getPoint()) > DRAG_THRESHOLD)
+			{
+				dragging = true;
+				if(!serverNotifiedOfMove)
+				{
+					CGroupController.move_start(this.uuid);
+					serverNotifiedOfMove = true;
+					CalicoInputManager.lockInputHandler(this.uuid);
+					Point delta = e.getDelta(lastEvent);
+					lastMovePoint.translate(delta.x, delta.y);
+					CGroupController.move(this.uuid, delta.x, delta.y);
+					weDidSomething = true;
+				}
+			}
+		}
+		if(dragging /*e.isRightButton()*/ && lastEvent!=null)
 		{
 			if (!weDidSomething)
 			{
 
 			}
-			if(!serverNotifiedOfMove)
-			{
-				CGroupController.move_start(this.uuid);
-				serverNotifiedOfMove = true;
-			}
+
 			CalicoInputManager.lockInputHandler(this.uuid);
 			Point delta = e.getDelta(lastEvent);
 			lastMovePoint.translate(delta.x, delta.y);
 			CGroupController.move(this.uuid, delta.x, delta.y);
 			weDidSomething = true;
-		}
-		else if(e.isLeftButtonPressed())
-		{
-			if(!hasStartedGroup)
+			
+			
+			long smallestParent = CGroupController.groupdb.get(uuid).calculateParent(e.getPoint().x, e.getPoint().y);
+			if (smallestParent != BubbleMenu.highlightedParentGroup)
 			{
-				long nguuid = Calico.uuid();
-				CGroupController.start(nguuid, canvas_uid, this.uuid, false);
-				CGroupController.setCurrentUUID(nguuid);
-				if (lastEvent != null)
-					CGroupController.append(nguuid, lastEvent.getX(), lastEvent.getY());
-				hasStartedGroup = true;
+				if (BubbleMenu.highlightedParentGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+				}
+				if (smallestParent != 0l)
+				{
+					CGroupController.groupdb.get(smallestParent).highlight_on();
+					CGroupController.groupdb.get(smallestParent).highlight_repaint();
+				}
+				BubbleMenu.highlightedParentGroup = smallestParent;
 			}
-			else
-			{
-				CGroupController.append(CGroupController.getCurrentUUID(), x, y);
-			}
-			weDidSomething = true;
 		}
+//		else if(e.isLeftButtonPressed())
+//		{
+//			if(!hasStartedGroup)
+//			{
+//				long nguuid = Calico.uuid();
+//				CGroupController.start(nguuid, canvas_uid, this.uuid, false);
+//				CGroupController.setCurrentUUID(nguuid);
+//				if (lastEvent != null)
+//					CGroupController.append(nguuid, lastEvent.getX(), lastEvent.getY());
+//				hasStartedGroup = true;
+//			}
+//			else
+//			{
+//				CGroupController.append(CGroupController.getCurrentUUID(), x, y);
+//			}
+//			weDidSomething = true;
+//		}
 		
 		lastEvent = e;
 		
@@ -166,11 +196,11 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 			int x = e.getX();
 			int y = e.getY();
 		
-			if(e.isRightButton())
+			if(dragging)//e.isRightButton())
 			{
 				// Are we done drawing/moving?
 				// DONT COMMENT THIS OUT! We need it to fix parents
-				CGroupController.move_end(this.uuid, lastMovePoint.x, lastMovePoint.y);
+				CGroupController.move_end(this.uuid, e.getPoint().x, e.getPoint().y);
 					
 				lastMovePoint = new Point(0,0);
 				
@@ -207,6 +237,10 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 			
 			
 		}
+		else if (!weDidSomething)
+		{
+			CGroupController.show_group_bubblemenu(uuid);
+		}
 		else if(!weDidSomething && e.isRightButton())
 		{
 			long stroke = CStrokeController.getPotentialScrap(e.getPoint());
@@ -219,7 +253,9 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 				CGroupController.show_group_piemenu(uuid, e.getGlobalPoint());
 		}
 		
+		serverNotifiedOfMove = false;
 		
+//		dragging = false;
 	}
 
 }

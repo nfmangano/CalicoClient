@@ -449,8 +449,8 @@ public class Calico extends JFrame
 		portBox = new JTextField(tempPort, 5);
 		nickBox = new JTextField(settings.getProperty("username", (CalicoOptions.webstart.isWebstart) ? "Table-" : System.getProperty("user.name")), 16);
 		passBox = new JTextField(settings.getProperty("password"), 16);
-		reswBox = new JTextField(settings.getProperty("resw", "0"), 4);
-		reshBox = new JTextField(settings.getProperty("resh", "0"), 4);
+		reswBox = new JTextField("1280",4);//settings.getProperty("resw", "0"), 4);
+		reshBox = new JTextField("900",4);//settings.getProperty("resh", "0"), 4);
 		JButton submit = new JButton();
 		submit.setText(" Connect ");
 

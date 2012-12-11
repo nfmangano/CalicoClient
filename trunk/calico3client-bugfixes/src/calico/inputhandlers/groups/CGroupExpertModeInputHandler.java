@@ -134,10 +134,13 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			{
 				if (BubbleMenu.activeUUID != uuid && CGroupController.groupdb.get(uuid).isPermanent())
 				{
-					CGroupController.show_group_bubblemenu(uuid);
+//					calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = true;
+//					CGroupController.show_group_bubblemenu(uuid);
 					CCanvasStrokeModeInputHandler.deleteSmudge = true;
+					this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 				}
-				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+				else
+					CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 			}
 		}
 	}
@@ -173,11 +176,12 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 			}*/
 		}
-		else if(e.isRightButtonPressed())/////////////////////////////////////////////
+		else if(BubbleMenu.activeUUID != uuid
+				&& this.pressPoint != null)//e.isRightButtonPressed())/////////////////////////////////////////////
 		{
 			// Reroute to canvas handler
-			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);*/
+			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);*/
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////
 		{
@@ -198,11 +202,12 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		this.currentMouseLocation = new Point(e.getX(), e.getY());
 		
 
-		if(e.isRightButton() && this.isInRightClickMode)
+		this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
+		if(calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging)//e.isRightButton() && this.isInRightClickMode)
 		{
-			/*this.isInRightClickMode = false;
-
-			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);*/
+//			/*this.isInRightClickMode = false;*/
+//
+//			this.parentHandler.routeToHandler_actionReleased(CInputMode.SCRAP, e);
 		}
 		else if(e.isRightButton() && this.isWaitingRightHold)
 		{
@@ -232,6 +237,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		
 		prevClickPoint = e.getPoint();
 		this.isWaitingRightHold = false;
+		calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
 		
 		
 	}

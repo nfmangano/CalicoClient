@@ -1783,7 +1783,8 @@ public class CGroupController
 		
 	}
 	
-	public static void move_end(long uuid, int x, int y) {		no_notify_move_end(uuid, x, y);
+	public static void move_end(long uuid, int x, int y) {		
+		no_notify_move_end(uuid, x, y);
 		CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()).moveInFrontOf(null);
 		//CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()), null);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_MOVE_END, uuid, x, y));
