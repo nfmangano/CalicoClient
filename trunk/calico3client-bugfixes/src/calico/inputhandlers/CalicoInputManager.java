@@ -377,6 +377,11 @@ public class CalicoInputManager
 			}
 		}
 		
+		if (ev.getAction() == InputEventInfo.ACTION_RELEASED)
+		{
+			calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
+		}
+		
 		//Only allow left mouse button events right now
 		if (!ev.isLeftButton())
 			return;
