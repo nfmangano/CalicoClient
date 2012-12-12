@@ -41,10 +41,11 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 	private boolean isRCMove = false;// is right click move?
 	private boolean weDidSomething = false;
 	public static boolean dragging = false;
+	public static boolean startDrag = false;
 
 	private boolean serverNotifiedOfMove = false;
 
-	private Point pressPoint = null;
+	private InputEventInfo pressPoint = null;
 
 	private Point lastMovePoint = new Point(0,0);
 
@@ -80,7 +81,7 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 		{
 			hasNotPassedThreshold = true;
 		}
-		pressPoint = e.getPoint();
+		pressPoint = e;
 		lastEvent = e;
 
 		CalicoInputManager.drawCursorImage(canvas_uid,
@@ -91,60 +92,36 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionDragged(InputEventInfo e)
 	{
-//		this.hideModeIcon(e.getPoint());
 
-
-
-		// Ignore the distance if we are still within the presspoint
-
-		/*
-		if(isRightButton && hasNotPassedThreshold && pressPoint.distance(e.getPoint())<CalicoOptions.getFloat("scrap.drag.threshold"))
+		if (startDrag || dragging)
 		{
-			draggedCoords.addPoint(e.getX(), e.getY());
-			return;
-			//menuTimer.cancel();
-			
-		}
-		else
-		{
-			hasNotPassedThreshold = false;
-		}
-		*/
-
-		int x = e.getX();
-		int y = e.getY();
-
-		if (!dragging)
-		{
-			if (pressPoint.distance(e.getPoint()) > DRAG_THRESHOLD)
+			if (startDrag)
 			{
 				dragging = true;
-				if(!serverNotifiedOfMove)
-				{
-					CGroupController.move_start(this.uuid);
-					serverNotifiedOfMove = true;
-					CalicoInputManager.lockInputHandler(this.uuid);
-					Point delta = e.getDelta(lastEvent);
-					lastMovePoint.translate(delta.x, delta.y);
-					CGroupController.move(this.uuid, delta.x, delta.y);
-					weDidSomething = true;
-				}
+
+				CGroupController.move_start(this.uuid);
+				serverNotifiedOfMove = true;
+				CalicoInputManager.lockInputHandler(this.uuid);
+				Point delta = e.getDelta(pressPoint);
+				lastMovePoint.translate(delta.x, delta.y);
+				CGroupController.move(this.uuid, delta.x, delta.y);
+				weDidSomething = true;
+				startDrag = false;
 			}
-		}
-		if(dragging /*e.isRightButton()*/ && lastEvent!=null)
-		{
-			if (!weDidSomething)
+			else if(dragging && lastEvent!=null)
 			{
 
+
+				CalicoInputManager.lockInputHandler(this.uuid);
+				Point delta = e.getDelta(lastEvent);
+				lastMovePoint.translate(delta.x, delta.y);
+				CGroupController.move(this.uuid, delta.x, delta.y);
+				weDidSomething = true;
+
+
+
 			}
-
-			CalicoInputManager.lockInputHandler(this.uuid);
-			Point delta = e.getDelta(lastEvent);
-			lastMovePoint.translate(delta.x, delta.y);
-			CGroupController.move(this.uuid, delta.x, delta.y);
-			weDidSomething = true;
-
-
+			
 			long smallestParent = CGroupController.groupdb.get(uuid).calculateParent(e.getPoint().x, e.getPoint().y);
 			if (smallestParent != BubbleMenu.highlightedParentGroup)
 			{
@@ -161,23 +138,6 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 				BubbleMenu.highlightedParentGroup = smallestParent;
 			}
 		}
-//		else if(e.isLeftButtonPressed())
-//		{
-//			if(!hasStartedGroup)
-//			{
-//				long nguuid = Calico.uuid();
-//				CGroupController.start(nguuid, canvas_uid, this.uuid, false);
-//				CGroupController.setCurrentUUID(nguuid);
-//				if (lastEvent != null)
-//					CGroupController.append(nguuid, lastEvent.getX(), lastEvent.getY());
-//				hasStartedGroup = true;
-//			}
-//			else
-//			{
-//				CGroupController.append(CGroupController.getCurrentUUID(), x, y);
-//			}
-//			weDidSomething = true;
-//		}
 
 		lastEvent = e;
 
@@ -205,6 +165,7 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 				lastMovePoint = new Point(0,0);
 
 				CGroupController.groupdb.get(this.uuid).resetRightClickMode();
+			
 			}
 			else if(hasStartedGroup && e.isLeftButton())
 			{
@@ -255,7 +216,7 @@ public class CGroupScrapModeInputHandler extends CalicoAbstractInputHandler
 
 		serverNotifiedOfMove = false;
 
-//		dragging = false;
+		dragging = false;
 	}
 
 }

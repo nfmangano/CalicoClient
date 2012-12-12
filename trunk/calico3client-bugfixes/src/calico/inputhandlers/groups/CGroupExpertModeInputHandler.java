@@ -39,7 +39,6 @@ import edu.umd.cs.piccolox.nodes.PLine;
 
 
 public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
-	implements PressAndHoldAction
 {
 	public static Logger logger = Logger.getLogger(CGroupExpertModeInputHandler.class.getName());
 	
@@ -140,10 +139,12 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 //					CGroupController.show_group_bubblemenu(uuid);
 //					CCanvasStrokeModeInputHandler.deleteSmudge = true;
 				}
-				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
-				MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
-						pressPoint.getPoint(), 0l, layer);
-				Ticker.scheduleIn(250, menuTimer);
+//				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
+//				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+//				MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
+//						pressPoint.getPoint(), 0l, layer);
+//				Ticker.scheduleIn(250, menuTimer);
+				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, e);
 				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 			}
 		}
@@ -180,7 +181,8 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 			}*/
 		}
-		else if(calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging)
+		else if(calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging
+				|| calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag)
 //				e.isRightButtonPressed())/////////////////////////////////////////////
 		{
 			// Reroute to canvas handler
@@ -242,59 +244,6 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		prevClickPoint = e.getPoint();
 		this.isWaitingRightHold = false;
 		calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
-		
-	}
-
-
-	@Override
-	public long getLastAction() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
-	@Override
-	public Point getMouseDown() {
-		return pressPoint.getPoint();
-	}
-
-
-	@Override
-	public Point getMouseUp() {
-		return releasePoint.getPoint();
-	}
-
-
-	@Override
-	public Point getLastPoint() {
-		return currentMouseLocation;
-	}
-
-
-	@Override
-	public double getDraggedDistance() {
-		return getMouseDown().distance(getLastPoint());
-	}
-
-
-	@Override
-	public void pressAndHoldCompleted() {
-		CGroupController.show_group_bubblemenu(uuid);
-		CCanvasStrokeModeInputHandler.deleteSmudge = true;
-		calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = true;
-	}
-
-
-	@Override
-	public void pressAndHoldAbortedEarly() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void openMenu(long potScrap, long group, Point point) {
-		// TODO Auto-generated method stub
 		
 	}
 
