@@ -58,6 +58,24 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	public void openMenu(long potScrap, long group, Point point)
 	{
 		CalicoAbstractInputHandler.clickMenu(potScrap, group, point);
+		
+		if (CGroupController.exists(CGroupController.getCurrentUUID()) 
+				&& point != null
+				&& CGroupController.groupdb.get(CGroupController.getCurrentUUID()).containsPoint(point.x, point.y))
+		{
+			this.activeGroup = CGroupController.getCurrentUUID();
+			calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
+			CCanvasStrokeModeInputHandler.deleteSmudge = true;	
+			
+			CalicoAbstractInputHandler handler = CalicoInputManager.getInputHandler(this.activeGroup);
+			if (handler instanceof CGroupInputHandler)
+			{
+				CalicoInputManager.unlockHandlerIfMatch(CCanvasController.getCurrentUUID());
+				CalicoInputManager.lockInputHandler(this.activeGroup);
+				((CGroupInputHandler)handler).routeToHandler_actionPressed(calico.input.CInputMode.EXPERT, lastPoint);
+			}
+		}
+	
 	}
 	
 	public CCanvasStrokeModeInputHandler(long cuid, CCanvasInputHandler parent)

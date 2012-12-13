@@ -134,10 +134,16 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			}
 			else
 			{
-				if (BubbleMenu.activeUUID != uuid && CGroupController.groupdb.get(uuid).isPermanent())
+				if (BubbleMenu.activeUUID == uuid)
 				{
+					calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
+					calico.controllers.CGroupController.restoreOriginalStroke = false;
 //					CGroupController.show_group_bubblemenu(uuid);
 //					CCanvasStrokeModeInputHandler.deleteSmudge = true;
+				}
+				else
+				{
+					CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 				}
 //				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 //				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
@@ -145,7 +151,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 //						pressPoint.getPoint(), 0l, layer);
 //				Ticker.scheduleIn(250, menuTimer);
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, e);
-				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+				
 			}
 		}
 	}

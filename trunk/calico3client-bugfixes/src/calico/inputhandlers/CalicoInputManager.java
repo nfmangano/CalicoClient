@@ -535,7 +535,7 @@ public class CalicoInputManager
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;
 					}
 					else if (!CGroupController.groupdb.get(BubbleMenu.activeUUID).containsPoint(ev.getPoint().x, ev.getPoint().y)
-							|| !CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent())
+							/*|| !CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent()*/)
 					{
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;
