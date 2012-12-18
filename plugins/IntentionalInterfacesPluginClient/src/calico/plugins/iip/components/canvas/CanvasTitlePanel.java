@@ -833,11 +833,37 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				return;
 			}
 			
-			String tag = "";
-			if (this.canvasId != CanvasTitleNode.WALL
-					&& cell.getIntentionTypeId() != -1)
-				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
+			String title = "";
 			
+			if (this.canvasId == CanvasTitleNode.WALL)
+				title = "Wall";
+			else
+			{
+				//get title prefix
+				String titlePrefix = "";
+				titlePrefix = cell.getTitlePrefix();
+				
+				//get tag name
+				String tag = "";
+				if (this.canvasId != CanvasTitleNode.WALL
+						&& cell.getIntentionTypeId() != -1)
+					tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
+				
+				//get number of children
+				String numChildren = "";
+				if (this.canvasId != CanvasTitleNode.WALL
+						&& type == CanvasTitleNodeType.DROPDOWN)
+				{	
+					int num = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId).length;
+					if (num > 0)
+						numChildren = " (" + num + ")";	
+				}
+				
+				title = titlePrefix + cell.getTitle() + tag + numChildren;
+			}
+			
+
+			/*
 			String titlePrefix = "";
 			if (! CIntentionCellController.getInstance().isRootCanvas(this.canvasId)
 					&& this.canvasId != CanvasTitleNode.WALL)
@@ -850,22 +876,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				else
 					titlePrefix = "C#. ";
 			}
-			
-			String numChildren = "";
-			if (this.canvasId != CanvasTitleNode.WALL
-					&& type == CanvasTitleNodeType.DROPDOWN)
-			{	
-				int num = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId).length;
-				if (num > 0)
-					numChildren = " (" + num + ")";	
-			}
-				
-			
-			String title = "";
-			if (this.canvasId == CanvasTitleNode.WALL)
-				title = "Wall";
-			else
-				title = titlePrefix + cell.getTitle() + tag + numChildren;
+			*/
+
 			
 			this.setText(title);
 			this.setConstrainWidthToTextWidth(true);

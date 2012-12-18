@@ -543,8 +543,8 @@ public class CIntentionCell implements CalicoEventListener
 			
 			String tag = "";
 			String titlePrefix = "";
-			if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
-				titlePrefix = getSiblingIndex() + ". ";
+//			if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				titlePrefix = getTitlePrefix() /*+ getSiblingIndex() + ". "*/;
 			
 			if (getIntentionTypeId() != -1
 					&&  IntentionCanvasController.getInstance().intentionTypeExists(getIntentionTypeId()))
@@ -592,6 +592,33 @@ public class CIntentionCell implements CalicoEventListener
 				index = i+1;
 		}
 		return index;
+	}
+	
+	public String getTitlePrefix() {
+		
+		String titlePrefix = "";
+		
+		//get parent cell
+		long parentCanvasId = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+		if (parentCanvasId > 0l)
+		{
+			CIntentionCell parentCell = CIntentionCellController.getInstance().getCellByCanvasId(parentCanvasId);
+			titlePrefix += parentCell.getTitlePrefix();
+		}
+				
+		
+		if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+			titlePrefix += getSiblingIndex() + ".";
+		else 
+		{
+			int clusterIndex = getClusterIndex();
+			if (clusterIndex != -1)
+				titlePrefix += "C" + clusterIndex + ".";
+			else
+				titlePrefix += "C#.";
+		}
+		
+		return titlePrefix;
 	}
 	
 	public int getClusterIndex()

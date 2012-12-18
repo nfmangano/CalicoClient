@@ -70,7 +70,7 @@ public class CalicoKeyListener extends KeyAdapter {
         		&& evt.getKeyCode() == KeyEvent.VK_V) {
         	System.out.println("attempting paste!");
         	attemptImagePaste();
-        }        
+        }
     }
     
     private void moveToCell(int button_type)

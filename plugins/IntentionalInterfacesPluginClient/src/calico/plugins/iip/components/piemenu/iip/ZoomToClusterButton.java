@@ -20,7 +20,7 @@ public class ZoomToClusterButton extends PieMenuButton
 {
 	public ZoomToClusterButton()
 	{
-		super(CalicoIconManager.getIconImage("intention.zoom-to-cluster"));
+		super(CalicoIconManager.getIconImage("intention-graph.set-canvas-title"));
 	}
 
 	@Override
