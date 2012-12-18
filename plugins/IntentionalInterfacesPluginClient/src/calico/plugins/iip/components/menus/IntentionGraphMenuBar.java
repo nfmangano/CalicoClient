@@ -49,8 +49,8 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());
 		addSpacer(ALIGN_END);
-		addIconRightAligned(new HistoryNavigationForwardButton());
-		addIconRightAligned(new HistoryNavigationBackButton());
+//		addIconRightAligned(new HistoryNavigationForwardButton());
+//		addIconRightAligned(new HistoryNavigationBackButton());
 
 	}
 
