@@ -1,11 +1,20 @@
 package calico.input;
 
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import calico.Calico;
@@ -16,6 +25,7 @@ import calico.components.decorators.CListDecorator;
 import calico.components.menus.buttons.CanvasNavButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CImageController;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
@@ -55,6 +65,12 @@ public class CalicoKeyListener extends KeyAdapter {
         if (CanvasPerspective.getInstance().isActive() && evt.getKeyCode() == KeyEvent.VK_ENTER) {
         	createTextScrap();
         }
+        
+        if (CanvasPerspective.getInstance().isActive() && evt.isControlDown()
+        		&& evt.getKeyCode() == KeyEvent.VK_V) {
+        	System.out.println("attempting paste!");
+        	attemptImagePaste();
+        }        
     }
     
     private void moveToCell(int button_type)
@@ -183,6 +199,85 @@ public class CalicoKeyListener extends KeyAdapter {
 		Pattern pattern = Pattern.compile(regex); 
 		Matcher matcher = pattern.matcher(text); 
 		return matcher.matches();
+	}
+	
+	private void attemptImagePaste()
+	{
+		Image clipboardImage;
+		String clipboardText;
+		if ((clipboardImage = getImageFromClipboard()) != null)
+		{
+			try {
+			    // retrieve image
+			    BufferedImage bi = (BufferedImage) clipboardImage;
+			    File outputfile = new File("saved.png");
+			    ImageIO.write(bi, "png", outputfile);
+		        Networking.send(CImageController.getImageTransferPacket(Calico.uuid(), CCanvasController.getCurrentUUID(), 
+		        		50, 50, outputfile));
+			} catch (IOException e) {
+			    e.printStackTrace();
+			}	
+		}
+		else if ((clipboardText = getTextFromClipboard()) != null
+				&& clipboardText.length() > 0)
+		{
+			long new_uuid = Calico.uuid();
+			CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), 
+					clipboardText, CalicoDataStore.ScreenWidth / 3, CalicoDataStore.ScreenHeight / 3);
+		}
+		
+	}
+	
+	/**
+	 * Get an image off the system clipboard.
+	 * @return Returns an Image if successful; otherwise returns null.
+	 * 
+	 * Taken from: http://alvinalexander.com/blog/post/jfc-swing/how-copy-paste-image-into-java-swing-application
+	 */
+	public Image getImageFromClipboard()
+	{
+	  Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+	  if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor))
+	  {
+	    try
+	    {
+	      return (Image) transferable.getTransferData(DataFlavor.imageFlavor);
+	    }
+	    catch (UnsupportedFlavorException e)
+	    {
+	      // handle this as desired
+	      e.printStackTrace();
+	    }
+	    catch (IOException e)
+	    {
+	      // handle this as desired
+	      e.printStackTrace();
+	    }
+	  }
+	  return null;
+	}
+	
+	public String getTextFromClipboard()
+	{
+	  Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+	  if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
+	  {
+	    try
+	    {
+	      return (String) transferable.getTransferData(DataFlavor.stringFlavor);
+	    }
+	    catch (UnsupportedFlavorException e)
+	    {
+	      // handle this as desired
+	      e.printStackTrace();
+	    }
+	    catch (IOException e)
+	    {
+	      // handle this as desired
+	      e.printStackTrace();
+	    }
+	  }
+	  return null;
 	}
 	
 }
