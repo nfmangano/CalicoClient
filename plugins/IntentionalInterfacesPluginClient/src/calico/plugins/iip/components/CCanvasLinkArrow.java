@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
+import calico.CalicoDraw;
 import calico.Geometry;
 import calico.components.arrow.AbstractArrow;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
@@ -71,6 +72,7 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 
 		PText label = IntentionalInterfacesGraphics.createLabelOnSegment(link.getLabel(), link.getAnchorA().getPoint(), link.getAnchorB().getPoint());
 		label.setTextPaint(getColor());
-		addChild(0, label);
+		CalicoDraw.addChildToNode(this, label, 0);
+//		addChild(0, label);
 	}
 }

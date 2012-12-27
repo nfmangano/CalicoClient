@@ -60,7 +60,7 @@ public class CGrid
 	
 	private final ContainedCanvas canvas = new ContainedCanvas();
 
-	private Long2ReferenceOpenHashMap<CGridCell> cells = new Long2ReferenceOpenHashMap<CGridCell>();
+	private static Long2ReferenceOpenHashMap<CGridCell> cells = new Long2ReferenceOpenHashMap<CGridCell>();
 	private PLayer cellLayer;
 
 	public static int gwidth = 0;
@@ -73,7 +73,7 @@ public class CGrid
 	
 	//public static int mode = MODE_NONE;
 
-	public static CGrid instance = null;
+	private static CGrid instance = null;
 	
 	//attributes for dragging a cell to copy or move
 	public static boolean draggingCell=false;
@@ -92,6 +92,16 @@ public class CGrid
 	public static int moveDelay=100;
 	
 	public static GridLoadListener gridLoadListener = new GridLoadListener();
+	
+	public static int GridRows = 0;
+	public static int GridCols = 0;
+	
+	public static int topHeaderIconHeight = 30;
+	public static int leftHeaderIconWidth = 30;
+	public static boolean render_zoom_canvas = false;
+	public static Color item_border = Color.BLACK;
+	public static Color viewport_background_color = new Color(235,235,235);//Color.WHITE;
+	public static float viewport_background_transparency = 0.3f;
 	
 	public static synchronized CGrid getInstance(){
 		if(instance==null){
@@ -134,8 +144,6 @@ public class CGrid
 	{
 //		CGrid.exitButtonBounds = new Rectangle(CalicoDataStore.ScreenWidth-32,5,24,24);
 
-		CalicoDataStore.gridObject = this;
-		
 		canvas.setPreferredSize(new Dimension(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));
 		setBounds(0, 0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight);
 
@@ -177,19 +185,19 @@ public class CGrid
 		
 		int bottomMenuBarHeight = this.menuBar.getBounds().getBounds().height;
 
-		int topHeaderIconHeight = CalicoOptions.grid.topHeaderIconHeight;
-		int leftHeaderIconWidth = CalicoOptions.grid.leftHeaderIconWidth;
+		int topHeaderIconHeight = CGrid.topHeaderIconHeight;
+		int leftHeaderIconWidth = CGrid.leftHeaderIconWidth;
 		
 		try {
-			while (CalicoDataStore.GridCols == 0 || CalicoDataStore.GridRows == 0)
+			while (CGrid.GridCols == 0 || CGrid.GridRows == 0)
 				Thread.sleep(50);
 			}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		imgw = (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / CalicoDataStore.GridCols );
-		imgh = (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / CalicoDataStore.GridRows );
+		imgw = (int) Math.ceil( (CalicoDataStore.ScreenWidth - leftHeaderIconWidth) / CGrid.GridCols );
+		imgh = (int) Math.ceil( (CalicoDataStore.ScreenHeight - topHeaderIconHeight - bottomMenuBarHeight) / CGrid.GridRows );
 
 		CGrid.gwidth = imgw;
 		CGrid.gheight = imgh;
@@ -221,13 +229,13 @@ public class CGrid
 	private void drawHeaderlabels() {
 		int topHeaderIconHeight;
 		int leftHeaderIconWidth;
-		topHeaderIconHeight = CalicoOptions.grid.topHeaderIconHeight;
-		leftHeaderIconWidth = CalicoOptions.grid.leftHeaderIconWidth;
+		topHeaderIconHeight = CGrid.topHeaderIconHeight;
+		leftHeaderIconWidth = CGrid.leftHeaderIconWidth;
 		
 		//add header labels... A... B... etc
 		PText headerIcon;
 
-		for (int i = 0; i < CalicoDataStore.GridCols; i++)
+		for (int i = 0; i < CGrid.GridCols; i++)
 		{
 			headerIcon = new PText(" " + ((char)('A' + i)) + " ");
 			headerIcon.setConstrainWidthToTextWidth(true);
@@ -239,7 +247,7 @@ public class CGrid
 			CalicoDraw.addChildToNode(getLayer(), headerIcon, 0);
 		}
 		
-		for (int i = 0; i < CalicoDataStore.GridRows; i++)
+		for (int i = 0; i < CGrid.GridRows; i++)
 		{
 			headerIcon = new PText(" " + ((char)('1' + i)) + " ");
 			headerIcon.setConstrainWidthToTextWidth(true);
@@ -320,7 +328,7 @@ public class CGrid
 	 * @param cuid
 	 * @return
 	 */
-	public PBounds getCellBounds(long cuid){
+	public static PBounds getCellBounds(long cuid){
 		CGridCell cell = cells.get(cuid);
 		if(cell!= null){
 			return cell.getBounds();		
@@ -416,7 +424,7 @@ public class CGrid
 	 * @param ev the event where the button was released
 	 */
 	public void execActionCanvas( InputEventInfo ev){
-		long cuidDest = CCanvasController.getCanvasAtPoint( ev.getPoint() );
+		long cuidDest = CGrid.getCanvasAtPoint( ev.getPoint() );
 		if(cuidDest!=0l){
 
 			//send package to add the contents from the source to dest cell
@@ -447,7 +455,7 @@ public class CGrid
 		pline.addPoint(1, x2, y2);
 		float[] dashFloat = {5f, 10f};
 		pline.setStroke(new BasicStroke( 5.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10.0f, dashFloat ,0f));
-		pline.setStrokePaint( CalicoOptions.grid.item_border );
+		pline.setStrokePaint( CGrid.item_border );
 		return pline;
 	}
 	
@@ -483,7 +491,7 @@ public class CGrid
 				if(clients.length>0) {
 					for(int i=0;i<clients.length;i++) {
 						if(CalicoDataStore.clientInfo.containsKey(clients[i])) {
-							str.append("\n"+CalicoDataStore.clientInfo.get(clients[i])+" ("+CCanvasController.canvasdb.get(cuids[x]).getGridCoordTxt()+")");
+							str.append("\n"+CalicoDataStore.clientInfo.get(clients[i])+" ("+CGrid.getCanvasCoord(cuids[x])+")");
 						} else {
 //							str.append("\nUnknown_"+clients[i]+" ("+CCanvasController.canvasdb.get(cuids[x]).getGridCoordTxt()+")");
 						}
@@ -546,6 +554,24 @@ public class CGrid
 		
 		Rectangle newBounds = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height+padding);
 	}
+	
+	public static int getCanvasRow(long cuid)
+	{
+		return (int) Math.floor(CCanvasController.canvasdb.get(cuid).getIndex() / CGrid.GridCols);
+	}
+	
+	public static int getCanvasColumn(long cuid)
+	{
+		//Formula: Index - Row * NumColumns
+		return CCanvasController.canvasdb.get(cuid).getIndex() - getCanvasRow(cuid) * CGrid.GridCols;
+	}
+	
+	public static String getCanvasCoord(long cuid)
+	{
+		int x = getCanvasRow(cuid);
+		int y = getCanvasColumn(cuid);
+		return (Character.valueOf( (char) (x+65)) ).toString()+""+y;
+	}
 
 
 
@@ -564,14 +590,14 @@ public class CGrid
 		Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
 		CCanvasController.setCurrentUUID(0l);
 		
-		CalicoDataStore.gridObject = CGrid.getInstance();
+//		CalicoDataStore.gridObject = CGrid.getInstance();
 		//CalicoDataStore.gridObject.refreshCells();
 		CalicoDataStore.calicoObj.getContentPane().removeAll();
 		
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
 		
-		CalicoDataStore.gridObject.drawBottomToolbar();
-		CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
+		CGrid.getInstance().drawBottomToolbar();
+		CalicoDataStore.calicoObj.getContentPane().add( CGrid.getInstance().getComponent() );
 		
 		for (int i = 0; i < comps.length; i++)
 			CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);
@@ -590,6 +616,38 @@ public class CGrid
 			super.removeInputSources();
 		}
 	}
+	
+	public static long getCanvasAtPos(int x, int y)
+	{
+		// This will give the UUID for the canvas at the specific X/Y pos
+
+		long[] cuids = CCanvasController.getCanvasIDList();
+		for (int i = 0; i < cuids.length; i++)
+		{
+			int r = getCanvasRow(cuids[i]);
+			int c = getCanvasColumn(cuids[i]);
+			if (x == r && c == y)
+			{
+				return cuids[i];
+			}
+		}
+		return 0L;
+	}
+	
+	 public static long getCanvasAtPoint(Point point)
+	 {
+		 // This will give the UUID for the canvas at the specific X/Y pos
+	
+		 long[] cuids = CCanvasController.getCanvasIDList();
+		 for (int i = 0; i < cuids.length; i++)
+		 {
+			 if (getCellBounds(cuids[i]).contains(point))
+			 {
+				 return cuids[i];
+			 }
+		 }
+		 return 0L;
+	 }
 	
 
 	

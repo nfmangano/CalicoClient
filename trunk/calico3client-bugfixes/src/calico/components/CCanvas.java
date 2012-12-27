@@ -73,7 +73,7 @@ public class CCanvas
 	
 	public interface ContentContributor
 	{
-		boolean hasContent(long canvas_uuid);
+//		boolean hasContent(long canvas_uuid);
 		
 		void contentChanged(long canvas_uuid);
 		
@@ -106,9 +106,9 @@ public class CCanvas
 	
 	private IntArraySet clients = new IntArraySet();
 
-	private String cell_coord = "A1";
+//	private String cell_coord = "A1";
 
-	private Rectangle grid_thumb_coords = new Rectangle();
+//	private Rectangle grid_thumb_coords = new Rectangle();
 	
 	public CanvasMenuBar menuBarLeft = null;
 	public CanvasMenuBar menuBarRight = null;
@@ -117,8 +117,7 @@ public class CCanvas
 
 	private PComposite clientListPopup = null;
 	
-	private int gridrow = 0;
-	private int gridcol = 0;
+	private int index;
 
 	public long uuid = 0L;
 	
@@ -126,7 +125,7 @@ public class CCanvas
 	private String lock_last_set_by_user = "";
 	private long lock_last_set_at_time = 0l;
 
-	public CCanvas(long uuid, String crs, int gr, int gc)
+	public CCanvas(long uuid, int index)
 	{
 		PLayer contentLayer = canvas.getCamera().removeLayer(0);
 		toolLayer.setParent(contentLayer.getParent());
@@ -136,7 +135,7 @@ public class CCanvas
 		contentCamera.addLayer(contentLayer);
 		
 		this.uuid = uuid;
-		setGridInfo(crs,gr,gc);
+		this.index = index;
 
 		canvas.setCursor(Calico.getDrawCursor());
 		
@@ -165,7 +164,7 @@ public class CCanvas
 		CalicoInputManager.addCanvasInputHandler(this.uuid);
 		
 		// This makes a border, so that we see the ENTIRE canvas
-		if(!CalicoOptions.grid.render_zoom_canvas)
+		if(!CGrid.render_zoom_canvas)
 		{
 			/*getLayer(Layer.CONTENT).addChild(drawBorderLine(0,0, CalicoDataStore.ScreenWidth,0));//top
 			getLayer(Layer.CONTENT).addChild(drawBorderLine(CalicoDataStore.ScreenWidth,0, CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight));//right
@@ -258,10 +257,10 @@ public class CCanvas
 		return pline;
 	}
 
-//	public int getIndex()
-//	{
-//		return index;
-//	}
+	public int getIndex()
+	{
+		return index;
+	}
 	
 	public int getSignature()
 	{
@@ -380,89 +379,6 @@ public class CCanvas
 		return false;
 	}
 
-	public void setGridInfo(String coords, int r, int c)
-	{
-		  	
-	  this.cell_coord = coords;
-		  	
-	  this.gridrow = r;
-		  	
-	  this.gridcol = c;
-		  	
-	}
-		  	
-	public int getGridRow()
-		  	
-	{
-		  	
-	  return this.gridrow;
-		  	
-	}
-		  	
-	public int getGridCol()
-		  	
-	{
-		  	
-	  return this.gridcol;
-		  	
-	}
-		  	
-	public String getGridCoordTxt()
-	
-	{
-	
-		return "" + ((char)('A' + this.gridcol)) + ((char)('1' + this.gridrow)); 
-	
-		//    return this.cell_coord;
-	
-	}
-	
-	public void setGridCoordRect(int x, int y, int w, int h)
-	
-	{
-	
-		setGridCoordRect(new Rectangle(x,y,w,h));
-	
-	}
-	
-	public void setGridCoordRect(Rectangle rect)
-	
-	{
-	
-		this.grid_thumb_coords = rect;
-	
-		
-	
-	}
-	
-	public boolean isClickedGridThumb(int x, int y)
-	{
-		return this.grid_thumb_coords.contains(x, y);
-	
-	}
-	
-	public boolean isGridPos(int x, int y)
-	
-	{
-	
-		if( (x==this.gridcol) && (y==this.gridrow) )
-	
-		{
-	
-			return true;
-	
-		}
-	
-		else
-	
-		{
-	
-			return false;
-	
-		}
-	
-	}
-	
 	public void addChildStroke(long uid)
 	{
 		this.strokes.add(uid);
@@ -706,8 +622,8 @@ public class CCanvas
 			double ratio = Math.min(widthRatio, heightRatio);
 			CCanvasController.canvasdb.get(uuid).getLayer().setScale(ratio);
 			
-			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
-//			Image img = contentCamera.toImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, backgroundColor);
+//			Image img = contentCamera.toImage(CGrid.gwidth, CGrid.gheight, backgroundColor);
+			Image img = contentCamera.toImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, backgroundColor);
 			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
 			if (uuid != CCanvasController.getCurrentUUID())
 				CCanvasController.unloadCanvasImages(uuid);
@@ -723,6 +639,63 @@ public class CCanvas
 		else
 		{
 			// This makes a solid white image for the canvas
+//			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage bimg = new BufferedImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = (Graphics2D)bimg.createGraphics();
+			g.setComposite(AlphaComposite.Src);
+			g.setColor(backgroundColor);
+			g.fill(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
+			g.draw(new Rectangle(0,0,CGrid.gwidth, CGrid.gheight));
+			g.fill(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
+			g.draw(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
+			g.dispose();
+			
+			return bimg;
+		}
+	}
+	
+	public Image toImage(int width, int height)
+	{
+		Color backgroundColor;
+		if (CCanvasController.getLastActiveUUID() == this.uuid)
+			backgroundColor = new Color(200,200,200);
+		else
+			backgroundColor = CCanvasController.getActiveCanvasBackgroundColor();
+
+		if (!isEmpty())
+		{
+			//logger.debug("Canvas "+cell_coord+" render image");
+//			getCamera().removeChild(menuBarLeft);
+//			getCamera().removeChild(menuBarRight);
+//			getCamera().removeChild(statusBar);
+			//getCamera().removeChild(topMenuBar);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.loadCanvasImages(uuid);
+
+			Rectangle boundsOfCanvas = CCanvasController.canvasdb.get(uuid).getBounds();
+			double widthRatio = (double)boundsOfCanvas.width / CalicoDataStore.ScreenWidth;
+			double heightRatio = (double)boundsOfCanvas.height / CalicoDataStore.ScreenHeight;
+
+			double ratio = Math.min(widthRatio, heightRatio);
+			CCanvasController.canvasdb.get(uuid).getLayer().setScale(ratio);
+
+			Image img = contentCamera.toImage(width, height, backgroundColor);
+//			Image img = contentCamera.toImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, backgroundColor);
+			//Image img = contentCamera.toImage(CGrid.gwidth - 5, CGrid.gheight, Color.lightGray);
+			if (uuid != CCanvasController.getCurrentUUID())
+				CCanvasController.unloadCanvasImages(uuid);
+
+//			getCamera().addChild(menuBarLeft);
+//			if (menuBarRight != null)
+//				getCamera().addChild(menuBarRight);
+//			getCamera().addChild(statusBar);
+			//getCamera().addChild(topMenuBar);
+
+			return img;
+		}
+		else
+		{
+			// This makes a solid white image for the canvas
 			BufferedImage bimg = new BufferedImage(CGrid.gwidth, CGrid.gheight, BufferedImage.TYPE_INT_ARGB);
 //			BufferedImage bimg = new BufferedImage(CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = (Graphics2D)bimg.createGraphics();
@@ -733,7 +706,7 @@ public class CCanvas
 			g.fill(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
 			g.draw(new Rectangle(0,0,CalicoDataStore.CanvasSnapshotSize.width, CalicoDataStore.CanvasSnapshotSize.height));
 			g.dispose();
-			
+
 			return bimg;
 		}
 	}
@@ -1407,9 +1380,7 @@ public class CCanvas
 		return CalicoPacket.getPacket(
 			NetworkCommand.CANVAS_INFO,
 			this.uuid,
-			this.getGridCoordTxt(),
-			this.getGridCol(),
-			this.getGridRow()
+			this.index
 		);
 	}
 	

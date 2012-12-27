@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import calico.Calico;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoInputManager;
@@ -109,7 +111,56 @@ public class CIntentionCellController
 
 		return getClusterRootCanvasId(parentCanvasId);
 	}
+	
+	public long getCIntentionCellParent(long memberCanvasId)
+	{
+		long parentCanvasId = -1L;
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(memberCanvasId))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				parentCanvasId = anchor.getOpposite().getCanvasId();
+				break;
+			}
+		}
 
+		if (parentCanvasId < 0L)
+		{
+			parentCanvasId = 0l;
+		}
+		
+		return parentCanvasId;
+	}
+	
+	public boolean isRootCanvas(long memberCanvasId)
+	{
+		return getCIntentionCellParent(memberCanvasId) == 0l;
+	}
+	
+	public long[] getCIntentionCellChildren(long memberCanvasId)
+	{
+		ArrayList<Long> children = new ArrayList<Long>();
+		
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(memberCanvasId))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorA() == anchor)
+			{
+				children.add(new Long(anchor.getOpposite().getCanvasId()));
+			}
+		}
+
+		if (children.size() < 0)
+		{
+			return new long[] { 0 };
+		}
+		
+		long[] childrenAsLongs = ArrayUtils.toPrimitive(children.toArray(new Long[children.size()]));
+		
+		return childrenAsLongs;
+	}
+	
 	/**
 	 * Initialize all CICs.
 	 */

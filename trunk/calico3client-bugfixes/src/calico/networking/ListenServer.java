@@ -179,10 +179,13 @@ public class ListenServer implements Runnable
 			            }
 						
 						double cuuid = new Long(tpack.getCUUID()).doubleValue();
-						double numCanvases = new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
-						int progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
-						if (progress < previousProgress)
-							progress = previousProgress;
+						
+//						TODO: Restore launcher progress bar 
+//						double numCanvases = new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
+//						int progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
+//						if (progress < previousProgress)
+//							progress = previousProgress;
+						int progress = 0;
 						
 //						CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, 
 //								CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, ((double)progress), 

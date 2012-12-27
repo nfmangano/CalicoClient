@@ -5,10 +5,15 @@ import java.awt.event.MouseListener;
 import javax.swing.SwingUtilities;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.controllers.CCanvasController;
 import calico.controllers.CHistoryController;
 import calico.inputhandlers.InputEventInfo;
+import calico.networking.Networking;
+import calico.networking.PacketHandler;
+import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -46,12 +51,15 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 		// CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
 
-		CalicoDataStore.calicoObj.getContentPane().removeAll();
-		CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
-		CalicoDataStore.calicoObj.pack();
-		CalicoDataStore.calicoObj.setVisible(true);
-		CalicoDataStore.calicoObj.repaint();
-		activate();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					CalicoDataStore.calicoObj.getContentPane().removeAll();
+					CalicoDataStore.calicoObj.getContentPane().add(IntentionGraph.getInstance().getComponent());
+					CalicoDataStore.calicoObj.pack();
+					CalicoDataStore.calicoObj.setVisible(true);
+					CalicoDataStore.calicoObj.repaint();
+					activate();
+				}});
 
 		if (!initializing)
 		{
@@ -61,12 +69,17 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
 					if (cell == null)
 					{
-						IntentionGraph.getInstance().fitContents();
+//						NICKNICKNICK
+//						IntentionGraph.getInstance().fitContents();
 					}
 					else
 					{
-						long cellId = cell.getId();
-						IntentionGraph.getInstance().zoomToCell(cellId);
+//						long cellId = cell.getId();
+//						IntentionGraph.getInstance().zoomToCell(cellId);
+//						IntentionGraph.getInstance().fitContents();
+						long canvasId = cell.getCanvasId();
+						IntentionGraph.getInstance().setFocusToCluster(canvasId);
+//						IntentionGraph.getInstance().zoomToCluster(canvasId);
 					}
 				}
 			});
@@ -84,6 +97,12 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		}
 
 		super.activate();
+		
+		CalicoPacket packet = CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED);
+		packet.rewind();
+		
+		PacketHandler.receive(packet);
+		Networking.send(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED));
 	}
 
 	@Override
@@ -153,8 +172,10 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	@Override
 	protected boolean showBubbleMenu(PNode bubbleHighlighter, PNode bubbleContainer)
 	{
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleHighlighter);
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), bubbleHighlighter);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleHighlighter);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), bubbleContainer);
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).addChild(bubbleContainer);
 		return true;
 	}
 

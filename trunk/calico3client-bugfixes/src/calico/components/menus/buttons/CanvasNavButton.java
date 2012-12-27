@@ -78,7 +78,7 @@ public class CanvasNavButton extends CanvasMenuButton
 	
 	private static void loadCanvas(int x, int y)
 	{
-		long cuid = CCanvasController.getCanvasAtPos(x, y);
+		long cuid = CGrid.getCanvasAtPos(x, y);
 		
 		if(cuid==0L)
 		{
@@ -98,12 +98,12 @@ public class CanvasNavButton extends CanvasMenuButton
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
 			// Grid Size
-			int gridx = CalicoDataStore.GridCols-1;
-			int gridy = CalicoDataStore.GridRows-1;
+			int gridx = CGrid.GridCols-1;
+			int gridy = CGrid.GridRows-1;
 					
 			// Canvas Coords
-			int xpos = CCanvasController.canvasdb.get(canvasuid).getGridCol();
-			int ypos = CCanvasController.canvasdb.get(canvasuid).getGridRow();
+			int xpos = CGrid.getCanvasColumn(canvasuid);
+			int ypos = CGrid.getCanvasRow(canvasuid);
 			
 			switch(button_type)
 			{

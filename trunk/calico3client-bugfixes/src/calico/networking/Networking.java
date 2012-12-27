@@ -193,15 +193,6 @@ public class Networking
 		));
 	}
 	
-	public static boolean grid_size()
-	{
-		CalicoPacket p = new CalicoPacket(NetworkCommand.GRID_SIZE,12);
-		p.putInt(0);
-		p.putInt(0);
-		return send( p );
-		
-	}
-	
 	public static boolean consistency_check()
 	{
 		return send( CalicoPacket.command(NetworkCommand.CONSISTENCY_CHECK) );

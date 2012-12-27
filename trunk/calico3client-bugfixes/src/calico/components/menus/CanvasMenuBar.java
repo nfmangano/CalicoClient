@@ -114,6 +114,7 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 			addSpacer();
 			addIcon(new TextCreateButton(cuid));
 			addIcon(new ImageCreateButton(cuid));
+			addIcon(new CanvasViewScrapCreateButton(cuid));
 		
 			for (Class<?> button : externalButtons)
 			{
@@ -154,10 +155,10 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 						rect_array[i].translate(0, (new Double(delta)).intValue());
 					}
 				}});
+
+
 		*/
-		
-		
-		//this.invalidatePaint();
+
 		CalicoDraw.invalidatePaint(this);
 	}
 	

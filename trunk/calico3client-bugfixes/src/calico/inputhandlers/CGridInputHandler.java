@@ -70,7 +70,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		if(ev.getButton()==InputEventInfo.BUTTON_LEFT){
 //			CGrid.getInstance().moveViewPortToPoints(ev.getPoint());
 			mouseDown = ev.getPoint();
-			long canvasClicked = CCanvasController.getCanvasAtPoint( ev.getGlobalPoint() );
+			long canvasClicked = CGrid.getCanvasAtPoint( ev.getGlobalPoint() );
 //			LoadCanvasTimerTicker timer = new LoadCanvasTimerTicker(this, canvasClicked, mousePressed);
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, timer);
 			
@@ -117,7 +117,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 		}
 		else if (triggerLoadCanvas)
 		{
-			long canvasClicked = CCanvasController.getCanvasAtPoint( mouseDown );
+			long canvasClicked = CGrid.getCanvasAtPoint( mouseDown );
 			if (canvasClicked != 0l)
 				CCanvasController.loadCanvas(canvasClicked);
 		}
@@ -155,7 +155,7 @@ public class CGridInputHandler extends CalicoAbstractInputHandler
 	private void openMenu(Point point)
 	{
 		triggerLoadCanvas = false;
-		long canvasClicked = CCanvasController.getCanvasAtPoint( point );
+		long canvasClicked = CGrid.getCanvasAtPoint( point );
 		boolean lockStatus = CCanvasController.canvasdb.get(canvasClicked).getLockValue();
 		PieMenu.displayPieMenu(point, 
 				new UnlockCanvasButton(),

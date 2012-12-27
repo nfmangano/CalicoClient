@@ -19,6 +19,7 @@ public class ZoomToExtent extends CanvasMenuButton
 	@Override
 	public void actionMouseClicked()
 	{
-		IntentionGraph.getInstance().fitContents();
+		IntentionGraph.getInstance().setFocusToWall();
+//		IntentionGraph.getInstance().fitContents();
 	}
 }

@@ -18,8 +18,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 
@@ -187,7 +189,10 @@ public class ColorPaletteDialog
 		{
 			this.selectedSwatchIndex = index;
 
-			repaint();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						repaint();
+					}});
 		}
 		
 		int getSelectedSwatchIndex()

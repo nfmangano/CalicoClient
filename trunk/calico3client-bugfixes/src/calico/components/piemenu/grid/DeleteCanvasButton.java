@@ -20,7 +20,7 @@ public class DeleteCanvasButton extends PieMenuButton {
 	{
 		//confirm with the user?
 		//get the canvas ID
-		long canvasClicked = CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );	
+		long canvasClicked = CGrid.getCanvasAtPoint( PieMenu.lastOpenedPosition );	
 		CGrid.getInstance().deleteCanvas(canvasClicked);
 		CCanvasController.lock_canvas(canvasClicked, false, "clean canvas action", (new Date()).getTime());
 		

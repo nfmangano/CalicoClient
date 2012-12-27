@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
@@ -33,6 +34,7 @@ import calico.components.arrow.CArrow;
 import calico.components.CConnector;
 import calico.components.CGroup;
 import calico.components.CGroupImage;
+import calico.components.CanvasViewScrap;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.composable.ComposableElement;
 import calico.components.composable.ComposableElementController;
@@ -1865,5 +1867,105 @@ public class CGroupController
 		}
 		
 	}
+	
+	public static void create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas)
+	{
+		create_canvas_view_scrap(uuid, cuuid, targetCanvas, 200, 200, (int)CanvasViewScrap.getDefaultWidth(), (int)CanvasViewScrap.getDefaultHeight());
+	}
+	
+	public static void create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas, int x, int y, int width, int height)
+	{
+		no_notify_create_canvas_view_scrap(uuid, cuuid, targetCanvas, x, y, width, height);
+		
+		CalicoPacket[] packets = CGroupController.groupdb.get(uuid).getUpdatePackets(false);
+		
+		Networking.send(packets[0]);
+	}
+	
+	public static void no_notify_create_canvas_view_scrap(long uuid, long cuuid, long targetCanvas, int x, int y, int width, int height)
+	{	
+		//initialize custom scrap
+		CGroup group = new CanvasViewScrap(uuid, cuuid, targetCanvas);
+
+		Rectangle bounds = new Rectangle(x, y, width, height);
+		group.setShapeToRoundedRectangle(bounds, 0);
+
+//		Polygon p = group.getRawPolygon();
+
+		//create the scrap
+		no_notify_create_custom_scrap_bootstrap(uuid, cuuid, group, "");
+
+		CalicoDraw.repaint(group);
+	}
+	
+	public static void no_notify_load_canvasview_scrap(long uuid, long cuid,
+			long puid, boolean isperm, int[] xArr, int[] yArr,
+			boolean captureChildren, double rotation, double scaleX,
+			double scaleY, String text, long targetCanvas) {
+		
+		CGroup group = new CanvasViewScrap(uuid, cuid, targetCanvas);
+		no_notify_start(uuid, cuid, puid, isperm, group);
+		no_notify_append(uuid, xArr, yArr);
+		groupdb.get(uuid).primative_rotate(rotation);
+		groupdb.get(uuid).primative_scale(scaleX, scaleY);
+		groupdb.get(uuid).setText(text);
+		
+		no_notify_finish(uuid, captureChildren, false, false);
+	}
+
+	/*************************************************
+	 * UTILITY METHODS
+	 *************************************************/		
+	public static void no_notify_create_custom_scrap_bootstrap(long uuid, long cuuid, CGroup group, String optText){
+		no_notify_start(uuid, cuuid, 0l, true, group);
+		CGroupController.setCurrentUUID(uuid);
+//		create_custom_shape(uuid, p);
+		//Set the optional text to identify the scrap
+		CGroupController.no_notify_set_text(uuid, optText);
+		CGroupController.no_notify_finish(uuid, false, false, true);
+		CGroupController.no_notify_set_permanent(uuid, true);
+		CGroupController.recheck_parent(uuid);
+	}	
+
+	//Starts the creation of any of the activity diagram scrap
+	public static void no_notify_start(long uuid, long cuid, long puid, boolean isperm, CGroup customScrap)
+	{
+		if (!CCanvasController.exists(cuid))
+			return;
+		if(CGroupController.exists(uuid))
+		{
+			CGroupController.logger.debug("Need to delete group "+uuid);
+			//CCanvasController.canvasdb.get(cuid).getLayer().removeChild(groupdb.get(uuid));
+			CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(cuid).getLayer(), CGroupController.groupdb.get(uuid));
+			//CCanvasController.canvasdb.get(cuid).getCamera().repaint();
+		}
+		customScrap.setPermanent(isperm);
+
+		// Add to the GroupDB
+		try {
+			CGroupController.groupdb.put(uuid, customScrap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CCanvasController.canvasdb.get(cuid).addChildGroup(uuid);
+		//CCanvasController.canvasdb.get(cuid).getLayer().addChild(groupdb.get(uuid));
+		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(cuid).getLayer(), CGroupController.groupdb.get(uuid));
+		CGroupController.groupdb.get(uuid).drawPermTemp(true);
+		//CCanvasController.canvasdb.get(cuid).repaint();
+	}	
+
+	//Add the points defined in p to the scrap with id uuid
+	public static void create_custom_shape(long uuid, Polygon p){
+		for (int i = 0; i < p.npoints; i++)
+		{
+			CGroupController.no_notify_append(uuid, p.xpoints[i], p.ypoints[i]);
+			CGroupController.no_notify_append(uuid, p.xpoints[i], p.ypoints[i]);
+			CGroupController.no_notify_append(uuid, p.xpoints[i], p.ypoints[i]);
+		}
+	}
+
+
+
 	
 }

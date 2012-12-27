@@ -160,9 +160,9 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 	{
 		//this.removeAllChildren();
 		//CalicoDraw.removeAllChildrenFromNode(this);
-
-		addRenderingElements();
 		CalicoDraw.removeAllChildrenFromNode(this);
+		addRenderingElements();
+		
 		if (arrowType == CArrow.TYPE_NORM_HEAD_AB || arrowType == CArrow.TYPE_NORM_HEAD_A)
 		{
 			CalicoDraw.addChildToNode(this, arrowHeadA, 0);

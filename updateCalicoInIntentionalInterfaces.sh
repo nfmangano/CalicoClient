@@ -1,0 +1,1 @@
+cd trunk/calico3client-bugfixes && ant clean && ant dist && cd dist/calico3client-trunk/ && mv calico3client.jar ../../../../plugins/IntentionalInterfacesPluginClient/lib/calico3client.jar && echo "Finished"

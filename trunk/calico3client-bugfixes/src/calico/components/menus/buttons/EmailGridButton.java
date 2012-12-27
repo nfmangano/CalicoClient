@@ -197,7 +197,7 @@ public class EmailGridButton extends CanvasMenuButton
 
 
             BufferedImage bIMG = new BufferedImage(CalicoDataStore.ScreenWidth, CalicoDataStore.ScreenHeight, BufferedImage.TYPE_INT_ARGB);
-            Image imgPDF = Image.getInstance((java.awt.Image)CalicoDataStore.gridObject.getCamera().toImage(bIMG, Color.white), null);
+            Image imgPDF = Image.getInstance((java.awt.Image)CGrid.getInstance().getCamera().toImage(bIMG, Color.white), null);
             imgPDF.setAbsolutePosition(75, 25);
             imgPDF.scaleToFit(750, 550);
             imgPDF.enableBorderSide(com.itextpdf.text.Rectangle.BOX);

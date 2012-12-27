@@ -18,7 +18,7 @@ public class CopyCanvasButton extends PieMenuButton {
 	{
 		//confirm with the user?
 		//get the canvas ID
-		long canvasClicked = CCanvasController.getCanvasAtPoint( PieMenu.lastOpenedPosition );		
+		long canvasClicked = CGrid.getCanvasAtPoint( PieMenu.lastOpenedPosition );		
 		if(canvasClicked!=0l){
 			CGrid.canvasAction=CGrid.COPY_CANVAS;
 			CGrid.getInstance().drawSelectedCell(canvasClicked, ev.getX(), ev.getY());			

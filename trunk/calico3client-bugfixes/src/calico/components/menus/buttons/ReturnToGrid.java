@@ -63,14 +63,13 @@ public class ReturnToGrid extends CanvasMenuButton
 			Networking.send(NetworkCommand.PRESENCE_LEAVE_CANVAS, CCanvasController.getCurrentUUID(), CCanvasController.getCurrentUUID());
 			CCanvasController.setCurrentUUID(0l);
 			
-			CalicoDataStore.gridObject = CGrid.getInstance();
-			CalicoDataStore.gridObject.refreshCells();
+			CGrid.getInstance().refreshCells();
 			CalicoDataStore.calicoObj.getContentPane().removeAll();
 			
 			Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
 			
-			CalicoDataStore.gridObject.drawBottomToolbar();
-			CalicoDataStore.calicoObj.getContentPane().add( CalicoDataStore.gridObject.getComponent() );
+			CGrid.getInstance().drawBottomToolbar();
+			CalicoDataStore.calicoObj.getContentPane().add( CGrid.getInstance().getComponent() );
 			
 			for (int i = 0; i < comps.length; i++)
 				CalicoDataStore.calicoObj.getContentPane().remove(comps[i]);

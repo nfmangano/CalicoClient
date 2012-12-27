@@ -178,7 +178,6 @@ public class Calico extends JFrame
 		// We load the conf/calico.conf file
 		CalicoOptions.setup();
 		CalicoDataStore.setup();
-		GridPerspective.getInstance().activate();
 		setPropertiesFromArgs(args);
 		try
 		{
@@ -292,8 +291,6 @@ public class Calico extends JFrame
 			CalicoDataStore.calicoObj.dispose();
 		}
 
-		CGrid.instance = null;
-		CalicoDataStore.gridObject = null;
 		CalicoDataStore.calicoObj = this;
 		CalicoDataStore.messageHandlerObj = StatusMessageHandler.getInstance();
 
@@ -349,6 +346,16 @@ public class Calico extends JFrame
 		// may need to use network services as they are initializing. They should not wait around for the network to
 		// appear. For example, UUID request crashes the entire application if called before networking is up.
 		CalicoPluginManager.setup();
+		
+		try {
+			if (!CalicoPluginManager.hasPlugin(
+					Class.forName("calico.plugins.iip.IntentionalInterfacesClientPlugin")))
+				GridPerspective.getInstance().activate();
+				CGrid.loadGrid();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		this.addComponentListener(new java.awt.event.ComponentAdapter() {
 			public void componentResized(ComponentEvent e)
@@ -398,9 +405,7 @@ public class Calico extends JFrame
 
 		if (!(new File(CalicoOptions.images.download_folder + "/")).exists())
 			(new File(CalicoOptions.images.download_folder)).mkdir();
-
-		// GridRemoval: CGrid.loadGrid();
-		CGrid.loadGrid();
+	
 	}
 
 	public static void exit()
@@ -610,8 +615,8 @@ public class Calico extends JFrame
 		CalicoDataStore.ServerPort = port;
 
 		// XXX: WE MUST RESET THIS TO 0. Otherwise, the client will just hang there like an idiot
-		CalicoDataStore.GridRows = 0;
-		CalicoDataStore.GridCols = 0;
+		CGrid.GridRows = 0;
+		CGrid.GridCols = 0;
 
 		if (Networking.receivePacketThread != null && !Networking.receivePacketThread.isInterrupted())
 		{

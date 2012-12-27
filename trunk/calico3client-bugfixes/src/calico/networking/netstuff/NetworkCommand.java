@@ -307,9 +307,13 @@ public class NetworkCommand
 	public static final int LIST_LOAD = 2001;
 	public static final int LIST_CHECK_SET = 2002;
 	
+	public static final int CANVASVIEW_SCRAP_LOAD = 2003;
+	
 	public static final int IMAGE_TRANSFER = 2100;
 	public static final int IMAGE_CLUSTER = 2101;
 	public static final int IMAGE_TRANSFER_FILE = 2102;
+	
+	 
 	
 
 //	public static final int PALETTE_PACKET = 2200;
@@ -503,6 +507,8 @@ public class NetworkCommand
 			formats.put(LIST_CREATE,new NetCommandFormat("LIST_CREATE","LLLLI"));
 			formats.put(LIST_LOAD,new NetCommandFormat("LIST_LOAD","LLLBiII"));
 			formats.put(LIST_CHECK_SET, new NetCommandFormat("LIST_CHECK_SET", "LLLLB"));
+			formats.put(CANVASVIEW_SCRAP_LOAD, new NetCommandFormat("CANVASVIEW_SCRAP_LOAD", "LLLBiIIBddd"));
+			
 		}
 		
 		if(type>0 && formats.containsKey(type))

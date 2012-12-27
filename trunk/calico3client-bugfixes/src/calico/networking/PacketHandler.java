@@ -183,6 +183,7 @@ public class PacketHandler
 			case NetworkCommand.LIST_CREATE:LIST_CREATE(packet);break;
 			case NetworkCommand.LIST_LOAD:LIST_LOAD(packet);break;
 			case NetworkCommand.LIST_CHECK_SET:LIST_CHECK_SET(packet);break;
+			case NetworkCommand.CANVASVIEW_SCRAP_LOAD:CANVASVIEW_SCRAP_LOAD(packet);break;
 			
 			case NetworkCommand.IMAGE_TRANSFER:IMAGE_TRANSFER(packet);break;
 
@@ -655,6 +656,45 @@ public class PacketHandler
 //			CGroupController.no_notify_calculate_parenting(uuid, true);
 //		CGroupController.no_notify_finish(uuid, captureChildren);
 	}
+	
+	private static void CANVASVIEW_SCRAP_LOAD(CalicoPacket p)
+	{
+		long uuid = p.getLong();
+		long cuid = p.getLong();
+		long puid = p.getLong();
+		boolean isperm = p.getBoolean();
+		int count = p.getCharInt();
+		int x = 0;
+		int y = 0;
+		
+		if(count<=0)
+		{
+			return;
+		}
+		
+		
+		int[] xArr = new int[count], yArr = new int[count];
+		for(int i=0;i<count;i++)
+		{
+			xArr[i] = p.getInt();
+			yArr[i] = p.getInt();
+//			CGroupController.no_notify_append(uuid, x, y);
+		}
+		
+		boolean captureChildren = p.getBoolean();
+		double rotation = p.getDouble();
+		double scaleX = p.getDouble();
+		double scaleY = p.getDouble();
+		String text = p.getString();
+		
+		long targetCanvas = p.getLong();
+		
+		
+//		CGroupController.groupdb.get(uuid).finish();
+
+		CGroupController.no_notify_load_canvasview_scrap(uuid, cuid, puid, isperm, xArr, yArr,
+				captureChildren, rotation, scaleX, scaleY, text, targetCanvas);
+	}
 
 	private static void CANVAS_CREATE(CalicoPacket p)
 	{
@@ -664,15 +704,10 @@ public class PacketHandler
 	{
 		// UUID "COORDS" XPOSongrid YPOSongrid
 		long uuid = p.getLong();
-	 	
-		String coords = p.getString();
-		int col = p.getInt();
-		int row = p.getInt();
+		int index = p.getInt();
 		
-		CCanvas can = new CCanvas(uuid, coords,row,col);
-		can.setGridInfo(coords, row, col);
-
-		CCanvasController.canvasdb.put(uuid, can);
+		CCanvas canvas = new CCanvas(uuid, index);
+		CCanvasController.canvasdb.put(uuid, canvas);
 		CCanvasController.canvasdb.get(uuid).drawMenuBars();
 		
 		if (!CalicoDataStore.initialScreenDisplayed)
@@ -683,7 +718,7 @@ public class PacketHandler
 			Networking.consistency_check();
 		}
 
-//		CCanvasController.Factory.getInstance().canvasCreated(canvas);
+		CCanvasController.Factory.getInstance().canvasCreated(canvas);
 	}
 	
 	
@@ -700,33 +735,39 @@ public class PacketHandler
 	
 	private static void AUTH_OK(CalicoPacket p)
 	{
-		if (CalicoDataStore.GridRows == 0 && CalicoDataStore.GridCols == 0
-			&& Networking.connectionState != Networking.ConnectionState.Connected)
-		{
-			Networking.send(CalicoPacket.getPacket(NetworkCommand.UDP_CHALLENGE, Networking.udpChallenge ));
-			// SUCCESS
-			Networking.grid_size();
-		}
-		else if (Networking.connectionState != Networking.ConnectionState.Connected)
+		if (Networking.connectionState == Networking.ConnectionState.Connecting)
 		{
 			Networking.connectionState = Networking.ConnectionState.Connected;
 			CCanvasController.redrawMenuBars(CCanvasController.getCurrentUUID());
-//			CCanvasController.canvasdb.get().drawBottomToolbar();
 		}
-//		else if (Networking.connectionState != Networking.ConnectionState.Connected)
+		else if (Networking.connectionState != Networking.ConnectionState.Connected)
+		{
+			Networking.send(CalicoPacket.getPacket(NetworkCommand.UDP_CHALLENGE, Networking.udpChallenge ));
+			// SUCCESS
+
+			if (Calico.uuidlist.isEmpty())
+			{
+    			Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
+    			Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
+			}
+
+			// Now we request a consistency check
+			Networking.send(CalicoPacket.command(NetworkCommand.CANVAS_LIST));
+			Networking.connectionState = Networking.ConnectionState.Connecting;
+		}		
+		
+		
+//		if (CalicoDataStore.GridRows == 0 && CalicoDataStore.GridCols == 0
+//			&& Networking.connectionState != Networking.ConnectionState.Connected)
 //		{
 //			Networking.send(CalicoPacket.getPacket(NetworkCommand.UDP_CHALLENGE, Networking.udpChallenge ));
 //			// SUCCESS
-//
-//			if (Calico.uuidlist.isEmpty())
-//			{
-//    			Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
-//    			Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
-//			}
-//
-//			// Now we request a consistency check
-//			Networking.send(CalicoPacket.command(NetworkCommand.CANVAS_LIST));
-//			Networking.connectionState = Networking.ConnectionState.Connecting;
+//			Networking.grid_size();
+//		}
+//		else if (Networking.connectionState != Networking.ConnectionState.Connected)
+//		{
+//			Networking.connectionState = Networking.ConnectionState.Connected;
+//			CCanvasController.redrawMenuBars(CCanvasController.getCurrentUUID());
 //		}
 	}
 	private static void AUTH_FAIL(CalicoPacket p)
@@ -748,35 +789,9 @@ public class PacketHandler
 
 	private static void CONSISTENCY_FINISH(CalicoPacket p)
 	{
-		//long[] canvasuids = CCanvasController.getCanvasIDList();
-		
-		/*
-		for(int can=0;can<canvasuids.length;can++)
-		{
-			CCanvasController.render(canvasuids[can]);
-		}*/
-		
-		if( GridPerspective.getInstance().isActive() )
-		{
-//			Calico cal = CalicoDataStore.calicoObj;
-//			
-//			cal.getContentPane().removeAll();
-//			cal.getContentPane().add( CGrid.getInstance().getComponent() );
-//			CGrid.getInstance().refreshCells();
-//	        cal.pack();
-//	        cal.setVisible(true);
-//			cal.repaint();
-		}
-
-		//StatusMessage.msg("The grid has loaded!");
-		MessageObject.showNotice("The grid has loaded");
-		Calico.isGridLoading = false;
-		
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.PRESENCE_VIEW_CANVAS, 1l));
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.PRESENCE_LEAVE_CANVAS, 1l));
 		Networking.send(NetworkCommand.PRESENCE_CANVAS_USERS);
-		
-		
 		
 		Networking.udpSend(CalicoPacket.getPacket(NetworkCommand.UDP_CHALLENGE, Networking.udpChallenge ));
 
@@ -943,16 +958,16 @@ public class PacketHandler
 	//@Deprecated
 	private static void GRID_SIZE(CalicoPacket p)
 	{ 
-		CalicoDataStore.GridRows = p.getInt();
-		CalicoDataStore.GridCols = p.getInt();
+		CGrid.GridRows = p.getInt();
+		CGrid.GridCols = p.getInt();
 		
-		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
-		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
-		
-
-		// Now we request a consistency check
-		Networking.send(CalicoPacket.command(NetworkCommand.CANVAS_LIST));
-		Networking.connectionState = Networking.ConnectionState.Connecting;
+//		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
+//		Networking.send(CalicoPacket.command(NetworkCommand.UUID_GET_BLOCK));
+//		
+//
+//		// Now we request a consistency check
+//		Networking.send(CalicoPacket.command(NetworkCommand.CANVAS_LIST));
+//		Networking.connectionState = Networking.ConnectionState.Connecting;
 	}
 
 	private static void STATUS_MESSAGE(CalicoPacket p)

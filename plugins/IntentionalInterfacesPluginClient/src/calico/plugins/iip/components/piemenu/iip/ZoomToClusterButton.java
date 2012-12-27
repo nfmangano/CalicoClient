@@ -20,7 +20,7 @@ public class ZoomToClusterButton extends PieMenuButton
 {
 	public ZoomToClusterButton()
 	{
-		super(CalicoIconManager.getIconImage("intention.zoom-to-cluster"));
+		super(CalicoIconManager.getIconImage("intention-graph.set-canvas-title"));
 	}
 
 	@Override
@@ -29,6 +29,7 @@ public class ZoomToClusterButton extends PieMenuButton
 		super.onReleased(event);
 
 		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
-		IntentionGraph.getInstance().zoomToCluster(activeCanvasId);
+		IntentionGraph.getInstance().setFocusToCluster(activeCanvasId);
+//		IntentionGraph.getInstance().zoomToCluster(activeCanvasId);
 	}
 }

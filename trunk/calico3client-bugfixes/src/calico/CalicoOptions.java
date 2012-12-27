@@ -125,16 +125,6 @@ public class CalicoOptions
 		}
 	}
 	
-	public static class grid
-	{
-		public static int topHeaderIconHeight = 30;
-		public static int leftHeaderIconWidth = 30;
-		public static boolean render_zoom_canvas = false;
-		public static Color item_border = Color.BLACK;
-		public static Color viewport_background_color = new Color(235,235,235);//Color.WHITE;
-		public static float viewport_background_transparency = 0.3f;
-	}
-	
 	public static class arrow
 	{
 		public static float stroke_size = 1.3f;

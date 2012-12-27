@@ -94,7 +94,7 @@ public class CCanvasController
 		}
 
 		contributionController.clearCanvas(uuid);
-		CalicoDataStore.gridObject.updateCell(uuid);
+//		CalicoDataStore.gridObject.updateCell(uuid);
 	}
 
 	public static void clear(long uuid)
@@ -194,7 +194,8 @@ public class CCanvasController
 
 		// CCanvasController.canvasdb.get(uuid).repaint();
 		// CalicoDraw.repaint(CCanvasController.canvasdb.get(uuid).getCamera());
-		CalicoDataStore.gridObject.updateCell(uuid);
+		contributionController.contentChanged(uuid);
+//		CalicoDataStore.gridObject.updateCell(uuid);
 
 	}
 
@@ -316,36 +317,6 @@ public class CCanvasController
 		// TODO do this also for grid and for viewport views
 	}
 	
-	 public static long getCanvasAtPos(int x, int y)
-	  {
-	    // This will give the UUID for the canvas at the specific X/Y pos
-	
-	    long[] cuids = getCanvasIDList();
-	    for (int i = 0; i < cuids.length; i++)
-	    {
-	      if (canvasdb.get(cuids[i]).isGridPos(x, y))
-	      {
-	        return cuids[i];
-	      }
-	    }
-	    return 0L;
-	  }
-
-	 public static long getCanvasAtPoint(Point point)
-	 {
-		 // This will give the UUID for the canvas at the specific X/Y pos
-	
-		 long[] cuids = getCanvasIDList();
-		 for (int i = 0; i < cuids.length; i++)
-		 {
-			 if (canvasdb.get(cuids[i]).isClickedGridThumb(point.x, point.y))
-			 {
-				 return cuids[i];
-			 }
-		 }
-		 return 0L;
-	 }
-
 	public static void loadCanvas(long uuid)
 	{
 		CHistoryController.getInstance().push(new HistoryFrame(uuid));
@@ -473,7 +444,7 @@ public class CCanvasController
 		// canvas.drawToolbar();
 		// canvas.menuBar.invalidateFullBounds();
 
-		MessageObject.showNotice("Viewing canvas " + CCanvasController.canvasdb.get(uuid).getGridCoordTxt());
+		MessageObject.showNotice("Viewing canvas " + CGrid.getCanvasCoord(uuid));
 	}
 
 	// Load all images in the canvas to memory to they are visible
@@ -524,6 +495,11 @@ public class CCanvasController
 	public static Image image(long uuid)
 	{
 		return canvasdb.get(uuid).toImage();
+	}
+	
+	public static Image image(long uuid, int x, int y)
+	{
+		return canvasdb.get(uuid).toImage(x,y);
 	}
 
 	public static int get_signature(long uuid)
@@ -684,8 +660,8 @@ public class CCanvasController
 
 		canvasdb.get(canvas).setCanvasLock(lock, lockedBy, time);
 		
-		if (CalicoDataStore.gridObject != null) CalicoDataStore.gridObject.updateCell(canvas);
-		
+//		if (CalicoDataStore.gridObject != null) CalicoDataStore.gridObject.updateCell(canvas);
+		contributionController.contentChanged(canvas);
 
 		canvasdb.get(canvas).drawMenuBars();
 	}
@@ -695,20 +671,20 @@ public class CCanvasController
 	   * <code>ContentContributor</code>. To query exclusively for CCanvas content, use
 	   * <code>CCanvasController.canvasdb.get(cuid).isEmpty()</code>.
 	   */
-	  public static boolean hasContent(long cuid)
-	  {
-	    if (!exists(cuid))
-	      return false;
-	
-	    for (CCanvas.ContentContributor contributor : contentContributors)
-	    {
-	      if (contributor.hasContent(cuid))
-	      {
-	        return true;
-	      }
-	    }
-	    return false;
-	  }
+//	  public static boolean hasContent(long cuid)
+//	  {
+//	    if (!exists(cuid))
+//	      return false;
+//	
+//	    for (CCanvas.ContentContributor contributor : contentContributors)
+//	    {
+//	      if (contributor.hasContent(cuid))
+//	      {
+//	        return true;
+//	      }
+//	    }
+//	    return false;
+//	  }
 
 	/**
 	 * Register <code>contributor</code> as a contributor of content to canvases.
@@ -784,7 +760,7 @@ public class CCanvasController
 
 	public static CCanvas getRestoredCanvas(CalicoPacket[] p)
 	{
-		CCanvas canvas = new CCanvas(-1, "-1", -1, -1);
+		CCanvas canvas = new CCanvas(-1, -1);
 
 		for (int i = 0; i < p.length; i++)
 		{
@@ -833,16 +809,16 @@ public class CCanvasController
 
 
 		 
-		@Override
-		public boolean hasContent(long canvas_uuid)
-		{
-		  CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
-		  if (canvas == null)
-		  {
-		    return false;
-		  }
-		  return !canvas.isEmpty();
-		}
+//		@Override
+//		public boolean hasContent(long canvas_uuid)
+//		{
+//		  CCanvas canvas = CCanvasController.canvasdb.get(canvas_uuid);
+//		  if (canvas == null)
+//		  {
+//		    return false;
+//		  }
+//		  return !canvas.isEmpty();
+//		}
 		
 		void clearCanvas(long canvas_uuid)
 		{
@@ -897,71 +873,71 @@ public class CCanvasController
 		}
 	}
 
-//	public static class Factory
-//	{
-//		private static final Factory INSTANCE = new Factory();
-//
-//		public static Factory getInstance()
-//		{
-//			return INSTANCE;
-//		}
-//
-//		private final Long2ReferenceOpenHashMap<PendingCanvas> pendingCanvases = new Long2ReferenceOpenHashMap<PendingCanvas>();
-//
-//		public CCanvas createNewCanvas(long originatingCanvasId)
-//		{
-//			long canvasId = Calico.uuid();
-//
-//			PendingCanvas pendingCanvas = new PendingCanvas();
-//			pendingCanvases.put(canvasId, pendingCanvas);
-//
-//			CalicoPacket packet = new CalicoPacket();
-//			packet.putInt(NetworkCommand.CANVAS_CREATE);
-//			packet.putLong(canvasId);
-//			packet.putLong(originatingCanvasId);
-//			packet.rewind();
-//			Networking.send(packet);
-//
-//			return pendingCanvas.waitForCanvas();
-//		}
-//
-//		public void canvasCreated(CCanvas canvas)
-//		{
-//			PendingCanvas pendingCanvas = pendingCanvases.get(canvas.uuid);
-//			if (pendingCanvas != null)
-//			{
-//				pendingCanvas.canvasArrived(canvas);
-//			}
-//		}
-//
-//		private class PendingCanvas
-//		{
-//			private CCanvas canvas = null;
-//
-//			synchronized void canvasArrived(CCanvas canvas)
-//			{
-//				this.canvas = canvas;
-//				notify();
-//			}
-//
-//			synchronized CCanvas waitForCanvas()
-//			{
-//				while (canvas == null)
-//				{
-//					try
-//					{
-//						wait();
-//					}
-//					catch (InterruptedException ok)
-//					{
-//					}
-//				}
-//
-//				pendingCanvases.remove(canvas.uuid);
-//				return canvas;
-//			}
-//		}
-//	}
+	public static class Factory
+	{
+		private static final Factory INSTANCE = new Factory();
+
+		public static Factory getInstance()
+		{
+			return INSTANCE;
+		}
+
+		private final Long2ReferenceOpenHashMap<PendingCanvas> pendingCanvases = new Long2ReferenceOpenHashMap<PendingCanvas>();
+
+		public CCanvas createNewCanvas(long originatingCanvasId)
+		{
+			long canvasId = Calico.uuid();
+
+			PendingCanvas pendingCanvas = new PendingCanvas();
+			pendingCanvases.put(canvasId, pendingCanvas);
+
+			CalicoPacket packet = new CalicoPacket();
+			packet.putInt(NetworkCommand.CANVAS_CREATE);
+			packet.putLong(canvasId);
+			packet.putLong(originatingCanvasId);
+			packet.rewind();
+			Networking.send(packet);
+
+			return pendingCanvas.waitForCanvas();
+		}
+
+		public void canvasCreated(CCanvas canvas)
+		{
+			PendingCanvas pendingCanvas = pendingCanvases.get(canvas.uuid);
+			if (pendingCanvas != null)
+			{
+				pendingCanvas.canvasArrived(canvas);
+			}
+		}
+
+		private class PendingCanvas
+		{
+			private CCanvas canvas = null;
+
+			synchronized void canvasArrived(CCanvas canvas)
+			{
+				this.canvas = canvas;
+				notify();
+			}
+
+			synchronized CCanvas waitForCanvas()
+			{
+				while (canvas == null)
+				{
+					try
+					{
+						wait();
+					}
+					catch (InterruptedException ok)
+					{
+					}
+				}
+
+				pendingCanvases.remove(canvas.uuid);
+				return canvas;
+			}
+		}
+	}
 
 	public static class HistoryFrame extends CHistoryController.Frame
 	{

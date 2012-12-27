@@ -11,10 +11,19 @@ import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.SwingUtilities;
+
 import calico.CalicoDataStore;
+import calico.CalicoDraw;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
@@ -31,7 +40,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CIntentionCell
+public class CIntentionCell implements CalicoEventListener
 {
 	public static final String DEFAULT_TITLE = "<default>";
 	private static final double MINIMUM_SNAPSHOT_SCALE = 1.0;
@@ -102,7 +111,16 @@ public class CIntentionCell
 		this.title = title;
 
 		shell = new Shell(location.getX(), location.getY());
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
+		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+		
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY, this, CalicoEventHandler.PASSIVE_LISTENER);
+		 
+		
+//		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
 
 	public boolean isNew()
@@ -157,7 +175,10 @@ public class CIntentionCell
 	{
 		if (title.equals(DEFAULT_TITLE))
 		{
-			return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			if (CCanvasController.canvasdb.containsKey(canvas_uuid))
+				return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			else
+				return "Canvas ";
 		}
 		return title;
 	}
@@ -174,7 +195,7 @@ public class CIntentionCell
 	public void setTitle(String title)
 	{
 		this.title = title;
-		shell.titleBar.updateTitle();
+//		shell.titleBar.updateTitle();
 	}
 
 	public Long getIntentionTypeId()
@@ -242,13 +263,19 @@ public class CIntentionCell
 	/**
 	 * Set the location of this CIC in Intention View coordinates.
 	 */
-	public void setLocation(double x, double y)
+	public void setLocation(final double x, final double y)
 	{
-		location.setLocation(x, y);
-		shell.setX(x);
-		shell.setY(y);
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					location.setLocation(x, y);
+					shell.setX(x);
+					shell.setY(y);
+					shell.repaint();
+				}});
 
-		shell.repaint();
+
+		CalicoDraw.repaint(shell);
+//		shell.repaint();
 	}
 
 	public Dimension2D getSize()
@@ -267,7 +294,8 @@ public class CIntentionCell
 	public void setHighlighted(boolean highlighted)
 	{
 		this.highlighted = highlighted;
-		shell.repaint();
+		CalicoDraw.repaint(shell);
+//		shell.repaint();
 	}
 
 	/**
@@ -293,7 +321,8 @@ public class CIntentionCell
 	public void updateIconification()
 	{
 		shell.updateIconification();
-		shell.repaint();
+		CalicoDraw.repaint(shell);
+//		shell.repaint();
 	}
 
 	/**
@@ -364,14 +393,18 @@ public class CIntentionCell
 		{
 			canvasAddress = new PImage(IntentionalInterfacesGraphics.superimposeCellAddress(
 					CalicoIconManager.getIconImage("intention-graph.obscured-intention-cell"), canvas_uuid));
-			addChild(canvasAddress);
+			CalicoDraw.addChildToNode(this, canvasAddress);
+//			addChild(canvasAddress);
 
-			addChild(titleBar);
-			addChild(userList);
+			CalicoDraw.addChildToNode(this, titleBar);
+			CalicoDraw.addChildToNode(this, userList);
+//			addChild(titleBar);
+//			addChild(userList);
 
 			thumbnailBounds.setRect(x, y, THUMBNAIL_SIZE.width - (CCanvas.ROUNDED_RECTANGLE_OVERFLOW + CCanvas.CELL_MARGIN), THUMBNAIL_SIZE.height
 					- (CCanvas.ROUNDED_RECTANGLE_OVERFLOW + CCanvas.CELL_MARGIN));
-			setBounds(thumbnailBounds);
+			CalicoDraw.setNodeBounds(this, thumbnailBounds);
+//			setBounds(thumbnailBounds);
 
 			titleBar.setWidth(thumbnailBounds.getWidth());
 
@@ -379,8 +412,10 @@ public class CIntentionCell
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 
-			userList.moveToFront();
-			repaint();
+			CalicoDraw.moveNodeToFront(userList);
+//			userList.moveToFront();
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
 
 		void delete()
@@ -396,13 +431,17 @@ public class CIntentionCell
 			{
 				if (showingSnapshot)
 				{
-					removeChild(canvasSnapshot.snapshot);
-					addChild(canvasAddress);
+					CalicoDraw.removeChildFromNode(this, canvasSnapshot.snapshot);
+//					removeChild(canvasSnapshot.snapshot);
+					CalicoDraw.addChildToNode(this, canvasAddress);
+//					addChild(canvasAddress);
 				}
 				else
 				{
-					removeChild(canvasAddress);
-					addChild(canvasSnapshot.snapshot);
+					CalicoDraw.removeChildFromNode(this, canvasAddress);
+//					removeChild(canvasAddress);
+					CalicoDraw.addChildToNode(this, canvasSnapshot.snapshot);
+//					addChild(canvasSnapshot.snapshot);
 				}
 
 				showingSnapshot = !showingSnapshot;
@@ -493,15 +532,30 @@ public class CIntentionCell
 			setBounds(0, 0, 100, HEIGHT);
 			title.setFont(new Font("Helvetica", Font.PLAIN, THUMBNAIL_SIZE.width / 10));
 
-			addChild(title);
+			CalicoDraw.addChildToNode(this, title);
+//			addChild(title);
 			updateTitle();
 		}
 
 		private void updateTitle()
 		{
-			title.setText(getTitle());
-			repaint();
+			int index = getSiblingIndex();
+			
+			String tag = "";
+			String titlePrefix = "";
+//			if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				titlePrefix = getTitlePrefix() /*+ getSiblingIndex() + ". "*/;
+			
+			if (getIntentionTypeId() != -1
+					&&  IntentionCanvasController.getInstance().intentionTypeExists(getIntentionTypeId()))
+				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(getIntentionTypeId()).getName() + ")";
+			
+			title.setText(titlePrefix + getTitle() + tag);
+			CalicoDraw.repaint(this);
+//			repaint();
 		}
+
+
 
 		@Override
 		protected void layoutChildren()
@@ -525,6 +579,51 @@ public class CIntentionCell
 
 			super.paint(paintContext);
 		}
+	}
+	
+	public int getSiblingIndex() {
+		long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+		long[] siblings = CIntentionCellController.getInstance().getCIntentionCellChildren(parentUUID);
+		
+		int index = 1;
+		for (int i = 0; i < siblings.length; i++)
+		{
+			if (siblings[i] == canvas_uuid)
+				index = i+1;
+		}
+		return index;
+	}
+	
+	public String getTitlePrefix() {
+		
+		String titlePrefix = "";
+		
+		//get parent cell
+		long parentCanvasId = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+		if (parentCanvasId > 0l)
+		{
+			CIntentionCell parentCell = CIntentionCellController.getInstance().getCellByCanvasId(parentCanvasId);
+			titlePrefix += parentCell.getTitlePrefix();
+		}
+				
+		
+		if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+			titlePrefix += getSiblingIndex() + ".";
+		else 
+		{
+			int clusterIndex = getClusterIndex();
+			if (clusterIndex != -1)
+				titlePrefix += "C" + clusterIndex + ".";
+			else
+				titlePrefix += "C#.";
+		}
+		
+		return titlePrefix;
+	}
+	
+	public int getClusterIndex()
+	{
+		return IntentionGraph.getInstance().getClusterIndex(CIntentionCellController.getInstance().getClusterRootCanvasId(canvas_uuid)) + 1;
 	}
 
 	private class UserList extends PText
@@ -557,7 +656,8 @@ public class CIntentionCell
 			if (!getText().equals(userListText.toString()))
 			{
 				setText(userListText.toString());
-				repaint();
+				CalicoDraw.repaint(this);
+//				repaint();
 			}
 		}
 
@@ -600,10 +700,26 @@ public class CIntentionCell
 			long start = System.currentTimeMillis();
 
 			snapshot.setImage(IntentionalInterfacesGraphics.createCanvasThumbnail(canvas_uuid, THUMBNAIL_INSETS));
-			snapshot.setBounds(shell.thumbnailBounds);
+			CalicoDraw.setNodeBounds(snapshot, shell.thumbnailBounds);
+//			snapshot.setBounds(shell.thumbnailBounds);
 			isDirty = false;
 
-			snapshot.repaint();
+			CalicoDraw.repaint(snapshot);
+//			snapshot.repaint();
 		}
+	}
+
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		
+		if (event == IntentionalInterfacesNetworkCommands.CIC_TAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED
+				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
+		{
+			shell.titleBar.updateTitle();
+		}
+		
 	}
 }

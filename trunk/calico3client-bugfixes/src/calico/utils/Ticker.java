@@ -57,10 +57,10 @@ public class Ticker extends Thread
 			}
 			
 
-			if(CalicoDataStore.gridObject!=null && onTick(66) && GridPerspective.getInstance().isActive() && !Calico.isGridLoading )
-			{
-				CalicoDataStore.gridObject.updateCells();
-			}
+//			if(CalicoDataStore.gridObject!=null && onTick(66) && GridPerspective.getInstance().isActive() && !Calico.isGridLoading )
+//			{
+//				CalicoDataStore.gridObject.updateCells();
+//			}
 			
 			// TODO: maybe record when the last input was, and only run this after some time has passed
 			try {

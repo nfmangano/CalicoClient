@@ -2,6 +2,8 @@ package calico.plugins.iip;
 
 import java.awt.Point;
 
+import javax.swing.SwingUtilities;
+
 import calico.Calico;
 import calico.CalicoOptions;
 import calico.components.menus.CanvasMenuBar;
@@ -99,6 +101,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
+		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
+			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+
 		switch (event)
 		{
 			case NetworkCommand.VIEWING_SINGLE_CANVAS:
@@ -106,6 +111,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				return;
 			case NetworkCommand.CONSISTENCY_FINISH:
 				CCanvasLinkController.getInstance().initializeArrowColors();
+				calico.plugins.iip.components.graph.IntentionGraph.getInstance().updateZoom();
+//				calico.plugins.iip.components.graph.IntentionGraph.getInstance().fitContents();
 				return;
 			case NetworkCommand.PRESENCE_CANVAS_USERS:
 				CIntentionCellController.getInstance().updateUserLists();
@@ -181,6 +188,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		String title = p.getString();
+		
+		System.out.println("CIC_CREATE, " + uuid + ", " + canvas_uuid + ", " + x + ", " + y);
 
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, new Point(x, y), title);
 		CIntentionCellController.getInstance().addCell(cell);
@@ -199,6 +208,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
+		System.out.println("CIC_MOVE, " + uuid + ", " + x + ", " + y);
 
 		IntentionGraphController.getInstance().cellMoved(cell.getId(), x, y);
 	}
@@ -274,6 +284,13 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		CIntentionTopology topology = new CIntentionTopology(p.getString());
 		IntentionGraph.getInstance().setTopology(topology);
+
+		if (Networking.connectionState == Networking.ConnectionState.Connected)
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() {
+						IntentionGraph.getInstance().updateZoom();
+//						IntentionGraph.getInstance().fitContents();
+					}});
 	}
 
 	private static void CIT_CREATE(CalicoPacket p)

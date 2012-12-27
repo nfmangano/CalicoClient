@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import calico.Calico;
+import calico.CalicoDraw;
 import calico.Geometry;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.GridBottomMenuBar;
@@ -117,11 +118,13 @@ public class IntentionGraphController
 		if (destination != null)
 		{
 			Color color = IntentionCanvasController.getInstance().getIntentionTypeColor(destination.getIntentionTypeId());
-			arrow.setColor(color);
+			arrow.setColor(Color.black /*color*/);
 		}
 
 		arrowsByLinkId.put(link.getId(), arrow);
+//		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+//		CalicoDraw.moveNodeToBack(arrow);
 		arrow.moveToBack();
 		arrow.redraw();
 	}
@@ -252,17 +255,24 @@ public class IntentionGraphController
 	public void updateLinkArrow(CCanvasLink link)
 	{
 		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
-
+		if (arrow == null)
+		{
+			System.out.println("Warning: arrow is null in IntentionGraphController.updateLinkArrow");
+			return;
+		}
+			
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId());
 		if ((cell != null) && cell.isNew())
 		{
-			arrow.setVisible(false);
+			CalicoDraw.setVisible(arrow, false);
+//			arrow.setVisible(false);
 			return;
 		}
 
 		if (!arrow.getVisible())
 		{
-			arrow.setVisible(true);
+			CalicoDraw.setVisible(arrow, true);
+//			arrow.setVisible(true);
 		}
 
 		alignAnchors(link);

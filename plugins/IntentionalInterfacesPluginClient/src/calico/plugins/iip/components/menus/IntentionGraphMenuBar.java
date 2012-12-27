@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import calico.CalicoDraw;
 import calico.components.menus.CanvasGenericMenuBar;
 import calico.components.menus.buttons.ExitButton;
 import calico.components.menus.buttons.HistoryNavigationBackButton;
@@ -32,21 +33,24 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
-		addIcon(new ZoomToExtent());
+//		addIcon(new ZoomToExtent());
 		addIcon(new NewClusterButton());
 
 		addSpacer();
 
 		zoomSliderBounds = addIcon(IntentionGraphZoomSlider.SPAN);
 		zoomSlider = new IntentionGraphZoomSlider();
-		addChild(zoomSlider);
-		zoomSlider.setBounds(zoomSliderBounds);
-		zoomSlider.repaint();
+//		CalicoDraw.addChildToNode(this, zoomSlider);
+//		addChild(zoomSlider);
+//		CalicoDraw.setNodeBounds(zoomSlider, zoomSliderBounds);
+//		zoomSlider.setBounds(zoomSliderBounds);
+//		CalicoDraw.repaintNode(zoomSlider);
+//		zoomSlider.repaint();
 
 		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());
 		addSpacer(ALIGN_END);
-		addIconRightAligned(new HistoryNavigationForwardButton());
-		addIconRightAligned(new HistoryNavigationBackButton());
+//		addIconRightAligned(new HistoryNavigationForwardButton());
+//		addIconRightAligned(new HistoryNavigationBackButton());
 
 	}
 

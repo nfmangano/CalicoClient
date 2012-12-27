@@ -84,7 +84,10 @@ public class CalicoPluginManager
 	}
 	
 	
-	
+	public static boolean hasPlugin(Class<?> pluginClass)
+	{
+		return plugins.containsKey(pluginClass);
+	}
 	
 
 	private static void registerPlugin(Class<?> pluginClass)

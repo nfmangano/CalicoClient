@@ -14,8 +14,11 @@ import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
+import calico.plugins.iip.components.piemenu.iip.SetCanvasTitleButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionGraphController;
 import edu.umd.cs.piccolo.util.PBounds;
 
 /**
@@ -92,6 +95,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	 * the Intention View.
 	 */
 	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
+	/**
+	 * Opens a dialog to set the name of the canvas
+	 */
+	private final SetCanvasTitleButton setCanvasTitleButton = new SetCanvasTitleButton();
 
 	private CIntentionCellInputHandler()
 	{
@@ -188,6 +195,12 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				case DRAG:
 					moveCurrentCell(event.getGlobalPoint(), false);
+					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
+					long clusterId = IntentionGraph.getInstance().getClusterAt(local);
+					if (clusterId != 0l && clusterId != CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId()))
+					{
+						CCanvasLinkController.getInstance().createLink(clusterId, cell.getCanvasId());
+					}
 					break;
 				case ACTIVATED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
@@ -259,14 +272,17 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					if (state == State.ACTIVATED)
 					{
 						state = State.MENU;
+						
+						boolean isRootCanvas = CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId());
 
-						if (CCanvasController.canvasdb.size() > 1)
+						if (CCanvasController.canvasdb.size() > 1
+								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, zoomToClusterButton);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton /*, zoomToClusterButton*/);
 						}
 						else
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton, zoomToClusterButton);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton, setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
 						}
 					}
 				}
@@ -308,7 +324,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				return 3;
 			}
-
+			if (buttonClassname.equals(SetCanvasTitleButton.class.getName()))
+			{
+				return 3;
+			}
+			
 			return 0;
 		}
 	}

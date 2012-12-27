@@ -55,8 +55,10 @@ public class CGridCell extends PImage//PComposite
 		cellWidth = w;
 		cellHeight = h;
 
-		int rc = CCanvasController.canvasdb.get(canvasUID).getGridRow();
-		int cc = CCanvasController.canvasdb.get(canvasUID).getGridCol();
+		int rc = CGrid.getCanvasRow(canvasUID);
+		int cc = CGrid.getCanvasColumn(canvasUID);
+//		int rc = CCanvasController.canvasdb.get(canvasUID).getGridRow();
+//		int cc = CCanvasController.canvasdb.get(canvasUID).getGridCol();
 
 
 		//setBounds( (cc*cellWidth)+2, 50+( (rc*cellHeight)+2 ),  cellWidth-5,  cellHeight-5);
@@ -84,7 +86,7 @@ public class CGridCell extends PImage//PComposite
 					*/
 					render();
 			
-					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+//					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
 				}});
 
 		
@@ -125,7 +127,7 @@ public class CGridCell extends PImage//PComposite
 					*/
 					render();
 			
-					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
+//					CCanvasController.canvasdb.get(canvasUID).setGridCoordRect( tBounds );
 				}});
 
 	}
@@ -140,7 +142,7 @@ public class CGridCell extends PImage//PComposite
 		pline.addPoint(0, x, y);
 		pline.addPoint(1, x2, y2);
 		pline.setStroke(new BasicStroke( 1.0f ));
-		pline.setStrokePaint( CalicoOptions.grid.item_border );
+		pline.setStrokePaint( CGrid.item_border );
 		return pline;
 	}
 
@@ -215,7 +217,7 @@ public class CGridCell extends PImage//PComposite
 
 		repaint();
 		//CalicoDraw.repaint(this);
-		CalicoDataStore.gridObject.repaint();
+		CGrid.getInstance().repaint();
 		
 		updatePresenceText();
 		updateCanvasLockIcon();

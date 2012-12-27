@@ -254,6 +254,11 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	{
 		return activeIntentionTypes.get(typeId);
 	}
+	
+	public boolean intentionTypeExists(long typeId)
+	{
+		return activeIntentionTypes.containsKey(typeId);
+	}
 
 	public Color getIntentionTypeColor(long typeId)
 	{
@@ -296,7 +301,10 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		CCanvasLinkController.getInstance().showingCanvas(canvasId);
 
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvasId);
-		if (cell == null)
+
+		if (cell == null
+				|| canvasId == 0l
+				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId))
 		{
 			showTagPanel(false);
 		}
@@ -375,7 +383,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	private class TagPanelBounds implements IntentionPanelLayout
 	{
 		private final int X_MARGIN = 20;
-		private final int Y_MARGIN = 20;
+		private final int Y_MARGIN = 50;
 
 		private final ArrayList<?> peers = new ArrayList<Object>();
 
