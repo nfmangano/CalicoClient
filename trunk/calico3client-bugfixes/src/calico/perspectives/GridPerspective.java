@@ -68,8 +68,14 @@ public class GridPerspective extends CalicoPerspective
 	}
 
 	@Override
-	protected boolean isNavigationPerspective()
+	public boolean isNavigationPerspective()
 	{
 		return true;
+	}
+
+	@Override
+	public void tickerUpdate() {
+		CGrid.getInstance().updateCells();
+		
 	}
 }

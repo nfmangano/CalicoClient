@@ -84,9 +84,18 @@ public class CalicoPluginManager
 	}
 	
 	
-	public static boolean hasPlugin(Class<?> pluginClass)
+	public static boolean hasPlugin(String pluginClassName)
 	{
-		return plugins.containsKey(pluginClass);
+		ObjectSet<Class<?>> keySet = plugins.keySet();
+		
+		for (Class<?> c : keySet)
+		{
+			if (c.getName().compareTo(pluginClassName) == 0)
+				return true;
+		}
+		
+		return false;
+//		return plugins.containsKey(pluginClass);
 	}
 	
 

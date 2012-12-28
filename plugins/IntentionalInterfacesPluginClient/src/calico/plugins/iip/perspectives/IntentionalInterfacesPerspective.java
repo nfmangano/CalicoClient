@@ -180,7 +180,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	}
 
 	@Override
-	protected boolean isNavigationPerspective()
+	public boolean isNavigationPerspective()
 	{
 		return true;
 	}
@@ -198,5 +198,11 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 		{
 			displayPerspective(contextCanvasId);
 		}
+	}
+
+	@Override
+	public void tickerUpdate() {
+		calico.plugins.iip.controllers.CIntentionCellController.updateCells();
+		
 	}
 }

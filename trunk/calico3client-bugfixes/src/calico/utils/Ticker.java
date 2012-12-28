@@ -5,6 +5,8 @@ import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
+import calico.perspectives.CalicoPerspective;
+import calico.perspectives.CanvasPerspective;
 import calico.perspectives.GridPerspective;
 
 public class Ticker extends Thread
@@ -57,10 +59,10 @@ public class Ticker extends Thread
 			}
 			
 
-//			if(CalicoDataStore.gridObject!=null && onTick(66) && GridPerspective.getInstance().isActive() && !Calico.isGridLoading )
-//			{
-//				CalicoDataStore.gridObject.updateCells();
-//			}
+			if(CalicoPerspective.Active.getCurrentPerspective()!=null && onTick(66) && CalicoPerspective.Active.getCurrentPerspective().isNavigationPerspective() && !Calico.isGridLoading )
+			{
+				CalicoPerspective.Active.getCurrentPerspective().tickerUpdate();
+			}
 			
 			// TODO: maybe record when the last input was, and only run this after some time has passed
 			try {

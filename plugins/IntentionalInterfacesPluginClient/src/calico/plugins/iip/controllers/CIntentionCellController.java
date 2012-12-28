@@ -133,6 +133,16 @@ public class CIntentionCellController
 		return parentCanvasId;
 	}
 	
+	public static void updateCells()
+	{
+		long[] keySet = cells.keySet().toLongArray();
+		for(int i=0;i<keySet.length;i++)
+		{
+//			cells.get(keySet[i]).up;
+				
+		}
+	}
+	
 	public boolean isRootCanvas(long memberCanvasId)
 	{
 		return getCIntentionCellParent(memberCanvasId) == 0l;

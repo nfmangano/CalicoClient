@@ -12,10 +12,12 @@ import calico.perspectives.GridPerspective;
 
 public class CGridController {
 	
-	private static CGridController instance =  new CGridController();
+	private static CGridController instance;
 	
-	public CGridController getInstance()
+	public static CGridController getInstance()
 	{
+		if (instance == null)
+			instance = new CGridController();
 		return instance;
 	}
 	

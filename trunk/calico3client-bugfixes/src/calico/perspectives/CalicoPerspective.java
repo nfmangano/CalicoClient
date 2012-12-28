@@ -53,7 +53,9 @@ public abstract class CalicoPerspective
 
 	protected abstract void removeMouseListener(MouseListener listener);
 
-	protected abstract boolean isNavigationPerspective();
+	public abstract boolean isNavigationPerspective();
+	
+	public abstract void tickerUpdate();
 
 	public boolean isActive()
 	{
@@ -146,6 +148,11 @@ public abstract class CalicoPerspective
 		{
 			INSTANCE.currentPerspective.removeMouseListener(listener);
 			
+		}
+		
+		public static CalicoPerspective getCurrentPerspective()
+		{
+			return INSTANCE.currentPerspective;
 		}
 		
 		public static void displayPerspective(long contextCanvasId)

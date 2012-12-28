@@ -56,6 +56,7 @@ import calico.components.grid.CGrid;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CConnectorController;
+import calico.controllers.CGridController;
 import calico.controllers.CGroupController;
 import calico.controllers.CHistoryController;
 import calico.controllers.CStrokeController;
@@ -347,15 +348,15 @@ public class Calico extends JFrame
 		// appear. For example, UUID request crashes the entire application if called before networking is up.
 		CalicoPluginManager.setup();
 		
-		try {
-			if (!CalicoPluginManager.hasPlugin(
-					Class.forName("calico.plugins.iip.IntentionalInterfacesClientPlugin")))
-				GridPerspective.getInstance().activate();
-				CGrid.loadGrid();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+
+		if (!CalicoPluginManager.hasPlugin(
+				"calico.plugins.iip.IntentionalInterfacesClientPlugin"))
+		{
+			GridPerspective.getInstance().activate();
+			CGridController.getInstance();
+			CGrid.loadGrid();
 		}
+
 
 		this.addComponentListener(new java.awt.event.ComponentAdapter() {
 			public void componentResized(ComponentEvent e)

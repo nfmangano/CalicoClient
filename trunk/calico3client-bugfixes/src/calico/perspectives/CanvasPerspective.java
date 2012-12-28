@@ -118,8 +118,14 @@ public class CanvasPerspective extends CalicoPerspective
 	}
 
 	@Override
-	protected boolean isNavigationPerspective()
+	public boolean isNavigationPerspective()
 	{
 		return false;
+	}
+
+	@Override
+	public void tickerUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 }

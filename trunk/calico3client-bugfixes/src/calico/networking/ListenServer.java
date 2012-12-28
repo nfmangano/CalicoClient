@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
 import calico.CalicoOptions;
+import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
@@ -181,24 +182,28 @@ public class ListenServer implements Runnable
 						double cuuid = new Long(tpack.getCUUID()).doubleValue();
 						
 //						TODO: Restore launcher progress bar 
-//						double numCanvases = new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
-//						int progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
-//						if (progress < previousProgress)
-//							progress = previousProgress;
-						int progress = 0;
+						double numCanvases = CCanvasController.canvasdb.size(); //new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
+						int progress = 1;
+						if (numCanvases > 0)
+							progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
+						else
+							progress = 1;
+						if (progress < previousProgress)
+							progress = previousProgress;
+//						int progress = 0;
 						
 //						CalicoEventHandler.getInstance().fireEvent(NetworkCommand.STATUS_SENDING_LARGE_FILE, 
 //								CalicoPacket.getPacket(NetworkCommand.STATUS_SENDING_LARGE_FILE, ((double)progress), 
 //								((double)100), "Synchronizing with server... "));
 											
-						if (progress >= 0)
-						{
+//						if (progress >= 0)
+//						{
 							progressMonitor.setProgress(progress);
 				            String message =
 				                String.format("Completed %d%%.\n", progress);
 				            progressMonitor.setNote(message);
 	
-						}
+//						}
 						previousProgress = progress;
 					}
 					else if (Networking.connectionState == Networking.connectionState.Connected && progressMonitor != null)
