@@ -557,13 +557,13 @@ public class CGrid
 	
 	public static int getCanvasRow(long cuid)
 	{
-		return (int) Math.floor(CCanvasController.canvasdb.get(cuid).getIndex() / CGrid.GridCols);
+		//Formula: Index - Row * NumColumns
+		return CCanvasController.canvasdb.get(cuid).getIndex() - getCanvasColumn(cuid) * CGrid.GridCols;
 	}
 	
 	public static int getCanvasColumn(long cuid)
 	{
-		//Formula: Index - Row * NumColumns
-		return CCanvasController.canvasdb.get(cuid).getIndex() - getCanvasRow(cuid) * CGrid.GridCols;
+		return (int) Math.floor(CCanvasController.canvasdb.get(cuid).getIndex() / CGrid.GridCols);
 	}
 	
 	public static String getCanvasCoord(long cuid)
@@ -624,9 +624,11 @@ public class CGrid
 		long[] cuids = CCanvasController.getCanvasIDList();
 		for (int i = 0; i < cuids.length; i++)
 		{
-			int r = getCanvasRow(cuids[i]);
-			int c = getCanvasColumn(cuids[i]);
-			if (x == r && c == y)
+			int xpos = CGrid.getCanvasColumn(cuids[i]);
+			int ypos = CGrid.getCanvasRow(cuids[i]);			
+//			int r = getCanvasRow(cuids[i]);
+//			int c = getCanvasColumn(cuids[i]);
+			if (x == xpos && y == ypos)
 			{
 				return cuids[i];
 			}

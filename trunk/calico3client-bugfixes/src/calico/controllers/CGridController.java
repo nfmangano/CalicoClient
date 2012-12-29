@@ -3,6 +3,14 @@ package calico.controllers;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.components.grid.CGrid;
+import calico.components.menus.CanvasMenuBar;
+import calico.components.menus.buttons.CanvasNavButton;
+import calico.components.menus.buttons.CanvasNavButtonDown;
+import calico.components.menus.buttons.CanvasNavButtonLeft;
+import calico.components.menus.buttons.CanvasNavButtonRight;
+import calico.components.menus.buttons.CanvasNavButtonUp;
+import calico.components.menus.buttons.ReturnToGrid;
+import calico.components.menus.buttons.SpacerButton;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.modules.MessageObject;
@@ -24,6 +32,18 @@ public class CGridController {
 	private CGridController()
 	{
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, listener, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
+		
+		CanvasMenuBar.addMenuButtonPreAppend(ReturnToGrid.class);
+		
+		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
+		
+		CanvasMenuBar.addMenuButtonPreAppend(CanvasNavButtonLeft.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CanvasNavButtonRight.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CanvasNavButtonUp.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CanvasNavButtonDown.class);
+		
+		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
+		
 	}
 	
 	private static CalicoEventListener listener = new CalicoEventListener() {		

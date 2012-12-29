@@ -71,18 +71,9 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 					addIcon((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
 			}
 			
-			addIcon(new ReturnToGrid());
-			
-			addSpacer();
+
 			
 			
-			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_UP));
-			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_DOWN));
-			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_LEFT));
-			addIcon(new CanvasNavButton(cuid,CanvasNavButton.TYPE_RIGHT));
-			
-			//addCap();
-			addSpacer();
 			addIcon(new ClearButton(cuid));
 			addSpacer();
 

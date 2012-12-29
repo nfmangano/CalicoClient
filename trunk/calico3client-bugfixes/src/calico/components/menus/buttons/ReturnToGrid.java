@@ -35,7 +35,7 @@ public class ReturnToGrid extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
 	
-	public ReturnToGrid()
+	public ReturnToGrid(long cuid)
 	{
 		super();
 		iconString = "grid.return_to";
