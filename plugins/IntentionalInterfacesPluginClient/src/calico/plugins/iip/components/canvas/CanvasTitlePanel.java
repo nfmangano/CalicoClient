@@ -1,8 +1,10 @@
 package calico.plugins.iip.components.canvas;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.font.TextAttribute;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +46,7 @@ import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.nodes.PComposite;
 
 /**
@@ -323,7 +326,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				if ((state == InputState.PRESSED) && ((System.currentTimeMillis() - pressTime) < tapDuration))
 				{
 //					panel.tap(event.getPoint());
-					Point p = event.getPoint();
+					Point p = event.getGlobalPoint();
 					if (titleNodeContainer.getBounds().contains(p))
 					{
 						titleNodeContainer.tap(p);
@@ -391,8 +394,12 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			{
 				if (state == InputState.DRAGGING)
 				{
+					Point p = new Point(lastPoint);
+					long currentCanvas = CCanvasController.getCurrentUUID();
+					CCanvasController.canvasdb.get(currentCanvas).getLayer().getLocalToGlobalTransform(null).transform(p, p);
+					
 					if (draggingCell)
-						moveDraggedCell(lastPoint.x, lastPoint.y);
+						moveDraggedCell(p.x, p.y);
 				}
 				else if (state == InputState.PRESSED || state == InputState.IDLE)
 				{
@@ -480,7 +487,9 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 		@Override
 		public void pressAndHoldCompleted() {
-			Point p = getLastPoint();
+			Point p = new Point(getLastPoint());
+			long currentCanvas = CCanvasController.getCurrentUUID();
+			CCanvasController.canvasdb.get(currentCanvas).getLayer().getLocalToGlobalTransform(null).transform(p, p);
 			if (titleNodeContainer.getBounds().contains(p))
 			{
 				long targetCanvas = titleNodeContainer.getCanvasAt(p);
@@ -533,7 +542,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 //				canvasCam.removeChild(canvas.menuBar);
 //				canvasCam.removeChild(canvas.topMenuBar);
 				CCanvasController.loadCanvasImages(cuid);
-				Image img = canvasCam.toImage(imgw-16, imgh-16, Color.white);	
+				Image img = canvasCam.toImage(imgw-16, imgh-16, Color.white);
+				img.getGraphics().drawRect(1, 1, img.getWidth(null) - 2, img.getHeight(null) - 2);
 				CCanvasController.unloadCanvasImages(cuid);
 				
 				pressedCellMainImage =  new PImage(img);
@@ -684,6 +694,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		{
 			this.parentCanvas = parentCanvas;
 			this.type = type;
+			setPaint(Color.white);
 		}
 		
 		public long getParentCanvas()
@@ -801,6 +812,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			
 			return 0;
 		}
+		
 	}
 	
 	private class CanvasTitleNode extends PText
