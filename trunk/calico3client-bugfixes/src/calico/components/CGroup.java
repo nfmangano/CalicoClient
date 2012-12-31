@@ -166,7 +166,7 @@ public class CGroup extends PPath implements Serializable {
 		this.isPermanent = isperm;
 		
 		setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1,
+				BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, dash1,
 				0.0f));
 		setStrokePaint(CalicoOptions.group.stroke_color);
 
@@ -305,7 +305,7 @@ public class CGroup extends PPath implements Serializable {
 
 	public void drawPermTemp(boolean repaint) {
 		if (isPermanent()) {
-			setStroke(new BasicStroke(CalicoOptions.group.stroke_size));
+			setStroke(new BasicStroke(CalicoOptions.group.stroke_size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			setStrokePaint(CalicoOptions.group.stroke_color);
 			setPaint(CalicoOptions.group.background_color);
 //			setTransparency(CalicoOptions.group.background_transparency);

@@ -102,7 +102,9 @@ public class CStroke extends PPath
 		this.color = color;
 		this.thickness = thickness;
 		
-		stroke = new BasicStroke( thickness );
+//		stroke = new BasicStroke( thickness );
+		stroke = new BasicStroke(thickness,
+				BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		setStroke( stroke );
 		strokePaint = this.color;
 		setStrokePaint( strokePaint );
@@ -555,7 +557,7 @@ public class CStroke extends PPath
 		if (isScrapPreview)
 		{
 			setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
-					BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.0f },
+					BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, new float[] { 10.0f },
 					0.0f));
 			
 			paintContext.pushTransparency(CalicoOptions.group.background_transparency);
