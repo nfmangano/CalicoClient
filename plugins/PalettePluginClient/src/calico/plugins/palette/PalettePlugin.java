@@ -847,10 +847,13 @@ public class PalettePlugin extends CalicoPlugin
 	
 	public static void PALETTE_PACKET(CalicoPacket p)
 	{
-//		PaletteNetworkCommands.Command palettePacket = new PaletteNetworkCommands.Command.PALETTE_PACKET();
-		PaletteNetworkCommands.PALETTE_PACKET packet = PaletteNetworkCommands.getInstance().new PALETTE_PACKET(p);
+		p.rewind();
+		p.getInt();
+		long paletteItemUUID = p.getLong();
+		long paletteUUID = p.getLong();
+		Image img = p.getBufferedImage();
 		
-		PalettePlugin.no_notify_addPaletteItemToPalette(packet.paletteItemUUID, p);
+		PalettePlugin.no_notify_addPaletteItemToPalette(paletteUUID, p);
 
 	}
 	

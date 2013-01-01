@@ -40,6 +40,8 @@ public class PaletteBar extends PComposite
 	long uuid;
 	private boolean menuBarIconsVisible = false;
 	
+	private int maxChildrenPerRow = 15;
+	
 //	Palette palette;
 	
 	
@@ -71,6 +73,7 @@ public class PaletteBar extends PComposite
 			newChildren.add(new OpenPalette());
 			newChildren.add(new ClosePalette());
 			newChildren.add(new ImportImages());
+			newChildren.add(new AddCanvasToPalette());	
 //			newChildren.add(new HideMenuBarIcons());
 		}
 		else
@@ -85,21 +88,25 @@ public class PaletteBar extends PComposite
 		
 		newChildren.addAll(addPaletteItems(numItemsShown));
 		
-		int widthOfItems = itemBuffer + (PalettePlugin.PALETTE_ITEM_WIDTH + itemBuffer) * newChildren.size();
+		int numItemsToShowPerRow = /*(newChildren.size() < this.maxChildrenPerRow) ? newChildren.size() :*/ this.maxChildrenPerRow;
+		int widthOfItems = itemBuffer + (PalettePlugin.PALETTE_ITEM_WIDTH + itemBuffer) * numItemsToShowPerRow;
 		
-		
-		setBounds(xLoc, yLoc, widthOfItems, defaultHeight + itemBuffer * 2);
+		int height = itemBuffer + (defaultHeight + itemBuffer) * (int) Math.ceil(((double)newChildren.size()) / this.maxChildrenPerRow);
+		setBounds(xLoc, yLoc, widthOfItems, height);
 		
 		this.removeAllChildren();
 		this.addChildren(newChildren);
 		
 		this.setPaint(Color.GRAY);
 	}
-
+	
 	private ArrayList<PNode> addPaletteItems(int numItemsShown) {
+
+		
 		ArrayList<PNode> ret = new ArrayList<PNode>();
 		ArrayList<CalicoPacket> paletteItems = PalettePlugin.getActivePalette().getPaletteItems();
-		for (int i = 0; i < Math.max(numItemsShown,paletteItems.size()); i++)
+		int itemsToShow = (int) Math.ceil((double)(paletteItems.size() + 8) / this.maxChildrenPerRow) * this.maxChildrenPerRow - 8;
+		for (int i = 0; i < itemsToShow; i++)
 		{
 			PNode item;
 			if (paletteItems.size() > i)
@@ -136,11 +143,20 @@ public class PaletteBar extends PComposite
 		double yOffset = yLoc + itemBuffer;
 			
 		Iterator i = getChildrenIterator();
+		int itemPerRowCounter = 0;
 		
 		while (i.hasNext()) {
 			PNode each = (PNode) i.next();
 			each.setOffset(xOffset - each.getX(), yOffset);
 			xOffset += each.getFullBoundsReference().getWidth() + itemBuffer;
+			
+			itemPerRowCounter++;
+			if (itemPerRowCounter >= this.maxChildrenPerRow)
+			{
+				itemPerRowCounter = 0;
+				yOffset += defaultHeight + itemBuffer;
+				xOffset = xLoc + itemBuffer;
+			}
 		}
 	}
 	
