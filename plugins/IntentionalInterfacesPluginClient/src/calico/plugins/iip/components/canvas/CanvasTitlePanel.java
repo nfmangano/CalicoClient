@@ -497,7 +497,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 					CCanvasController.loadCanvas(targetCanvas);
 				else if (targetCanvas == CanvasTitleNode.WALL)
 				{
-					IntentionalInterfacesPerspective.getInstance().displayPerspective(this.canvas_uid);
+					IntentionalInterfacesPerspective.getInstance().displayPerspective(CCanvasController.getCurrentUUID());
 				}
 			}
 			

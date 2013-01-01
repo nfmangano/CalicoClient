@@ -329,16 +329,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		if (canvasCreationContext != null)
 		{
 			long linkOriginCanvasId = canvasCreationContext.originatingCanvasId;
-			long parentCanvasId = 0L;
-			for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvasCreationContext.originatingCanvasId))
-			{
-				CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
-				if (anchor.getLink().getAnchorB() == anchor)
-				{
-					parentCanvasId = anchor.getOpposite().getCanvasId();
-					break;
-				}
-			}
+			long parentCanvasId = getParentCanvasId(canvasCreationContext.originatingCanvasId);
 
 			if (parentCanvasId > 0L)
 			{
@@ -352,6 +343,21 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 			// collapse like tags
 			CCanvasLinkController.getInstance().createLink(linkOriginCanvasId, canvasCreationContext.newCanvasId);
 		}
+	}
+
+	public static long getParentCanvasId(long originatingCanvas) {
+		long parentCanvasId = 0L;
+		
+		for (long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(originatingCanvas))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				parentCanvasId = anchor.getOpposite().getCanvasId();
+				break;
+			}
+		}
+		return parentCanvasId;
 	}
 
 	/**

@@ -26,6 +26,7 @@ import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.canvas.CopyCanvasButton;
 import calico.plugins.iip.components.canvas.NewCanvasButton;
+import calico.plugins.iip.components.canvas.NewCanvasStepInto;
 import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -88,7 +89,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		IntentionalInterfacesPerspective.getInstance(); // load the class
 
 		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
-		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
+		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasStepInto.class);
+//		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
 
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationBackButton.class);

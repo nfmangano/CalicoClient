@@ -14,13 +14,13 @@ import calico.plugins.iip.iconsets.CalicoIconManager;
  * 
  * @author Byron Hawkins
  */
-public class NewCanvasButton extends CanvasMenuButton
+public class NewCanvasStepInto extends CanvasMenuButton
 {
 	private static final long serialVersionUID = 1L;
 
 	private long currentCanvasId;
 
-	public NewCanvasButton()
+	public NewCanvasStepInto()
 	{
 		this(0L);
 	}
@@ -28,13 +28,13 @@ public class NewCanvasButton extends CanvasMenuButton
 	/**
 	 * Invoked via reflection in CanvasStatusBar
 	 */
-	public NewCanvasButton(long canvas_uuid)
+	public NewCanvasStepInto(long canvas_uuid)
 	{
 		try
 		{
 			this.currentCanvasId = canvas_uuid;
 
-			setImage(CalicoIconManager.getIconImage("intention.new-canvas"));
+			setImage(CalicoIconManager.getIconImage("intention.step-into-canvas"));
 		}
 		catch (Exception e)
 		{
@@ -45,16 +45,12 @@ public class NewCanvasButton extends CanvasMenuButton
 	public void actionMouseClicked()
 	{
 		long currentCell = CCanvasController.getCurrentUUID();
-		long parentCanvasId = calico.plugins.iip.controllers.IntentionCanvasController.getParentCanvasId(currentCell);
-		
-		if (parentCanvasId == 0)
-			return;
 		
 		long newCanvasId = CIntentionCellFactory.getInstance()
 				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
 		
 //		IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
-		CCanvasLinkController.getInstance().createLink(parentCanvasId /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
+		CCanvasLinkController.getInstance().createLink(currentCell, newCanvasId);
 		
 		if (CanvasPerspective.getInstance().isActive())
 		{

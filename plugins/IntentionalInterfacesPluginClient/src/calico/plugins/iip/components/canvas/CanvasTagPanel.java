@@ -265,7 +265,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			IntentionCanvasController.getInstance().showTagPanel(false);
 			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
 					type.getId()-1, !selected, false);
-			IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
+//			IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
 //			CanvasTitlePanel.getInstance().refresh();
 		}
 

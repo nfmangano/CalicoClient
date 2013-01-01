@@ -173,14 +173,38 @@ public class CIntentionCell implements CalicoEventListener
 
 	public String getTitle()
 	{
+		String ret = "";
+		
+		//Pre-append cluster prefix
+		if (CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+		{
+			long[] roots = calico.plugins.iip.components.graph.IntentionGraph.getInstance().getRootsOfAllClusters();
+			int position = 0;
+			while (position < roots.length)
+				if (roots[position] == canvas_uuid)
+					break;
+				else
+					position++;
+			
+			ret += "C" + (position+1) + ". ";
+
+		}
+		
 		if (title.equals(DEFAULT_TITLE))
 		{
-			if (CCanvasController.canvasdb.containsKey(canvas_uuid))
-				return "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			if (CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				ret += "Unnamed cluster";
+			else if (CCanvasController.canvasdb.containsKey(canvas_uuid))
+				ret += "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
 			else
-				return "Canvas ";
+				ret += "Canvas ";
 		}
-		return title;
+		else 
+			ret += title;
+		
+
+		
+		return ret;
 	}
 
 	/**
@@ -598,6 +622,8 @@ public class CIntentionCell implements CalicoEventListener
 		
 		String titlePrefix = "";
 		
+
+		
 		//get parent cell
 		long parentCanvasId = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
 		if (parentCanvasId > 0l)
@@ -609,14 +635,16 @@ public class CIntentionCell implements CalicoEventListener
 		
 		if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
 			titlePrefix += getSiblingIndex() + ".";
-		else 
-		{
-			int clusterIndex = getClusterIndex();
-			if (clusterIndex != -1)
-				titlePrefix += "C" + clusterIndex + ".";
-			else
-				titlePrefix += "C#.";
-		}
+//		else 
+//		{
+//			int clusterIndex = getClusterIndex();
+//			if (clusterIndex != -1)
+//				titlePrefix += "C" + clusterIndex + ".";
+//			else
+//				titlePrefix += "C#.";
+//		}
+		
+
 		
 		return titlePrefix;
 	}
