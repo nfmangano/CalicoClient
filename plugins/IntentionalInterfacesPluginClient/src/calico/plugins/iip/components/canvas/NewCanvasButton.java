@@ -40,6 +40,9 @@ public class NewCanvasButton extends CanvasMenuButton
 		{
 			e.printStackTrace();
 		}
+		
+		if (CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+			this.setTransparency(.5f);
 	}
 
 	public void actionMouseClicked()

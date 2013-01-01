@@ -120,6 +120,9 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 	public void setVisible(boolean b)
 	{
+		if (true)
+			return;
+		
 		if (visible == b)
 		{
 			return;
