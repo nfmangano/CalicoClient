@@ -301,7 +301,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		public PBounds getBounds(long uuid)
 		{
 			PBounds local = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
-			return new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
+			if (CCanvasController.exists(CCanvasController.getCurrentUUID()))	
+				return new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
+			else
+				return local;
 		}
 
 		@Override

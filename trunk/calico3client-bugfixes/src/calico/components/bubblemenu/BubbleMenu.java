@@ -124,7 +124,11 @@ public class BubbleMenu {
 
 		ComponentType componentType = componentTypes.get(activeType);
 		PBounds temp = new PBounds(componentType.getBounds(activeUUID));
-		Rectangle2D global = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(temp);
+		Rectangle2D global;
+		if (CCanvasController.exists(CCanvasController.getCurrentUUID()))
+			 global = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(temp);
+		else
+			global = temp.getBounds2D();
 		PBounds globalActiveBounds = new PBounds(global);
 		activeBounds = globalActiveBounds;
 		
