@@ -17,7 +17,7 @@ public class SetLinkLabelButton extends PieMenuButton
 
 	public SetLinkLabelButton()
 	{
-		super(CalicoIconManager.getIconImage("intention.set-link-label"));
+		super(calico.plugins.iip.iconsets.CalicoIconManager.getIconImage("intention.set-link-label"));
 	}
 
 	public void setContext(CCanvasLink link)
