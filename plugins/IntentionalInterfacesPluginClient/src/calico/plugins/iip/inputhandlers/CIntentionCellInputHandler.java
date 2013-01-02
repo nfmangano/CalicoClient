@@ -300,7 +300,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		@Override
 		public PBounds getBounds(long uuid)
 		{
-			return CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
+			PBounds local = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
+			return new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
 		}
 
 		@Override
