@@ -89,8 +89,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		IntentionalInterfacesPerspective.getInstance(); // load the class
 
 		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasButton.class);
-		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasStepInto.class);
-//		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
+//		CanvasMenuBar.addMenuButtonPreAppend(NewCanvasStepInto.class);
+		CanvasMenuBar.addMenuButtonPreAppend(CopyCanvasButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
 
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationBackButton.class);

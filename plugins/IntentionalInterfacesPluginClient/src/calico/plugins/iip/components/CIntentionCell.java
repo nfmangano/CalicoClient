@@ -111,7 +111,8 @@ public class CIntentionCell implements CalicoEventListener
 		this.title = title;
 
 		shell = new Shell(location.getX(), location.getY());
-		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+		if (!IntentionGraph.getInstance().isClusterRoot(canvas_uuid))
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
 		
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TAG, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
@@ -254,6 +255,8 @@ public class CIntentionCell implements CalicoEventListener
 	 */
 	public boolean contains(Point2D point)
 	{
+		if (IntentionGraph.getInstance().isClusterRoot(this.getCanvasId()))
+			return false;
 		PBounds bounds = shell.getGlobalBounds();
 		return ((point.getX() > bounds.x) && (point.getY() > bounds.y) && ((point.getX() - bounds.x) < bounds.width) && (point.getY() - bounds.y) < bounds.height);
 	}

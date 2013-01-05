@@ -560,6 +560,17 @@ public class IntentionGraph {
 		return ret;	
 	}
 	
+	public boolean isClusterRoot(long id)
+	{
+		long[] clusterRoots = getRootsOfAllClusters();
+		
+		for (int i = 0; i < clusterRoots.length; i++)
+			if (clusterRoots[i] == id)
+				return true;
+		
+		return false;
+	}
+	
 	public int getClusterIndex(long clusterId)
 	{
 		Collection<Cluster> clusters = topology.getClusters();

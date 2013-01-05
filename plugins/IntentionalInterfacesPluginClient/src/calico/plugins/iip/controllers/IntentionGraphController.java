@@ -123,7 +123,9 @@ public class IntentionGraphController
 
 		arrowsByLinkId.put(link.getId(), arrow);
 //		CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
+		
+		if (!IntentionGraph.getInstance().isClusterRoot(arrow.getAnchorA().getCanvasId()))
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(arrow);
 //		CalicoDraw.moveNodeToBack(arrow);
 		arrow.moveToBack();
 		arrow.redraw();

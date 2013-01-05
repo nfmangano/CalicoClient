@@ -91,6 +91,8 @@ public class CCanvasLink
 	 */
 	public boolean contains(Point2D point)
 	{
+		if (IntentionGraph.getInstance().isClusterRoot(getAnchorA().getCanvasId()))
+			return false;
 		hitTestPoint.setLocation(point);
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(hitTestPoint);
 		hitTestLink.setLine(anchorA.getPoint(), anchorB.getPoint());
