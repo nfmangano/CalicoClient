@@ -205,6 +205,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionReleased(InputEventInfo e)
 	{
+		calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = false;
 		this.releasePoint = e;
 		CalicoInputManager.unlockHandlerIfMatch(this.uuid);
 		
