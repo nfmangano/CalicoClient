@@ -57,7 +57,7 @@ public class NewCanvasButton extends CanvasMenuButton
 				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
 		
 //		IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
-		CCanvasLinkController.getInstance().createLink(parentCanvasId /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
+		CCanvasLinkController.getInstance().createLink(/*parentCanvasId*/ CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell), newCanvasId);
 		
 		if (CanvasPerspective.getInstance().isActive())
 		{
