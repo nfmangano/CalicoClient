@@ -137,7 +137,6 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				if (BubbleMenu.activeUUID == uuid)
 				{
 					calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
-					calico.controllers.CGroupController.restoreOriginalStroke = false;
 //					CGroupController.show_group_bubblemenu(uuid);
 //					CCanvasStrokeModeInputHandler.deleteSmudge = true;
 				}
@@ -193,6 +192,8 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		{
 			// Reroute to canvas handler
 			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);*/
+			if (calico.controllers.CGroupController.restoreOriginalStroke)
+				calico.controllers.CGroupController.restoreOriginalStroke = false;
 			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////

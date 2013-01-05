@@ -60,12 +60,13 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		CalicoAbstractInputHandler.clickMenu(potScrap, group, point);
 		
 		if (CGroupController.exists(CGroupController.getCurrentUUID()) 
+				&& !CGroupController.groupdb.get(CGroupController.getCurrentUUID()).isPermanent()
 				&& point != null
 				&& CGroupController.groupdb.get(CGroupController.getCurrentUUID()).containsPoint(point.x, point.y))
 		{
 			this.activeGroup = CGroupController.getCurrentUUID();
 			calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
-			CCanvasStrokeModeInputHandler.deleteSmudge = true;	
+			CCanvasStrokeModeInputHandler.deleteSmudge = true;
 			
 			CalicoAbstractInputHandler handler = CalicoInputManager.getInputHandler(this.activeGroup);
 			if (handler instanceof CGroupInputHandler)
@@ -139,7 +140,8 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
 				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
 			}
-			else if ((this.activeGroup = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint())) != 0l)
+			else if (!BubbleMenu.isBubbleMenuActive() &&
+					(this.activeGroup = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint())) != 0l)
 			{
 				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time,
@@ -241,9 +243,10 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 			hasStartedBge = false;
 			boolean isSmudge = false;
-			if (this.activeGroup != 0l)
+			if (/*this.activeGroup != 0l
+					|| */BubbleMenu.activeUUID != 0l)
 			{
-				CGroupController.move_end(this.activeGroup, e.getPoint().x, e.getPoint().y);
+				CGroupController.move_end(BubbleMenu.activeUUID, e.getPoint().x, e.getPoint().y);
 				if (BubbleMenu.highlightedParentGroup != 0l)
 				{
 					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
