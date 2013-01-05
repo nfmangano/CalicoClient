@@ -1756,7 +1756,7 @@ public class CGroupController
 			for(int i=0;i<uuids.length;i++)
 			{
 				temp = CGroupController.groupdb.get(uuids[i]);
-				if (temp == null || temp.getPathReference() == null || !CGroupController.groupdb.get(uuids[i]).isPermanent())
+				if (temp == null || temp.getPathReference() == null /*|| !CGroupController.groupdb.get(uuids[i]).isPermanent()*/)
 					continue;
 				if( (temp.getArea()< group_area) && temp.getPathReference().contains(p)
 						&& (temp.getParentUUID() == 0l || !(CGroupController.groupdb.get(temp.getParentUUID()) instanceof CGroupDecorator)))
@@ -1785,7 +1785,10 @@ public class CGroupController
 		
 	}
 	
-	public static void move_end(long uuid, int x, int y) {		no_notify_move_end(uuid, x, y);
+	public static void move_end(long uuid, int x, int y) {		
+		if(!exists(uuid)){return;}
+		
+		no_notify_move_end(uuid, x, y);
 		CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()).moveInFrontOf(null);
 		//CalicoDraw.moveNodeInFrontOf(CGroupController.groupdb.get(CGroupController.groupdb.get(uuid).getTopmostParent()), null);
 		Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_MOVE_END, uuid, x, y));

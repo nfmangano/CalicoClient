@@ -377,6 +377,11 @@ public class CalicoInputManager
 			}
 		}
 		
+		if (ev.getAction() == InputEventInfo.ACTION_RELEASED)
+		{
+			calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
+		}
+		
 		//Only allow left mouse button events right now
 		if (!ev.isLeftButton())
 			return;
@@ -529,8 +534,9 @@ public class CalicoInputManager
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;
 					}
-					else if (!CGroupController.groupdb.get(BubbleMenu.activeUUID).containsPoint(ev.getPoint().x, ev.getPoint().y)
-							|| !CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent())
+					else if (CalicoPerspective.Active.getEventTarget(ev) != BubbleMenu.activeUUID
+							//!CGroupController.groupdb.get(BubbleMenu.activeUUID).containsPoint(ev.getPoint().x, ev.getPoint().y)
+							/*|| !CGroupController.groupdb.get(BubbleMenu.activeUUID).isPermanent()*/)
 					{
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;

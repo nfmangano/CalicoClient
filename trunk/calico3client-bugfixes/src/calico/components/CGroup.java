@@ -208,7 +208,8 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupSetPermanentButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupShrinkToContentsButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class);
-		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
+//		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeselect.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
@@ -233,7 +234,8 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupSetPermanentButton.class); //1
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupShrinkToContentsButton.class); //2
 		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class); //3
-		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
+//		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class); //4
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeselect.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7

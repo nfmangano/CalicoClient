@@ -76,6 +76,8 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 	private boolean onePressActionPerformed = false;
 	
 	private CGroupInputHandler parentHandler = null;
+
+	private InputEventInfo releasePoint;
 	
 	public CGroupExpertModeInputHandler(long u, CGroupInputHandler par)
 	{
@@ -132,12 +134,23 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			}
 			else
 			{
-				if (BubbleMenu.activeUUID != uuid && CGroupController.groupdb.get(uuid).isPermanent())
+				if (BubbleMenu.activeUUID == uuid)
 				{
-					CGroupController.show_group_bubblemenu(uuid);
-					CCanvasStrokeModeInputHandler.deleteSmudge = true;
+					calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
+//					CGroupController.show_group_bubblemenu(uuid);
+//					CCanvasStrokeModeInputHandler.deleteSmudge = true;
 				}
-				CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+				else
+				{
+					CalicoInputManager.rerouteEvent(this.canvas_uid, e);
+				}
+//				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
+//				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+//				MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
+//						pressPoint.getPoint(), 0l, layer);
+//				Ticker.scheduleIn(250, menuTimer);
+				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, e);
+				
 			}
 		}
 	}
@@ -173,11 +186,15 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 				this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.pressPoint);
 			}*/
 		}
-		else if(e.isRightButtonPressed())/////////////////////////////////////////////
+		else if(calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging
+				|| calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag)
+//				e.isRightButtonPressed())/////////////////////////////////////////////
 		{
 			// Reroute to canvas handler
-			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);
-			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);*/
+			/*e.setButtonAndMask(InputEventInfo.BUTTON_LEFT);*/
+			if (calico.controllers.CGroupController.restoreOriginalStroke)
+				calico.controllers.CGroupController.restoreOriginalStroke = false;
+			this.parentHandler.routeToHandler_actionDragged(CInputMode.SCRAP, e);
 		}
 		else if(e.isLeftButtonPressed())/////////////////////////////////////////////
 		{
@@ -188,6 +205,8 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 
 	public void actionReleased(InputEventInfo e)
 	{
+		calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = false;
+		this.releasePoint = e;
 		CalicoInputManager.unlockHandlerIfMatch(this.uuid);
 		
 		if (onePressActionPerformed)
@@ -198,7 +217,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		this.currentMouseLocation = new Point(e.getX(), e.getY());
 		
 
-		if(e.isRightButton() && this.isInRightClickMode)
+		if(calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging)//e.isRightButton() && this.isInRightClickMode)
 		{
 			/*this.isInRightClickMode = false;
 
@@ -232,7 +251,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 		
 		prevClickPoint = e.getPoint();
 		this.isWaitingRightHold = false;
-		
+		calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
 		
 	}
 

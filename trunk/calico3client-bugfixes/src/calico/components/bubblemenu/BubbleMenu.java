@@ -720,7 +720,7 @@ public class BubbleMenu {
 			{
 				return 12;
 			}
-			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupMoveButton") == 0)
+			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupDeselect") == 0)
 			{
 				return 5;
 			}

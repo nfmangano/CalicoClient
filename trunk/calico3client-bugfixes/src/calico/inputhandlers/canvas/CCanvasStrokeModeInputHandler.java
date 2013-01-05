@@ -12,6 +12,7 @@ import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.iconsets.CalicoIconManager;
+import calico.input.CInputMode;
 import calico.inputhandlers.CCanvasInputHandler;
 import calico.inputhandlers.CGroupInputHandler;
 import calico.inputhandlers.CalicoAbstractInputHandler;
@@ -39,7 +40,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	
 	private boolean hasBeenPressed = false;
 
-	private Point lastPoint = null;
+	private InputEventInfo lastPoint = null;
 	private long lastPointTime = -1l;
 	private long lastStroke = 0l;
 	
@@ -49,12 +50,33 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	
 	CalicoAbstractInputHandler.MenuTimer menuTimer;
 	private CCanvasInputHandler parentHandler = null;
+
+	private long activeGroup;
 	
 	public static boolean deleteSmudge = false;
 	
 	public void openMenu(long potScrap, long group, Point point)
 	{
 		CalicoAbstractInputHandler.clickMenu(potScrap, group, point);
+		
+		if (CGroupController.exists(CGroupController.getCurrentUUID()) 
+				&& !CGroupController.groupdb.get(CGroupController.getCurrentUUID()).isPermanent()
+				&& point != null
+				&& CGroupController.groupdb.get(CGroupController.getCurrentUUID()).containsPoint(point.x, point.y))
+		{
+			this.activeGroup = CGroupController.getCurrentUUID();
+			calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
+			CCanvasStrokeModeInputHandler.deleteSmudge = true;
+			
+			CalicoAbstractInputHandler handler = CalicoInputManager.getInputHandler(this.activeGroup);
+			if (handler instanceof CGroupInputHandler)
+			{
+				CalicoInputManager.unlockHandlerIfMatch(CCanvasController.getCurrentUUID());
+				CalicoInputManager.lockInputHandler(this.activeGroup);
+				((CGroupInputHandler)handler).routeToHandler_actionPressed(calico.input.CInputMode.EXPERT, lastPoint);
+			}
+		}
+	
 	}
 	
 	public CCanvasStrokeModeInputHandler(long cuid, CCanvasInputHandler parent)
@@ -82,7 +104,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 		if (hasBeenPressed)
 		{
 			InputEventInfo lastEvent = new InputEventInfo();
-			lastEvent.setPoint(lastPoint);
+			lastEvent.setPoint(lastPoint.getPoint());
 			lastEvent.setButton(InputEventInfo.BUTTON_LEFT);
 			actionReleased(lastEvent);
 		}
@@ -118,11 +140,19 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
 				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
 			}
+			else if (!BubbleMenu.isBubbleMenuActive() &&
+					(this.activeGroup = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint())) != 0l)
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time,
+						e.getPoint(), 0l, layer);
+				Ticker.scheduleIn(250, menuTimer);
+			}
 //			menuThread = new DisplayMenuThread(this, e.getGlobalPoint(), e.group);		
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuThread);
 		}
 		
-		lastPoint = e.getPoint();
+		lastPoint = e;
 		lastPointTime = System.currentTimeMillis();
 		lastStroke = uuid;
 	}
@@ -160,7 +190,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			hasBeenPressed = true;
 		}
 		
-		lastPoint = e.getPoint();
+		lastPoint = e;
 		lastPointTime = System.currentTimeMillis();
 	}
 	
@@ -213,7 +243,22 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 
 			hasStartedBge = false;
 			boolean isSmudge = false;
-			if (CStrokeController.exists(strokeUID))
+			if (/*this.activeGroup != 0l
+					|| */BubbleMenu.activeUUID != 0l)
+			{
+				CGroupController.move_end(BubbleMenu.activeUUID, e.getPoint().x, e.getPoint().y);
+				if (BubbleMenu.highlightedParentGroup != 0l)
+				{
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_off();
+					CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
+
+					BubbleMenu.highlightedParentGroup = 0l;
+				}
+				
+//				CalicoInputManager.rerouteEvent(this.activeGroup, e);
+//				this.parentHandler.routeToHandler_actionReleased(CInputMode.EXPERT, e);
+			}
+			else if (CStrokeController.exists(strokeUID))
 			{
 				if (CStrokeController.strokes.get(strokeUID).getWidth() <= 10 &&
 						CStrokeController.strokes.get(strokeUID).getHeight() <= 10)
@@ -270,7 +315,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	
 	public Point getLastPoint()
 	{
-		return lastPoint;
+		return lastPoint.getPoint();
 	}
 	
 	public long getLastPointTime()
@@ -287,6 +332,19 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 	{
 //		CStrokeController.no_notify_delete(CStrokeController.getCurrentUUID());
 		CStrokeController.delete(CStrokeController.getCurrentUUID());
+		
+		////////////////////////
+		if (this.activeGroup != 0)
+		{
+//			CGroupController.move_start(this.activeGroup);
+			calico.inputhandlers.groups.CGroupScrapModeInputHandler.startDrag = true;
+			
+//			this.parentHandler.routeToHandler_actionPressed(CInputMode.SCRAP, this.lastPoint);
+			CGroupController.show_group_bubblemenu(this.activeGroup);
+			CCanvasStrokeModeInputHandler.deleteSmudge = true;			
+//			CStrokeController.no_notify_delete(CStrokeController.getCurrentUUID());
+//			CStrokeController.setCurrentUUID(0l);
+		}
 	}
 	
 	public Point getMouseDown()
