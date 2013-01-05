@@ -137,6 +137,11 @@ public class CIntentionTopology
 		{
 			return rootCanvasId;
 		}
+		
+		public boolean hasChildren()
+		{
+			return rings.size() > 0;
+		}
 	}
 
 	private final Map<Long, Cluster> clusters = new HashMap<Long, Cluster>();

@@ -12,6 +12,7 @@ import calico.components.menus.buttons.HistoryNavigationForwardButton;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.menus.buttons.NewClusterButton;
+import calico.plugins.iip.components.menus.buttons.NewClusterCanvasButton;
 import calico.plugins.iip.components.menus.buttons.ZoomToExtent;
 
 /**
@@ -34,7 +35,8 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		addCap(CanvasGenericMenuBar.ALIGN_START);
 
 //		addIcon(new ZoomToExtent());
-		addIcon(new NewClusterButton());
+//		addIcon(new NewClusterButton());
+		addIcon(new NewClusterCanvasButton());
 
 		addSpacer();
 

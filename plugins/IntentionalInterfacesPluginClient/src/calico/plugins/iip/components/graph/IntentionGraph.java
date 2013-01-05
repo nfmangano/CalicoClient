@@ -290,11 +290,26 @@ public class IntentionGraph {
 		focus = Focus.CLUSTER;
 		clusterFocus = cluster;
 		updateZoom();
+		drawMenuBar();
 	}
 
 	public void setFocusToWall() {
 		focus = Focus.WALL;
 		updateZoom();
+		drawMenuBar();
+	}
+	
+	public Focus getFocus()
+	{
+		return focus;
+	}
+	
+	public long getClusterInFocus()
+	{
+		if (focus == Focus.CLUSTER && clusterFocus > 0l)
+			return clusterFocus;
+		
+		return 0l;
 	}
 
 	private void fitContents() {
@@ -483,7 +498,7 @@ public class IntentionGraph {
 		// CalicoDraw.setNodeBounds(canvas, x, y, w, h);
 		canvas.setBounds(x, y, w, h);
 	}
-
+	
 	private void drawMenuBar() {
 		if (menuBar != null) {
 			canvas.getCamera().removeChild(menuBar);
@@ -540,6 +555,17 @@ public class IntentionGraph {
 			return cluster.getRootCanvasId();
 
 		return 0l;
+	}
+	
+	public boolean clusterHasChildren(long clusterCanvasRootId)
+	{
+		if (!isClusterRoot(clusterCanvasRootId))
+			return false;
+		
+		
+		
+		return topology.getCluster(clusterCanvasRootId).hasChildren();
+
 	}
 	
 	public long[] getRootsOfAllClusters()
