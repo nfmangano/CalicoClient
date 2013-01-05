@@ -751,24 +751,33 @@ public class CIntentionCell implements CalicoEventListener
 				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
 		{
 			shell.titleBar.updateTitle();
+//			removeIfRootCanvas();
 		}
 		if (event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
 		{
-			//This line of code is added to prevent new cluster centers from appearing in the user's view
-			if (
-				//There is already a check to not add the shell, but it fails to detect that it's a cluster center so
-					//it was added anyways. This next line checks if it's inside.
-				IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getChildrenReference().contains(shell)
-				//This next line checks that it's a cluster root. This line returns true when it shouldn't for new
-					//CICs, not sure why.
-					&& IntentionGraph.getInstance().isClusterRoot(canvas_uuid)
-				//The last check that makes this work is to look for links. This if-clause will remove ALL new 
-					//CICs because they're flagged as canvas centers (even when they're not). Another way to check
-					//if the new CIC is a new cluster is to check for CCanvasLinks.
-					&& CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid).size() == 0)
-				CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						removeIfRootCanvas();
+					}});
+			
 		}
 		
 		
+	}
+
+	public void removeIfRootCanvas() {
+		//This line of code is added to prevent new cluster centers from appearing in the user's view
+		if (
+			//There is already a check to not add the shell, but it fails to detect that it's a cluster center so
+				//it was added anyways. This next line checks if it's inside.
+			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getChildrenReference().contains(shell)
+			//This next line checks that it's a cluster root. This line returns true when it shouldn't for new
+				//CICs, not sure why.
+				&& IntentionGraph.getInstance().isClusterRoot(canvas_uuid)
+			//The last check that makes this work is to look for links. This if-clause will remove ALL new 
+				//CICs because they're flagged as canvas centers (even when they're not). Another way to check
+				//if the new CIC is a new cluster is to check for CCanvasLinks.
+				&& CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid).size() == 0)
+			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
 	}
 }

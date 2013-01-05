@@ -40,16 +40,8 @@ public class NewClusterCanvasButton extends CanvasMenuButton
 		CCanvasLinkController.getInstance().createLink(clusterRoot /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
 		
 		
-		//Check if we need to create a new cluster
-		boolean emptyClusterExists = false;
-		long[] clusterRoots = IntentionGraph.getInstance().getRootsOfAllClusters();
-		for (int i = 0; i < clusterRoots.length; i++)
-		{
-			if (!IntentionGraph.getInstance().clusterHasChildren(clusterRoots[i])
-					&& clusterRoots[i] != clusterRoot)
-				emptyClusterExists = true;
-		}
-		if (!emptyClusterExists)
-			CIntentionCellFactory.getInstance().createNewCell();
+		IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterRoot);
 	}
+
+
 }

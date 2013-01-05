@@ -225,6 +225,8 @@ public class IntentionGraphController
 	 */
 	public void removeLink(CCanvasLink link)
 	{
+		if (arrowsByLinkId == null || link == null)
+			return;
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
 		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(arrow);
 	}

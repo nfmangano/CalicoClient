@@ -29,7 +29,10 @@ import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.CIntentionCellFactory;
+import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -611,5 +614,62 @@ public class IntentionGraph {
 		}
 		
 		return -1;			
+	}
+	
+	public void removeExtraCluster(long emptyClusterToIgnore) {
+		long[] clusterRoots = IntentionGraph.getInstance().getRootsOfAllClusters();
+		for (int i = 0; i < clusterRoots.length; i++)
+		{
+			if (clusterRoots[i] != emptyClusterToIgnore
+					&& CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(clusterRoots[i]).size() == 0)
+			{
+				CIntentionCellController.getInstance().deleteCanvas(clusterRoots[i]);
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * Returns the number of children on the first ring of a cluster
+	 * @param clusterCanvasRootId
+	 * @return
+	 */
+	public int getNumBaseClusterChildren(long clusterCanvasRootId)
+	{
+		if (!isClusterRoot(clusterCanvasRootId))
+			return 0;
+		
+		int numRootLinks = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(clusterCanvasRootId).size();
+		return numRootLinks;
+	}
+	
+	public void deleteCanvasAndRemoveExtraClusters(long canvasId) {
+		//If we are deleting the last child in a cluster, remove that cluster by deleting the root canvas node
+		
+		long rootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId);
+		int numRootLinks = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(rootCanvasId).size();
+		
+		CIntentionCellController.getInstance().deleteCanvas(canvasId);
+		
+		
+		if (numRootLinks == 1)
+		{
+			//we want to remove the extra cluster, but let this one remain
+			IntentionGraph.getInstance().removeExtraCluster(rootCanvasId);
+		}
+	}
+	
+	public void createClusterIfNoEmptyClusterExists(long clusterRoot) {
+		//Check if we need to create a new cluster
+		boolean emptyClusterExists = false;
+		long[] clusterRoots = IntentionGraph.getInstance().getRootsOfAllClusters();
+		for (int i = 0; i < clusterRoots.length; i++)
+		{
+			if (!IntentionGraph.getInstance().clusterHasChildren(clusterRoots[i])
+					&& clusterRoots[i] != clusterRoot)
+				emptyClusterExists = true;
+		}
+		if (!emptyClusterExists)
+			CIntentionCellFactory.getInstance().createNewCell();
 	}
 }

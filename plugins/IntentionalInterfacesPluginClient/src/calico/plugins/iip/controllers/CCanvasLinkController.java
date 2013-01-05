@@ -321,6 +321,8 @@ public class CCanvasLinkController
 	public void removeLinkById(long uuid)
 	{
 		CCanvasLink link = linksById.remove(uuid);
+		if (link == null)
+			return;
 		IntentionGraphController.getInstance().removeLink(link);
 		removeLinkAnchor(link.getAnchorA().getId());
 		removeLinkAnchor(link.getAnchorB().getId());

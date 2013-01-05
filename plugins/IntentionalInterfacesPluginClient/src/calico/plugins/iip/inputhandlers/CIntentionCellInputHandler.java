@@ -4,6 +4,9 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Timer;
 
+import javax.swing.SwingUtilities;
+
+import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.ContextMenu;
 import calico.controllers.CCanvasController;
@@ -196,10 +199,21 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				case DRAG:
 					moveCurrentCell(event.getGlobalPoint(), false);
 					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
-					long clusterId = IntentionGraph.getInstance().getClusterAt(local);
+					final long clusterId = IntentionGraph.getInstance().getClusterAt(local);
 					if (clusterId != 0l && clusterId != CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId()))
 					{
+						long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
+						int numChildrenInOriginal = IntentionGraph.getInstance().getNumBaseClusterChildren(originalRoot);
+						int numChildrenInTarget = IntentionGraph.getInstance().getNumBaseClusterChildren(clusterId);
 						CCanvasLinkController.getInstance().createLink(clusterId, cell.getCanvasId());
+						if (numChildrenInOriginal == 1)
+							IntentionGraph.getInstance().removeExtraCluster(originalRoot);
+						if (numChildrenInTarget == 0 && numChildrenInOriginal > 1)
+							SwingUtilities.invokeLater(
+									new Runnable() { public void run() { 
+										IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterId);
+									}});
+							
 					}
 					break;
 				case ACTIVATED:
