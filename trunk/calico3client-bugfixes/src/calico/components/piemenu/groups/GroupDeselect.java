@@ -7,7 +7,7 @@ import calico.inputhandlers.InputEventInfo;
 
 public class GroupDeselect extends PieMenuButton
 {
-	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_MENU;
+	public static int SHOWON = PieMenuButton.SHOWON_SCRAP_CREATE | PieMenuButton.SHOWON_SCRAP_MENU;
 	private boolean isActive = false;
 	
 	public GroupDeselect(long uuid)
