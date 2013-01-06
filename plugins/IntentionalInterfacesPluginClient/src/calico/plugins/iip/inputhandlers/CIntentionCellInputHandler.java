@@ -158,13 +158,26 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					if (event.getGlobalPoint().distance(mouseDragAnchor) >= DRAG_THRESHOLD)
 					{
 						state = State.DRAG;
+						CIntentionCellController.getInstance().getCellById(currentCellId).moveToFront();
 					}
 					else
 					{
 						break;
 					}
 				case DRAG:
+					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
+					if (potentialTargetCell > 0l
+							&& potentialTargetCell != currentCellId)
+					{
+						CIntentionCellController.getInstance().getCellById(currentCellId).showPlusIcon();
+					}
+					else
+					{
+						CIntentionCellController.getInstance().getCellById(currentCellId).hidePlusIcon();
+					}
+					
 					moveCurrentCell(event.getGlobalPoint(), true);
+					
 			}
 		}
 	}
@@ -191,6 +204,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	public void actionReleased(InputEventInfo event)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
+		cell.hidePlusIcon();
 
 		synchronized (stateLock)
 		{
@@ -200,7 +214,13 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					moveCurrentCell(event.getGlobalPoint(), false);
 					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
 					final long clusterId = IntentionGraph.getInstance().getClusterAt(local);
-					if (clusterId != 0l && clusterId != CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId()))
+					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
+					if (potentialTargetCell > 0l)
+					{
+						long targetCanvasId = CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId();
+						CCanvasLinkController.getInstance().createLink(targetCanvasId, cell.getCanvasId());
+					}
+					else if (clusterId != 0l && clusterId != CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId()))
 					{
 						long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
 						int numChildrenInOriginal = IntentionGraph.getInstance().getNumBaseClusterChildren(originalRoot);

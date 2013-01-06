@@ -29,9 +29,11 @@ import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
+import calico.plugins.iip.components.menus.buttons.NewClusterCanvasButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.CIntentionCellFactory;
+import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
 import edu.umd.cs.piccolo.PCanvas;
@@ -141,6 +143,10 @@ public class IntentionGraph {
 	private boolean iconifyMode = false;
 
 	private final long uuid;
+
+	private PBounds zoomRegions;
+
+	private NewClusterCanvasButton newCanvasButton;
 
 	private IntentionGraph() {
 		INSTANCE = this;
@@ -294,12 +300,28 @@ public class IntentionGraph {
 		clusterFocus = cluster;
 		updateZoom();
 		drawMenuBar();
+//		updateButtons();
 	}
 
 	public void setFocusToWall() {
 		focus = Focus.WALL;
 		updateZoom();
 		drawMenuBar();
+//		updateButtons();
+	}
+	
+	private void updateButtons() {
+		if (this.newCanvasButton != null)
+			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), this.newCanvasButton);
+		
+		if (IntentionGraph.getInstance().getFocus() != IntentionGraph.Focus.WALL)
+		{
+			this.newCanvasButton = new NewClusterCanvasButton();
+			int defaultDimensions = calico.CalicoOptions.menu.icon_size;
+			PBounds regions = calico.plugins.iip.components.graph.IntentionGraph.getInstance().getClusterBounds(getClusterInFocus());
+			this.newCanvasButton.setBounds(regions.x + 1, regions.y + 1, defaultDimensions, defaultDimensions);
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), this.newCanvasButton);
+		}
 	}
 	
 	public Focus getFocus()
@@ -310,7 +332,7 @@ public class IntentionGraph {
 	public long getClusterInFocus()
 	{
 		if (focus == Focus.CLUSTER && clusterFocus > 0l)
-			return clusterFocus;
+			return CIntentionCellController.getInstance().getClusterRootCanvasId(clusterFocus);
 		
 		return 0l;
 	}
@@ -435,6 +457,7 @@ public class IntentionGraph {
 	}
 
 	private void zoomToRegion(final PBounds bounds) {
+		this.zoomRegions = bounds;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				final double ZOOM_ADJUSTMENT = .9;
@@ -560,6 +583,13 @@ public class IntentionGraph {
 			return cluster.getRootCanvasId();
 
 		return 0l;
+	}
+	
+	public PBounds getClusterBounds(long rootCanvasId)
+	{
+		if (!CIntentionCellController.getInstance().isRootCanvas(rootCanvasId))
+			return null;
+		return topology.getCluster(rootCanvasId).getBounds();
 	}
 	
 	public boolean clusterHasChildren(long clusterCanvasRootId)

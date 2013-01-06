@@ -210,7 +210,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		cell.setLocation(x, y);
-		System.out.println("CIC_MOVE, " + uuid + ", " + x + ", " + y);
+//		System.out.println("CIC_MOVE, " + uuid + ", " + x + ", " + y);
 
 		IntentionGraphController.getInstance().cellMoved(cell.getId(), x, y);
 	}

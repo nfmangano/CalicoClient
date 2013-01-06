@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.print.attribute.standard.SheetCollate;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import calico.Calico;
@@ -81,6 +83,24 @@ public class CIntentionCellController
 		for (CIntentionCell cell : cells.values())
 		{
 			if (cell.contains(point))
+			{
+				return cell.getId();
+			}
+		}
+		return -1L;
+	}
+	
+	/**
+	 * Get the CIC at <code>point</code> in the Intention View coordinate space, according to the intersection rules of
+	 * <code>CIntentionCell.contains()</code>, or <code>-1L</code> if no cell is there.
+	 * 
+	 * CellIdToIgnore is helpful when cells may be overlapping.
+	 */
+	public long getCellAt(Point point, long cellIdToIgnore)
+	{
+		for (CIntentionCell cell : cells.values())
+		{
+			if (cell.contains(point) && cell.getId() != cellIdToIgnore)
 			{
 				return cell.getId();
 			}

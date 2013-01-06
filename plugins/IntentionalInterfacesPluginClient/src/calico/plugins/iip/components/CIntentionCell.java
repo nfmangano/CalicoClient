@@ -5,7 +5,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -49,6 +51,9 @@ public class CIntentionCell implements CalicoEventListener
 	private static final Insets THUMBNAIL_INSETS = new Insets(2, 2, 2, 2);
 	public static final Dimension THUMBNAIL_SIZE = new Dimension(200, 130);
 	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, THUMBNAIL_SIZE.width / 10);
+	
+	private static Image iconImage = CalicoIconManager.getIconImage("intention.new-canvas");
+	public boolean showPlusIcon = false;
 
 	private enum BorderColor
 	{
@@ -120,7 +125,7 @@ public class CIntentionCell implements CalicoEventListener
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY, this, CalicoEventHandler.PASSIVE_LISTENER);
-		 
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_CREATE, this, CalicoEventHandler.PASSIVE_LISTENER);
 		
 //		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
@@ -390,6 +395,8 @@ public class CIntentionCell implements CalicoEventListener
 		 * Renders the thumbnail image.
 		 */
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
+		
+		private final PImage plusIcon = new PImage(iconImage); 
 		/**
 		 * Renders the title of the canvas, above the CIC and left justified.
 		 */
@@ -437,6 +444,10 @@ public class CIntentionCell implements CalicoEventListener
 			titleBar.setWidth(thumbnailBounds.getWidth());
 
 			updateIconification();
+			
+			plusIcon.setBounds(new Rectangle(0,0,64,64));
+			plusIcon.setVisible(false);
+			this.addChild(plusIcon);
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 
@@ -514,6 +525,8 @@ public class CIntentionCell implements CalicoEventListener
 
 			g.translate(-thumbnailBounds.x, -thumbnailBounds.y);
 			g.setColor(c);
+			
+			
 		}
 
 		@Override
@@ -537,6 +550,9 @@ public class CIntentionCell implements CalicoEventListener
 				canvasAddress.setBounds(thumbnailBounds.x + BORDER_WIDTH, thumbnailBounds.y + BORDER_WIDTH, thumbnailBounds.width - (2 * BORDER_WIDTH),
 						thumbnailBounds.height - (2 * BORDER_WIDTH));
 			}
+			
+			plusIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
+			plusIcon.moveToFront();
 		}
 	}
 
@@ -748,16 +764,18 @@ public class CIntentionCell implements CalicoEventListener
 				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
 				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE
 				|| event == IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED
-				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
+				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY
+				|| event == IntentionalInterfacesNetworkCommands.CLINK_CREATE)
 		{
 			shell.titleBar.updateTitle();
 //			removeIfRootCanvas();
 		}
-		if (event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
+		if (event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY
+				|| event == IntentionalInterfacesNetworkCommands.CLINK_CREATE)
 		{
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
-						removeIfRootCanvas();
+						hideIfRootCanvas();
 					}});
 			
 		}
@@ -765,7 +783,7 @@ public class CIntentionCell implements CalicoEventListener
 		
 	}
 
-	public void removeIfRootCanvas() {
+	public void hideIfRootCanvas() {
 		//This line of code is added to prevent new cluster centers from appearing in the user's view
 		if (
 			//There is already a check to not add the shell, but it fails to detect that it's a cluster center so
@@ -779,5 +797,28 @@ public class CIntentionCell implements CalicoEventListener
 				//if the new CIC is a new cluster is to check for CCanvasLinks.
 				&& CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid).size() == 0)
 			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+		else if (
+				!IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getChildrenReference().contains(shell)
+				&& !IntentionGraph.getInstance().isClusterRoot(canvas_uuid)
+				&& CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(canvas_uuid).size() > 0)
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), shell);
+		
+	}
+	
+	public void showPlusIcon()
+	{
+		if (!shell.plusIcon.getVisible())
+			shell.plusIcon.setVisible(true);
+	}
+	
+	public void hidePlusIcon()
+	{
+		if (shell.plusIcon.getVisible())
+			shell.plusIcon.setVisible(false);
+	}
+	
+	public void moveToFront()
+	{
+		shell.moveToFront();
 	}
 }
