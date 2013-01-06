@@ -103,8 +103,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
-		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
-			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+//		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
+//			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
 
 		switch (event)
 		{
@@ -191,7 +191,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int y = p.getInt();
 		String title = p.getString();
 		
-		System.out.println("CIC_CREATE, " + uuid + ", " + canvas_uuid + ", " + x + ", " + y);
+//		System.out.println("CIC_CREATE, " + uuid + ", " + canvas_uuid + ", " + x + ", " + y);
 
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, new Point(x, y), title);
 		CIntentionCellController.getInstance().addCell(cell);

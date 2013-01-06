@@ -419,6 +419,8 @@ public class IntentionGraph {
 				.getClusterRootCanvasId(memberCanvasId);
 		CIntentionTopology.Cluster cluster = topology
 				.getCluster(clusterRootCanvasId);
+		if (cluster == null)
+			return;
 		PBounds maxRingBounds = cluster.getVisualBoxBounds();// cluster.getMaxRingBounds();
 		if (maxRingBounds == null) {
 			return; // no zooming on atomic clusters

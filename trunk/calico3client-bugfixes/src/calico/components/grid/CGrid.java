@@ -91,7 +91,7 @@ public class CGrid
 	public static int moveDelta=1;
 	public static int moveDelay=100;
 	
-	public static GridLoadListener gridLoadListener = new GridLoadListener();
+	public static GridLoadListener gridLoadListener;
 	
 	public static int GridRows = 0;
 	public static int GridCols = 0;
@@ -156,6 +156,7 @@ public class CGrid
 
 		canvas.removeInputEventListener(canvas.getPanEventHandler());
 		canvas.removeInputEventListener(canvas.getZoomEventHandler());
+		this.gridLoadListener = new GridLoadListener();
 
 
 //		PText pt = new PText(" Calico Grid ("+CalicoDataStore.Username+") ");

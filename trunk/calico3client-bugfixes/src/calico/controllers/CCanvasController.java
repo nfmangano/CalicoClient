@@ -424,7 +424,7 @@ public class CCanvasController
 		CCanvasController.setLastActiveUUID(uuid);
 		if (tempUUID != 0L)
 		{
-			CGrid.getInstance().updateCell(tempUUID);      
+//			CGrid.getInstance().updateCell(tempUUID);      
 		}
 		CCanvasController.setCurrentUUID(uuid);
 
@@ -444,7 +444,7 @@ public class CCanvasController
 		// canvas.drawToolbar();
 		// canvas.menuBar.invalidateFullBounds();
 
-		MessageObject.showNotice("Viewing canvas " + CGrid.getCanvasCoord(uuid));
+//		MessageObject.showNotice("Viewing canvas " + CGrid.getCanvasCoord(uuid));
 	}
 
 	// Load all images in the canvas to memory to they are visible
