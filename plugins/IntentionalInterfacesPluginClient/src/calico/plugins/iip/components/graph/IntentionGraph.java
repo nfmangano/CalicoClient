@@ -603,6 +603,20 @@ public class IntentionGraph {
 
 	}
 	
+	/**
+	 * Returns true if the ring contains {@link Point} p. Returns false if the point is not contained or the ring level doesn't exist.
+	 * @param p The point passed (is not changed) in global coordinates.
+	 * @param ringLevel The ring level. The first ring level is zero.
+	 * @return
+	 */
+	public boolean ringContainsPoint(long clusterCanvasRootId, Point p, int ringLevel)
+	{
+		if (!isClusterRoot(clusterCanvasRootId))
+			return false;
+		
+		return topology.getCluster(clusterCanvasRootId).ringContainsPoint(p, ringLevel);		
+	}
+	
 	public long[] getRootsOfAllClusters()
 	{
 		Collection<Cluster> clusters = topology.getClusters();

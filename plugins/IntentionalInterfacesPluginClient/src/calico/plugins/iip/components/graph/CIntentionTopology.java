@@ -1,6 +1,7 @@
 package calico.plugins.iip.components.graph;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,6 +126,22 @@ public class CIntentionTopology
 
 			double span = rings.get(rings.size() - 1).getWidth();
 			return new PBounds(getX() - (span / 2.0), getY() - (span / 2.0), span, span);
+		}
+		
+		/**
+		 * Returns true if the ring contains {@link Point} p. Returns false if the point is not contained or the ring level doesn't exist.
+		 * @param p The point passed (is not changed) in global coordinates.
+		 * @param ringLevel The ring level. The first ring level is zero.
+		 * @return
+		 */
+		public boolean ringContainsPoint(Point p, int ringLevel)
+		{
+			if (rings.size() <= ringLevel)
+				return false;
+			
+			Point2D local = outerBox.globalToLocal(new Point(p));
+			
+			return ((ArrayList<PPath>)rings).get(ringLevel).getPathReference().contains(local);
 		}
 		
 		public PBounds getVisualBoxBounds()

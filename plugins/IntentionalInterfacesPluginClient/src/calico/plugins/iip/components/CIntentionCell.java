@@ -52,8 +52,12 @@ public class CIntentionCell implements CalicoEventListener
 	public static final Dimension THUMBNAIL_SIZE = new Dimension(200, 130);
 	public static final Font COORDINATES_FONT = new Font("Helvetica", Font.BOLD, THUMBNAIL_SIZE.width / 10);
 	
-	private static Image iconImage = CalicoIconManager.getIconImage("intention.new-canvas");
-	public boolean showPlusIcon = false;
+	private static Image iconImage_create = CalicoIconManager.getIconImage("intention-graph.link-create");
+	private static Image iconImage_delete = CalicoIconManager.getIconImage("intention-graph.link-delete");
+	
+	public enum CellIconType {NONE, CREATE_LINK, DELETE_LINK};
+	
+	private CellIconType iconToShow = CellIconType.NONE;
 
 	private enum BorderColor
 	{
@@ -129,7 +133,7 @@ public class CIntentionCell implements CalicoEventListener
 		
 //		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addChild(shell);
 	}
-
+	
 	public boolean isNew()
 	{
 		return isNew;
@@ -396,7 +400,7 @@ public class CIntentionCell implements CalicoEventListener
 		 */
 		private final CanvasSnapshot canvasSnapshot = new CanvasSnapshot();
 		
-		private final PImage plusIcon = new PImage(iconImage); 
+		private final PImage cellIcon = new PImage(); 
 		/**
 		 * Renders the title of the canvas, above the CIC and left justified.
 		 */
@@ -445,9 +449,9 @@ public class CIntentionCell implements CalicoEventListener
 
 			updateIconification();
 			
-			plusIcon.setBounds(new Rectangle(0,0,64,64));
-			plusIcon.setVisible(false);
-			this.addChild(plusIcon);
+			cellIcon.setBounds(new Rectangle(0,0,64,64));
+			cellIcon.setVisible(false);
+			this.addChild(cellIcon);
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 
@@ -455,6 +459,14 @@ public class CIntentionCell implements CalicoEventListener
 //			userList.moveToFront();
 			CalicoDraw.repaint(this);
 //			repaint();
+		}
+		
+		private void setIconImage(final Image image)
+		{
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						cellIcon.setImage(image);
+					}});
 		}
 
 		void delete()
@@ -551,8 +563,8 @@ public class CIntentionCell implements CalicoEventListener
 						thumbnailBounds.height - (2 * BORDER_WIDTH));
 			}
 			
-			plusIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
-			plusIcon.moveToFront();
+			cellIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
+			cellIcon.moveToFront();
 		}
 	}
 
@@ -805,16 +817,24 @@ public class CIntentionCell implements CalicoEventListener
 		
 	}
 	
-	public void showPlusIcon()
+	public void setCellIcon(CellIconType iconToShow)
 	{
-		if (!shell.plusIcon.getVisible())
-			shell.plusIcon.setVisible(true);
-	}
-	
-	public void hidePlusIcon()
-	{
-		if (shell.plusIcon.getVisible())
-			shell.plusIcon.setVisible(false);
+		switch (iconToShow)
+		{
+		case NONE:
+			CalicoDraw.setVisible(shell.cellIcon,false);
+			break;
+		case CREATE_LINK:
+			shell.setIconImage(CIntentionCell.iconImage_create);
+			CalicoDraw.setVisible(shell.cellIcon,true);
+			break;
+		case DELETE_LINK:
+			shell.setIconImage(CIntentionCell.iconImage_delete);
+			CalicoDraw.setVisible(shell.cellIcon,true);
+			break;
+		}
+			
+		this.iconToShow = iconToShow;
 	}
 	
 	public void moveToFront()

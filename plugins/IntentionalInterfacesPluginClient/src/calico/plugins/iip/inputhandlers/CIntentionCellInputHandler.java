@@ -165,15 +165,23 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						break;
 					}
 				case DRAG:
+					CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
 					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
+					long targetCluster = IntentionGraph.getInstance().getClusterAt(event.getPoint());
+					long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
 					if (potentialTargetCell > 0l
 							&& potentialTargetCell != currentCellId)
 					{
-						CIntentionCellController.getInstance().getCellById(currentCellId).showPlusIcon();
+						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.CREATE_LINK);
+					}
+					else if (CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
+							&& IntentionGraph.getInstance().ringContainsPoint(targetCluster, event.getGlobalPoint(), 0))
+					{
+						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.DELETE_LINK);
 					}
 					else
 					{
-						CIntentionCellController.getInstance().getCellById(currentCellId).hidePlusIcon();
+						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.NONE);
 					}
 					
 					moveCurrentCell(event.getGlobalPoint(), true);
@@ -204,7 +212,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	public void actionReleased(InputEventInfo event)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
-		cell.hidePlusIcon();
+		cell.setCellIcon(CIntentionCell.CellIconType.NONE);
 
 		synchronized (stateLock)
 		{
@@ -215,14 +223,21 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
 					final long clusterId = IntentionGraph.getInstance().getClusterAt(local);
 					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
+					long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
 					if (potentialTargetCell > 0l)
 					{
 						long targetCanvasId = CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId();
 						CCanvasLinkController.getInstance().createLink(targetCanvasId, cell.getCanvasId());
 					}
-					else if (clusterId != 0l && clusterId != CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId()))
+					else if (clusterId == originalRoot
+							&& CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
+							&& IntentionGraph.getInstance().ringContainsPoint(originalRoot, event.getPoint(), 0))
 					{
-						long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
+						CCanvasLinkController.getInstance().createLink(originalRoot, cell.getCanvasId());
+					}
+					else if (clusterId != 0l && clusterId != originalRoot)
+					{
+						
 						int numChildrenInOriginal = IntentionGraph.getInstance().getNumBaseClusterChildren(originalRoot);
 						int numChildrenInTarget = IntentionGraph.getInstance().getNumBaseClusterChildren(clusterId);
 						CCanvasLinkController.getInstance().createLink(clusterId, cell.getCanvasId());
@@ -312,11 +327,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						if (CCanvasController.canvasdb.size() > 1
 								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton /*, zoomToClusterButton*/);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, /*linkButton,*/ setCanvasTitleButton /*, zoomToClusterButton*/);
 						}
 						else
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, linkButton, setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, /*linkButton,*/ setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
 						}
 					}
 				}
