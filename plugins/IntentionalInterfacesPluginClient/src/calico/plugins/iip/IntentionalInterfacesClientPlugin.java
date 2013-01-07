@@ -196,7 +196,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, new Point(x, y), title);
 		CIntentionCellController.getInstance().addCell(cell);
 		CIntentionCellFactory.getInstance().cellCreated(cell);
-		IntentionGraph.getInstance().repaint();
+//		IntentionGraph.getInstance().repaint();
 	}
 
 	private static void CIC_MOVE(CalicoPacket p)

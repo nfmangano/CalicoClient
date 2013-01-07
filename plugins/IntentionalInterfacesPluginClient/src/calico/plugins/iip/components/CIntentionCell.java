@@ -307,11 +307,12 @@ public class CIntentionCell implements CalicoEventListener
 					location.setLocation(x, y);
 					shell.setX(x);
 					shell.setY(y);
-					shell.repaint();
+					shell.layoutChildren();
+//					shell.repaint();
 				}});
 
 
-		CalicoDraw.repaint(shell);
+//		CalicoDraw.repaint(shell);
 //		shell.repaint();
 	}
 
@@ -451,13 +452,14 @@ public class CIntentionCell implements CalicoEventListener
 			
 			cellIcon.setBounds(new Rectangle(0,0,64,64));
 			cellIcon.setVisible(false);
-			this.addChild(cellIcon);
+			CalicoDraw.addChildToNode(this, cellIcon);
+//			this.addChild(cellIcon);
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
 
 			CalicoDraw.moveNodeToFront(userList);
 //			userList.moveToFront();
-			CalicoDraw.repaint(this);
+//			CalicoDraw.repaint(this);
 //			repaint();
 		}
 		
@@ -564,7 +566,7 @@ public class CIntentionCell implements CalicoEventListener
 			}
 			
 			cellIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
-			cellIcon.moveToFront();
+//			cellIcon.moveToFront();
 		}
 	}
 
@@ -607,7 +609,7 @@ public class CIntentionCell implements CalicoEventListener
 				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(getIntentionTypeId()).getName() + ")";
 			
 			title.setText(titlePrefix + getTitle() + tag);
-			CalicoDraw.repaint(this);
+//			CalicoDraw.repaint(this);
 //			repaint();
 		}
 
@@ -716,7 +718,7 @@ public class CIntentionCell implements CalicoEventListener
 			if (!getText().equals(userListText.toString()))
 			{
 				setText(userListText.toString());
-				CalicoDraw.repaint(this);
+//				CalicoDraw.repaint(this);
 //				repaint();
 			}
 		}
@@ -764,7 +766,7 @@ public class CIntentionCell implements CalicoEventListener
 //			snapshot.setBounds(shell.thumbnailBounds);
 			isDirty = false;
 
-			CalicoDraw.repaint(snapshot);
+//			CalicoDraw.repaint(snapshot);
 //			snapshot.repaint();
 		}
 	}

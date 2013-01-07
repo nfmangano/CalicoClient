@@ -228,7 +228,7 @@ public class IntentionGraphController
 		if (arrowsByLinkId == null || link == null)
 			return;
 		CCanvasLinkArrow arrow = arrowsByLinkId.remove(link.getId());
-		IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).removeChild(arrow);
+		CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT), arrow);
 	}
 
 	/**
@@ -244,7 +244,7 @@ public class IntentionGraphController
 		}
 
 		cell.contentsChanged();
-		IntentionGraph.getInstance().repaint();
+//		IntentionGraph.getInstance().repaint();
 	}
 
 	public void initializeDisplay()
@@ -280,7 +280,7 @@ public class IntentionGraphController
 		}
 
 		alignAnchors(link);
-		arrow.redraw();
+		arrow.redraw(false);
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class IntentionGraphController
 			}
 		}
 
-		System.out.println("Failed to align an arrow to a CIntentionCell edge--can't find the arrow's intersection with the cell!");
+//		System.out.println("Failed to align an arrow to a CIntentionCell edge--can't find the arrow's intersection with the cell!");
 
 		return new Point2D.Double(cellBounds.getCenterX(), cellBounds.getCenterY());
 	}

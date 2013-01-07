@@ -250,7 +250,7 @@ public class IntentionGraph {
 			// topologyLayer.addChild(cluster);
 		}
 
-		repaint();
+//		repaint();
 	}
 
 	public void setScale(double scale) {
@@ -487,10 +487,10 @@ public class IntentionGraph {
 						.getHeight() / 2);
 				newTransform.translate(xMargin, yMargin);
 				setViewTransform(newTransform);
-				getLayer(Layer.CONTENT).repaint();
-				getLayer(Layer.TOPOLOGY).repaint();
-//				CalicoDraw.repaint();
-//				CalicoDraw.repaint();
+//				getLayer(Layer.TOPOLOGY).repaint();
+//				getLayer(Layer.CONTENT).repaint();
+				CalicoDraw.repaint(getLayer(Layer.TOPOLOGY));
+				CalicoDraw.repaint(getLayer(Layer.CONTENT));
 			}
 		});
 	}

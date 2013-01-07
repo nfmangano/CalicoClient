@@ -173,9 +173,10 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 		}
 		CalicoDraw.addChildToNode(this, arrowLine, 0);
 		//this.repaint();
-		CalicoDraw.repaint(this);
+//		CalicoDraw.repaint(this);
 		if (repaint)
 		{
+			CalicoDraw.repaint(this);
 			//this.setPaintInvalid(true);
 			//CalicoDraw.setNodePaintInvalid(this, true);
 		}

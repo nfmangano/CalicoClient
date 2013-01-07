@@ -258,6 +258,9 @@ public class BubbleMenu {
 	//Update the icon buttons and listeners to fit the new bounds
 	public static void moveIconPositions(PBounds componentBounds)
 	{
+		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) == null)
+			return;
+		
 		PBounds globalBounds = new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().localToGlobal(componentBounds));
 		for(int i=0;i<buttonList.size();i++)
 		{

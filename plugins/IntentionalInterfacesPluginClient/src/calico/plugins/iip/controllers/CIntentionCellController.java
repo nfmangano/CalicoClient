@@ -349,7 +349,7 @@ public class CIntentionCellController
 		cellsByCanvasId.remove(cell.getCanvasId());
 		cell.delete();
 
-		IntentionGraph.getInstance().repaint();
+//		IntentionGraph.getInstance().repaint();
 	}
 
 	/**
@@ -405,5 +405,37 @@ public class CIntentionCellController
 		{
 			return CCanvasController.canvasdb.get(first.getCanvasId()).getIndex() - CCanvasController.canvasdb.get(second.getCanvasId()).getIndex();
 		}
+	}
+	
+	/**
+	 * Discern whether an arrow exists from <code>target</code> to <code>canvasIdOfAnchorA</code>. This is used to avoid
+	 * creating cycles in the graph of arrows.
+	 */
+	public boolean isParent(long targetCanvasId, long canvasIdOfParent)
+	{
+		CIntentionCell parent = getCellByCanvasId(canvasIdOfParent);
+		CCanvasLinkAnchor incomingAnchor = null;
+		for (Long anchorId : CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(targetCanvasId))
+		{
+			CCanvasLinkAnchor anchor = CCanvasLinkController.getInstance().getAnchor(anchorId);
+			if (anchor.getLink().getAnchorB() == anchor)
+			{
+				incomingAnchor = anchor;
+				break;
+			}
+		}
+
+		if (incomingAnchor == null)
+		{
+			return false;
+		}
+
+		if (incomingAnchor.getOpposite().getCanvasId() == parent.getCanvasId())
+		{
+			System.out.println("Cycle detected on canvas id " + parent.getCanvasId());
+			return true;
+		}
+
+		return isParent(incomingAnchor.getOpposite().getCanvasId(), parent.getCanvasId());
 	}
 }
