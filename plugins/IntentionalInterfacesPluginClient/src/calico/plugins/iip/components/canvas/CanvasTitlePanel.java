@@ -493,7 +493,18 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			if (titleNodeContainer.getBounds().contains(p))
 			{
 				long targetCanvas = titleNodeContainer.getCanvasAt(p);
-				if (targetCanvas > 0l)
+				if (targetCanvas == CCanvasController.getCurrentUUID())
+				{
+					CanvasTitleDialog.Action action = CanvasTitleDialog.getInstance().queryUserForLabel(
+							CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid));
+
+					if (action == Action.OK)
+					{
+						CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
+								CanvasTitleDialog.getInstance().getText(), false);
+					}
+				}
+				else if (targetCanvas > 0l)
 					CCanvasController.loadCanvas(targetCanvas);
 				else if (targetCanvas == CanvasTitleNode.WALL)
 				{
