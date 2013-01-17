@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.swing.SwingUtilities;
+
 import calico.CalicoDraw;
 import calico.events.CalicoEventListener;
 import calico.networking.netstuff.CalicoPacket;
@@ -105,9 +107,12 @@ public class CIntentionTopology
 			
 			clusterTitle = new PText("Unnamed cluster");
 			clusterTitle.setOffset(outerBox.getX() + 20, outerBox.getY() + 15);
+			clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth());
+			clusterTitle.setConstrainWidthToTextWidth(false);
 			Font font = new Font ("Helvetica", Font.PLAIN , 30);
 			clusterTitle.recomputeLayout();
 			clusterTitle.setFont(font);
+			
 			
 //			addChild(box);
 //			CalicoDraw.addChildToNode(this, box);
@@ -138,15 +143,24 @@ public class CIntentionTopology
 		
 		public void updateTitleText()
 		{
-			String text = CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId).getTitle();
-			double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).getScale();
-			Font font = new Font ("Helvetica", Font.PLAIN , (int)(40));
-			
-			clusterTitle.setFont(font);
 
-			
-			clusterTitle.setText(text);
-			clusterTitle.recomputeLayout();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						Font font;
+						if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+						{
+							font = new Font ("Helvetica", Font.PLAIN , (int)(40)); 
+						}
+						else
+						{
+							font = new Font ("Helvetica", Font.PLAIN , (int)(70));
+						}
+						clusterTitle.setFont(font);
+						clusterTitle.setText(CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId).getTitle());
+						clusterTitle.setWidth(outerBox.getWidth());
+						clusterTitle.recomputeLayout();
+					}});
+
 			
 			
 //			clusterTitle.repaint();

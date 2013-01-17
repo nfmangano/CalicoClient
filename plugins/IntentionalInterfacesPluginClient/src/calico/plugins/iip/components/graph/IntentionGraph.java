@@ -304,6 +304,7 @@ public class IntentionGraph
 	}
 
 	public void updateZoom() {
+//		refreshTopologyTitles();
 		if (focus == Focus.CLUSTER && clusterFocus != 0l)
 			zoomToCluster(clusterFocus);
 		else
@@ -502,6 +503,7 @@ public class IntentionGraph
 						.getHeight() / 2);
 				newTransform.translate(xMargin, yMargin);
 				setViewTransform(newTransform);
+				refreshTopologyTitles();
 //				getLayer(Layer.TOPOLOGY).repaint();
 //				getLayer(Layer.CONTENT).repaint();
 				CalicoDraw.repaint(getLayer(Layer.TOPOLOGY));
