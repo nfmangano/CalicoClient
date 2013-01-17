@@ -65,7 +65,7 @@ public class CanvasTitleDialog
 
 		action = Action.CANCEL;
 
-		panel.entry.setText(cell.getTitle());
+		panel.entry.setText(cell.getTitleWithoutPrefix());
 		panel.entry.grabFocus();
 		panel.entry.selectAll();
 		dialog.setVisible(true);

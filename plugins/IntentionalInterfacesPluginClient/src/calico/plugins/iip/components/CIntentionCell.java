@@ -201,22 +201,31 @@ public class CIntentionCell implements CalicoEventListener
 
 		}
 		
-		if (title.equals(DEFAULT_TITLE))
-		{
-			if (CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
-				ret += "Unnamed cluster";
-			else if (CCanvasController.canvasdb.containsKey(canvas_uuid))
-				ret += "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
-			else
-				ret += "Canvas ";
-		}
-		else 
-			ret += title;
+		ret += getTitleWithoutPrefix();
 		
 
 		
 		return ret;
 	}
+
+	public String getTitleWithoutPrefix() {
+		String ret;
+		
+		if (title.equals(DEFAULT_TITLE))
+		{
+			if (CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+				ret = "Unnamed cluster";
+			else if (CCanvasController.canvasdb.containsKey(canvas_uuid))
+				ret = "Canvas " + CCanvasController.canvasdb.get(canvas_uuid).getIndex();
+			else
+				ret = "Canvas ";
+		}
+		else 
+			ret = title;
+		return ret;
+	}
+	
+
 
 	/**
 	 * Return true if the user has set a title on the canvas associated to this CIC, or false if the canvas uses the

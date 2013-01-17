@@ -5,8 +5,12 @@ import java.awt.geom.Point2D;
 
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.components.canvas.CanvasTitleDialog;
+import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
+import calico.plugins.iip.controllers.CIntentionCellController;
 
 /**
  * Custom <code>CalicoInputManager</code>handler for events related to open space in the Intention View. The main Calico
@@ -43,9 +47,13 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
 		long clusterId = IntentionGraph.getInstance().getClusterAt(local);
 		
+		long clusterIdWithTitleAtPoint = IntentionGraph.getInstance().getClusterWithTitleAtPoint(event.getGlobalPoint());
 		
-		
-		if (clusterId > 0)
+		if (clusterIdWithTitleAtPoint != 0l)
+		{
+			calico.plugins.iip.components.canvas.CanvasTitlePanel.setCanvasTitleText(clusterIdWithTitleAtPoint);
+		}
+		else if (clusterId > 0)
 			IntentionGraph.getInstance().setFocusToCluster(clusterId);
 //			IntentionGraph.getInstance().zoomToCluster(clusterId);
 		else
@@ -74,4 +82,6 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		IntentionGraph.getInstance().translate(xMouseDelta, yMouseDelta);
 		*/
 	}
+	
+
 }

@@ -23,9 +23,13 @@ import calico.CalicoDraw;
 import calico.CalicoOptions.menu.menubar;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
+import calico.events.CalicoEventHandler;
+import calico.events.CalicoEventListener;
 import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
@@ -53,7 +57,8 @@ import edu.umd.cs.piccolox.nodes.PClip;
  * 
  * @author Byron Hawkins
  */
-public class IntentionGraph {
+public class IntentionGraph 
+		implements CalicoEventListener {
 	/**
 	 * Represents the 3 layers of the Intention View. The order and indexing is
 	 * deliberate--changing it would probably break the entire view.
@@ -184,6 +189,16 @@ public class IntentionGraph {
 		canvas.getCamera().addLayer(Layer.TOOLS.id, toolLayer);
 
 		drawMenuBar();
+		
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_CREATE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY, this, CalicoEventHandler.PASSIVE_LISTENER);
 	}
 
 	public long getId() {
@@ -717,5 +732,53 @@ public class IntentionGraph {
 		}
 		if (!emptyClusterExists)
 			CIntentionCellFactory.getInstance().createNewCell();
+	}
+	
+	private void refreshTopologyTitles()
+	{
+		Collection<Cluster> clusters = topology.getClusters();
+		
+		java.util.Iterator<Cluster> cit =  clusters.iterator();
+		
+		while (cit.hasNext())
+		{
+			cit.next().updateTitleText();
+		}
+		CalicoDraw.repaint(topologyLayer);
+	}
+	
+	/**
+	 * @param p Point in global coordinates
+	 * @return The canvasId of cluster whose title contains point p. Returns 0l if no cluster title found.
+	 */
+	public long getClusterWithTitleAtPoint(Point p)
+	{
+		Collection<Cluster> clusters = topology.getClusters();
+		
+		java.util.Iterator<Cluster> cit =  clusters.iterator();
+		
+		while (cit.hasNext())
+		{
+			Cluster c = cit.next();
+			if (c.clusterTitleContainsPoint(p))
+				return c.getRootCanvasId();
+		}
+		
+		return 0l;
+	}
+	
+	@Override
+	public void handleCalicoEvent(int event, CalicoPacket p) {
+		
+		if (event == IntentionalInterfacesNetworkCommands.CLINK_CREATE
+				|| event == IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR
+				|| event == IntentionalInterfacesNetworkCommands.CIC_TAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE)
+		{
+			refreshTopologyTitles();
+		}		
 	}
 }

@@ -1,6 +1,7 @@
 package calico.plugins.iip.components.graph;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -11,8 +12,13 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import calico.CalicoDraw;
+import calico.events.CalicoEventListener;
+import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.controllers.CIntentionCellController;
 
 import edu.umd.cs.piccolo.nodes.PPath;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.nodes.PClip;
 import edu.umd.cs.piccolox.nodes.PComposite;
@@ -23,7 +29,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CIntentionTopology
+public class CIntentionTopology 
 {
 	private static final Color RING_COLOR = new Color(0x8b, 0x89, 0x89);
 	private static final Color BOUNDING_BOX_COLOR = Color.black;//new Color(0x8b, 0x89, 0x89);
@@ -42,6 +48,7 @@ public class CIntentionTopology
 		private final List<PPath> rings = new ArrayList<PPath>();
 		private final PClip box;
 		private final PClip outerBox;
+		private final PText clusterTitle;
 
 //		buffer.append(rootCanvasId);
 //		buffer.append("[");
@@ -67,7 +74,7 @@ public class CIntentionTopology
 //		buffer.append(":");
 		
 		Cluster(String serialized)
-		{
+		{		
 			StringTokenizer tokens = new StringTokenizer(serialized, "[],:");
 			rootCanvasId = Long.parseLong(tokens.nextToken());
 			int x = Integer.parseInt(tokens.nextToken());
@@ -96,10 +103,17 @@ public class CIntentionTopology
 			outerBox.setPaint(Color.white);
 			outerBox.setBounds(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
 			
+			clusterTitle = new PText("Unnamed cluster");
+			clusterTitle.setOffset(outerBox.getX() + 20, outerBox.getY() + 15);
+			Font font = new Font ("Helvetica", Font.PLAIN , 30);
+			clusterTitle.recomputeLayout();
+			clusterTitle.setFont(font);
+			
 //			addChild(box);
 //			CalicoDraw.addChildToNode(this, box);
 			CalicoDraw.addChildToNode(this, outerBox);
 			CalicoDraw.setNodeBounds(this, xOuterBox, yOuterBox, wOuterBox, hOuterBox);
+			CalicoDraw.addChildToNode(this, clusterTitle);
 
 			while (tokens.hasMoreTokens())
 			{
@@ -115,6 +129,27 @@ public class CIntentionTopology
 				CalicoDraw.addChildToNode(outerBox, rings.get(i));
 //				box.addChild(rings.get(i));
 			}
+		}
+		
+		public boolean clusterTitleContainsPoint(Point p)
+		{
+			return clusterTitle.getGlobalFullBounds().contains(p);
+		}
+		
+		public void updateTitleText()
+		{
+			String text = CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId).getTitle();
+			double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).getScale();
+			Font font = new Font ("Helvetica", Font.PLAIN , (int)(40));
+			
+			clusterTitle.setFont(font);
+
+			
+			clusterTitle.setText(text);
+			clusterTitle.recomputeLayout();
+			
+			
+//			clusterTitle.repaint();
 		}
 
 		public PBounds getMaxRingBounds()
@@ -197,4 +232,7 @@ public class CIntentionTopology
 		}
 		return null;
 	}
+	
+
+	
 }

@@ -495,14 +495,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				long targetCanvas = titleNodeContainer.getCanvasAt(p);
 				if (targetCanvas == CCanvasController.getCurrentUUID())
 				{
-					CanvasTitleDialog.Action action = CanvasTitleDialog.getInstance().queryUserForLabel(
-							CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid));
-
-					if (action == Action.OK)
-					{
-						CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-								CanvasTitleDialog.getInstance().getText(), false);
-					}
+					setCanvasTitleText(canvas_uuid);
 				}
 				else if (targetCanvas > 0l)
 					CCanvasController.loadCanvas(targetCanvas);
@@ -1012,6 +1005,17 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		spacer.recomputeLayout();
 		return spacer;
 		
+	}
+
+	public static void setCanvasTitleText(long canvasId) {
+		CanvasTitleDialog.Action action = CanvasTitleDialog.getInstance().queryUserForLabel(
+				CIntentionCellController.getInstance().getCellByCanvasId(canvasId));
+
+		if (action == Action.OK)
+		{
+			CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvasId).getId(),
+					CanvasTitleDialog.getInstance().getText(), false);
+		}
 	}
 
 
