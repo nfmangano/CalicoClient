@@ -128,7 +128,15 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 			mouseDown = e.getPoint();
 			
 			long potentialConnector;
-			if ((potentialConnector = CStrokeController.getPotentialConnector(e.getPoint(), 20)) > 0l)
+			if (!BubbleMenu.isBubbleMenuActive() &&
+					(this.activeGroup = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint())) != 0l)
+			{
+				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time,
+						e.getPoint(), this.activeGroup, layer);
+				Ticker.scheduleIn(250, menuTimer);
+			}
+			else if ((potentialConnector = CStrokeController.getPotentialConnector(e.getPoint(), 20)) > 0l)
 			{
 				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), potentialConnector, layer);
@@ -139,15 +147,7 @@ public class CCanvasStrokeModeInputHandler extends CalicoAbstractInputHandler
 				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
 				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time, e.getPoint(), e.group, layer);
 				Ticker.scheduleIn(CalicoOptions.core.hold_time, menuTimer);
-			}
-			else if (!BubbleMenu.isBubbleMenuActive() &&
-					(this.activeGroup = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), e.getPoint())) != 0l)
-			{
-				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
-				menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, uuid, CalicoOptions.core.hold_time/2, CalicoOptions.core.max_hold_distance, CalicoOptions.core.hold_time,
-						e.getPoint(), 0l, layer);
-				Ticker.scheduleIn(250, menuTimer);
-			}
+			} 
 //			menuThread = new DisplayMenuThread(this, e.getGlobalPoint(), e.group);		
 //			Ticker.scheduleIn(CalicoOptions.core.hold_time, menuThread);
 		}

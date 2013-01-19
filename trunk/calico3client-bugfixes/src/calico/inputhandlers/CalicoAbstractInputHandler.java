@@ -337,7 +337,16 @@ public abstract class CalicoAbstractInputHandler
 			// else
 			potentialScrap = CStrokeController.getPotentialScrap(point);
 
-		if (CConnectorController.exists(group))
+		long g = CGroupController.get_smallest_containing_group_for_point(CCanvasController.getCurrentUUID(), point);
+		
+		if (CStrokeController.exists(potentialScrap) && CGroupController.group_contains_stroke(g, potentialScrap))
+			g = 0;
+		
+		if (CGroupController.exists(g))
+		{
+			
+		}
+		else if (CConnectorController.exists(group))
 		{
 			CConnectorController.show_stroke_bubblemenu(group, false);
 		}
