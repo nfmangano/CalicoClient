@@ -15,6 +15,8 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.canvas.CanvasTagPanel;
+import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -67,10 +69,14 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 				public void run()
 				{
 					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
-					if (cell == null)
+					/*if (cell == null)
 					{
 //						NICKNICKNICK
 //						IntentionGraph.getInstance().fitContents();
+					}
+					else*/ if (contextCanvasId == IntentionGraph.WALL)
+					{
+						IntentionGraph.getInstance().setFocusToWall();
 					}
 					else
 					{

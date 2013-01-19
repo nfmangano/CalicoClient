@@ -197,7 +197,7 @@ public class CIntentionCell implements CalicoEventListener
 				else
 					position++;
 			
-			ret += "C" + (position+1) + ". ";
+			ret += (position+1) + ". ";
 
 		}
 		
@@ -677,7 +677,7 @@ public class CIntentionCell implements CalicoEventListener
 				
 		
 		if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
-			titlePrefix += getSiblingIndex() + ".";
+			titlePrefix += getSiblingIndex() + ". ";
 //		else 
 //		{
 //			int clusterIndex = getClusterIndex();

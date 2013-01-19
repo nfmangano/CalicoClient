@@ -153,6 +153,8 @@ public class IntentionGraph
 
 	private NewClusterCanvasButton newCanvasButton;
 
+	public final static long WALL = -1;
+
 	private IntentionGraph() {
 		INSTANCE = this;
 
@@ -753,7 +755,7 @@ public class IntentionGraph
 	 * @param p Point in global coordinates
 	 * @return The canvasId of cluster whose title contains point p. Returns 0l if no cluster title found.
 	 */
-	public long getClusterWithTitleAtPoint(Point p)
+	public long getClusterWithTitleTextAtPoint(Point p)
 	{
 		Collection<Cluster> clusters = topology.getClusters();
 		
@@ -762,7 +764,27 @@ public class IntentionGraph
 		while (cit.hasNext())
 		{
 			Cluster c = cit.next();
-			if (c.clusterTitleContainsPoint(p))
+			if (c.clusterTitleTextContainsPoint(p))
+				return c.getRootCanvasId();
+		}
+		
+		return 0l;
+	}
+	
+	/**
+	 * @param p Point in global coordinates
+	 * @return The canvasId of cluster whose title contains point p. Returns 0l if no cluster title found.
+	 */
+	public long getClusterWithWallTextAtPoint(Point p)
+	{
+		Collection<Cluster> clusters = topology.getClusters();
+		
+		java.util.Iterator<Cluster> cit =  clusters.iterator();
+		
+		while (cit.hasNext())
+		{
+			Cluster c = cit.next();
+			if (c.clusterWallTextContainsPoint(p))
 				return c.getRootCanvasId();
 		}
 		

@@ -19,6 +19,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.controllers.CIntentionCellController;
 
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -50,6 +51,7 @@ public class CIntentionTopology
 		private final List<PPath> rings = new ArrayList<PPath>();
 		private final PClip box;
 		private final PClip outerBox;
+		private final PText wallTitle;
 		private final PText clusterTitle;
 
 //		buffer.append(rootCanvasId);
@@ -105,13 +107,20 @@ public class CIntentionTopology
 			outerBox.setPaint(Color.white);
 			outerBox.setBounds(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
 			
-			clusterTitle = new PText("Unnamed cluster");
-			clusterTitle.setOffset(outerBox.getX() + 20, outerBox.getY() + 15);
-			clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth());
-			clusterTitle.setConstrainWidthToTextWidth(false);
+			wallTitle = new PText("Wall > ");
+			wallTitle.setOffset(outerBox.getX() + 20, outerBox.getY() + 15);
 			Font font = new Font ("Helvetica", Font.PLAIN , 30);
-			clusterTitle.recomputeLayout();
+			wallTitle.setFont(font);
+			wallTitle.recomputeLayout();
+			
+			clusterTitle = new PText("Unnamed cluster");
+			clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getGlobalBounds().getWidth(), outerBox.getY() + 15);
+			clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth() - wallTitle.getGlobalBounds().getWidth());
+			clusterTitle.setConstrainWidthToTextWidth(false);
+//			Font font = new Font ("Helvetica", Font.PLAIN , 30);
 			clusterTitle.setFont(font);
+			clusterTitle.recomputeLayout();
+			
 			
 			
 //			addChild(box);
@@ -119,6 +128,7 @@ public class CIntentionTopology
 			CalicoDraw.addChildToNode(this, outerBox);
 			CalicoDraw.setNodeBounds(this, xOuterBox, yOuterBox, wOuterBox, hOuterBox);
 			CalicoDraw.addChildToNode(this, clusterTitle);
+			CalicoDraw.addChildToNode(this, wallTitle);
 
 			while (tokens.hasMoreTokens())
 			{
@@ -136,9 +146,14 @@ public class CIntentionTopology
 			}
 		}
 		
-		public boolean clusterTitleContainsPoint(Point p)
+		public boolean clusterTitleTextContainsPoint(Point p)
 		{
 			return clusterTitle.getGlobalFullBounds().contains(p);
+		}
+		
+		public boolean clusterWallTextContainsPoint(Point p)
+		{
+			return wallTitle.getGlobalFullBounds().contains(p);
 		}
 		
 		public void updateTitleText()
@@ -155,9 +170,13 @@ public class CIntentionTopology
 						{
 							font = new Font ("Helvetica", Font.PLAIN , (int)(70));
 						}
+						wallTitle.setFont(font);
+						wallTitle.recomputeLayout();
+						
 						clusterTitle.setFont(font);
 						clusterTitle.setText(CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId).getTitle());
-						clusterTitle.setWidth(outerBox.getWidth());
+						clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getBounds().getWidth(), outerBox.getY() + 15);
+						clusterTitle.setWidth(outerBox.getBounds().getWidth() - wallTitle.getBounds().getWidth());
 						clusterTitle.recomputeLayout();
 					}});
 

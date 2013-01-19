@@ -3,14 +3,20 @@ package calico.plugins.iip.inputhandlers;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
+import calico.CalicoOptions;
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.inputhandlers.PressAndHoldAction;
+import calico.inputhandlers.CalicoAbstractInputHandler.MenuTimer;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.utils.Ticker;
+import edu.umd.cs.piccolo.PLayer;
 
 /**
  * Custom <code>CalicoInputManager</code>handler for events related to open space in the Intention View. The main Calico
@@ -22,7 +28,7 @@ import calico.plugins.iip.controllers.CIntentionCellController;
  * 
  * @author Byron Hawkins
  */
-public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
+public class IntentionGraphInputHandler extends CalicoAbstractInputHandler implements PressAndHoldAction
 {
 	private enum State
 	{
@@ -30,28 +36,44 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		PAN;
 	}
 
+	long lastAction = 0;
 	private State state = State.IDLE;
-	private Point lastMouse;
+	private Point lastMouse, mouseDown, mouseUp;
 
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{
+		lastAction = 0;
 		state = State.PAN;
-		lastMouse = event.getGlobalPoint();
+		lastMouse = event.getPoint();
+		mouseDown = event.getPoint();
+		
+		long clusterIdWithTitleTextAtPoint = IntentionGraph.getInstance().getClusterWithTitleTextAtPoint(getLastPoint());
+		
+		if (clusterIdWithTitleTextAtPoint != 0l)
+		{
+			PLayer layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS);
+			MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
+					mouseDown, 0l, layer);
+			Ticker.scheduleIn(250, menuTimer);
+		}
+
 	}
 
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
+		lastAction = 1;
 		state = State.IDLE;
 		Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
 		long clusterId = IntentionGraph.getInstance().getClusterAt(local);
 		
-		long clusterIdWithTitleAtPoint = IntentionGraph.getInstance().getClusterWithTitleAtPoint(event.getGlobalPoint());
+		long clusterIdWithWallTextAtPoint = IntentionGraph.getInstance().getClusterWithWallTextAtPoint(getLastPoint());
 		
-		if (clusterIdWithTitleAtPoint != 0l)
+
+		if (clusterIdWithWallTextAtPoint > 0l)
 		{
-			calico.plugins.iip.components.canvas.CanvasTitlePanel.setCanvasTitleText(clusterIdWithTitleAtPoint);
+			IntentionGraph.getInstance().setFocusToWall();
 		}
 		else if (clusterId > 0)
 			IntentionGraph.getInstance().setFocusToCluster(clusterId);
@@ -59,13 +81,14 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 		else
 			IntentionGraph.getInstance().setFocusToWall();
 //			IntentionGraph.getInstance().fitContents();
-		
+		lastMouse = event.getPoint();
+		mouseUp = event.getPoint();
 	}
 
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
-		lastMouse = event.getGlobalPoint();
+		lastMouse = event.getPoint();
 		
 		/*
 		
@@ -81,6 +104,52 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler
 
 		IntentionGraph.getInstance().translate(xMouseDelta, yMouseDelta);
 		*/
+	}
+
+	@Override
+	public double getDraggedDistance() {
+		return mouseDown.distance(lastMouse);
+	}
+
+	@Override
+	public long getLastAction() {
+		return lastAction;
+	}
+
+	@Override
+	public Point getLastPoint() {
+		return lastMouse;
+	}
+
+	@Override
+	public Point getMouseDown() {
+		return mouseDown;
+	}
+
+	@Override
+	public Point getMouseUp() {
+		return mouseUp;
+	}
+
+	@Override
+	public void openMenu(long arg0, long arg1, Point arg2) {
+		
+	}
+
+	@Override
+	public void pressAndHoldAbortedEarly() {
+		
+	}
+
+	@Override
+	public void pressAndHoldCompleted() {
+		long clusterIdWithTitleAtPoint = IntentionGraph.getInstance().getClusterWithTitleTextAtPoint(getLastPoint());
+		
+		if (clusterIdWithTitleAtPoint != 0l)
+		{
+			calico.plugins.iip.components.canvas.CanvasTitlePanel.setCanvasTitleText(clusterIdWithTitleAtPoint);
+		}
+		
 	}
 	
 

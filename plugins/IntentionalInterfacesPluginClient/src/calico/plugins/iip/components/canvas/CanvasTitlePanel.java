@@ -97,6 +97,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.II_PERSPECTIVE_ACTIVATED, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_TAG, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_UNTAG, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(IntentionalInterfacesNetworkCommands.CIC_SET_TITLE, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoPerspective.addListener(this);
 		
 		
@@ -329,14 +330,34 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 					Point p = event.getGlobalPoint();
 					if (titleNodeContainer.getBounds().contains(p))
 					{
-						titleNodeContainer.tap(p);
+						long tappedCanvas = titleNodeContainer.getCanvasAt(p);
+						if (isChildContainerVisible(tappedCanvas) &&  tappedCanvas == IntentionGraph.WALL)
+						{
+							IntentionalInterfacesPerspective.getInstance().displayPerspective(IntentionGraph.WALL);
+						}
+						else if (isChildContainerVisible(tappedCanvas) &&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
+						{
+							IntentionalInterfacesPerspective.getInstance().displayPerspective(CCanvasController.getCurrentUUID());
+						}
+						else if (isChildContainerVisible(tappedCanvas) && tappedCanvas != CCanvasController.getCurrentUUID())
+							CCanvasController.loadCanvas(tappedCanvas);
+						else
+							titleNodeContainer.tap(p);
 					}
 					
 					for (int i = 0; i < titles.size(); i++)
 					{
 						CanvasTitleNodeContainer ctnc = titles.get(i);
 						if (ctnc.getBounds().contains(p))
-							ctnc.tap(p);
+						{
+							long tappedCanvas = ctnc.getCanvasAt(p);
+							if (isChildContainerVisible(tappedCanvas) &&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
+								IntentionalInterfacesPerspective.getInstance().displayPerspective(tappedCanvas);
+							else if (isChildContainerVisible(tappedCanvas))
+								CCanvasController.loadCanvas(tappedCanvas);
+							else
+								ctnc.tap(p);
+						}
 					}
 				}
 				else if (state == InputState.DRAGGING)
@@ -392,6 +413,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 			synchronized (stateLock)
 			{
+				/*
 				if (state == InputState.DRAGGING)
 				{
 					Point p = new Point(lastPoint);
@@ -430,7 +452,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 					}
 					
 				}
-				else if (state == InputState.PRESSED)
+				
+				else */if (state == InputState.PRESSED)
 				{
 					state = InputState.IDLE;
 					pressTime = 0L;
@@ -496,13 +519,15 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				if (targetCanvas == CCanvasController.getCurrentUUID())
 				{
 					setCanvasTitleText(canvas_uuid);
+//					CCanvasController.loadCanvas(canvas_uuid);
 				}
 				else if (targetCanvas > 0l)
-					CCanvasController.loadCanvas(targetCanvas);
-				else if (targetCanvas == CanvasTitleNode.WALL)
-				{
-					IntentionalInterfacesPerspective.getInstance().displayPerspective(CCanvasController.getCurrentUUID());
-				}
+					setCanvasTitleText(targetCanvas);
+//					CCanvasController.loadCanvas(targetCanvas);
+//				else if (targetCanvas == CanvasTitleNode.WALL)
+//				{
+//					IntentionalInterfacesPerspective.getInstance().displayPerspective(CCanvasController.getCurrentUUID());
+//				}
 			}
 			
 			for (int i = 0; i < titles.size(); i++)
@@ -512,7 +537,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				{
 					long targetCanvas = ctnc.getCanvasAt(p);
 					if (targetCanvas != 0l)
-						CCanvasController.loadCanvas(targetCanvas);
+						setCanvasTitleText(targetCanvas);
+//						CCanvasController.loadCanvas(targetCanvas);
 				}
 			}
 			
@@ -591,7 +617,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		if (event == IntentionalInterfacesNetworkCommands.CLINK_CREATE
 				|| event == IntentionalInterfacesNetworkCommands.CLINK_MOVE_ANCHOR
 				|| event == IntentionalInterfacesNetworkCommands.CIC_TAG
-				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG)
+				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
+				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE)
 		{
 			refresh();
 		}
@@ -647,7 +674,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		}
 		
 		titleNodes.add(0, getTitleNodeSpacer());
-		ctNode = new CanvasTitleNode(CanvasTitleNode.WALL, CanvasTitleNodeType.TITLE);
+		ctNode = new CanvasTitleNode(IntentionGraph.WALL, CanvasTitleNodeType.TITLE);
 		titleNodes.add(0, ctNode);
 		
 
@@ -821,8 +848,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	
 	private class CanvasTitleNode extends PText
 	{
-		final static long WALL = -1;
-
+		private boolean childrenVisible = false;
 		
 		private long canvasId;
 		CanvasTitleNodeType type;
@@ -843,7 +869,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		public void refresh()
 		{
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(this.canvasId);
-			if (cell == null && canvasId != CanvasTitleNode.WALL)
+			if (cell == null && canvasId != IntentionGraph.WALL)
 			{
 				System.out.println("Warning: cell is null in calico.plugins.iip.components.canvas.CanvasTitlePanel.CanvasTitleNode.refresh(), canvasId is " + canvasId);
 				return;
@@ -851,7 +877,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			
 			String title = "";
 			
-			if (this.canvasId == CanvasTitleNode.WALL)
+			if (this.canvasId == IntentionGraph.WALL)
 				title = "Wall";
 			else
 			{
@@ -861,13 +887,13 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				
 				//get tag name
 				String tag = "";
-				if (this.canvasId != CanvasTitleNode.WALL
+				if (this.canvasId != IntentionGraph.WALL
 						&& cell.getIntentionTypeId() != -1)
 					tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
 				
 				//get number of children
 				String numChildren = "";
-				if (this.canvasId != CanvasTitleNode.WALL
+				if (this.canvasId != IntentionGraph.WALL
 						&& type == CanvasTitleNodeType.DROPDOWN)
 				{	
 					int num = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId).length;
@@ -905,6 +931,16 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			this.recomputeLayout();
 		}
 		
+		public boolean isChildContainerVisible()
+		{
+			 for (CanvasTitleNodeContainer c : titles)
+			 {
+				 if (c.getParentCanvas() == canvasId)
+					 return true;
+			 }
+			 return false;
+		}
+		
 		public void showChildren()
 		{
 			//initialize container
@@ -917,13 +953,14 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(container);
 			titles.add(container);
 			CalicoDraw.repaint(container);
+			childrenVisible = true;
 		}
 
 		public void layoutChildren(CanvasTitleNodeContainer container) {
 			if (type == CanvasTitleNodeType.TITLE)
 			{
 				long[] children;
-				if (this.canvasId == CanvasTitleNode.WALL)
+				if (this.canvasId == IntentionGraph.WALL)
 					children = IntentionGraph.getInstance().getRootsOfAllClusters();
 				else
 					children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
@@ -993,6 +1030,16 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			else
 				break;
 		}
+	}
+	
+	public boolean isChildContainerVisible(long parentCanvasId)
+	{
+		 for (CanvasTitleNodeContainer c : titles)
+		 {
+			 if (c.getParentCanvas() == parentCanvasId)
+				 return true;
+		 }
+		 return false;
 	}
 	
 	private PText getTitleNodeSpacer()
