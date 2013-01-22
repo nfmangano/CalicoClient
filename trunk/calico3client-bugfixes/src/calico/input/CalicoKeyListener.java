@@ -157,7 +157,8 @@ public class CalicoKeyListener extends KeyAdapter {
 	{
 		int xPos = CalicoDataStore.ScreenWidth/3, yPos = CalicoDataStore.ScreenHeight/3;
 		boolean updateBubbleIcons = false;
-		if (BubbleMenu.activeUUID != 0l && CGroupController.groupdb.get(BubbleMenu.activeUUID) instanceof CListDecorator)
+		if (false
+				&& BubbleMenu.activeUUID != 0l && CGroupController.groupdb.get(BubbleMenu.activeUUID) instanceof CListDecorator)
 		{
 			xPos = CGroupController.groupdb.get(BubbleMenu.activeUUID).getPathReference().getBounds().x + 50;
 			yPos = CGroupController.groupdb.get(BubbleMenu.activeUUID).getPathReference().getBounds().y
