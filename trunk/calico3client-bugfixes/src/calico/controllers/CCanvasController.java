@@ -954,5 +954,10 @@ public class CCanvasController
 			CalicoPerspective.Active.displayPerspective(canvasId);
 //			loadCanvas(canvasId);
 		}
+		
+		public long getCanvasId()
+		{
+			return canvasId;
+		}
 	}
 }

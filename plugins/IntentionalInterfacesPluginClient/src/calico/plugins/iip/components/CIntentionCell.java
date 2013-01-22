@@ -1,5 +1,6 @@
 package calico.plugins.iip.components;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -8,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -20,6 +22,8 @@ import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.components.CCanvas;
 import calico.controllers.CCanvasController;
+import calico.controllers.CHistoryController;
+import calico.controllers.CCanvasController.HistoryFrame;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.networking.netstuff.CalicoPacket;
@@ -543,14 +547,63 @@ public class CIntentionCell implements CalicoEventListener
 
 			g.setColor(currentBorderColor());
 			g.translate(thumbnailBounds.x, thumbnailBounds.y);
+			Stroke oldStroke = g.getStroke();
+			Stroke borderStroke;
+						
+			borderStroke = getBorderStroke(oldStroke, g);
+			g.setStroke(borderStroke);
+
+			
 			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
 			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, thumbnailBounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT,
 					COORDINATES_COLOR);
-
+			g.setStroke(oldStroke);
 			g.translate(-thumbnailBounds.x, -thumbnailBounds.y);
 			g.setColor(c);
 			
 			
+		}
+
+		private Stroke getBorderStroke(Stroke oldStroke, Graphics2D g) {
+			Stroke borderStroke = oldStroke;
+			long[] mostRecentFrames = new long[5];
+			for (int i = 0; i < mostRecentFrames.length; i++)
+			{
+				CHistoryController.Frame f = CHistoryController.getInstance().getFrame(i);
+				if (f != null && f instanceof HistoryFrame)
+					mostRecentFrames[i] =  ((HistoryFrame)f).getCanvasId();
+				else
+					mostRecentFrames[i] = 0l;
+			}
+			
+//			for (int i = 0; i < mostRecentFrames.length; i++)
+//			if (getCanvasId() == mostRecentFrames[i])
+//			{
+//				g.setColor(new Color(0, 0, 0, (int)(255 * (((float)5 - i)/5))));
+//				borderStroke =
+//		        new BasicStroke(4.0f,
+//		                        BasicStroke.CAP_BUTT,
+//		                        BasicStroke.JOIN_MITER);
+//
+//			}
+			
+			if (getCanvasId() == mostRecentFrames[0])
+				borderStroke =
+		        new BasicStroke(4.0f,
+		                        BasicStroke.CAP_BUTT,
+		                        BasicStroke.JOIN_MITER);
+			
+			for (int i = 1; i < mostRecentFrames.length; i++)
+				if (getCanvasId() == mostRecentFrames[i])
+				{
+					float dash1[] = {5.0f * i};
+					borderStroke = new BasicStroke(4.0f,
+	                        BasicStroke.CAP_BUTT,
+	                        BasicStroke.JOIN_MITER,
+	                        10.0f, dash1, 0.0f);
+				}
+
+			return borderStroke;
 		}
 
 		@Override

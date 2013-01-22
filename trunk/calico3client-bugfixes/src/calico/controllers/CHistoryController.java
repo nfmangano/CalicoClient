@@ -76,6 +76,19 @@ public class CHistoryController
 	{
 		private List<Frame> frames = new ArrayList<Frame>();
 		private int index = -1;
+		
+		/**
+		 * 
+		 * @param i The "i"th most recent frame, where i=0 is the current frame.
+		 * @return Returns the frame from the history
+		 */
+		public Frame getFrame(int i)
+		{
+			Frame ret = null;
+			if (index - i >= 0)
+				ret = frames.get(index - i); 
+			return ret;
+		}
 
 		Frame back()
 		{
@@ -249,4 +262,15 @@ public class CHistoryController
 			throw new UnsupportedOperationException("Can't execute the idle navigation action!");
 		}
 	}
+	
+	/**
+	 * 
+	 * @param i The "i"th most recent frame, where i=0 is the current frame.
+	 * @return Returns the frame from the history
+	 */
+	public Frame getFrame(int i)
+	{
+		return this.history.getFrame(i);
+	}
+	
 }
