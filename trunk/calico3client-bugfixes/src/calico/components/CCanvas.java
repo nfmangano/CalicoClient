@@ -600,9 +600,9 @@ public class CCanvas
 	public Image toImage()
 	{
 		Color backgroundColor;
-		if (CCanvasController.getLastActiveUUID() == this.uuid)
-			backgroundColor = new Color(200,200,200);
-		else
+//		if (CCanvasController.getLastActiveUUID() == this.uuid)
+//			backgroundColor = new Color(200,200,200);
+//		else
 			backgroundColor = CCanvasController.getActiveCanvasBackgroundColor();
 		
 		if (!isEmpty())

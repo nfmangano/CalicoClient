@@ -12,6 +12,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.prefs.BackingStoreException;
 
 import javax.swing.SwingUtilities;
 
@@ -769,7 +770,6 @@ public class CIntentionCell implements CalicoEventListener
 		private void updateSnapshot()
 		{
 			long start = System.currentTimeMillis();
-
 			snapshot.setImage(IntentionalInterfacesGraphics.createCanvasThumbnail(canvas_uuid, THUMBNAIL_INSETS));
 			CalicoDraw.setNodeBounds(snapshot, shell.thumbnailBounds);
 //			snapshot.setBounds(shell.thumbnailBounds);
