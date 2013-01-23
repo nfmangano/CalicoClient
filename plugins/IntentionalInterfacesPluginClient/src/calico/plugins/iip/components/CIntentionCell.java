@@ -8,6 +8,8 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Dimension2D;
@@ -541,31 +543,34 @@ public class CIntentionCell implements CalicoEventListener
 
 			Graphics2D g = paintContext.getGraphics();
 			Color c = g.getColor();
+			Paint p = g.getPaint();
 
 			g.setColor(BACKGROUND_COLOR);
 			g.fill(getBounds());
 
 			g.setColor(currentBorderColor());
 			g.translate(thumbnailBounds.x, thumbnailBounds.y);
-			Stroke oldStroke = g.getStroke();
-			Stroke borderStroke;
+
 						
-			borderStroke = getBorderStroke(oldStroke, g);
-			g.setStroke(borderStroke);
+			drawHistoryHighlight(g);
 
 			
 			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
 			IntentionalInterfacesGraphics.superimposeCellAddressInCorner(g, canvas_uuid, thumbnailBounds.width - (2 * BORDER_WIDTH), COORDINATES_FONT,
 					COORDINATES_COLOR);
-			g.setStroke(oldStroke);
+			
 			g.translate(-thumbnailBounds.x, -thumbnailBounds.y);
+			g.setPaint(p);
 			g.setColor(c);
 			
 			
 		}
 
-		private Stroke getBorderStroke(Stroke oldStroke, Graphics2D g) {
-			Stroke borderStroke = oldStroke;
+		private void drawHistoryHighlight(Graphics2D g) {
+			Stroke oldStroke = g.getStroke();
+			Color oldColor = g.getColor();
+			Paint oldPaint = g.getPaint();
+			Stroke borderStroke;
 			long[] mostRecentFrames = new long[5];
 			for (int i = 0; i < mostRecentFrames.length; i++)
 			{
@@ -587,23 +592,51 @@ public class CIntentionCell implements CalicoEventListener
 //
 //			}
 			
+			
+			Color borderColor = Color.BLUE;
+			Point2D center = new Point2D.Float((float)thumbnailBounds.getWidth()/2, 
+					(float)thumbnailBounds.getHeight()/2);
+		     float radius = (float)thumbnailBounds.getWidth() + 25;
+		     float[] dist = {.2f, .8f};
+
+		     
+			
 			if (getCanvasId() == mostRecentFrames[0])
+			{
 				borderStroke =
-		        new BasicStroke(4.0f,
+		        new BasicStroke(50f,
 		                        BasicStroke.CAP_BUTT,
 		                        BasicStroke.JOIN_MITER);
+			     Color highlightColor = new Color(borderColor.getRed(),borderColor.getGreen(),borderColor.getBlue(), 255);
+			     Color[] colors = {highlightColor, Color.WHITE};
+			     RadialGradientPaint gradient =
+			         new RadialGradientPaint(center, radius, dist, colors);
+				g.setPaint(gradient);
+				
+				g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
+				g.setStroke(borderStroke);
+				g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
+			}
 			
 			for (int i = 1; i < mostRecentFrames.length; i++)
 				if (getCanvasId() == mostRecentFrames[i])
 				{
-					float dash1[] = {5.0f * i};
-					borderStroke = new BasicStroke(4.0f,
-	                        BasicStroke.CAP_BUTT,
-	                        BasicStroke.JOIN_MITER,
-	                        10.0f, dash1, 0.0f);
+					borderStroke =
+							new BasicStroke(50f,
+									BasicStroke.CAP_BUTT,
+									BasicStroke.JOIN_MITER);
+					int opacityFactor = (int)(255 * 0.5f * ((float)mostRecentFrames.length - i)/mostRecentFrames.length);
+					Color highlightColor = new Color(borderColor.getRed(),borderColor.getGreen(),borderColor.getBlue(), opacityFactor);
+					Color[] colors = {highlightColor, Color.WHITE};
+					RadialGradientPaint gradient =
+							new RadialGradientPaint(center, radius, dist, colors);
+					g.setPaint(gradient);
+					g.setStroke(borderStroke);
+					g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
 				}
-
-			return borderStroke;
+			g.setStroke(oldStroke);
+			g.setPaint(oldPaint);
+			g.setColor(oldColor);
 		}
 
 		@Override
