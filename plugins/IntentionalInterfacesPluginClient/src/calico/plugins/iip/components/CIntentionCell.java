@@ -593,7 +593,7 @@ public class CIntentionCell implements CalicoEventListener
 //			}
 			
 			
-			Color borderColor = Color.BLUE;
+			Color borderColor = Color.YELLOW;
 			Point2D center = new Point2D.Float((float)thumbnailBounds.getWidth()/2, 
 					(float)thumbnailBounds.getHeight()/2);
 		     float radius = (float)thumbnailBounds.getWidth() + 25;
