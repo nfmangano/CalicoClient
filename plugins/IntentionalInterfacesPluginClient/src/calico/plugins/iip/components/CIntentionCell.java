@@ -316,13 +316,14 @@ public class CIntentionCell implements CalicoEventListener
 	/**
 	 * Set the location of this CIC in Intention View coordinates.
 	 */
-	public void setLocation(final double x, final double y)
+	public void setLocation(final double x, final double y, final double width, final double height)
 	{
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
 					location.setLocation(x, y);
-					shell.setX(x);
-					shell.setY(y);
+					shell.setBounds(x, y, width, height);
+//					shell.setX(x);
+//					shell.setY(y);
 					shell.layoutChildren();
 //					shell.repaint();
 				}});
@@ -648,7 +649,8 @@ public class CIntentionCell implements CalicoEventListener
 			userList.setX(getX() + 4);
 			userList.setY(getY() + 2);
 
-			thumbnailBounds.setOrigin(getX(), getY());
+			thumbnailBounds.setRect(this.getBounds());
+//			thumbnailBounds.setOrigin(getX(), getY());
 
 			if (showingSnapshot)
 			{
@@ -855,11 +857,15 @@ public class CIntentionCell implements CalicoEventListener
 
 		private void updateSnapshot()
 		{
-			long start = System.currentTimeMillis();
-			snapshot.setImage(IntentionalInterfacesGraphics.createCanvasThumbnail(canvas_uuid, THUMBNAIL_INSETS));
-			CalicoDraw.setNodeBounds(snapshot, shell.thumbnailBounds);
-//			snapshot.setBounds(shell.thumbnailBounds);
-			isDirty = false;
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						long start = System.currentTimeMillis();
+						snapshot.setImage(IntentionalInterfacesGraphics.createCanvasThumbnail(canvas_uuid, THUMBNAIL_INSETS));
+						CalicoDraw.setNodeBounds(snapshot, shell.thumbnailBounds);
+//						snapshot.setBounds(shell.thumbnailBounds);
+						isDirty = false;
+					}});
+
 
 //			CalicoDraw.repaint(snapshot);
 //			snapshot.repaint();

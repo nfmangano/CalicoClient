@@ -278,7 +278,7 @@ public class CIntentionCellController
 	 */
 	public void moveCellLocal(long cellId, double x, double y)
 	{
-		cells.get(cellId).setLocation(x, y);
+		cells.get(cellId).setLocation(x, y, cells.get(cellId).getSize().getWidth(), cells.get(cellId).getSize().getHeight());
 		IntentionGraphController.getInstance().localUpdateAttachedArrows(cellId, x, y);
 	}
 
