@@ -95,7 +95,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationBackButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(HistoryNavigationForwardButton.class);
-		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
+//		CanvasMenuBar.addMenuButtonPreAppend(ShowIntentionGraphButton.class);
 		CanvasMenuBar.addMenuButtonPreAppend(SpacerButton.class);
 
 	}

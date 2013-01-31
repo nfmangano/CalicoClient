@@ -723,10 +723,6 @@ public class BubbleMenu {
 			{
 				return 12;
 			}
-			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupDeselect") == 0)
-			{
-				return 5;
-			}
 			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
 			{
 				return 6;

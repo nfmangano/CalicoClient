@@ -766,7 +766,6 @@ public class CListDecorator extends CGroupDecorator {
 //		pieMenuButtons.add(calico.components.piemenu.groups.ListCreateButton.class);
 		pieMenuButtons.add(calico.components.piemenu.PieMenuButton.class);
 //		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
-		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeselect.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
 //		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class);
 		pieMenuButtons.add(calico.components.piemenu.PieMenuButton.class);
@@ -783,7 +782,6 @@ public class CListDecorator extends CGroupDecorator {
 		ObjectArrayList<Class<?>> pieMenuButtons = new ObjectArrayList<Class<?>>(); 
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDropButton.class);
 //		pieMenuButtons.add(calico.components.piemenu.groups.GroupMoveButton.class);
-		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeselect.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class);
 		pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class);
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class);
