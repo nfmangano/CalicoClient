@@ -15,8 +15,10 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
@@ -814,20 +816,58 @@ public class CGroup extends PPath implements Serializable {
 			g2.setStroke(new BasicStroke(CalicoOptions.pen.stroke_size + 8));
 			g2.setPaint(Color.blue);
 			g2.draw(border);
+
+//			Color borderColor = Color.BLUE;
+//			Point2D center = new Point2D.Float((float)border.getBounds().x + (float)border.getBounds().getWidth()/2, 
+//					(float)border.getBounds().y + (float)border.getBounds().getHeight()/2);
+//		     float radius = (float)border.getBounds().getWidth() + 25;
+//		     float[] dist = {.2f, .5f, .7f};
+//
+//		     
+//
+//		     Stroke borderStroke =
+//		    		 new BasicStroke(50f,
+//		    				 BasicStroke.CAP_BUTT,
+//		    				 BasicStroke.JOIN_MITER);
+//		     Color highlightColor = new Color(borderColor.getRed(),borderColor.getGreen(),borderColor.getBlue(), 255);
+//		     Color[] colors = {new Color(0,0,0,0),highlightColor, new Color(0,0,0,0)};
+//		     RadialGradientPaint gradient =
+//		    		 new RadialGradientPaint(center, radius, dist, colors);
+//		     g2.setPaint(gradient);
+////		     g2.fill(border);
+////		     g2.drawRoundRect(0, 0, ((int) border.getBounds().width) - 1, ((int) border.getBounds().height) - 1, 10, 10);
+//		     g2.setStroke(borderStroke);
+//		     g2.draw(border);
+//		     g2.fill(border);
+//		     g2.drawRoundRect(0, 0, ((int) border.getBounds().width) - 1, ((int) border.getBounds().height) - 1, 10, 10);
+		     
+
+
+
+			g2.setPaint(this.getStrokePaint());
+			g2.setStroke(new BasicStroke(CalicoOptions.group.stroke_size,
+					BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1,
+					0.0f));
+			
+			g2.draw(border);
+		}
+		else
+		{
+			g2.setPaint(this.getStrokePaint());
+			g2.setStroke(this.getStroke());
+			
+			g2.draw(border);
 		}
 		g2.setComposite(temp);
 		
 //		if (getTransparency() > CalicoOptions.group.background_transparency)
 //			System.out.println("&&&&&&&&&&&&&&&&& TRANSPARENCY HAS BEEN SET TO: " + getTransparency() + " &&&&&&&&&&&&&&&&&&&&&&&&&");
-		
-		
 		g2.setPaint(this.getPaint());
 		g2.fill(border);
-
-		g2.setPaint(this.getStrokePaint());
-		g2.setStroke(this.getStroke());
 		
-		g2.draw(border);
+
+
+
 		
 		//draw bounding box for debugging
 //		g2.setColor(Color.red);
