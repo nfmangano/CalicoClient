@@ -178,6 +178,7 @@ public class NetworkCommand
     public static final int CANVAS_LOAD				= 420;
     public static final int CANVAS_DELETE 			= 421; // UUID
     public static final int CANVAS_SET_DIMENSIONS 	= 422;
+    public static final int CANVAS_LOAD_PROGRESS = 423;
 	
 	// Consistency
 	public static final int CONSISTENCY_CHECK		= 510; // Requests that the server send you a consistency check.
@@ -428,6 +429,7 @@ public class NetworkCommand
 			formats.put(CANVAS_SC_FINISH, new NetCommandFormat("CANVAS_SC_FINISH", "L"));
 			formats.put(CANVAS_LOCK, new NetCommandFormat("CANVAS_LOCK", "LBSL"));
 			formats.put(CANVAS_SET_DIMENSIONS, new NetCommandFormat("CANVAS_SET_DIMENSIONS", "II"));			
+			formats.put(CANVAS_LOAD_PROGRESS, new NetCommandFormat("CANVAS_LOAD_PROGRESS", "II"));
 
 			formats.put(STATUS_MESSAGE,new NetCommandFormat("STATUS_MESSAGE","S"));
 			formats.put(ERROR_MESSAGE,new NetCommandFormat("ERROR_MESSAGE","S"));

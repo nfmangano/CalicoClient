@@ -103,8 +103,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	@Override
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
+
 //		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
-//			logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+//		logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
 
 		switch (event)
 		{
@@ -112,17 +113,24 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				VIEWING_SINGLE_CANVAS(p);
 				return;
 			case NetworkCommand.CONSISTENCY_FINISH:
-				CCanvasLinkController.getInstance().initializeArrowColors();
-				calico.plugins.iip.components.graph.IntentionGraph.getInstance().updateZoom();
+//				CCanvasLinkController.getInstance().initializeArrowColors();
+//				CIntentionCellController.getInstance().updateUserLists();
+//				calico.plugins.iip.components.graph.IntentionGraph.getInstance().updateZoom();
 //				calico.plugins.iip.components.graph.IntentionGraph.getInstance().fitContents();
 				return;
 			case NetworkCommand.PRESENCE_CANVAS_USERS:
-				CIntentionCellController.getInstance().updateUserLists();
+				if (Networking.connectionState != Networking.ConnectionState.Connecting)
+					CIntentionCellController.getInstance().updateUserLists();
 				return;
 		}
 
 		switch (IntentionalInterfacesNetworkCommands.Command.forId(event))
 		{
+			case CIC_UPDATE_FINISHED:
+				CCanvasLinkController.getInstance().initializeArrowColors();
+				CIntentionCellController.getInstance().updateUserLists();
+				calico.plugins.iip.components.graph.IntentionGraph.getInstance().updateZoom();
+				break;
 			case CIC_CREATE:
 				CIC_CREATE(p);
 				break;

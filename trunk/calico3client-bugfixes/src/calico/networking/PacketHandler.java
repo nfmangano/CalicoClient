@@ -61,9 +61,9 @@ public class PacketHandler
 		
 		int command = packet.getInt();
 
-//		if (command != NetworkCommand.HEARTBEAT
-//				&& command != NetworkCommand.CONSISTENCY_FAILED)
-//			logger.debug("RX "+packet.toString());
+		if (command != NetworkCommand.HEARTBEAT
+				&& command != NetworkCommand.CONSISTENCY_FAILED)
+			logger.debug("RX "+packet.toString());
 		
 		switch(command)
 		{
@@ -144,6 +144,7 @@ public class PacketHandler
 			case NetworkCommand.CANVAS_LOAD:CANVAS_LOAD(packet);break;
 			case NetworkCommand.CANVAS_DELETE:CANVAS_DELETE(packet);break;
 			case NetworkCommand.CANVAS_SET_DIMENSIONS:CANVAS_SET_DIMENSIONS(packet);break;
+			case NetworkCommand.CANVAS_LOAD_PROGRESS:CANVAS_LOAD_PROGRESS(packet);break;
 
 			case NetworkCommand.SESSION_INFO:SESSION_INFO(packet);break;
 			
@@ -1537,5 +1538,15 @@ public class PacketHandler
 		
 		CalicoDataStore.serverScreenWidth = width;
 		CalicoDataStore.serverScreenHeight = height;
+	}
+	
+	
+	public static void CANVAS_LOAD_PROGRESS(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+//		long num = p.getLong();
+//		long total = p.getLong();
+		
 	}
 }

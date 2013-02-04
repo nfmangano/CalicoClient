@@ -31,6 +31,7 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int CLINK_DELETE = Command.CLINK_DELETE.id;
 	public static final int CIC_UPDATE_FINISHED = Command.CIC_UPDATE_FINISHED.id;
 	public static final int II_PERSPECTIVE_ACTIVATED = Command.II_PERSPECTIVE_ACTIVATED.id;
+	public static final int WALL_BOUNDS = Command.WALL_BOUNDS.id;
 	
 	static {
 		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_CREATE.id, 
@@ -64,7 +65,8 @@ public class IntentionalInterfacesNetworkCommands
 		/**
 		 * Alerts the server that the intention
 		 */
-		II_PERSPECTIVE_ACTIVATED;
+		II_PERSPECTIVE_ACTIVATED, 
+		WALL_BOUNDS;
 
 		public final int id;
 

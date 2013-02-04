@@ -1,9 +1,12 @@
 package calico.networking;
 
+import it.unimi.dsi.fastutil.longs.LongIterator;
+
 import java.io.InputStream;
 
 import javax.swing.ProgressMonitor;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import calico.CalicoDataStore;
@@ -178,17 +181,19 @@ public class ListenServer implements Runnable
 						else if (progressMonitor.isCanceled()) {
 			                System.exit(0);
 			            }
-						
 						double cuuid = new Long(tpack.getCUUID()).doubleValue();
-						
-//						TODO: Restore launcher progress bar 
-						double numCanvases = CCanvasController.canvasdb.size(); //new Integer(CalicoDataStore.GridRows * CalicoDataStore.GridCols).doubleValue() + 1d;
 						int progress = 1;
-						if (numCanvases > 0)
-							progress = new Double(((cuuid*100d) / (numCanvases*100d)) * 100).intValue();
-						else
-							progress = 1;
-						if (progress < previousProgress)
+						if (tpack.getCommand() == NetworkCommand.CANVAS_LOAD_PROGRESS)
+						{
+						
+						tpack.rewind();
+						tpack.getInt();
+						int canvasPos = tpack.getInt();
+						int totalCanvases = tpack.getInt();
+						
+						progress = new Double(((canvasPos*100d) / (totalCanvases*100d)) * 100).intValue();
+						}
+						if (progress < previousProgress && progress < 101)
 							progress = previousProgress;
 //						int progress = 0;
 						

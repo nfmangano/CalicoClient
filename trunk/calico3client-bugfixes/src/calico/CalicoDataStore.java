@@ -70,7 +70,6 @@ public class CalicoDataStore
 	
 	public static Int2ObjectOpenHashMap<String> clientInfo = new Int2ObjectOpenHashMap<String>();
 	
-	
 	/**
 	 * Sets the default options
 	 */
