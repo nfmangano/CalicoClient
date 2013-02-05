@@ -20,6 +20,7 @@ import calico.inputhandlers.CalicoInputManager;
 import calico.networking.Networking;
 import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesClientPlugin;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
@@ -258,7 +259,8 @@ public class CCanvasLinkController
 		 * Given that the positions of the CIntentionCells are calculated on a delay, we must update the position
 		 * of the arrow inside the SwingUtilities thread (otherwise we run into a race condition).
 		 */
-		SwingUtilities.invokeLater(
+//		SwingUtilities.invokeLater(
+		IntentionalInterfacesClientPlugin.addNewEventDispatcherEvent(
 				new Runnable() { public void run() { 
 					IntentionGraphController.getInstance().updateLinkArrow(anchor.getLink());
 				}});

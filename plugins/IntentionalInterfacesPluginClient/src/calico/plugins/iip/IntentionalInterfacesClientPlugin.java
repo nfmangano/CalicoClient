@@ -1,6 +1,7 @@
 package calico.plugins.iip;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
@@ -47,6 +48,8 @@ import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
  */
 public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements CalicoEventListener
 {
+	private static ArrayList<Runnable> eventDispatcherQueue = new ArrayList<Runnable>();
+	
 	public IntentionalInterfacesClientPlugin()
 	{
 		super();
@@ -293,17 +296,25 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	private static void CIC_TOPOLOGY(CalicoPacket p)
 	{
 		p.rewind();
+//		System.out.println("Called CIC_TOPOLOGY");
+//		(new Exception()).printStackTrace();
 		IntentionalInterfacesNetworkCommands.Command.CIC_TOPOLOGY.verify(p);
 
 		CIntentionTopology topology = new CIntentionTopology(p.getString());
 		IntentionGraph.getInstance().setTopology(topology);
 
 		if (Networking.connectionState == Networking.ConnectionState.Connected)
-			SwingUtilities.invokeLater(
+		{
+//			SwingUtilities.invokeLater(
+			IntentionalInterfacesClientPlugin.addNewEventDispatcherEvent(
 					new Runnable() { public void run() {
 						IntentionGraph.getInstance().updateZoom();
 //						IntentionGraph.getInstance().fitContents();
 					}});
+		}
+		
+		executeEventDispatcherEvents();
+		
 	}
 
 	private static void CIT_CREATE(CalicoPacket p)
@@ -447,5 +458,22 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	public Class<?> getNetworkCommandsClass()
 	{
 		return IntentionalInterfacesNetworkCommands.class;
+	}
+	
+	public static void addNewEventDispatcherEvent(Runnable e)
+	{
+		eventDispatcherQueue.add(e);
+	}
+	
+	private static void executeEventDispatcherEvents()
+	{
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					while (!eventDispatcherQueue.isEmpty())
+					{
+						eventDispatcherQueue.get(0).run();
+						eventDispatcherQueue.remove(0);
+					}
+				}});
 	}
 }

@@ -29,6 +29,7 @@ import calico.controllers.CCanvasController.HistoryFrame;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.networking.netstuff.CalicoPacket;
+import calico.plugins.iip.IntentionalInterfacesClientPlugin;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.controllers.CCanvasLinkController;
@@ -318,7 +319,8 @@ public class CIntentionCell implements CalicoEventListener
 	 */
 	public void setLocation(final double x, final double y)
 	{
-		SwingUtilities.invokeLater(
+//		SwingUtilities.invokeLater(
+		IntentionalInterfacesClientPlugin.addNewEventDispatcherEvent(
 				new Runnable() { public void run() { 
 					location.setLocation(x, y);
 					shell.setX(x);

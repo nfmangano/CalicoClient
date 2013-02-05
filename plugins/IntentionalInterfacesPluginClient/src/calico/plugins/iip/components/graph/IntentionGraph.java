@@ -766,6 +766,9 @@ public class IntentionGraph
 	
 	private void refreshTopologyTitles()
 	{
+		if (topology == null)
+			return;
+		
 		Collection<Cluster> clusters = topology.getClusters();
 		
 		java.util.Iterator<Cluster> cit =  clusters.iterator();
