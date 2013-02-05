@@ -473,6 +473,21 @@ public class IntentionGraph
 		maxRingBounds.height += (2 * margin);
 		zoomToRegion(maxRingBounds);
 	}
+	
+	public void initializeZoom(CalicoPacket p)
+	{
+		p.rewind();
+		int comm = p.getInt();
+		if (comm != IntentionalInterfacesNetworkCommands.WALL_BOUNDS)
+			return;
+		
+		int x = p.getInt();
+		int y = p.getInt();
+		int width = p.getInt();
+		int height = p.getInt();
+		
+		zoomToRegion(new PBounds(x,y,width,height));
+	}
 
 	private void zoomToRegion(final PBounds bounds) {
 		this.zoomRegions = bounds;

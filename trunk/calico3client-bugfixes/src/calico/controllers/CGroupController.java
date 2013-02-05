@@ -418,9 +418,11 @@ public class CGroupController
 		}
 		
 		groupdb.get(uuid).finish(fade);
-		if (checkParenting)
+		if (checkParenting
+				&& Networking.connectionState != Networking.ConnectionState.Connecting)
 			recheck_parent(uuid);
-		if (captureChildren)
+		if (captureChildren
+				&& Networking.connectionState != Networking.ConnectionState.Connecting)
 			no_notify_calculate_parenting(uuid, true);
 		
 //		setLastCreatedGroupUUID(uuid);

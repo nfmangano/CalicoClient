@@ -771,7 +771,8 @@ public class CStroke extends PPath
 //		CCanvasController.canvasdb.get(canvasUID).getCamera().validateFullPaint();
 
 		//CCanvasController.canvasdb.get(canvasUID).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
-		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getCamera(), new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
+		if (CCanvasController.getCurrentUUID() == getCanvasUUID())
+			CalicoDraw.repaintNode(CCanvasController.canvasdb.get(canvasUID).getCamera(), new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
 	}
 	
 	public PAffineTransform getPTransform() {

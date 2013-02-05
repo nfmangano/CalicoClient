@@ -61,9 +61,9 @@ public class PacketHandler
 		
 		int command = packet.getInt();
 
-		if (command != NetworkCommand.HEARTBEAT
-				&& command != NetworkCommand.CONSISTENCY_FAILED)
-			logger.debug("RX "+packet.toString());
+//		if (command != NetworkCommand.HEARTBEAT
+//				&& command != NetworkCommand.CONSISTENCY_FAILED)
+//			logger.debug("RX "+packet.toString());
 		
 		switch(command)
 		{
@@ -147,6 +147,7 @@ public class PacketHandler
 			case NetworkCommand.CANVAS_LOAD_PROGRESS:CANVAS_LOAD_PROGRESS(packet);break;
 
 			case NetworkCommand.SESSION_INFO:SESSION_INFO(packet);break;
+			case NetworkCommand.CHUNK_DATA:CHUNK_DATA(packet);break;
 			
 
 			case NetworkCommand.ARROW_CREATE:ARROW_CREATE(packet);break;
@@ -251,6 +252,25 @@ public class PacketHandler
 		CalicoDataStore.sessiondb.add(new CSession(name, host, port));
 		
 	}
+	
+	private static void CHUNK_DATA(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		
+		int count = p.getInt();
+		
+		for (int i = 0; i < count; i++)
+		{
+			int length = p.getInt();
+			byte[] bytes = p.getByteArray(length);
+			CalicoPacket packet = new CalicoPacket(bytes);
+			PacketHandler.receive(packet);
+		}
+		
+	}
+	
+	
 	
 	private static void PLUGIN_EVENT(CalicoPacket p)
 	{
@@ -709,7 +729,7 @@ public class PacketHandler
 		
 		CCanvas canvas = new CCanvas(uuid, index);
 		CCanvasController.canvasdb.put(uuid, canvas);
-		CCanvasController.canvasdb.get(uuid).drawMenuBars();
+//		CCanvasController.canvasdb.get(uuid).drawMenuBars();
 		
 		if (!CalicoDataStore.initialScreenDisplayed)
 		{
@@ -1245,6 +1265,8 @@ public class PacketHandler
 	
 	private static void STROKE_LOAD(CalicoPacket p)
 	{
+		long time = System.currentTimeMillis();
+		long newTime = 0;
 		long uuid = p.getLong();
 		long cuid = p.getLong();
 		long puid = p.getLong();
@@ -1263,6 +1285,8 @@ public class PacketHandler
 
 		CStrokeController.no_notify_start(uuid, cuid, puid, color, thickness);
 		
+//		newTime = System.currentTimeMillis(); System.out.println("~~~ P1 Delta time: " + (newTime - time)); newTime = time;
+		
 		int[] x = new int[numpoints];
 		int[] y = new int[numpoints];
 		
@@ -1272,6 +1296,8 @@ public class PacketHandler
 			y[i] = p.getInt();
 		}
 		CStrokeController.no_notify_batch_append(uuid, x, y);
+		
+//		newTime = System.currentTimeMillis(); System.out.println("~~~ P2 Delta time: " + (newTime - time)); newTime = time;
 		
 		double rotation = p.getDouble();
 		double scaleX = p.getDouble();
@@ -1283,6 +1309,8 @@ public class PacketHandler
 		//CStrokeController.strokes.get(uuid).finish();
 		
 		CStrokeController.no_notify_finish(uuid);
+		
+//		newTime = System.currentTimeMillis(); System.out.println("~~~ P3 Delta time: " + (newTime - time)); newTime = time;
 	}
 	
 	private static void STROKE_MAKE_SCRAP(CalicoPacket p)

@@ -3,6 +3,7 @@ package calico.plugins.iip.components.graph;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -265,6 +266,27 @@ public class CIntentionTopology
 		}
 		return null;
 	}
+	
+//	public Rectangle getTopologyBounds()
+//	{
+//		double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE,
+//				maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
+//		
+//		for (Cluster c : clusters.values())
+//		{
+//			if (minX > c.outerBox.getX())
+//				minX = c.outerBox.getX();
+//			if (minY > c.outerBox.getY())
+//				minY = c.outerBox.getY();
+//			if (maxX < c.outerBox.getX() + c.outerBox.getWidth())
+//				maxX = c.outerBox.getX() + c.outerBox.getWidth();
+//			if (maxY < c.outerBox.getY() + c.outerBox.getHeight())
+//				maxY = c.outerBox.getY() + c.outerBox.getHeight());
+//		}
+//		
+//		return new Rectangle(minX, minY,
+//				maxX - minX, maxY - minY);
+//	}
 	
 
 	

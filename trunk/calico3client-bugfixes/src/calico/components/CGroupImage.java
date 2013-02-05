@@ -198,7 +198,8 @@ public class CGroupImage extends CGroup implements ImageObserver {
 		// this.setPaintInvalid(true);
 		// CCanvasController.canvasdb.get(cuid).repaint();
 		//repaint();
-		CalicoDraw.repaint(this);
+		if (CCanvasController.getCurrentUUID() == getCanvasUID())
+			CalicoDraw.repaint(this);
 		return x == 0 || y == 0;
 	}
 
@@ -225,7 +226,8 @@ public class CGroupImage extends CGroup implements ImageObserver {
 			if (group.cuid == CCanvasController.getCurrentUUID())
 				group.setImage();	
 			// GridRemoval: CGrid.getInstance().updateCell(group.cuid);
-			group.repaint();
+			if (CCanvasController.getCurrentUUID() == getCanvasUID())
+				CalicoDraw.repaint(group);
 		}
 		
 	}

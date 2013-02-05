@@ -126,6 +126,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 
 		switch (IntentionalInterfacesNetworkCommands.Command.forId(event))
 		{
+			case WALL_BOUNDS:
+				WALL_BOUNDS(p);
+				break;
 			case CIC_UPDATE_FINISHED:
 				CCanvasLinkController.getInstance().initializeArrowColors();
 				CIntentionCellController.getInstance().updateUserLists();
@@ -434,7 +437,13 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		long uuid = p.getLong();
 		CCanvasLinkController.getInstance().removeLinkById(uuid);
 	}
-
+	
+	private static void WALL_BOUNDS(CalicoPacket p)
+	{
+//		calico.plugins.iip.graph.layout.CIntentionLayout.getTopologyBounds();
+		IntentionGraph.getInstance().initializeZoom(p);
+	}
+	
 	public Class<?> getNetworkCommandsClass()
 	{
 		return IntentionalInterfacesNetworkCommands.class;

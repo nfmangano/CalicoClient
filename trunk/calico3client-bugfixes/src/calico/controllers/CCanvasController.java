@@ -663,7 +663,7 @@ public class CCanvasController
 //		if (CalicoDataStore.gridObject != null) CalicoDataStore.gridObject.updateCell(canvas);
 		contributionController.contentChanged(canvas);
 
-		canvasdb.get(canvas).drawMenuBars();
+//		canvasdb.get(canvas).drawMenuBars();
 	}
 	
 	/**

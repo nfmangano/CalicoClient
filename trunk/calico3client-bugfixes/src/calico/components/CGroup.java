@@ -71,6 +71,7 @@ import calico.controllers.CConnectorController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
 import calico.inputhandlers.CalicoInputManager;
+import calico.networking.Networking;
 import calico.networking.netstuff.ByteUtils;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
@@ -326,7 +327,8 @@ public class CGroup extends PPath implements Serializable {
 //			 CCanvasController.canvasdb.get(this.cuid).repaint(this.getBounds());
 			
 			//CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(this.getBounds(), this);
-			CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getCamera(), this.getBounds(), this);
+			if (CCanvasController.getCurrentUUID() == getCanvasUID())
+				CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getCamera(), this.getBounds(), this);
 		}
 	}
 
@@ -758,7 +760,8 @@ public class CGroup extends PPath implements Serializable {
 
 		
 		applyAffineTransform();
-		if (fade)
+		if (fade
+				&& Networking.connectionState != Networking.ConnectionState.Connecting)
 		{
 			PActivity flash = new PActivity(500,70, System.currentTimeMillis()) {
 				long step = 0;
@@ -1861,7 +1864,8 @@ public class CGroup extends PPath implements Serializable {
 		/*a*/
 		//CCanvasController.canvasdb.get(cuid).getCamera().repaintFrom(new PBounds(Geometry.getCombinedBounds(new Rectangle[] {oldBounds, this.getBounds().getBounds()})), this);
 		//this.repaint();
-		CalicoDraw.repaintNode(this);
+		if (CCanvasController.getCurrentUUID() == getCanvasUID())
+			CalicoDraw.repaintNode(this);
 	}
 	
 	public PAffineTransform getPTransform() {
@@ -2418,7 +2422,8 @@ public class CGroup extends PPath implements Serializable {
 		double buffer = 20;
 		PBounds bufferBounds = new PBounds(bounds.getX() - buffer, bounds.getY() - buffer, bounds.getWidth() + buffer * 2, bounds.getHeight() + buffer * 2);
 		//CCanvasController.canvasdb.get(cuid).getLayer().repaintFrom(bufferBounds, this);
-		CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getLayer(), bufferBounds, this);
+		if (CCanvasController.getCurrentUUID() == getCanvasUID())
+			CalicoDraw.repaintNode(CCanvasController.canvasdb.get(cuid).getLayer(), bufferBounds, this);
 	}
 	
 	public void highlight_on() {

@@ -291,7 +291,8 @@ public class CStrokeController
 			return;
 		
 		strokes.get(uuid).finish();
-		strokes.get(uuid).calculateParent();
+		if (Networking.connectionState != Networking.ConnectionState.Connecting)
+			strokes.get(uuid).calculateParent();
 	}
 	
 	public static void no_notify_delete(long uuid)

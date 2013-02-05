@@ -200,6 +200,7 @@ public class NetworkCommand
 	public static final int CHUNK_START				= 700; // <CHUNK_UUID> <CHUNK_COUNT>
 	public static final int CHUNK_PART				= 701; // <CHUNK_UUID> <CHUNK_PART_ID> <DATA>
 	public static final int CHUNK_FINISH			= 702; // <CHUNK_UUID>
+	public static final int CHUNK_DATA				= 703;
 
 	// ARROWS
 	public static final int ARROW_CREATE			= 800; // UUID CANVASUID ARROW_TYPE RED GREEN BLUE ANCHOR_A_TYPE ANCHOR_A_UUID ANCHOR_A_X ANCHOR_A_Y   ANCHOR_B_TYPE ANCHOR_B_UUID ANCHOR_B_X ANCHOR_B_Y
