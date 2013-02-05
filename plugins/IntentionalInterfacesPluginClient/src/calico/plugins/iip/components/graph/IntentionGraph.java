@@ -20,6 +20,7 @@ import com.itextpdf.text.pdf.hyphenation.TernaryTree.Iterator;
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
+import calico.Geometry;
 import calico.CalicoOptions.menu.menubar;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
@@ -314,14 +315,24 @@ public class IntentionGraph
 	}
 
 	public void setFocusToCluster(long cluster) {
+		//remove all CICs not belonging to this cluster
+		
+		
 		focus = Focus.CLUSTER;
 		clusterFocus = cluster;
 		updateZoom();
+		
+		CIntentionCellController.getInstance().hideCellsOutsideOfCluster(cluster);
+		CalicoDraw.repaint(topology.getCluster(cluster));
+//		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
+		
 		drawMenuBar();
 //		updateButtons();
 	}
 
 	public void setFocusToWall() {
+		CIntentionCellController.getInstance().showAllCells();
+		
 		focus = Focus.WALL;
 		updateZoom();
 		drawMenuBar();
@@ -820,4 +831,6 @@ public class IntentionGraph
 			refreshTopologyTitles();
 		}		
 	}
+	
+
 }

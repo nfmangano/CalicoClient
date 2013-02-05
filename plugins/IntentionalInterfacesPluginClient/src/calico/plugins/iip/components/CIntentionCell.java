@@ -662,6 +662,7 @@ public class CIntentionCell implements CalicoEventListener
 			}
 			
 			cellIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
+			cellIcon.setPaintInvalid(false);
 //			cellIcon.moveToFront();
 		}
 	}
@@ -937,5 +938,15 @@ public class CIntentionCell implements CalicoEventListener
 	public void moveToFront()
 	{
 		shell.moveToFront();
+	}
+	
+	public void hide()
+	{
+		shell.setVisible(false);
+	}
+	
+	public void show()
+	{
+		shell.setVisible(true);
 	}
 }

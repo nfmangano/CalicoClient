@@ -20,7 +20,9 @@ import calico.networking.PacketHandler;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.components.CCanvasLinkAnchor;
+import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -437,5 +439,51 @@ public class CIntentionCellController
 		}
 
 		return isParent(incomingAnchor.getOpposite().getCanvasId(), parent.getCanvasId());
+	}
+
+	public void hideCellsOutsideOfCluster(long cluster) {
+		// 
+
+		for (CIntentionCell cell : cells.values())
+		{
+			if (this.getClusterRootCanvasId(cell.getCanvasId()) != cluster)
+			{
+				cell.hide();
+			}
+			else
+				cell.show();
+		}
+		
+		long[] arrows = calico.plugins.iip.controllers.IntentionGraphController.getInstance().getArrowLinkKeySet();
+		for (int i = 0; i < arrows.length; i++)
+		{
+			CCanvasLinkArrow arrow = calico.plugins.iip.controllers.IntentionGraphController.getInstance().getArrowByLinkId(
+					arrows[i]);
+			if (this.getClusterRootCanvasId(arrow.getAnchorA().getCanvasId()) != cluster)
+			{
+				arrow.setVisible(false);
+			}
+			else
+				arrow.setVisible(true);
+		}
+
+	}
+
+	public void showAllCells() {
+		// TODO Auto-generated method stub
+		for (CIntentionCell cell : cells.values())
+		{
+
+			cell.show();
+
+		}
+		
+		long[] arrows = calico.plugins.iip.controllers.IntentionGraphController.getInstance().getArrowLinkKeySet();
+		for (int i = 0; i < arrows.length; i++)
+		{
+			CCanvasLinkArrow arrow = calico.plugins.iip.controllers.IntentionGraphController.getInstance().getArrowByLinkId(
+					arrows[i]);
+			arrow.setVisible(true);
+		}
 	}
 }

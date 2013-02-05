@@ -289,7 +289,7 @@ public class CCanvasLinkController
 
 		packet.rewind();
 		PacketHandler.receive(packet);
-		Networking.send(packet);
+//		Networking.send(packet);
 	}
 
 	public CCanvasLink getLinkById(long uuid)

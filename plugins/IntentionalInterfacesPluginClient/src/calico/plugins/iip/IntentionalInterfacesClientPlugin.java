@@ -104,8 +104,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	public void handleCalicoEvent(int event, CalicoPacket p)
 	{
 
-//		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
-//		logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
+		if (IntentionalInterfacesNetworkCommands.Command.forId(event) != null) 
+		logger.debug("RX "+IntentionalInterfacesNetworkCommands.Command.forId(event).toString());
 
 		switch (event)
 		{

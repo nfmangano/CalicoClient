@@ -135,6 +135,11 @@ public class IntentionGraphController
 	{
 		return arrowsByLinkId.get(uuid);
 	}
+	
+	public long[] getArrowLinkKeySet()
+	{
+		return arrowsByLinkId.keySet().toLongArray();
+	}
 
 	/**
 	 * Move the pixel coordinates of <code>linkSourceCanvasId</code> such that it aligns with a link endpoint at
