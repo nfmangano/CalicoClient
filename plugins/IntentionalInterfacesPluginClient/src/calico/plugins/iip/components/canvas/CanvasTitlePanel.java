@@ -158,8 +158,9 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		}
 
 //		panel.refresh();
-		rebuildTitleNodes();
 		updatePanelBounds();
+		rebuildTitleNodes();
+		
 //		CalicoDraw.setVisible(panel, true);
 //		panel.setVisible(true);
 //		CalicoDraw.repaint(panel);
@@ -323,8 +324,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		public void actionReleased(InputEventInfo event)
 		{
 			lastAction = 1l;
-			mouseUp = event.getPoint();
-			lastPoint = event.getPoint();
+			mouseUp = event.getGlobalPoint();
+			lastPoint = event.getGlobalPoint();
 			synchronized (stateLock)
 			{
 				if ((state == InputState.PRESSED) && ((System.currentTimeMillis() - pressTime) < tapDuration))
@@ -470,8 +471,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		public void actionPressed(InputEventInfo event)
 		{
 			lastAction = 0l;
-			mouseDown = event.getPoint();
-			lastPoint = event.getPoint();
+			mouseDown = event.getGlobalPoint();
+			lastPoint = event.getGlobalPoint();
 			synchronized (stateLock)
 			{
 //				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
@@ -637,7 +638,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		clearDisplayedStack(null);
 		if (perspective instanceof CanvasPerspective)
 		{
-			layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().getLayer(0);
+			layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS);
 			refresh();
 //			rebuildTitleNodes();
 			CalicoInputManager.registerStickyItem(this);

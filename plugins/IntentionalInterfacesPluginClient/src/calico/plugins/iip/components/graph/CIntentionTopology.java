@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 import edu.umd.cs.piccolo.PLayer;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -112,19 +114,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			outerBox.setPaint(Color.white);
 			outerBox.setBounds(xOuterBox, yOuterBox, wOuterBox, hOuterBox);
 			
-			wallTitle = new PText("Wall > ");
-			wallTitle.setOffset(outerBox.getX() + 20, outerBox.getY() + 15);
-			Font font = new Font ("Helvetica", Font.PLAIN , 30);
-			wallTitle.setFont(font);
-			wallTitle.recomputeLayout();
-			
-			clusterTitle = new PText("Unnamed cluster");
-			clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getGlobalBounds().getWidth(), outerBox.getY() + 15);
-			clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth() - wallTitle.getGlobalBounds().getWidth());
-			clusterTitle.setConstrainWidthToTextWidth(false);
-//			Font font = new Font ("Helvetica", Font.PLAIN , 30);
-			clusterTitle.setFont(font);
-			clusterTitle.recomputeLayout();
+
 			
 			
 			
@@ -132,8 +122,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 //			CalicoDraw.addChildToNode(this, box);
 			CalicoDraw.addChildToNode(this, outerBox);
 			CalicoDraw.setNodeBounds(this, xOuterBox, yOuterBox, wOuterBox, hOuterBox);
-			CalicoDraw.addChildToNode(this, clusterTitle);
-			CalicoDraw.addChildToNode(this, wallTitle);
+
 
 			while (tokens.hasMoreTokens())
 			{
@@ -149,6 +138,26 @@ public class CIntentionTopology implements PerspectiveChangeListener
 				CalicoDraw.addChildToNode(outerBox, rings.get(i));
 //				box.addChild(rings.get(i));
 			}
+			
+			PBounds localBounds = new PBounds(outerBox.getBounds());
+			Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+			
+			wallTitle = new PText("Wall > ");
+			wallTitle.setOffset(globalBounds.getX() + 20, globalBounds.getY() + 20);
+			Font font = new Font ("Helvetica", Font.PLAIN , 20);
+			wallTitle.setFont(font);
+			wallTitle.recomputeLayout();
+			
+			clusterTitle = new PText("Unnamed cluster");
+			clusterTitle.setOffset(globalBounds.getX() + 20 + wallTitle.getGlobalBounds().getWidth(), globalBounds.getY() + 20);
+			clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth() - wallTitle.getGlobalBounds().getWidth());
+			clusterTitle.setConstrainWidthToTextWidth(false);
+//			Font font = new Font ("Helvetica", Font.PLAIN , 30);
+			clusterTitle.setFont(font);
+			clusterTitle.recomputeLayout();
+			
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), clusterTitle);
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), wallTitle);
 		}
 		
 		public boolean clusterTitleTextContainsPoint(Point p)
@@ -163,25 +172,48 @@ public class CIntentionTopology implements PerspectiveChangeListener
 		
 		public void updateTitleText()
 		{
-
+//			SwingUtilities.invokeLater(
+//					new Runnable() { public void run() { 
+//						PBounds localBounds = new PBounds(outerBox.getBounds());
+//						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+//						wallTitle.setOffset(globalBounds.getX() + 20, globalBounds.getY() + 20);
+//						clusterTitle.setOffset(globalBounds.getX() + 20 + wallTitle.getGlobalBounds().getWidth(), globalBounds.getY() + 20);
+//						
+//						wallTitle.setOffset(globalBounds.getX() + 20, globalBounds.getY() + 20);
+//						clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth() - wallTitle.getGlobalBounds().getWidth());
+//						
+//						wallTitle.recomputeLayout();
+//						clusterTitle.recomputeLayout();
+//					}});
 			SwingUtilities.invokeLater(
 					new Runnable() { public void run() { 
-						Font font;
-						if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
-						{
-							font = new Font ("Helvetica", Font.PLAIN , (int)(40)); 
-						}
-						else
-						{
-							font = new Font ("Helvetica", Font.PLAIN , (int)(70));
-						}
-						wallTitle.setFont(font);
-						wallTitle.recomputeLayout();
+//						Font font;
+//						if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+//						{
+//							font = new Font ("Helvetica", Font.PLAIN , (int)(40)); 
+//						}
+//						else
+//						{
+//							font = new Font ("Helvetica", Font.PLAIN , (int)(70));
+//						}
+//						wallTitle.setFont(font);
+//						wallTitle.recomputeLayout();
 						
-						clusterTitle.setFont(font);
+						PBounds localBounds = new PBounds(outerBox.getBounds());
+						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+						wallTitle.setOffset(globalBounds.getX() + 20, globalBounds.getY() + 20);
+						clusterTitle.setOffset(globalBounds.getX() + 20 + wallTitle.getGlobalBounds().getWidth(), globalBounds.getY() + 20);
+						
+						wallTitle.setOffset(globalBounds.getX() + 20, globalBounds.getY() + 20);
+						clusterTitle.setWidth(outerBox.getGlobalBounds().getWidth() - wallTitle.getGlobalBounds().getWidth());
+						
+						wallTitle.recomputeLayout();
+						clusterTitle.recomputeLayout();
+						
+//						clusterTitle.setFont(font);
 						clusterTitle.setText(CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId).getTitle());
-						clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getBounds().getWidth(), outerBox.getY() + 15);
-						clusterTitle.setWidth(outerBox.getBounds().getWidth() - wallTitle.getBounds().getWidth());
+//						clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getBounds().getWidth(), outerBox.getY() + 15);
+//						clusterTitle.setWidth(outerBox.getBounds().getWidth() - wallTitle.getBounds().getWidth());
 						clusterTitle.recomputeLayout();
 					}});
 
@@ -232,6 +264,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 		{
 			return rings.size() > 0;
 		}
+		
 	}
 
 	private final Map<Long, Cluster> clusters = new HashMap<Long, Cluster>();
@@ -310,8 +343,18 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			}
 			
 		}
-		
-		
+	}
+
+	public List<PNode> getTitles() {
+		ArrayList<PNode> ret = new ArrayList<PNode>();
+		for (Cluster c : clusters.values())
+		{
+			ret.add(c.clusterTitle);
+			ret.add(c.wallTitle);
+//			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), c.clusterTitle);
+//			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), c.wallTitle);
+		}
+		return ret;
 	}
 	
 //	public Rectangle getTopologyBounds()

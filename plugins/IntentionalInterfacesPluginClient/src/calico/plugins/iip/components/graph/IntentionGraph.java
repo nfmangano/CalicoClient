@@ -11,6 +11,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -257,7 +258,9 @@ public class IntentionGraph
 	}
 
 	public void setTopology(CIntentionTopology topology) {
+		List<PNode> list = new ArrayList<PNode>();
 		if (this.topology != null) {
+			list = topology.getTitles();
 			CalicoDraw.removeAllChildrenFromNode(topologyLayer);
 			// topologyLayer.removeAllChildren();
 		}
@@ -268,6 +271,9 @@ public class IntentionGraph
 			CalicoDraw.addChildToNode(topologyLayer, cluster);
 			// topologyLayer.addChild(cluster);
 		}
+		
+		for (PNode n : list)
+			CalicoDraw.removeChildFromNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), n);
 
 //		repaint();
 	}
@@ -355,7 +361,10 @@ public class IntentionGraph
 		drawMenuBar();
 		
 		if (flagPerspectiveChanged)
+		{
 			CalicoPerspective.Active.getCurrentPerspective().activate();
+			CalicoDraw.repaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS));
+		}
 //		updateButtons();
 	}
 	

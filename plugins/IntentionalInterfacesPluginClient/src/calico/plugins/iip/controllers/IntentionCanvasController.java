@@ -3,6 +3,7 @@ package calico.plugins.iip.controllers;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,6 +32,8 @@ import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.canvas.CopyCanvasButton;
 import calico.plugins.iip.components.canvas.NewCanvasButton;
 import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
+import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -380,9 +383,21 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		@Override
 		public void updateBounds(PNode node, double width, double height)
 		{
+			if (CalicoPerspective.Active.getCurrentPerspective() instanceof CanvasPerspective)
+			{
 			double x = X_MARGIN + MENUBAR_WIDTH;
 			double y = Y_MARGIN;
 			node.setBounds(x, y, width, height);
+			}
+			else if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective
+					&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+			{
+				PBounds localBounds = new PBounds(IntentionGraph.getInstance().getClusterBounds(IntentionGraph.getInstance().getClusterInFocus()));
+				Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+				double x = X_MARGIN + globalBounds.getX();
+				double y = Y_MARGIN + globalBounds.getY();
+				node.setBounds(x, y, width, height);
+			}
 		}
 	}
 
