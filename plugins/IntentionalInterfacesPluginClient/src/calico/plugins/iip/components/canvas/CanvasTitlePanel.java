@@ -43,6 +43,9 @@ import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 import calico.utils.Ticker;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
+import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.event.PInputEventListener;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -81,6 +84,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 	private boolean initialized = false;
 	private PLayer layer;
+	
+	private CanvasTitleNode activeTitleNode;
 	
 	private CanvasTitlePanel()
 	{
@@ -136,7 +141,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			titleNodeContainer.getParent().removeChild(titleNodeContainer);
 		}
 		refresh();
-		rebuildTitleNodes();
+//		rebuildTitleNodes();
 //		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
 //		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(titleNodeContainer);
 		if (layer != null)
@@ -332,19 +337,21 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				{
 //					panel.tap(event.getPoint());
 					Point p = event.getGlobalPoint();
-					if (titleNodeContainer.getBounds().contains(p))
+					if (titleNodeContainer.getGlobalBounds().contains(p))
 					{
 						long tappedCanvas = titleNodeContainer.getCanvasAt(p);
 						if (isChildContainerVisible(tappedCanvas) &&  tappedCanvas == IntentionGraph.WALL)
 						{
 							IntentionalInterfacesPerspective.getInstance().displayPerspective(IntentionGraph.WALL);
 						}
-						else if (isChildContainerVisible(tappedCanvas) &&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
+						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
+								&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
 						{
 							IntentionalInterfacesPerspective.getInstance().displayPerspective(CIntentionCellController.getInstance().getClusterRootCanvasId(
 									CCanvasController.getCurrentUUID()));
 						}
-						else if (isChildContainerVisible(tappedCanvas) && tappedCanvas != CCanvasController.getCurrentUUID())
+						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
+								&& tappedCanvas != CCanvasController.getCurrentUUID())
 							CCanvasController.loadCanvas(tappedCanvas);
 						else
 							titleNodeContainer.tap(p);
@@ -356,9 +363,10 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						if (ctnc.getBounds().contains(p))
 						{
 							long tappedCanvas = ctnc.getCanvasAt(p);
-							if (isChildContainerVisible(tappedCanvas) &&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
+							if ((isChildContainerVisible(tappedCanvas) || !ctnc.canvasAtPointHasChildren(p)) 
+									&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
 								IntentionalInterfacesPerspective.getInstance().displayPerspective(tappedCanvas);
-							else if (isChildContainerVisible(tappedCanvas))
+							else if (isChildContainerVisible(tappedCanvas) || !ctnc.canvasAtPointHasChildren(p))
 								CCanvasController.loadCanvas(tappedCanvas);
 							else
 								ctnc.tap(p);
@@ -392,6 +400,19 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			pressTime = 0L;
 
 			CalicoInputManager.unlockHandlerIfMatch(uuid);
+			
+			final CanvasTitleNode oldNode = activeTitleNode;
+			if (oldNode != null)
+			{
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							if (oldNode != null)
+							{
+								oldNode.setPaint(Color.white);
+								oldNode.repaint();
+							}
+						}});
+			}
 		}
 
 		public void createCanvasViewScrap(Point p, CanvasTitleNodeContainer ctnc) {
@@ -473,6 +494,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			lastAction = 0l;
 			mouseDown = event.getGlobalPoint();
 			lastPoint = event.getGlobalPoint();
+			enableHighlight(event.getGlobalPoint());
 			synchronized (stateLock)
 			{
 //				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
@@ -549,6 +571,18 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				}
 			}
 			
+			final CanvasTitleNode oldNode = activeTitleNode;
+			if (oldNode != null)
+			{
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							if (oldNode != null)
+							{
+								oldNode.setPaint(Color.white);
+								oldNode.repaint();
+							}
+						}});
+			}
 		}
 
 		@Override
@@ -800,6 +834,51 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			
 			return 0;
 		}
+		
+		public boolean canvasAtPointHasChildren(Point p)
+		{
+			int childIndex = getChildIndex(p);
+			
+			if (childIndex != -1 
+					&& getChild(childIndex) instanceof CanvasTitleNode)
+			{
+				return ((CanvasTitleNode)getChild(childIndex)).hasChildren();
+			}
+			
+			return false;
+		}
+		
+		public void highlightTitleNode(Point p)
+		{
+			int childIndex = getChildIndex(p);
+			
+			if (childIndex != -1 
+					&& getChild(childIndex) instanceof CanvasTitleNode)
+			{
+				final CanvasTitleNode oldNode = activeTitleNode;
+				if (oldNode != null)
+				{
+					SwingUtilities.invokeLater(
+							new Runnable() { public void run() { 
+								if (oldNode != null)
+								{
+									oldNode.setPaint(Color.white);
+									oldNode.repaint();
+								}
+							}});
+				}
+				
+				activeTitleNode = ((CanvasTitleNode)getChild(childIndex));
+				final CanvasTitleNode highlightedNode =  activeTitleNode;
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() {
+							highlightedNode.setPaint(new Color(255,186,100));
+							highlightedNode.repaint();
+						}});
+
+			}
+			
+		}
 
 		public int getChildIndex(Point p) {
 			int childIndex = -1;
@@ -976,6 +1055,17 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			 return false;
 		}
 		
+		public boolean hasChildren()
+		{
+			long[] children;
+			if (this.canvasId == IntentionGraph.WALL)
+				children = IntentionGraph.getInstance().getRootsOfAllClusters();
+			else
+				children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+			
+			return children.length > 0;
+		}
+		
 		public void showChildren()
 		{
 			//initialize container
@@ -1058,10 +1148,12 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 					|| titles.get(i).getParentCanvas() != upToThisContainer.getParentCanvas())
 			{
 				CalicoDraw.setVisible(titles.get(i), false);
-				titles.get(i).getParent().removeChild(titles.get(i));
+				if (titles.size() > i)
+					titles.get(i).getParent().removeChild(titles.get(i));
 //				CalicoDraw.removeChildFromNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS),
 //						titles.get(i));
-				titles.remove(i);
+				if (titles.size() > i)
+					titles.remove(i);
 			}
 			else
 				break;
@@ -1098,6 +1190,23 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		{
 			CIntentionCellController.getInstance().setCellTitle(CIntentionCellController.getInstance().getCellByCanvasId(canvasId).getId(),
 					CanvasTitleDialog.getInstance().getText(), false);
+		}
+	}
+	
+	private void enableHighlight(Point p)
+	{
+		if (titleNodeContainer.getBounds().contains(p))
+		{
+			titleNodeContainer.highlightTitleNode(p);
+		}
+		
+		for (int i = 0; i < titles.size(); i++)
+		{
+			CanvasTitleNodeContainer ctnc = titles.get(i);
+			if (ctnc.getBounds().contains(p))
+			{
+				ctnc.highlightTitleNode(p);
+			}
 		}
 	}
 
