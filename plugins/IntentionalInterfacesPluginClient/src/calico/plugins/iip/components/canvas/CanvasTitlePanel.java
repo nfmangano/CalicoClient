@@ -80,6 +80,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	private IntentionPanelLayout layout;
 
 	private boolean initialized = false;
+	private PLayer layer;
 	
 	private CanvasTitlePanel()
 	{
@@ -137,7 +138,9 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		refresh();
 		rebuildTitleNodes();
 //		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
-		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(titleNodeContainer);
+//		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(titleNodeContainer);
+		if (layer != null)
+			CalicoDraw.addChildToNode(layer,titleNodeContainer);
 	}
 
 	public void refresh()
@@ -471,7 +474,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			lastPoint = event.getPoint();
 			synchronized (stateLock)
 			{
-				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+//				PLayer layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer();
+				PLayer layer = CanvasTitlePanel.this.layer;
 				MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
 						mouseDown, 0l, layer);
 				Ticker.scheduleIn(250, menuTimer);
@@ -513,7 +517,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		public void pressAndHoldCompleted() {
 			Point p = new Point(getLastPoint());
 			long currentCanvas = CCanvasController.getCurrentUUID();
-			CCanvasController.canvasdb.get(currentCanvas).getLayer().getLocalToGlobalTransform(null).transform(p, p);
+//			CCanvasController.canvasdb.get(currentCanvas).getLayer().getLocalToGlobalTransform(null).transform(p, p);
+			layer.getLocalToGlobalTransform(null).transform(p, p);
 			if (titleNodeContainer.getBounds().contains(p))
 			{
 				long targetCanvas = titleNodeContainer.getCanvasAt(p);
@@ -583,7 +588,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				//pressedCellMainImage.setTransparency(CalicoOptions.group.background_transparency);
 //				CalicoDraw.setNodeTransparency(pressedCellMainImage, CalicoOptions.group.background_transparency);
 				//getLayer().addChild(pressedCellMainImage);
-				CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), pressedCellMainImage);
+//				CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), pressedCellMainImage);
+				CalicoDraw.addChildToNode(layer, pressedCellMainImage);
 				cuidDraggedCanvas=cuid;			
 //			}
 		}
@@ -628,16 +634,33 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 	@Override
 	public void perspectiveChanged(CalicoPerspective perspective) {
+		clearDisplayedStack(null);
 		if (perspective instanceof CanvasPerspective)
 		{
+			layer = CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getCamera().getLayer(0);
 			refresh();
 //			rebuildTitleNodes();
 			CalicoInputManager.registerStickyItem(this);
 		}
+		else if (perspective instanceof IntentionalInterfacesPerspective
+				&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+		{
+			layer = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS);
+			CalicoInputManager.registerStickyItem(this);
+			refresh();
+		}
 		else
 		{
+			if (titleNodeContainer.getParent() != null)
+				CalicoDraw.removeChildFromNode(titleNodeContainer.getParent(), titleNodeContainer);
+			layer = null;
+//			refresh();
+			
 			CalicoInputManager.unregisterStickyItem(this);
+			
 		}
+		
+		
 		
 		
 	}
@@ -648,11 +671,17 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 	
 	private void rebuildTitleNodes()
 	{
-		if (canvas_uuid == 0l)
+		long title_canvas_uuid = canvas_uuid;
+		if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective
+				&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+			title_canvas_uuid = IntentionGraph.getInstance().getClusterInFocus();
+		
+		if (title_canvas_uuid == 0l)
 			return;
 		
 		//remove old nodes from canvas
 		titleNodeContainer.removeAllChildren();
+
 		if (titles != null)
 		{
 			clearDisplayedStack(null);
@@ -662,10 +691,10 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 		
 		ArrayList<PText> titleNodes = new ArrayList<PText>();
-		CanvasTitleNode ctNode = new CanvasTitleNode(canvas_uuid, CanvasTitleNodeType.TITLE);
+		CanvasTitleNode ctNode = new CanvasTitleNode(title_canvas_uuid, CanvasTitleNodeType.TITLE);
 		titleNodes.add(0, ctNode);
 		
-		long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+		long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(title_canvas_uuid);
 		while (parentUUID != 0l)
 		{
 			titleNodes.add(0, getTitleNodeSpacer());
@@ -693,8 +722,12 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			xPos += n.getWidth() + CanvasTitleNodeContainer.CTNODE_SPACING;
 		}
 		
-		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS), 
-				titleNodeContainer);
+//		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS), 
+//				titleNodeContainer);
+		if (layer != null)
+		{
+			CalicoDraw.addChildToNode(layer, titleNodeContainer);
+		}
 //		titles = new ArrayList<CanvasTitleNodeContainer>();
 //		titles.add(titleContainer);
 		
@@ -951,7 +984,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			layoutChildren(container);
 			
 			//add to layer
-			CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(container);
+//			CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(container);
+			CalicoDraw.addChildToNode(layer, container);
 			titles.add(container);
 			CalicoDraw.repaint(container);
 			childrenVisible = true;

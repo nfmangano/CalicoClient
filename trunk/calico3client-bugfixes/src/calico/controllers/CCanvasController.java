@@ -330,7 +330,7 @@ public class CCanvasController
 			CCanvasController.canvasdb.get(CCanvasController.currentCanvasUUID).getLayer().setScale(1.0d);
 
 		Calico cal = CalicoDataStore.calicoObj;
-		CanvasPerspective.getInstance().activate();
+
 		// cal.getContentPane().removeAll();
 
 		Component[] comps = CalicoDataStore.calicoObj.getContentPane().getComponents();
@@ -382,6 +382,7 @@ public class CCanvasController
 		loadCanvasImages(uuid);
 		initializeCanvas(uuid);
 		cal.setVisible(true);
+		CanvasPerspective.getInstance().activate();
 		cal.repaint();
 
 		// initializeCanvas(uuid);

@@ -49,9 +49,20 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 
 	public void displayPerspective(final long contextCanvasId)
 	{
-		boolean initializing = notYetDisplayed;
+		final boolean initializing = notYetDisplayed;
 
 		// CHistoryController.getInstance().push(new HistoryFrame(contextCanvasId));
+		
+		final CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
+		
+		if (contextCanvasId == IntentionGraph.WALL)
+		{
+			IntentionGraph.getInstance().setFocus_primitive(IntentionGraph.Focus.WALL, 0l);
+		}
+		else if (cell != null)
+		{
+			IntentionGraph.getInstance().setFocus_primitive(IntentionGraph.Focus.CLUSTER, cell.getCanvasId());
+		}
 
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
@@ -60,15 +71,20 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 					CalicoDataStore.calicoObj.pack();
 					CalicoDataStore.calicoObj.setVisible(true);
 					CalicoDataStore.calicoObj.repaint();
+					
+
+					
 					activate();
 				}});
+		
 
+		
 		if (!initializing)
 		{
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run()
 				{
-					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
+//					CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(contextCanvasId);
 					/*if (cell == null)
 					{
 //						NICKNICKNICK
@@ -78,7 +94,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 					{
 						IntentionGraph.getInstance().setFocusToWall();
 					}
-					else
+					else if (cell != null)
 					{
 //						long cellId = cell.getId();
 //						IntentionGraph.getInstance().zoomToCell(cellId);
@@ -90,6 +106,7 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 				}
 			});
 		}
+
 	}
 
 	@Override

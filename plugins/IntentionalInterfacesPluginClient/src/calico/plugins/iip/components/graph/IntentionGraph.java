@@ -30,6 +30,7 @@ import calico.input.CalicoMouseListener;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.netstuff.CalicoPacket;
+import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
@@ -313,8 +314,18 @@ public class IntentionGraph
 		else
 			fitContents();
 	}
-
+	
 	public void setFocusToCluster(long cluster) {
+		setFocusToCluster(cluster, false);
+	}
+	
+	public void setFocus_primitive(Focus focus, long clusterWithFocus)
+	{
+		this.focus = focus;
+		this.clusterFocus = clusterWithFocus;
+	}
+
+	public void setFocusToCluster(long cluster, boolean flagPerspectiveChanged) {
 		//remove all CICs not belonging to this cluster
 		
 		
@@ -327,15 +338,24 @@ public class IntentionGraph
 //		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
 		
 		drawMenuBar();
+		if (flagPerspectiveChanged)
+			CalicoPerspective.Active.getCurrentPerspective().activate();
 //		updateButtons();
 	}
 
 	public void setFocusToWall() {
+		setFocusToWall(false);
+	}
+	
+	public void setFocusToWall(boolean flagPerspectiveChanged) {
 		CIntentionCellController.getInstance().showAllCells();
 		
 		focus = Focus.WALL;
 		updateZoom();
 		drawMenuBar();
+		
+		if (flagPerspectiveChanged)
+			CalicoPerspective.Active.getCurrentPerspective().activate();
 //		updateButtons();
 	}
 	

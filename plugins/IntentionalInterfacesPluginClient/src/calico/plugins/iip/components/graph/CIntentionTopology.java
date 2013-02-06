@@ -16,9 +16,13 @@ import javax.swing.SwingUtilities;
 
 import calico.CalicoDraw;
 import calico.events.CalicoEventListener;
+import calico.inputhandlers.CalicoInputManager;
 import calico.networking.netstuff.CalicoPacket;
+import calico.perspectives.CalicoPerspective;
+import calico.perspectives.CalicoPerspective.PerspectiveChangeListener;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.nodes.PPath;
@@ -33,7 +37,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  * 
  * @author Byron Hawkins
  */
-public class CIntentionTopology 
+public class CIntentionTopology implements PerspectiveChangeListener
 {
 	private static final Color RING_COLOR = new Color(0x8b, 0x89, 0x89);
 	private static final Color BOUNDING_BOX_COLOR = Color.black;//new Color(0x8b, 0x89, 0x89);
@@ -240,6 +244,7 @@ public class CIntentionTopology
 			Cluster cluster = new Cluster(tokens.nextToken());
 			clusters.put(cluster.rootCanvasId, cluster);
 		}
+		CalicoPerspective.addListener(this);
 	}
 
 	public void clear()
@@ -265,6 +270,48 @@ public class CIntentionTopology
 				return c;
 		}
 		return null;
+	}
+
+	@Override
+	public void perspectiveChanged(CalicoPerspective perspective) {
+		if (perspective instanceof IntentionalInterfacesPerspective
+				&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+		{
+			long clusterInFocus = IntentionGraph.getInstance().getClusterInFocus();
+			for (Cluster c : clusters.values())
+			{
+				
+				if (c.rootCanvasId == clusterInFocus)
+				{
+//					c.wallTitle.is
+					if (c.wallTitle.getVisible())
+						CalicoDraw.setVisible(c.wallTitle, false);
+					if (c.clusterTitle.getVisible())
+						CalicoDraw.setVisible(c.clusterTitle, false);
+				}
+				else
+				{
+					if (!c.wallTitle.getVisible())
+						CalicoDraw.setVisible(c.wallTitle, true);
+					if (!c.clusterTitle.getVisible())
+						CalicoDraw.setVisible(c.clusterTitle, true);					
+				}
+			}
+			
+		}
+		else if (perspective instanceof IntentionalInterfacesPerspective)
+		{
+			for (Cluster c : clusters.values())
+			{
+				if (!c.wallTitle.getVisible())
+					CalicoDraw.setVisible(c.wallTitle, true);
+				if (!c.clusterTitle.getVisible())
+					CalicoDraw.setVisible(c.clusterTitle, true);
+			}
+			
+		}
+		
+		
 	}
 	
 //	public Rectangle getTopologyBounds()

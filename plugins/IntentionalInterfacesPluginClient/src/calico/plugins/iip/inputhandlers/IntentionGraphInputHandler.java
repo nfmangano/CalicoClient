@@ -76,10 +76,10 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 			IntentionGraph.getInstance().setFocusToWall();
 		}
 		else if (clusterId > 0)
-			IntentionGraph.getInstance().setFocusToCluster(clusterId);
+			IntentionGraph.getInstance().setFocusToCluster(clusterId, true);
 //			IntentionGraph.getInstance().zoomToCluster(clusterId);
 		else
-			IntentionGraph.getInstance().setFocusToWall();
+			IntentionGraph.getInstance().setFocusToWall(true);
 //			IntentionGraph.getInstance().fitContents();
 		lastMouse = event.getPoint();
 		mouseUp = event.getPoint();
