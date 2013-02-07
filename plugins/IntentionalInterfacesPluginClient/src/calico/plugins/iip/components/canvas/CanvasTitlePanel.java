@@ -348,7 +348,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 								&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
 						{
 							IntentionalInterfacesPerspective.getInstance().displayPerspective(CIntentionCellController.getInstance().getClusterRootCanvasId(
-									CCanvasController.getCurrentUUID()));
+									tappedCanvas));
 						}
 						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
 								&& tappedCanvas != CCanvasController.getCurrentUUID())

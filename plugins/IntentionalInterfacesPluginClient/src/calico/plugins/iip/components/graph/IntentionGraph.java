@@ -344,7 +344,10 @@ public class IntentionGraph
 //		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
 		
 		drawMenuBar();
-		if (flagPerspectiveChanged)
+//		if (flagPerspectiveChanged)
+		/**
+		 * This second call is put to cause all perspective change listeners to be fired again.
+		 */
 			CalicoPerspective.Active.getCurrentPerspective().activate();
 //		updateButtons();
 	}

@@ -258,9 +258,17 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					}
 					break;
 				case ACTIVATED:
-					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD)
+					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD
+							&& cell.getVisible())
 					{
 						CCanvasController.loadCanvas(cell.getCanvasId());
+					}
+					else
+					{
+						Point2D localC = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
+						long clusterIdC = IntentionGraph.getInstance().getClusterAt(localC);
+						if (clusterIdC > 0)
+							IntentionGraph.getInstance().setFocusToCluster(clusterIdC, true);
 					}
 					break;
 			}

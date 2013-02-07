@@ -951,4 +951,9 @@ public class CIntentionCell implements CalicoEventListener
 	{
 		shell.setVisible(true);
 	}
+	
+	public boolean getVisible()
+	{
+		return shell.getVisible();
+	}
 }
