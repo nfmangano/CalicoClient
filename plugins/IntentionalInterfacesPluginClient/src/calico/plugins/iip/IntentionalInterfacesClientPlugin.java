@@ -465,7 +465,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		eventDispatcherQueue.add(e);
 	}
 	
-	private static void executeEventDispatcherEvents()
+	public static void executeEventDispatcherEvents()
 	{
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 

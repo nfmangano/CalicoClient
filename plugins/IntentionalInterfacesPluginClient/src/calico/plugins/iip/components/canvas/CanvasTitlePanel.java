@@ -997,7 +997,10 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			{
 				//get title prefix
 				String titlePrefix = "";
-				titlePrefix = cell.getTitlePrefix();
+				if (!CIntentionCellController.getInstance().isRootCanvas(this.canvasId))
+					titlePrefix = cell.getTitlePrefix();
+				else if (type == CanvasTitleNodeType.DROPDOWN)
+					titlePrefix = " * ";
 				
 				//get tag name
 				String tag = "";
@@ -1015,7 +1018,11 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						numChildren = " (" + num + ")";	
 				}
 				
-				title = titlePrefix + cell.getTitle() + tag + numChildren;
+				if (CIntentionCellController.getInstance().isRootCanvas(this.canvasId) 
+						&& type == CanvasTitleNodeType.DROPDOWN)
+					title = titlePrefix + cell.getTitleWithoutPrefix() + tag + numChildren;
+				else
+					title = titlePrefix + cell.getTitle() + tag + numChildren;
 			}
 			
 

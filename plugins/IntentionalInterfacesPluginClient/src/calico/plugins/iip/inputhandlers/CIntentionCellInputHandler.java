@@ -12,6 +12,7 @@ import calico.components.menus.ContextMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.plugins.iip.IntentionalInterfacesClientPlugin;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
@@ -189,6 +190,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					moveCurrentCell(event.getGlobalPoint(), true);
 					
 			}
+			IntentionalInterfacesClientPlugin.executeEventDispatcherEvents();
 		}
 	}
 
