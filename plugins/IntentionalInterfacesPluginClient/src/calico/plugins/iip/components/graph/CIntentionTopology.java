@@ -202,6 +202,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 						
 						PBounds localBounds = new PBounds(outerBox.getBounds());
 						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+						globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(globalBounds);
 						wallTitle.setOffset(globalBounds.getX() + 5, globalBounds.getY() + 5);
 						clusterTitle.setOffset(globalBounds.getX() + 5, globalBounds.getY() + 2);
 						
@@ -216,6 +217,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 //						clusterTitle.setOffset(outerBox.getX() + 20 + wallTitle.getBounds().getWidth(), outerBox.getY() + 15);
 //						clusterTitle.setWidth(outerBox.getBounds().getWidth() - wallTitle.getBounds().getWidth());
 						clusterTitle.recomputeLayout();
+						clusterTitle.setBounds(clusterTitle.getBounds());
 					}});
 
 			

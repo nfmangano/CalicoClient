@@ -260,7 +260,7 @@ public class IntentionGraph
 	public void setTopology(CIntentionTopology topology) {
 		List<PNode> list = new ArrayList<PNode>();
 		if (this.topology != null) {
-			list = topology.getTitles();
+			list = this.topology.getTitles();
 			CalicoDraw.removeAllChildrenFromNode(topologyLayer);
 			// topologyLayer.removeAllChildren();
 		}
@@ -563,11 +563,12 @@ public class IntentionGraph
 						.getHeight() / 2);
 				newTransform.translate(xMargin, yMargin);
 				setViewTransform(newTransform);
-				refreshTopologyTitles();
+				
 //				getLayer(Layer.TOPOLOGY).repaint();
 //				getLayer(Layer.CONTENT).repaint();
 				CalicoDraw.repaint(getLayer(Layer.TOPOLOGY));
 				CalicoDraw.repaint(getLayer(Layer.CONTENT));
+				refreshTopologyTitles();
 			}
 		});
 	}
@@ -861,7 +862,8 @@ public class IntentionGraph
 				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
 				|| event == IntentionalInterfacesNetworkCommands.CIC_UPDATE_FINISHED
 				|| event == IntentionalInterfacesNetworkCommands.CIC_UNTAG
-				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE)
+				|| event == IntentionalInterfacesNetworkCommands.CIC_SET_TITLE
+				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
 		{
 			refreshTopologyTitles();
 		}		
