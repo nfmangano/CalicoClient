@@ -240,6 +240,7 @@ public class CGroup extends PPath implements Serializable {
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupCopyDragButton.class); //6
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupRotateButton.class); //7
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupResizeButton.class); //7
+		pieMenuButtons.add(calico.components.piemenu.groups.GroupTextButton.class); //10
 		//pieMenuButtons.add(calico.components.piemenu.canvas.ArrowButton.class); //9
 		pieMenuButtons.add(calico.components.piemenu.groups.GroupDeleteButton.class); //11
 		//pieMenuButtons.add(calico.components.piemenu.canvas.ImageCreate.class);
