@@ -810,6 +810,7 @@ public class IntentionGraph
 		{
 			cit.next().updateTitleText();
 		}
+		topology.updateTitlesVisibility(CalicoPerspective.Active.getCurrentPerspective());
 		CalicoDraw.repaint(topologyLayer);
 	}
 	

@@ -218,6 +218,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 //						clusterTitle.setWidth(outerBox.getBounds().getWidth() - wallTitle.getBounds().getWidth());
 						clusterTitle.recomputeLayout();
 						clusterTitle.setBounds(clusterTitle.getBounds());
+						
 					}});
 
 			
@@ -310,6 +311,10 @@ public class CIntentionTopology implements PerspectiveChangeListener
 
 	@Override
 	public void perspectiveChanged(CalicoPerspective perspective) {
+		updateTitlesVisibility(perspective);
+	}
+
+	public void updateTitlesVisibility(CalicoPerspective perspective) {
 		if (perspective instanceof IntentionalInterfacesPerspective
 				&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
 		{
