@@ -156,6 +156,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 //			Font font = new Font ("Helvetica", Font.PLAIN , 30);
 			clusterTitle.setFont(font);
 			clusterTitle.recomputeLayout();
+			clusterTitle.setVisible(false);
 			
 			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), clusterTitle);
 //			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), wallTitle);
@@ -199,6 +200,14 @@ public class CIntentionTopology implements PerspectiveChangeListener
 //						}
 //						wallTitle.setFont(font);
 //						wallTitle.recomputeLayout();
+						
+						if (clusterTitle == null || CIntentionCellController.getInstance().getCellByCanvasId(rootCanvasId) == null)
+							return;
+						
+						if (showTitle(CalicoPerspective.Active.getCurrentPerspective(), Cluster.this))
+							clusterTitle.setVisible(true);
+						else
+							clusterTitle.setVisible(false);
 						
 						PBounds localBounds = new PBounds(outerBox.getBounds());
 						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
@@ -351,6 +360,33 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			}
 			
 		}
+	}
+	
+	private boolean showTitle(CalicoPerspective perspective, Cluster c)
+	{
+		if (perspective instanceof IntentionalInterfacesPerspective
+				&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+		{
+			long clusterInFocus = IntentionGraph.getInstance().getClusterInFocus();
+
+				
+				if (c.rootCanvasId == clusterInFocus)
+				{
+					return false;
+				}
+				else
+				{
+					return true;					
+				}
+			
+			
+		}
+		else if (perspective instanceof IntentionalInterfacesPerspective)
+		{
+			return true;
+		}
+		
+		return false;
 	}
 
 	public List<PNode> getTitles() {

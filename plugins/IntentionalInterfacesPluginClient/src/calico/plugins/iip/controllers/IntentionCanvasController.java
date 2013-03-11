@@ -385,9 +385,9 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		{
 			if (CalicoPerspective.Active.getCurrentPerspective() instanceof CanvasPerspective)
 			{
-			double x = X_MARGIN + MENUBAR_WIDTH;
-			double y = Y_MARGIN;
-			node.setBounds(x, y, width, height);
+				double x = X_MARGIN + MENUBAR_WIDTH;
+				double y = Y_MARGIN;
+				node.setBounds(x, y, width, height);
 			}
 			else if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective
 					&& IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)

@@ -34,6 +34,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
 import calico.plugins.iip.components.menus.buttons.NewClusterCanvasButton;
@@ -811,6 +812,7 @@ public class IntentionGraph
 			cit.next().updateTitleText();
 		}
 		topology.updateTitlesVisibility(CalicoPerspective.Active.getCurrentPerspective());
+		CanvasTitlePanel.getInstance().refresh();
 		CalicoDraw.repaint(topologyLayer);
 	}
 	
@@ -867,6 +869,7 @@ public class IntentionGraph
 				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
 		{
 			refreshTopologyTitles();
+			
 		}		
 	}
 	
