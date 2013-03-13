@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.Stroke;
@@ -62,6 +63,11 @@ public class CIntentionCell implements CalicoEventListener
 	
 	private static Image iconImage_create = CalicoIconManager.getIconImage("intention-graph.link-create");
 	private static Image iconImage_delete = CalicoIconManager.getIconImage("intention-graph.link-delete");
+	private static Image pinImage = CalicoIconManager.getIconImage(
+			"intention-graph.cell-pin");
+	private static Image pinSelectedImage= CalicoIconManager.getIconImage(
+			"intention-graph.cell-pin-selected");
+			
 	
 	public enum CellIconType {NONE, CREATE_LINK, DELETE_LINK};
 	
@@ -117,6 +123,10 @@ public class CIntentionCell implements CalicoEventListener
 	 * Represents the CIC in the Piccolo component hierarchy of the Intention View.
 	 */
 	private final Shell shell;
+	
+	private boolean isPinned = false;
+	
+	private PImage pin = new PImage(pinImage);
 
 	/**
 	 * Create a new CIC and add it to the Intention View.
@@ -471,6 +481,9 @@ public class CIntentionCell implements CalicoEventListener
 			cellIcon.setBounds(new Rectangle(0,0,64,64));
 			cellIcon.setVisible(false);
 			CalicoDraw.addChildToNode(this, cellIcon);
+			
+			pin.setVisible(false);
+			CalicoDraw.addChildToNode(this, pin);
 //			this.addChild(cellIcon);
 
 			IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).addPropertyChangeListener(PNode.PROPERTY_TRANSFORM, this);
@@ -665,6 +678,8 @@ public class CIntentionCell implements CalicoEventListener
 			
 			cellIcon.setBounds(new Rectangle((int)thumbnailBounds.x + BORDER_WIDTH, (int)thumbnailBounds.y + BORDER_WIDTH,64,64));
 			cellIcon.setPaintInvalid(false);
+			
+			pin.setBounds(thumbnailBounds.x + thumbnailBounds.width - pin.getBoundsReference().width, thumbnailBounds.y, pin.getBoundsReference().width, pin.getBoundsReference().height);
 //			cellIcon.moveToFront();
 		}
 	}
@@ -955,5 +970,35 @@ public class CIntentionCell implements CalicoEventListener
 	public boolean getVisible()
 	{
 		return shell.getVisible();
+	}
+	
+	public void setIsPinned(boolean value)
+	{
+		if (isPinned == value)
+			return;
+		
+		isPinned = value;
+		pin.setVisible(isPinned);
+		CalicoDraw.repaint(pin);
+		//show/hide pin
+	}
+	
+	public void setPinHighlighted(boolean value)
+	{
+		if (value)
+			pin.setImage(pinSelectedImage);
+		else
+			pin.setImage(pinImage);
+	}
+	
+	/**
+	 * 
+	 * @param p Point in global bounds
+	 * @return
+	 */
+	public boolean pinImageContainsPoint(Point p)
+	{
+//		System.out.println("Rect: " + pin.getGlobalBounds().toString() + "\nPoint: " + p.toString() );
+		return pin.getGlobalBounds().contains(p);
 	}
 }

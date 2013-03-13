@@ -182,6 +182,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 			case CLINK_DELETE:
 				CLINK_DELETE(p);
 				break;
+			case CIC_SET_PIN:
+				CIC_SET_PIN(p);
+				break;
 		}
 	}
 
@@ -204,12 +207,14 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		int x = p.getInt();
 		int y = p.getInt();
 		String title = p.getString();
+		boolean isPinned = p.getBoolean();
 		
 //		System.out.println("CIC_CREATE, " + uuid + ", " + canvas_uuid + ", " + x + ", " + y);
 
 		CIntentionCell cell = new CIntentionCell(uuid, canvas_uuid, new Point(x, y), title);
 		CIntentionCellController.getInstance().addCell(cell);
 		CIntentionCellFactory.getInstance().cellCreated(cell);
+		cell.setIsPinned(isPinned);
 //		IntentionGraph.getInstance().repaint();
 	}
 
@@ -453,6 +458,17 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 	{
 //		calico.plugins.iip.graph.layout.CIntentionLayout.getTopologyBounds();
 		IntentionGraph.getInstance().initializeZoom(p);
+	}
+	
+	private static void CIC_SET_PIN(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIC_SET_PIN.verify(p);
+		
+		long cic_id = p.getLong();
+		boolean pinValue = p.getInt() != 0;
+		
+		CIntentionCellController.getInstance().getCellById(cic_id).setIsPinned(pinValue);
 	}
 	
 	public Class<?> getNetworkCommandsClass()

@@ -12,7 +12,9 @@ import calico.components.menus.ContextMenu;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
+import calico.networking.Networking;
 import calico.plugins.iip.IntentionalInterfacesClientPlugin;
+import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
@@ -53,7 +55,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		IDLE,
 		ACTIVATED,
 		DRAG,
-		MENU;
+		MENU,
+		PIN;
 	}
 
 	/**
@@ -160,6 +163,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					{
 						state = State.DRAG;
 						CIntentionCellController.getInstance().getCellById(currentCellId).moveToFront();
+//						CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
+//						Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
 					}
 					else
 					{
@@ -207,6 +212,13 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			mouseDragAnchor = event.getGlobalPoint();
 			if (CIntentionCellController.getInstance().getCellById(currentCellId) == null)
 				return;
+			
+			if (CIntentionCellController.getInstance().getCellById(currentCellId).pinImageContainsPoint(mouseDragAnchor))
+			{
+				CIntentionCellController.getInstance().getCellById(currentCellId).setPinHighlighted(true);
+				state = State.PIN;
+			}
+			
 			cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentCellId).getLocation();
 
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
@@ -219,6 +231,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
 		cell.setCellIcon(CIntentionCell.CellIconType.NONE);
+		cell.setPinHighlighted(false);
 
 		synchronized (stateLock)
 		{
@@ -258,6 +271,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 									}});
 							
 					}
+					else
+					{
+						CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
+						Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
+					}
 					break;
 				case ACTIVATED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD
@@ -273,6 +291,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 							IntentionGraph.getInstance().setFocusToCluster(clusterIdC, true);
 					}
 					break;
+				case PIN:
+//					if (cell.pinImageContainsPoint(event.getGlobalPoint()))
+					cell.setIsPinned(false);
+					Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 0);
+					break;
 			}
 
 			if (state != State.MENU)
@@ -280,6 +303,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 				state = State.IDLE;
 				cell.setHighlighted(false);
 			}
+			
 		}
 	}
 
