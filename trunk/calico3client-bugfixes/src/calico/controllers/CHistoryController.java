@@ -3,6 +3,8 @@ package calico.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import calico.controllers.CCanvasController.HistoryFrame;
+
 public class CHistoryController
 {
 	public static CHistoryController getInstance()
@@ -39,7 +41,21 @@ public class CHistoryController
 
 	public void push(Frame frame)
 	{
+		final long uuid = ((HistoryFrame) frame).canvasId;
+		purgeCanvasIfAlreadyVisited(uuid);
+		
 		execute(new CreateFrameAction(frame));
+	}
+
+	private void purgeCanvasIfAlreadyVisited(final long uuid) {
+		
+		CHistoryController.getInstance().purgeFrames(new CHistoryController.FrameSelector() {
+			@Override
+			public boolean match(Frame frame)
+			{
+				return (frame instanceof HistoryFrame) && (((HistoryFrame) frame).canvasId == uuid);
+			}
+		});
 	}
 
 	public void purgeFrames(FrameSelector selector)
