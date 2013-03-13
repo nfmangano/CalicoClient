@@ -32,16 +32,10 @@ public class NewClusterCanvasButton extends CanvasMenuButton
 		if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.WALL)
 			return;
 		
-		long clusterRoot = IntentionGraph.getInstance().getClusterInFocus();
-
-		long newCanvasId = CIntentionCellFactory.getInstance()
-				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
-		
-		CCanvasLinkController.getInstance().createLink(clusterRoot /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
-		
-		
-		IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterRoot);
+		IntentionGraph.getInstance().createNewClusterCanvas();
 	}
+
+
 
 
 }

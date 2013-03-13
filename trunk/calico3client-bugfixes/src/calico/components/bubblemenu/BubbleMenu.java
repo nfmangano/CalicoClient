@@ -721,7 +721,7 @@ public class BubbleMenu {
 			}
 			if (buttonClassname.compareTo("calico.components.piemenu.groups.ListCreateButton") == 0)
 			{
-				return 12;
+				return 3;
 			}
 			if (buttonClassname.compareTo("calico.components.piemenu.groups.GroupCopyDragButton") == 0)
 			{

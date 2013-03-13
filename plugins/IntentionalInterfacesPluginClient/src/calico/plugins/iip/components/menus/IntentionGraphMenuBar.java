@@ -36,7 +36,7 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 //		addIcon(new ZoomToExtent());
 //		addIcon(new NewClusterButton());
-		addIcon(new NewClusterCanvasButton());
+//		addIcon(new NewClusterCanvasButton());
 
 		addSpacer();
 

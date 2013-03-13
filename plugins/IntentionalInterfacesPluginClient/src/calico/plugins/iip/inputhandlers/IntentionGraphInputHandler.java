@@ -71,7 +71,12 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 		long clusterIdWithWallTextAtPoint = IntentionGraph.getInstance().getClusterWithWallTextAtPoint(getLastPoint());
 		
 
-		if (clusterIdWithWallTextAtPoint > 0l)
+		if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER
+				&& IntentionGraph.getInstance().getClusterInFocus(this).createCanvasIconContainsPoint(event.getPoint()))
+		{
+			IntentionGraph.getInstance().createNewClusterCanvas();
+		}
+		else if (clusterIdWithWallTextAtPoint > 0l)
 		{
 			IntentionGraph.getInstance().setFocusToWall();
 		}

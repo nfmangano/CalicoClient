@@ -25,15 +25,18 @@ import calico.Geometry;
 import calico.CalicoOptions.menu.menubar;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
+import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.input.CalicoMouseListener;
+import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
+import calico.plugins.iip.components.canvas.CanvasInputProximity;
 import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
 import calico.plugins.iip.components.menus.IntentionGraphMenuBar;
@@ -341,15 +344,18 @@ public class IntentionGraph
 		updateZoom();
 		
 		CIntentionCellController.getInstance().hideCellsOutsideOfCluster(cluster);
+		CalicoPerspective.Active.getCurrentPerspective().activate();
+		topology.getCluster(cluster).activateCluster();
 		CalicoDraw.repaint(topology.getCluster(cluster));
 //		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
 		
 		drawMenuBar();
+
 //		if (flagPerspectiveChanged)
 		/**
 		 * This second call is put to cause all perspective change listeners to be fired again.
 		 */
-			CalicoPerspective.Active.getCurrentPerspective().activate();
+
 //		updateButtons();
 	}
 
@@ -360,6 +366,7 @@ public class IntentionGraph
 	public void setFocusToWall(boolean flagPerspectiveChanged) {
 		CIntentionCellController.getInstance().showAllCells();
 		
+		topology.getCluster(this.getClusterInFocus()).deactivateCluster();
 		focus = Focus.WALL;
 		updateZoom();
 		drawMenuBar();
@@ -871,6 +878,31 @@ public class IntentionGraph
 			refreshTopologyTitles();
 			
 		}		
+	}
+	
+	/**
+	 * Only intended to be accessed by input handlers.
+	 * @param clusterRootId
+	 * @param handler
+	 */
+	public CIntentionTopology.Cluster getClusterInFocus(CalicoAbstractInputHandler handler)
+	{
+		if (handler == null || getFocus() != Focus.CLUSTER)
+			return null;
+		
+		return topology.getCluster(clusterFocus);
+	}
+	
+	public void createNewClusterCanvas() {
+		long clusterRoot = IntentionGraph.getInstance().getClusterInFocus();
+
+		long newCanvasId = CIntentionCellFactory.getInstance()
+				.createNewCell(CCanvasController.getCurrentUUID(), CanvasInputProximity.forPosition(getBounds().getX())).getCanvasId();
+		
+		CCanvasLinkController.getInstance().createLink(clusterRoot /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
+		
+		
+		IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterRoot);
 	}
 	
 

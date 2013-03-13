@@ -23,10 +23,12 @@ import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CalicoPerspective.PerspectiveChangeListener;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -44,6 +46,14 @@ public class CIntentionTopology implements PerspectiveChangeListener
 	private static final Color RING_COLOR = new Color(0x8b, 0x89, 0x89);
 	private static final Color BOUNDING_BOX_COLOR = Color.black;//new Color(0x8b, 0x89, 0x89);
 	
+	private static PImage canvasCreate = 
+			new PImage(CalicoIconManager.getIconImage(
+					"intention.clusterview.canvas-create"));
+	private static PImage canvasDelete = 
+			new PImage(CalicoIconManager.getIconImage(
+					"intention.clusterview.canvas-delete"));
+	
+	private Cluster activeCluster = null;
 
 	/**
 	 * Represents one cluster in the Piccolo component hierarchy of the IntentionView. It is constructed from the
@@ -60,6 +70,7 @@ public class CIntentionTopology implements PerspectiveChangeListener
 		private final PClip outerBox;
 		private final PText wallTitle;
 		private final PText clusterTitle;
+				
 
 //		buffer.append(rootCanvasId);
 //		buffer.append("[");
@@ -160,6 +171,10 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			
 			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), clusterTitle);
 //			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), wallTitle);
+			
+
+
+			
 		}
 		
 		public boolean clusterTitleTextContainsPoint(Point p)
@@ -268,6 +283,26 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			return outerBox.getBounds();
 		}
 		
+		/**
+		 * Returns 
+		 * @param p The point in global coordinates
+		 * @return Returns true if the canvasCreate object contains Point p
+		 */
+		public boolean createCanvasIconContainsPoint(Point p)
+		{
+			return canvasCreate.getBoundsReference().contains(p);
+		}
+		
+		/**
+		 * Returns 
+		 * @param p The point in global coordinates
+		 * @return Returns true if the canvasDelete object contains Point p
+		 */
+		public boolean deleteCanvasIconContainsPoint(Point p)
+		{
+			return canvasDelete.getBoundsReference().contains(p);
+		}
+		
 		public long getRootCanvasId()
 		{
 			return rootCanvasId;
@@ -278,6 +313,31 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			return rings.size() > 0;
 		}
 		
+		public void activateCluster()
+		{
+			if (activeCluster != null &&
+					activeCluster.getRootCanvasId() == getRootCanvasId())
+				return;
+			
+			if (activeCluster != null)
+				activeCluster.deactivateCluster();
+			
+			PBounds localBounds = new PBounds(outerBox.getBounds());
+			Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+			
+			canvasDelete.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasDelete.getWidth() - 10,
+					globalBounds.getY()+10, canvasDelete.getWidth(), canvasDelete.getHeight());
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasDelete);			
+			canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - canvasDelete.getWidth() - 20,
+					globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+		}
+		
+		public void deactivateCluster()
+		{
+			canvasDelete.getParent().removeChild(canvasDelete);
+			canvasCreate.getParent().removeChild(canvasCreate);
+		}
 	}
 
 	private final Map<Long, Cluster> clusters = new HashMap<Long, Cluster>();
