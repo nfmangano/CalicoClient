@@ -1001,4 +1001,12 @@ public class CIntentionCell implements CalicoEventListener
 //		System.out.println("Rect: " + pin.getGlobalBounds().toString() + "\nPoint: " + p.toString() );
 		return pin.getGlobalBounds().contains(p);
 	}
+	
+	public void setDragging(boolean value)
+	{
+		if (value)
+			shell.setTransparency(.7f);
+		else
+			shell.setTransparency(1.0f);
+	}
 }

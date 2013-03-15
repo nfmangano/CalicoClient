@@ -163,6 +163,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					{
 						state = State.DRAG;
 						CIntentionCellController.getInstance().getCellById(currentCellId).moveToFront();
+						CIntentionCellController.getInstance().getCellById(currentCellId).setDragging(true);
 //						CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
 //						Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
 					}
@@ -230,6 +231,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	public void actionReleased(InputEventInfo event)
 	{
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
+		cell.setDragging(false);
 		cell.setCellIcon(CIntentionCell.CellIconType.NONE);
 		cell.setPinHighlighted(false);
 

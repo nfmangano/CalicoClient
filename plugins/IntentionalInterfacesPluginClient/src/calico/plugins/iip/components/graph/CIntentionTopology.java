@@ -49,9 +49,6 @@ public class CIntentionTopology implements PerspectiveChangeListener
 	private static PImage canvasCreate = 
 			new PImage(CalicoIconManager.getIconImage(
 					"intention.clusterview.canvas-create"));
-	private static PImage canvasDelete = 
-			new PImage(CalicoIconManager.getIconImage(
-					"intention.clusterview.canvas-delete"));
 	
 	private Cluster activeCluster = null;
 
@@ -293,16 +290,6 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			return canvasCreate.getBoundsReference().contains(p);
 		}
 		
-		/**
-		 * Returns 
-		 * @param p The point in global coordinates
-		 * @return Returns true if the canvasDelete object contains Point p
-		 */
-		public boolean deleteCanvasIconContainsPoint(Point p)
-		{
-			return canvasDelete.getBoundsReference().contains(p);
-		}
-		
 		public long getRootCanvasId()
 		{
 			return rootCanvasId;
@@ -325,17 +312,13 @@ public class CIntentionTopology implements PerspectiveChangeListener
 			PBounds localBounds = new PBounds(outerBox.getBounds());
 			Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
 			
-			canvasDelete.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasDelete.getWidth() - 10,
-					globalBounds.getY()+10, canvasDelete.getWidth(), canvasDelete.getHeight());
-			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasDelete);			
-			canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - canvasDelete.getWidth() - 20,
+			canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
 					globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
 			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
 		}
 		
 		public void deactivateCluster()
 		{
-			canvasDelete.getParent().removeChild(canvasDelete);
 			canvasCreate.getParent().removeChild(canvasCreate);
 		}
 	}
