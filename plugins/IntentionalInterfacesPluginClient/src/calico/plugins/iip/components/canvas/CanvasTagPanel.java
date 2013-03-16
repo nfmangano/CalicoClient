@@ -25,6 +25,7 @@ import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.CIntentionType;
 import calico.plugins.iip.components.IntentionPanelLayout;
+import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import edu.umd.cs.piccolo.PNode;
@@ -120,8 +121,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 	public void setVisible(boolean b)
 	{
-		if (true)
-			return;
+//		if (true)
+//			return;
 		
 		if (visible == b)
 		{
@@ -162,7 +163,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 		}
 		refresh();
 		CalicoDraw.addChildToNode(CCanvasController.canvasdb.get(canvas_uuid).getCamera(), panel);
-//		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
+		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addChild(panel);
 		CCanvasController.canvasdb.get(canvas_uuid).getCamera().addPropertyChangeListener(this);
 	}
 
@@ -268,7 +269,9 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			IntentionCanvasController.getInstance().showTagPanel(false);
 			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
 					type.getId()-1, !selected, false);
+			IntentionCanvasController.getInstance().linkCanvasToOriginatingContext();
 //			IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
+			
 //			CanvasTitlePanel.getInstance().refresh();
 		}
 

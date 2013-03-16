@@ -345,11 +345,12 @@ public class IntentionGraph
 		
 		CIntentionCellController.getInstance().hideCellsOutsideOfCluster(cluster);
 		CalicoPerspective.Active.getCurrentPerspective().activate();
-		topology.getCluster(cluster).activateCluster();
+		
 		CalicoDraw.repaint(topology.getCluster(cluster));
 //		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
 		
 		drawMenuBar();
+		topology.getCluster(cluster).activateCluster();
 
 //		if (flagPerspectiveChanged)
 		/**
@@ -364,6 +365,8 @@ public class IntentionGraph
 	}
 	
 	public void setFocusToWall(boolean flagPerspectiveChanged) {
+		if (focus == Focus.WALL)
+			return;
 		CIntentionCellController.getInstance().showAllCells();
 		
 		topology.getCluster(this.getClusterInFocus()).deactivateCluster();

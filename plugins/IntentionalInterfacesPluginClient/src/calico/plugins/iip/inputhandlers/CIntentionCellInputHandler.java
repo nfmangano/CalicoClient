@@ -176,14 +176,15 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
 					long targetCluster = IntentionGraph.getInstance().getClusterAt(event.getPoint());
 					long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
-					if (potentialTargetCell > 0l
-							&& potentialTargetCell != currentCellId
-							&& !CIntentionCellController.getInstance().isParent(
-									CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId(), cell.getCanvasId()))
-					{
-						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.CREATE_LINK);
-					}
-					else if (CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
+//					if (potentialTargetCell > 0l
+//							&& potentialTargetCell != currentCellId
+//							&& !CIntentionCellController.getInstance().isParent(
+//									CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId(), cell.getCanvasId()))
+//					{
+//						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.CREATE_LINK);
+//					}
+//					else 
+						if (CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
 							&& IntentionGraph.getInstance().ringContainsPoint(originalRoot, event.getGlobalPoint(), 0))
 					{
 						CIntentionCellController.getInstance().getCellById(currentCellId).setCellIcon(CIntentionCell.CellIconType.DELETE_LINK);
@@ -245,14 +246,15 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					final long clusterId = IntentionGraph.getInstance().getClusterAt(local);
 					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
 					long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
-					if (potentialTargetCell > 0l
-							&& !CIntentionCellController.getInstance().isParent(
-									CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId(), cell.getCanvasId()))
-					{
-						long targetCanvasId = CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId();
-						CCanvasLinkController.getInstance().createLink(targetCanvasId, cell.getCanvasId());
-					}
-					else if (clusterId == originalRoot
+//					if (potentialTargetCell > 0l
+//							&& !CIntentionCellController.getInstance().isParent(
+//									CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId(), cell.getCanvasId()))
+//					{
+//						long targetCanvasId = CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId();
+//						CCanvasLinkController.getInstance().createLink(targetCanvasId, cell.getCanvasId());
+//					}
+//					else 
+						if (clusterId == originalRoot
 							&& CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
 							&& IntentionGraph.getInstance().ringContainsPoint(originalRoot, event.getPoint(), 0))
 					{

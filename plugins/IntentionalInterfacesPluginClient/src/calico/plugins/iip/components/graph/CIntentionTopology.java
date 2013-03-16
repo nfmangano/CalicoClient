@@ -302,19 +302,24 @@ public class CIntentionTopology implements PerspectiveChangeListener
 		
 		public void activateCluster()
 		{
-			if (activeCluster != null &&
-					activeCluster.getRootCanvasId() == getRootCanvasId())
-				return;
-			
-			if (activeCluster != null)
-				activeCluster.deactivateCluster();
-			
-			PBounds localBounds = new PBounds(outerBox.getBounds());
-			Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
-			
-			canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
-					globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
-			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() { 
+						if (activeCluster != null &&
+								activeCluster.getRootCanvasId() == getRootCanvasId())
+							return;
+						
+						if (activeCluster != null)
+							activeCluster.deactivateCluster();
+						
+						PBounds localBounds = new PBounds(outerBox.getBounds());
+						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+						
+						canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
+								globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
+						CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+						CalicoDraw.repaint(canvasCreate);
+					}});
+
 		}
 		
 		public void deactivateCluster()

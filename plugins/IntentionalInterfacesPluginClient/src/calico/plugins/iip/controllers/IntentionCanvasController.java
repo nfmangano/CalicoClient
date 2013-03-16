@@ -321,6 +321,15 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 			canvasCreationContext = null;
 		}
 	}
+	
+	public void linkCanvasToOriginatingContext()
+	{
+		if (canvasCreationContext != null)
+		{
+			long linkOriginCanvasId = canvasCreationContext.originatingCanvasId;
+			CCanvasLinkController.getInstance().createLink(linkOriginCanvasId, canvasCreationContext.newCanvasId);
+		}
+	}
 
 	/**
 	 * Notify this controller that the most recently created canvas has been tagged, such that if it is also linked,
@@ -394,8 +403,8 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 			{
 				PBounds localBounds = new PBounds(IntentionGraph.getInstance().getClusterBounds(IntentionGraph.getInstance().getClusterInFocus()));
 				Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
-				double x = X_MARGIN + globalBounds.getX();
-				double y = Y_MARGIN + globalBounds.getY();
+				double x = 5 + globalBounds.getX();
+				double y = 2 + globalBounds.getY();
 				node.setBounds(x, y, width, height);
 			}
 		}
