@@ -307,7 +307,10 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 		if (cell == null
 				|| canvasId == 0l
-				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId))
+				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId)
+				|| IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId() == 0l 
+						&& CIntentionCellController.getInstance().isRootCanvas(
+								CIntentionCellController.getInstance().getCIntentionCellParent(currentCanvasId)))
 		{
 			showTagPanel(false);
 		}
@@ -329,6 +332,13 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 			long linkOriginCanvasId = canvasCreationContext.originatingCanvasId;
 			CCanvasLinkController.getInstance().createLink(linkOriginCanvasId, canvasCreationContext.newCanvasId);
 		}
+	}
+	
+	public long getCurrentOriginatingCanvasId()
+	{
+		if (canvasCreationContext != null)
+			return canvasCreationContext.originatingCanvasId;
+		return 0;
 	}
 
 	/**

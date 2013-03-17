@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import calico.Calico;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
@@ -746,9 +748,14 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 		long parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(title_canvas_uuid);
 		while (parentUUID != 0l)
 		{
-			titleNodes.add(0, getTitleNodeSpacer());
-			ctNode = new CanvasTitleNode(parentUUID, CanvasTitleNodeType.TITLE);
-			titleNodes.add(0, ctNode);
+			if (CIntentionCellController.getInstance().isRootCanvas(parentUUID)
+					|| CIntentionCellController.getInstance().isRootCanvas(
+							CIntentionCellController.getInstance().getCIntentionCellParent(parentUUID)))
+			{
+				titleNodes.add(0, getTitleNodeSpacer());
+				ctNode = new CanvasTitleNode(parentUUID, CanvasTitleNodeType.TITLE);
+				titleNodes.add(0, ctNode);
+			}
 			parentUUID = CIntentionCellController.getInstance().getCIntentionCellParent(parentUUID);
 		}
 		
@@ -1028,8 +1035,10 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						&& type == CanvasTitleNodeType.DROPDOWN)
 				{	
 					int num = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId).length;
-					if (num > 0)
-						numChildren = " (" + num + ")";	
+					if (num > 0
+							&& CIntentionCellController.getInstance().isRootCanvas(
+									CIntentionCellController.getInstance().getCIntentionCellParent(canvasId)))
+						numChildren = " (" + getCICChildren().length + ")";	
 				}
 				
 				if (CIntentionCellController.getInstance().isRootCanvas(this.canvasId) 
@@ -1081,8 +1090,11 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			long[] children;
 			if (this.canvasId == IntentionGraph.WALL)
 				children = IntentionGraph.getInstance().getRootsOfAllClusters();
+			else if (CIntentionCellController.getInstance().isRootCanvas(
+									CIntentionCellController.getInstance().getCIntentionCellParent(canvasId)))
+				children = getCICChildren();
 			else
-				children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+				children = new long[0];
 			
 			return children.length > 0;
 		}
@@ -1110,7 +1122,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				if (this.canvasId == IntentionGraph.WALL)
 					children = IntentionGraph.getInstance().getRootsOfAllClusters();
 				else
-					children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+					children = getCICChildren();
 				
 				CanvasTitleNode[] titleNodes = new CanvasTitleNode[children.length];
 				int xPos = (int)getX();
@@ -1129,7 +1141,8 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 			}
 			else if (type == CanvasTitleNodeType.DROPDOWN)
 			{
-				long[] children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+				long[] children = getCICChildren();
+//				long[] children = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
 				
 				int width = (int)getWidth();
 				if (getParent() instanceof CanvasTitleNodeContainer)
@@ -1158,6 +1171,22 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				}
 				container.setBounds(xPosOriginal, yPosOriginal, container.calculateWidth() + spacer.getWidth(), container.calculateHeight());
 			}
+		}
+
+		private long[] getCICChildren() {
+			if (CIntentionCellController.getInstance().isRootCanvas(this.canvasId))
+			{
+				return CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+			}
+			ArrayList<Long> children = new ArrayList<Long>();
+			long[] traversalChildren = CIntentionCellController.getInstance().getCIntentionCellChildren(this.canvasId);
+			while (traversalChildren.length > 0)
+			{
+				children.add(new Long(traversalChildren[0]));
+				traversalChildren = CIntentionCellController.getInstance().getCIntentionCellChildren(traversalChildren[0]);
+			}
+			
+			return ArrayUtils.toPrimitive(children.toArray(new Long[0]));
 		}
 	}
 	

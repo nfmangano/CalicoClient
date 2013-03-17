@@ -121,8 +121,8 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 	public void setVisible(boolean b)
 	{
-//		if (true)
-//			return;
+		// if the originating canvas is in the inner circle, don't display this
+
 		
 		if (visible == b)
 		{
@@ -268,7 +268,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 		{
 			IntentionCanvasController.getInstance().showTagPanel(false);
 			CIntentionCellController.getInstance().toggleCellIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId(),
-					type.getId(), !selected, false);
+					type.getId()-1, !selected, false);
 			IntentionCanvasController.getInstance().linkCanvasToOriginatingContext();
 //			IntentionCanvasController.getInstance().collapseLikeIntentionTypes();
 			
@@ -328,7 +328,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 		{
 			for (IntentionTypeRow row : typeRows)
 			{
-				if (row.getGlobalBounds().contains(point))
+				if (row.getBoundsReference().contains(point))
 				{
 					row.tap(point);
 					break;
@@ -461,7 +461,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			{
 				if ((state == InputState.PRESSED) && ((System.currentTimeMillis() - pressTime) < tapDuration))
 				{
-					panel.tap(event.getGlobalPoint());
+					panel.tap(event.getPoint());
 				}
 				state = InputState.IDLE;
 			}

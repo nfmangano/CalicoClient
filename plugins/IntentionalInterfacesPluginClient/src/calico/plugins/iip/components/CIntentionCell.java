@@ -773,16 +773,32 @@ public class CIntentionCell implements CalicoEventListener
 
 		
 		//get parent cell
+		int centerRingIndex = 0;
+		int jumpsToRoot = 0;
 		long parentCanvasId = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
-		if (parentCanvasId > 0l)
+		while (parentCanvasId > 0l)
 		{
-			CIntentionCell parentCell = CIntentionCellController.getInstance().getCellByCanvasId(parentCanvasId);
-			titlePrefix += parentCell.getTitlePrefix();
+			long nextParent = CIntentionCellController.getInstance().getCIntentionCellParent(parentCanvasId);
+			if (nextParent > 0l)
+			{
+				jumpsToRoot++;
+				centerRingIndex = CIntentionCellController.getInstance().getCellByCanvasId(parentCanvasId).getSiblingIndex();
+			}
+			parentCanvasId = nextParent;
 		}
-				
 		
-		if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
-			titlePrefix += getSiblingIndex() + ". ";
+//		long parentCanvasId = CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid);
+//		if (parentCanvasId > 0l)
+//		{
+//			CIntentionCell parentCell = CIntentionCellController.getInstance().getCellByCanvasId(parentCanvasId);
+//			titlePrefix += parentCell.getTitlePrefix();
+//		}
+				
+		if (CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid)))
+			titlePrefix = getSiblingIndex() + ". ";
+		else if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
+			titlePrefix = centerRingIndex + "." + jumpsToRoot + " ";
+//			titlePrefix += getSiblingIndex() + ". ";
 //		else 
 //		{
 //			int clusterIndex = getClusterIndex();
