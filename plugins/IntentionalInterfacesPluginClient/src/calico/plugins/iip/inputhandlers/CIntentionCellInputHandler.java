@@ -371,7 +371,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						if (CCanvasController.canvasdb.size() > 1
 								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, /*linkButton,*/ setCanvasTitleButton /*, zoomToClusterButton*/);
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton /*, zoomToClusterButton*/);
 						}
 						else
 						{
