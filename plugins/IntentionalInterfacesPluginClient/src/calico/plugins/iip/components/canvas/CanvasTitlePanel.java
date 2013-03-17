@@ -148,14 +148,16 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 
 	public void refresh()
 	{
-		if (!SwingUtilities.isEventDispatchThread())
-		{
+//		if (!SwingUtilities.isEventDispatchThread())
+//		{
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run()
 				{
-					updatePanelBounds();
+					
 //					refresh();
+					updatePanelBounds();
 					rebuildTitleNodes();
+					updatePanelBounds();
 					if (titleNodeContainer.getParent() != null && titleNodeContainer.getParent() != layer)
 					{
 						titleNodeContainer.getParent().removeChild(titleNodeContainer);
@@ -165,22 +167,23 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						CalicoDraw.addChildToNode(layer,titleNodeContainer);
 				}
 			});
-			return;
-		}
-		else
-		{
-
-//		panel.refresh();
-			updatePanelBounds();
-			rebuildTitleNodes();
-			if (titleNodeContainer.getParent() != null && titleNodeContainer.getParent() != layer)
-			{
-				titleNodeContainer.getParent().removeChild(titleNodeContainer);
-			}
-			if (layer != null && IntentionGraph.getInstance().getFocus() != IntentionGraph.Focus.WALL
-					&& titleNodeContainer.getParent() != layer)
-				CalicoDraw.addChildToNode(layer,titleNodeContainer);
-		}
+//			return;
+//		}
+//		else
+//		{
+//
+////		panel.refresh();
+//			
+//			rebuildTitleNodes();
+//			updatePanelBounds();
+//			if (titleNodeContainer.getParent() != null && titleNodeContainer.getParent() != layer)
+//			{
+//				titleNodeContainer.getParent().removeChild(titleNodeContainer);
+//			}
+//			if (layer != null && IntentionGraph.getInstance().getFocus() != IntentionGraph.Focus.WALL
+//					&& titleNodeContainer.getParent() != layer)
+//				CalicoDraw.addChildToNode(layer,titleNodeContainer);
+//		}
 		
 //		CalicoDraw.setVisible(panel, true);
 //		panel.setVisible(true);
