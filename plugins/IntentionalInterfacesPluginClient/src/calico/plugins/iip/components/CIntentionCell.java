@@ -993,6 +993,10 @@ public class CIntentionCell implements CalicoEventListener
 		if (isPinned == value)
 			return;
 		
+		long[] children = CIntentionCellController.getInstance().getCIntentionCellChildren(getCanvasId());
+		if (children.length > 0)
+			 CIntentionCellController.getInstance().getCellByCanvasId(children[0]).setIsPinned(value);
+		
 		isPinned = value;
 		pin.setVisible(isPinned);
 		CalicoDraw.repaint(pin);
