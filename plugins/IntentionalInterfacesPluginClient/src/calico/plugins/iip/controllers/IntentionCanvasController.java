@@ -265,7 +265,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 	public Color getIntentionTypeColor(long typeId)
 	{
-		if (typeId < 0L)
+		if (typeId < 0L || getIntentionType(typeId) == null)
 		{
 			return Color.black;
 		}
