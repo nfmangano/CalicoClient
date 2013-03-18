@@ -403,6 +403,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		@Override
 		public void highlight(boolean b, long uuid)
 		{
+			if (CIntentionCellController.getInstance().getCellById(uuid) != null)
 			CIntentionCellController.getInstance().getCellById(uuid).setHighlighted(b);
 		}
 

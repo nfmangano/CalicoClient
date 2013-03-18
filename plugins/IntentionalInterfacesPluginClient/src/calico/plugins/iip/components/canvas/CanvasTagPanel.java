@@ -384,10 +384,11 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			}
 
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
-			for (IntentionTypeRow row : typeRows)
-			{
-				row.setSelected(cell.getIntentionTypeId() == row.type.getId());
-			}
+			if (cell != null)
+				for (IntentionTypeRow row : typeRows)
+				{
+					row.setSelected(cell.getIntentionTypeId() == row.type.getId());
+				}
 		}
 
 		@Override
