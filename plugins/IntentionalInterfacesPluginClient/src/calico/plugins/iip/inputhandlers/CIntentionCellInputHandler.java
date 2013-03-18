@@ -122,7 +122,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	{
 		this.currentCellId = currentCellId;
 
-		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(true);
+//		CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(true);
 	}
 
 	/**

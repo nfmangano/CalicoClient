@@ -430,7 +430,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		@Override
 		public synchronized void updateBounds(PNode node, double width, double height)
 		{
-			if ((canvasCreationContext != null) && (canvasCreationContext.proximity == CanvasInputProximity.RIGHT))
+			if ((canvasCreationContext != null) && (true /*canvasCreationContext.proximity == CanvasInputProximity.RIGHT*/))
 			{
 				positionRight(node, width, height);
 			}
