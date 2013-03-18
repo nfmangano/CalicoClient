@@ -328,7 +328,7 @@ public class IntentionGraphController
 
 		if (BubbleMenu.isBubbleMenuActive() && (BubbleMenu.activeUUID == cellId))
 		{
-			BubbleMenu.moveIconPositions(cell.getGlobalBounds());
+			BubbleMenu.moveIconPositions(cell.getBounds());
 		}
 
 		if (cell.isNew())

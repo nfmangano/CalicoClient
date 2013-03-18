@@ -315,6 +315,12 @@ public class CIntentionCell implements CalicoEventListener
 		// bounds.setOrigin(0.0, 0.0);
 		return new PBounds(shell.localToGlobal(bounds)); // getBounds();
 	}
+	
+	public PBounds getBounds()
+	{
+		PBounds bounds = shell.getBounds();
+		return new PBounds(bounds);
+	}
 
 	/**
 	 * Get the center point of this CIC in Intention View coordinates.
@@ -986,6 +992,11 @@ public class CIntentionCell implements CalicoEventListener
 	public boolean getVisible()
 	{
 		return shell.getVisible();
+	}
+	
+	public boolean getIsPinned()
+	{
+		return isPinned;
 	}
 	
 	public void setIsPinned(boolean value)

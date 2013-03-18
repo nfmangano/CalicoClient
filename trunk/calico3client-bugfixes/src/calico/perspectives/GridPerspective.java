@@ -5,6 +5,7 @@ import java.awt.event.MouseListener;
 import calico.CalicoDraw;
 import calico.components.grid.CGrid;
 import calico.inputhandlers.InputEventInfo;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 
 public class GridPerspective extends CalicoPerspective
@@ -77,5 +78,17 @@ public class GridPerspective extends CalicoPerspective
 	public void tickerUpdate() {
 		CGrid.getInstance().updateCells();
 		
+	}
+
+	@Override
+	public PLayer getContentLayer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PLayer getToolsLayer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -4,10 +4,12 @@ import java.awt.Point;
 import java.awt.event.MouseListener;
 
 import calico.CalicoDraw;
+import calico.components.CCanvas;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.inputhandlers.InputEventInfo;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 
 public class CanvasPerspective extends CalicoPerspective
@@ -127,5 +129,16 @@ public class CanvasPerspective extends CalicoPerspective
 	public void tickerUpdate() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public PLayer getContentLayer() {
+
+		return CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.CONTENT);
+	}
+
+	@Override
+	public PLayer getToolsLayer() {
+		return CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer(CCanvas.Layer.TOOLS);
 	}
 }

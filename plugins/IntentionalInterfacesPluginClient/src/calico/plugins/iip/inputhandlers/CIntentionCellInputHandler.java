@@ -53,6 +53,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private enum State
 	{
 		IDLE,
+		PRESSED,
 		ACTIVATED,
 		DRAG,
 		MENU,
@@ -106,6 +107,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	 * Opens a dialog to set the name of the canvas
 	 */
 	private final SetCanvasTitleButton setCanvasTitleButton = new SetCanvasTitleButton();
+	
+	private Point lastLocalMousePoint = null;
 
 	private CIntentionCellInputHandler()
 	{
@@ -154,6 +157,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
+		lastLocalMousePoint = event.getPoint();
 		synchronized (stateLock)
 		{
 			switch (state)
@@ -195,6 +199,11 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					}
 					
 					moveCurrentCell(event.getGlobalPoint(), true);
+//					calico.components.bubblemenu.BubbleMenu.updateContainerBounds();
+					PBounds local = cell.getGlobalBounds();
+					if (CCanvasController.exists(CCanvasController.getCurrentUUID()))	
+						local =  new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
+					BubbleMenu.moveIconPositions(cell.getBounds());
 					
 			}
 			IntentionalInterfacesClientPlugin.executeEventDispatcherEvents();
@@ -204,11 +213,13 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{
+		lastLocalMousePoint = event.getPoint();
 		if (event.isLeftButtonPressed())
 		{
 			synchronized (stateLock)
 			{
-				state = State.ACTIVATED;
+				state = state.PRESSED;
+//				state = State.ACTIVATED;
 			}
 
 			mouseDragAnchor = event.getGlobalPoint();
@@ -231,6 +242,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
+		lastLocalMousePoint = event.getPoint();
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
 		cell.setDragging(false);
 		cell.setCellIcon(CIntentionCell.CellIconType.NONE);
@@ -277,11 +289,14 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					}
 					else
 					{
-						CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
-						Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
+						if (!CIntentionCellController.getInstance().getCellById(currentCellId).getIsPinned())
+						{
+							CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
+							Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
+						}
 					}
 					break;
-				case ACTIVATED:
+				case PRESSED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD
 							&& cell.getVisible())
 					{
@@ -300,6 +315,9 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					cell.setIsPinned(false);
 					Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 0);
 					break;
+				case ACTIVATED:
+					state = State.MENU;
+					break;
 			}
 
 			if (state != State.MENU)
@@ -314,7 +332,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void menuCleared(ContextMenu menu)
 	{
-		if ((state == State.MENU) && (menu == ContextMenu.BUBBLE_MENU))
+		if ((state == State.MENU) && (menu == ContextMenu.BUBBLE_MENU)
+				&& CIntentionCellController.getInstance().getCellById(currentCellId) != null)
 		{
 			state = State.IDLE;
 			CIntentionCellController.getInstance().getCellById(currentCellId).setHighlighted(false);
@@ -350,7 +369,9 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				synchronized (stateLock)
 				{
-					if (state == State.ACTIVATED)
+					CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
+					if (state == State.PRESSED
+							&& cell.contains(lastLocalMousePoint))
 					{
 						startAnimation(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), point);
 					}
@@ -362,7 +383,9 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				synchronized (stateLock)
 				{
-					if (state == State.ACTIVATED)
+					CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
+					if (state == State.PRESSED
+							&& cell.contains(lastLocalMousePoint))
 					{
 						state = State.MENU;
 						
@@ -377,6 +400,13 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						{
 							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, /*linkButton,*/ setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
 						}
+						
+						state = State.ACTIVATED;
+//						state = State.DRAG;
+//						CIntentionCellController.getInstance().getCellById(currentCellId).moveToFront();
+//						CIntentionCellController.getInstance().getCellById(currentCellId).setDragging(true);
+////						CIntentionCellController.getInstance().getCellById(currentCellId).setIsPinned(true);
+////						Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
 					}
 				}
 			}

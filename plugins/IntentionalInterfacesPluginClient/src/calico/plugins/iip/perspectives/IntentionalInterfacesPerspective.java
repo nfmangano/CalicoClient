@@ -23,6 +23,7 @@ import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.inputhandlers.CCanvasLinkInputHandler;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 
 /**
@@ -227,5 +228,15 @@ public class IntentionalInterfacesPerspective extends CalicoPerspective
 	public void tickerUpdate() {
 		calico.plugins.iip.controllers.CIntentionCellController.updateCells();
 		
+	}
+
+	@Override
+	public PLayer getContentLayer() {
+		return IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT);
+	}
+
+	@Override
+	public PLayer getToolsLayer() {
+		return IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS);
 	}
 }

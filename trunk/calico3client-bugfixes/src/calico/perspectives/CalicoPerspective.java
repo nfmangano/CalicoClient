@@ -11,6 +11,7 @@ import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.inputhandlers.CalicoInputManager;
 import calico.inputhandlers.InputEventInfo;
+import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 
 public abstract class CalicoPerspective
@@ -56,6 +57,10 @@ public abstract class CalicoPerspective
 	public abstract boolean isNavigationPerspective();
 	
 	public abstract void tickerUpdate();
+	
+	public abstract PLayer getContentLayer();
+	
+	public abstract PLayer getToolsLayer();
 
 	public boolean isActive()
 	{

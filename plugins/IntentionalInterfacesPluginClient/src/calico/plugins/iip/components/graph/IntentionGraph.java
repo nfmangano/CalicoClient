@@ -337,6 +337,8 @@ public class IntentionGraph
 
 	public void setFocusToCluster(long cluster, boolean flagPerspectiveChanged) {
 		//remove all CICs not belonging to this cluster
+		if (focus == Focus.CLUSTER && clusterFocus == cluster)
+			return;
 		
 		
 		focus = Focus.CLUSTER;
