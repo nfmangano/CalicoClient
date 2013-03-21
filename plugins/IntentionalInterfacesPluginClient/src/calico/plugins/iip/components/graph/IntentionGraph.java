@@ -757,6 +757,9 @@ public class IntentionGraph
 	
 	public void removeExtraCluster(long emptyClusterToIgnore) {
 		long[] clusterRoots = IntentionGraph.getInstance().getRootsOfAllClusters();
+		if (clusterRoots.length < 5)
+			return;
+		
 		for (int i = 0; i < clusterRoots.length; i++)
 		{
 			if (clusterRoots[i] != emptyClusterToIgnore
