@@ -47,6 +47,7 @@ import calico.plugins.iip.controllers.CIntentionCellFactory;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
+import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
@@ -337,8 +338,9 @@ public class IntentionGraph
 
 	public void setFocusToCluster(long cluster, boolean flagPerspectiveChanged) {
 		//remove all CICs not belonging to this cluster
-		if (focus == Focus.CLUSTER && clusterFocus == cluster)
-			return;
+//		if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective &&
+//				focus == Focus.CLUSTER && clusterFocus == cluster)
+//			return;
 		
 		
 		focus = Focus.CLUSTER;
