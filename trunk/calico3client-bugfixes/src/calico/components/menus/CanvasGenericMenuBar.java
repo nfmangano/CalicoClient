@@ -1,6 +1,7 @@
 package calico.components.menus;
 
 import java.awt.*;
+import java.awt.List;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.image.*;
@@ -23,6 +24,8 @@ import edu.umd.cs.piccolox.nodes.*;
 import edu.umd.cs.piccolox.pswing.*;
 
 import java.net.*;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -211,6 +214,47 @@ public class CanvasGenericMenuBar extends PComposite
 		//addChild(0,button_array[button_array_index]);
 		CalicoDraw.addChildToNode(this, button_array[button_array_index], 0);
 		button_array_index++;
+	}
+	
+	protected void centerIconsVertically()
+	{
+		//get bounds, figure out delta for mid point, shift all figures
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					ListIterator<PNode> children = CanvasGenericMenuBar.this.getChildrenIterator();
+					int maxHeight = Integer.MIN_VALUE;
+					int minHeight = Integer.MAX_VALUE;
+					while (children.hasNext())
+					{
+						PNode child = children.next();
+						if (child.getBoundsReference().y < minHeight)
+							minHeight = (int)child.getBoundsReference().y;
+						if (child.getBoundsReference().y + child.getBounds().height > maxHeight)
+							maxHeight = (int)(child.getBoundsReference().y + child.getBounds().height);
+					}
+					int mid = (minHeight + maxHeight) / 2;
+					int deltaY = (int)CanvasGenericMenuBar.this.getBounds().getCenterY() - mid;
+					
+					for (int i = 0; i < rect_array.length; i++)
+					{
+						if (rect_array[i] != null)
+						{
+							rect_array[i].translate(0, deltaY);
+							button_array[i].setBounds(rect_array[i]);
+						}
+					}
+				}});
+
+		
+		
+		
+//		rect_array[button_array_index] = addIcon(span);
+//		button_array[button_array_index] = icon;
+//		button_array[button_array_index].setBounds(rect_array[button_array_index]);
+		
+		
+		//addChild(0,button_array[button_array_index]);
+//		CalicoDraw.addChildToNode(this, button_array[button_array_index], 0);
 	}
 	
 	public void addIconRightAligned(CanvasMenuButton icon)

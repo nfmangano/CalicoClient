@@ -118,6 +118,9 @@ public class CanvasMenuBar extends CanvasGenericMenuBar
 				addSpacer(ALIGN_END);
 				addIconRightAligned((CanvasMenuButton) button.getConstructor(long.class).newInstance(cuid));
 			}
+			
+			centerIconsVertically();
+
 		}
 		catch(Exception e)
 		{

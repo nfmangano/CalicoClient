@@ -213,6 +213,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{
+		System.out.println("Mouse pressed called! " + System.currentTimeMillis());
 		lastLocalMousePoint = event.getPoint();
 		if (event.isLeftButtonPressed())
 		{
@@ -242,6 +243,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
+		System.out.println("Mouse released called! " + System.currentTimeMillis());
 		lastLocalMousePoint = event.getPoint();
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
 		cell.setDragging(false);
