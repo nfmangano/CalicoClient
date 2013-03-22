@@ -60,8 +60,8 @@ public class CalicoKeyListener extends KeyAdapter {
         
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
  
-        	if (!GridPerspective.getInstance().isActive())
-        		CGrid.loadGrid();
+//        	if (!GridPerspective.getInstance().isActive())
+//        		CGrid.loadGrid();
         }
         
         if (CanvasPerspective.getInstance().isActive() && evt.getKeyCode() == KeyEvent.VK_ENTER) {
