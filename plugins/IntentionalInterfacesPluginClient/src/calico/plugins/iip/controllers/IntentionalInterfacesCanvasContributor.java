@@ -51,7 +51,7 @@ public class IntentionalInterfacesCanvasContributor implements CCanvas.ContentCo
 	@Override
 	public void clearContent(long canvas_uuid)
 	{
-		CCanvasLinkController.getInstance().clearLinks(canvas_uuid);
+//		CCanvasLinkController.getInstance().clearLinks(canvas_uuid);
 
 		long cellId = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid).getId();
 		CIntentionCellController.getInstance().clearCell(cellId);
