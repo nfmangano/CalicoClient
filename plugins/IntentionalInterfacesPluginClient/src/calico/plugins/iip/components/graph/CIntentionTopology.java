@@ -22,6 +22,7 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CalicoPerspective.PerspectiveChangeListener;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
@@ -317,6 +318,8 @@ public class CIntentionTopology implements PerspectiveChangeListener
 						canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
 								globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
 						CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+						
+						CanvasTitlePanel.getInstance().refresh();
 						CalicoDraw.repaint(canvasCreate);
 					}});
 

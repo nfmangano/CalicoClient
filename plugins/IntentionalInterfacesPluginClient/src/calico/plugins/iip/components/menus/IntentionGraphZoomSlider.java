@@ -1,8 +1,11 @@
 package calico.plugins.iip.components.menus;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.SwingUtilities;
 
 import calico.CalicoDraw;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -59,20 +62,32 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 
 	public void dragTo(Point point)
 	{
+		final Point2D centerOriginal = new Point2D.Double(IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterX(),
+				IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterY());
 		PBounds bounds = getBounds();
 		double x = (point.x - bounds.x);
 		if ((x > buttonSpan) && (x < (bounds.width - buttonSpan)))
 		{
 			double scale = convertSlidePointToScale(point);
 			IntentionGraph.getInstance().setScale(scale);
-			IntentionGraph.getInstance().repaint();
+			SwingUtilities.invokeLater(
+					new Runnable() { public void run() {
+						final Point2D center =  new Point2D.Double(IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterX(),
+								IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterY());
 
-			System.out.println("zoom to " + scale);
+						IntentionGraph.getInstance().translate(center.getX() - centerOriginal.getX(), 
+								center.getY() - centerOriginal.getY());
+						IntentionGraph.getInstance().repaint(); 
+					}});
+
+//			System.out.println("zoom to " + scale);
 		}
 	}
 
 	public void click(Point point)
 	{
+		final Point2D centerOriginal = new Point2D.Double(IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterX(),
+				IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterY());
 		PBounds bounds = getBounds();
 		double x = (point.x - bounds.x);
 
@@ -119,11 +134,20 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		else
 		{
 			scale = convertSlidePointToScale(point);
-			System.out.println("zoom to " + scale);
 		}
 
+		
 		IntentionGraph.getInstance().setScale(scale);
-		IntentionGraph.getInstance().repaint();
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() {
+					final Point2D center =  new Point2D.Double(IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterX(),
+							IntentionGraph.getInstance().getGlobalCoordinatesForVisibleBounds().getCenterY());
+
+					IntentionGraph.getInstance().translate(center.getX() - centerOriginal.getX(), 
+							center.getY() - centerOriginal.getY());
+					IntentionGraph.getInstance().repaint(); 
+				}});
+
 	}
 
 	private double convertSlidePointToScale(Point point)

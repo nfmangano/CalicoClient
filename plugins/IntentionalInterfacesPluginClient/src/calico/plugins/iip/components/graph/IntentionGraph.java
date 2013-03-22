@@ -9,6 +9,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -161,6 +162,10 @@ public class IntentionGraph
 
 	private NewClusterCanvasButton newCanvasButton;
 
+	private double defaultScale;
+
+	protected Rectangle2D defaultBounds;
+
 	public final static long WALL = -1;
 
 	private IntentionGraph() {
@@ -237,10 +242,46 @@ public class IntentionGraph
 		double y = getLayer(Layer.CONTENT).getTransform().getTranslateY();
 		return new Point((int) x, (int) y);
 	}
+	
+	public Point2D getCenterPoint() {
+		return getLayer(Layer.CONTENT).getGlobalFullBounds().getCenter2D();
+	}
 
 	public void translate(double x, double y) {
+		
+		if (IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCameraCount() > 0)
+		{
+			//guard left
+			if (getGlobalCoordinatesForVisibleBounds().getX() - x < defaultBounds.getX())
+				x = getGlobalCoordinatesForVisibleBounds().getX() - defaultBounds.getX();
+
+			//guard right
+			if (getGlobalCoordinatesForVisibleBounds().getX() + getGlobalCoordinatesForVisibleBounds().getWidth() + x > 
+				defaultBounds.getX() + defaultBounds.getWidth()
+				&& x < 0)
+				x = 0;
+
+			//guard top
+			if (getGlobalCoordinatesForVisibleBounds().getY() - y < defaultBounds.getY())
+				y = getGlobalCoordinatesForVisibleBounds().getY() - defaultBounds.getY();
+//
+//			//guard bottom
+			if (getGlobalCoordinatesForVisibleBounds().getY() + getGlobalCoordinatesForVisibleBounds().getHeight() + y > 
+				defaultBounds.getY() + defaultBounds.getHeight()
+				&& y < 0)
+				y = 0;
+		}
+		
 		getLayer(Layer.CONTENT).translate(x, y);
 		getLayer(Layer.TOPOLOGY).translate(x, y);
+		
+//		while (IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCameraCount() > 0
+//				&& getGlobalCoordinatesForVisibleBounds().getX() + getGlobalCoordinatesForVisibleBounds().getWidth() + x > 
+//			defaultBounds.getX() + defaultBounds.getWidth())
+//		{
+//			getLayer(Layer.CONTENT).translate(-1, 0);
+//			getLayer(Layer.TOPOLOGY).translate(-1, 0);
+//		}
 
 		if (BubbleMenu.isBubbleMenuActive()) {
 			BubbleMenu.clearMenu();
@@ -282,8 +323,30 @@ public class IntentionGraph
 
 //		repaint();
 	}
+	
+	public void setScaleAboutPoint(double scale, Point2D point) {
+//		if (getLayer(IntentionGraph.Layer.CONTENT).getScale() == Double.NaN) {
+			getLayer(IntentionGraph.Layer.CONTENT).scaleAboutPoint(scale, point);
+//		} else {
+//			getLayer(IntentionGraph.Layer.CONTENT).setScale(scale);
+//		}
+
+//		if (getLayer(IntentionGraph.Layer.TOPOLOGY).getScale() == Double.NaN) {
+			getLayer(IntentionGraph.Layer.TOPOLOGY).scaleAboutPoint(scale, point);
+//		} else {
+//			getLayer(IntentionGraph.Layer.TOPOLOGY).setScale(scale);
+//		}
+
+		if (BubbleMenu.isBubbleMenuActive()) {
+			BubbleMenu.clearMenu();
+		}
+	}
+	
 
 	public void setScale(double scale) {
+		if (scale < defaultScale)
+			scale = defaultScale;
+		
 		if (getLayer(IntentionGraph.Layer.CONTENT).getScale() == Double.NaN) {
 			getLayer(IntentionGraph.Layer.CONTENT).setGlobalScale(scale);
 		} else {
@@ -326,6 +389,11 @@ public class IntentionGraph
 			fitContents();
 	}
 	
+	public double getDefaultScale()
+	{
+		return defaultScale;
+	}
+	
 	public void setFocusToCluster(long cluster) {
 		setFocusToCluster(cluster, false);
 	}
@@ -342,10 +410,10 @@ public class IntentionGraph
 //				focus == Focus.CLUSTER && clusterFocus == cluster)
 //			return;
 		
-		
 		focus = Focus.CLUSTER;
 		clusterFocus = cluster;
-		updateZoom();
+		if (flagPerspectiveChanged == false)
+			updateZoom();
 		
 		CIntentionCellController.getInstance().hideCellsOutsideOfCluster(cluster);
 		CalicoPerspective.Active.getCurrentPerspective().activate();
@@ -353,9 +421,11 @@ public class IntentionGraph
 		CalicoDraw.repaint(topology.getCluster(cluster));
 //		CalicoDraw.invalidatePaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY));
 		
-		drawMenuBar();
+		
 		topology.getCluster(cluster).activateCluster();
-
+		if (flagPerspectiveChanged == false)
+			setDefaultDimensions();
+		drawMenuBar();
 //		if (flagPerspectiveChanged)
 		/**
 		 * This second call is put to cause all perspective change listeners to be fired again.
@@ -385,6 +455,8 @@ public class IntentionGraph
 			CalicoPerspective.Active.getCurrentPerspective().activate();
 			CalicoDraw.repaint(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS));
 		}
+		
+		setDefaultDimensions();
 //		updateButtons();
 	}
 	
@@ -586,12 +658,36 @@ public class IntentionGraph
 				CalicoDraw.repaint(getLayer(Layer.TOPOLOGY));
 				CalicoDraw.repaint(getLayer(Layer.CONTENT));
 				refreshTopologyTitles();
+				CalicoDraw.repaint(menuBar);
 			}
+
+
 		});
+	}
+	
+	private void setDefaultDimensions()
+	{
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					IntentionGraph.this.defaultScale = IntentionGraph.this.getLayer(Layer.CONTENT).getScale();
+					IntentionGraph.this.defaultBounds = getGlobalCoordinatesForVisibleBounds();
+//					IntentionGraph.this.defaultBounds = IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCamera(0).getViewBounds();
+//					System.out.println("Default bounds are: " + IntentionGraph.this.defaultBounds.toString());
+//					System.out.println("Topology box bounds are: " + IntentionGraph.getInstance().topology.getCluster(getClusterInFocus()).getBounds().toString());
+				}});
+
 	}
 
 	public void initialize() {
-		menuBar.initialize();
+		if (menuBar != null)
+			menuBar.initialize();
+	}
+	
+	public Rectangle2D getGlobalCoordinatesForVisibleBounds() {
+		if (IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCameraCount() > 0)
+			return IntentionGraph.this.getLayer(Layer.TOPOLOGY).globalToLocal(
+					IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCamera(0).getGlobalBounds());
+		else return new Rectangle2D.Double();
 	}
 
 	public void repaint() {

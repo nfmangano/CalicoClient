@@ -14,6 +14,7 @@ import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.components.graph.CIntentionTopology.Cluster;
+import calico.plugins.iip.components.graph.IntentionGraph.Layer;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.utils.Ticker;
 import edu.umd.cs.piccolo.PLayer;
@@ -33,7 +34,8 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 	private enum State
 	{
 		IDLE,
-		PAN;
+		PAN,
+		BUTTON;
 	}
 
 	long lastAction = 0;
@@ -44,7 +46,6 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 	public void actionPressed(InputEventInfo event)
 	{
 		lastAction = 0;
-		state = State.PAN;
 		lastMouse = event.getPoint();
 		mouseDown = event.getPoint();
 		
@@ -56,6 +57,7 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 			MenuTimer menuTimer = new CalicoAbstractInputHandler.MenuTimer(this, 0l, 100l, CalicoOptions.core.max_hold_distance, 1000,
 					mouseDown, 0l, layer);
 			Ticker.scheduleIn(250, menuTimer);
+			state = State.BUTTON;
 		}
 
 	}
@@ -63,29 +65,46 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
+		if (state == State.PAN)
+		{
+
+		}
+		else
+		{
+
+			Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
+			long clusterId = IntentionGraph.getInstance().getClusterAt(local);
+
+			long clusterIdWithWallTextAtPoint = IntentionGraph.getInstance().getClusterWithWallTextAtPoint(getLastPoint());
+
+
+			if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER
+					&& IntentionGraph.getInstance().getClusterInFocus(this).createCanvasIconContainsPoint(event.getPoint()))
+			{
+				IntentionGraph.getInstance().createNewClusterCanvas();
+			}
+			else if (clusterIdWithWallTextAtPoint > 0l)
+			{
+				IntentionGraph.getInstance().setFocusToWall();
+			}
+			else if (clusterId > 0
+					&& (IntentionGraph.getInstance().getClusterInFocus(this) == null
+					|| IntentionGraph.getInstance().getClusterInFocus(this) != null
+					&& clusterId != IntentionGraph.getInstance().getClusterInFocus(this).getRootCanvasId()))
+				IntentionGraph.getInstance().setFocusToCluster(clusterId, false);
+			//			IntentionGraph.getInstance().zoomToCluster(clusterId);
+			else if (IntentionGraph.getInstance().getClusterInFocus(this) != null
+					&& clusterId == IntentionGraph.getInstance().getClusterInFocus(this).getRootCanvasId())
+			{
+				//do nothing
+			}
+			else
+				IntentionGraph.getInstance().setFocusToWall(true);
+			//			IntentionGraph.getInstance().fitContents();
+		}
+		
 		lastAction = 1;
 		state = State.IDLE;
-		Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
-		long clusterId = IntentionGraph.getInstance().getClusterAt(local);
-		
-		long clusterIdWithWallTextAtPoint = IntentionGraph.getInstance().getClusterWithWallTextAtPoint(getLastPoint());
-		
-
-		if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER
-				&& IntentionGraph.getInstance().getClusterInFocus(this).createCanvasIconContainsPoint(event.getPoint()))
-		{
-			IntentionGraph.getInstance().createNewClusterCanvas();
-		}
-		else if (clusterIdWithWallTextAtPoint > 0l)
-		{
-			IntentionGraph.getInstance().setFocusToWall();
-		}
-		else if (clusterId > 0)
-			IntentionGraph.getInstance().setFocusToCluster(clusterId, true);
-//			IntentionGraph.getInstance().zoomToCluster(clusterId);
-		else
-			IntentionGraph.getInstance().setFocusToWall(true);
-//			IntentionGraph.getInstance().fitContents();
 		lastMouse = event.getPoint();
 		mouseUp = event.getPoint();
 	}
@@ -93,7 +112,27 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionDragged(InputEventInfo event)
 	{
-		lastMouse = event.getPoint();
+		
+		if (state == State.IDLE 
+				&& getDraggedDistance() > 10)
+		{
+			state = State.PAN;
+		}
+		else if (state == State.PAN
+				&& IntentionGraph.getInstance().getLayer(Layer.TOPOLOGY).getScale() != IntentionGraph.getInstance().getDefaultScale())
+		{
+			double xMouseDelta = event.getGlobalPoint().x - lastMouse.x;
+			double yMouseDelta = event.getGlobalPoint().y - lastMouse.y;
+
+			double scale = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).getScale();
+
+			xMouseDelta /= scale;
+			yMouseDelta /= scale;
+
+			
+
+			IntentionGraph.getInstance().translate(xMouseDelta, yMouseDelta);
+		}
 		
 		/*
 		
@@ -109,6 +148,8 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 
 		IntentionGraph.getInstance().translate(xMouseDelta, yMouseDelta);
 		*/
+		
+		lastMouse = event.getPoint();
 	}
 
 	@Override

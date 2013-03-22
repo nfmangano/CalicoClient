@@ -42,11 +42,11 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 
 		zoomSliderBounds = addIcon(IntentionGraphZoomSlider.SPAN);
 		zoomSlider = new IntentionGraphZoomSlider();
-//		CalicoDraw.addChildToNode(this, zoomSlider);
+		CalicoDraw.addChildToNode(this, zoomSlider);
 //		addChild(zoomSlider);
-//		CalicoDraw.setNodeBounds(zoomSlider, zoomSliderBounds);
+		CalicoDraw.setNodeBounds(zoomSlider, zoomSliderBounds);
 //		zoomSlider.setBounds(zoomSliderBounds);
-//		CalicoDraw.repaintNode(zoomSlider);
+		CalicoDraw.repaintNode(zoomSlider);
 //		zoomSlider.repaint();
 
 		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());

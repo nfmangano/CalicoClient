@@ -163,7 +163,7 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						titleNodeContainer.getParent().removeChild(titleNodeContainer);
 					}
 					if (layer != null && IntentionGraph.getInstance().getFocus() != IntentionGraph.Focus.WALL
-							&& titleNodeContainer.getParent() != layer)
+							/*&& titleNodeContainer.getParent() != layer*/)
 						CalicoDraw.addChildToNode(layer,titleNodeContainer);
 				}
 			});
@@ -366,7 +366,12 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
 								&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
 						{
-							IntentionalInterfacesPerspective.getInstance().displayPerspective(CIntentionCellController.getInstance().getClusterRootCanvasId(
+							// fix problem of loading from within II if ()
+							if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective)
+								IntentionGraph.getInstance().setFocusToCluster(CIntentionCellController.getInstance().getClusterRootCanvasId(
+									tappedCanvas), false);
+							else
+								IntentionalInterfacesPerspective.getInstance().displayPerspective(CIntentionCellController.getInstance().getClusterRootCanvasId(
 									tappedCanvas));
 						}
 						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
