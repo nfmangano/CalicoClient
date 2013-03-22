@@ -369,11 +369,13 @@ public class IntentionGraph
 	}
 	
 	public void setFocusToWall(boolean flagPerspectiveChanged) {
-		if (focus == Focus.WALL)
-			return;
+//		if (focus == Focus.WALL)
+//			return;
+		
 		CIntentionCellController.getInstance().showAllCells();
 		
-		topology.getCluster(this.getClusterInFocus()).deactivateCluster();
+		if (topology.getCluster(this.getClusterInFocus()) != null)
+			topology.getCluster(this.getClusterInFocus()).deactivateCluster();
 		focus = Focus.WALL;
 		updateZoom();
 		drawMenuBar();
