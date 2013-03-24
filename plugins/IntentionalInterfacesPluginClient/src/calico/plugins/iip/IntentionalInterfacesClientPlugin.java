@@ -330,7 +330,12 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		long uuid = p.getLong();
 		String name = p.getString();
 		int colorIndex = p.getInt();
-		CIntentionType type = new CIntentionType(uuid, name, colorIndex);
+		String description = "";
+		//the if statement is there to be compatible with previous saves, given that they may not have this extra value.
+		//note to self: something like JSON would have prevented this headache... oh well
+		if (p.remaining() > 0)
+			description = p.getString();
+		CIntentionType type = new CIntentionType(uuid, name, colorIndex, description);
 
 		IntentionCanvasController.getInstance().localAddIntentionType(type);
 	}

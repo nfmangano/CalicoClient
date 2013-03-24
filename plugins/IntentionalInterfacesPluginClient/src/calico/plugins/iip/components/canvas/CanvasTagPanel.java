@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -28,7 +29,9 @@ import calico.plugins.iip.components.IntentionPanelLayout;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
+import calico.plugins.iip.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -249,18 +252,34 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 	{
 		private final CIntentionType type;
 		private final PText label;
+		private final PText labelTag;
+		private final PImage arrowIcon =
+				new PImage(CalicoIconManager.getIconImage(
+						"intention.bullet-point"));
+		private final double arrowIconWidth = ROW_HEIGHT - (2 * ROW_TEXT_INSET);
+		private final Color tagColor;
 
 		private boolean selected = false;
 
 		public IntentionTypeRow(CIntentionType type)
 		{
 			this.type = type;
-			label = new PText(type.getName());
+			label = new PText(type.getDescription() + " ");
 			label.setConstrainWidthToTextWidth(true);
 			label.setConstrainHeightToTextHeight(true);
 			label.setFont(label.getFont().deriveFont(20f));
+			
+			labelTag = new PText(" ["+type.getName()+"] ");
+			labelTag.setConstrainWidthToTextWidth(true);
+			labelTag.setConstrainHeightToTextHeight(true);
+			labelTag.setFont(label.getFont().deriveFont(20f));
+			
+			tagColor = type.getColor();
 
 			CalicoDraw.addChildToNode(this, label);
+			CalicoDraw.addChildToNode(this, labelTag);
+			CalicoDraw.addChildToNode(this, arrowIcon);
+			
 //			addChild(label);
 		}
 
@@ -277,7 +296,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 		double getMaxWidth()
 		{
-			return label.getBounds().width + (PANEL_COMPONENT_INSET * 3);
+			return arrowIconWidth + label.getBounds().width + labelTag.getBounds().width + (PANEL_COMPONENT_INSET * 3);
 		}
 
 		void setSelected(boolean b)
@@ -294,17 +313,25 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			PBounds rowBounds = getBounds();
 			PBounds labelBounds = label.getBounds();
 
-			label.setBounds(rowBounds.x + PANEL_COMPONENT_INSET, rowBounds.y + ROW_TEXT_INSET, labelBounds.width, ROW_HEIGHT - (2 * ROW_TEXT_INSET));
+			label.setBounds(rowBounds.x + arrowIconWidth + PANEL_COMPONENT_INSET, rowBounds.y + ROW_TEXT_INSET, label.getWidth(), ROW_HEIGHT - (2 * ROW_TEXT_INSET));
+			labelTag.setBounds(rowBounds.x + arrowIconWidth + label.getWidth() + PANEL_COMPONENT_INSET, rowBounds.y + ROW_TEXT_INSET, labelTag.getWidth(), ROW_HEIGHT - (2 * ROW_TEXT_INSET));
+			arrowIcon.setBounds(rowBounds.x, rowBounds.y + ROW_TEXT_INSET, arrowIconWidth, arrowIconWidth);
 		}
 
 		@Override
 		protected void paint(PPaintContext paintContext)
 		{
+			Graphics2D g = paintContext.getGraphics();
+			Color c = g.getColor();
+			g.setColor(tagColor);
+			Rectangle labelTagBounds = new Rectangle((int)labelTag.getX(), (int)labelTag.getY(), (int)labelTag.getWidth(), (int)labelTag.getHeight());
+			g.fillRect(labelTagBounds.x, labelTagBounds.y, labelTagBounds.width, labelTagBounds.height);
+			g.setColor(c);
+			
 			if (selected)
 			{
 				PBounds bounds = getBounds();
-				Graphics2D g = paintContext.getGraphics();
-				Color c = g.getColor();
+				c = g.getColor();
 				g.setColor(type.getColor());
 				g.fillRect((int) bounds.x, (int) bounds.y, (int) bounds.width, (int) bounds.height);
 				g.setColor(c);
@@ -323,6 +350,18 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 	private class PanelNode extends PComposite
 	{
 		private final List<IntentionTypeRow> typeRows = new ArrayList<IntentionTypeRow>();
+		private final PText titleCaptionP1 = new PText("In relation (");
+		private final PText titleCaptionP2 = new PText(") to " + "" + ", this canvas is: ");
+		private final PImage arrowIcon =
+				new PImage(CalicoIconManager.getIconImage(
+						"intention.link-canvas"));
+		private final double arrowIconWidth = ROW_HEIGHT - (2 * ROW_TEXT_INSET);
+		
+		public PanelNode()
+		{
+			titleCaptionP1.setFont(titleCaptionP2.getFont().deriveFont(20f));
+			titleCaptionP2.setFont(titleCaptionP2.getFont().deriveFont(20f));
+		}
 
 		void tap(Point point)
 		{
@@ -338,10 +377,10 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 		double calculateWidth()
 		{
-			double width = 0;
+			double width = titleCaptionP1.getWidth() + arrowIconWidth + titleCaptionP2.getWidth();
 			for (IntentionTypeRow row : typeRows)
 			{
-				double rowWidth = row.getMaxWidth();
+				double rowWidth = row.getMaxWidth() + (PANEL_COMPONENT_INSET * 3);
 				if (rowWidth > width)
 				{
 					width = rowWidth;
@@ -352,7 +391,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 		double calculateHeight()
 		{
-			return typeRows.size() * ROW_HEIGHT;
+			return typeRows.size() * ROW_HEIGHT + ROW_HEIGHT;
 		}
 
 		void updateIntentionTypes()
@@ -363,6 +402,10 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 //				removeChild(row);
 			}
 			typeRows.clear();
+			
+			CalicoDraw.addChildToNode(this, titleCaptionP1);
+			CalicoDraw.addChildToNode(this, arrowIcon);
+			CalicoDraw.addChildToNode(this, titleCaptionP2);
 
 			for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
 			{
@@ -382,6 +425,21 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			{
 				return;
 			}
+			
+			/**
+			 * In this rather obtuse method call, we use an inline if-statement---
+			 * 		if there is an originating canvas, use the name of that canvas
+			 * 		if there isn't an originating canvas (in which case this won't even be seen...), assign an empty string
+			 */
+			titleCaptionP2.setText(") to " + 
+					((IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId() != 0l)?				
+					CIntentionCellController.getInstance().getCellByCanvasId(
+							IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId()).getTitle()
+					:
+					""
+							) + ", this canvas is: ");
+			titleCaptionP2.recomputeLayout();
+			layoutChildren();
 
 			CIntentionCell cell = CIntentionCellController.getInstance().getCellByCanvasId(canvas_uuid);
 			if (cell != null)
@@ -398,9 +456,16 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			{
 				return;
 			}
+			
+
+			
 
 			PBounds bounds = panel.getBounds();
 			double y = bounds.y;
+			titleCaptionP1.setBounds(bounds.x, y, titleCaptionP1.getWidth(), ROW_HEIGHT);
+			arrowIcon.setBounds(bounds.x + titleCaptionP1.getWidth(), y, arrowIconWidth, arrowIconWidth);
+			titleCaptionP2.setBounds(bounds.x + titleCaptionP1.getWidth() + arrowIconWidth, y, titleCaptionP2.getWidth(), ROW_HEIGHT);
+			y += ROW_HEIGHT;			
 			for (IntentionTypeRow row : typeRows)
 			{
 				row.setBounds(bounds.x, y, bounds.width, ROW_HEIGHT);
@@ -414,15 +479,15 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			super.paint(paintContext);
 
 			Graphics2D g = paintContext.getGraphics();
-			Color c = g.getColor();
+//			Color c = g.getColor();
 
 			PBounds bounds = getBounds();
-			g.setColor(Color.black);
+//			g.setColor(Color.black);
 			g.translate(bounds.x, bounds.y);
-			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 14, 14);
+//			g.drawRoundRect(0, 0, ((int) bounds.width) - 1, ((int) bounds.height) - 1, 14, 14);
 
 			g.translate(-bounds.x, -bounds.y);
-			g.setColor(c);
+//			g.setColor(c);
 		}
 	}
 
