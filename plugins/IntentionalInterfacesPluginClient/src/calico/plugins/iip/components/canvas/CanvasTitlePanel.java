@@ -361,7 +361,20 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 						long tappedCanvas = titleNodeContainer.getCanvasAt(p);
 						if (isChildContainerVisible(tappedCanvas) &&  tappedCanvas == IntentionGraph.WALL)
 						{
+							IntentionGraph.getInstance().setFocusToWall();
 							IntentionalInterfacesPerspective.getInstance().displayPerspective(IntentionGraph.WALL);
+//							if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective)
+//							{
+//								
+//								SwingUtilities.invokeLater(
+//										new Runnable() { public void run() { 
+//											refresh();
+//										}});
+//								
+//							}
+//							else
+								
+							
 						}
 						else if ((isChildContainerVisible(tappedCanvas) || !titleNodeContainer.canvasAtPointHasChildren(p)) 
 								&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
