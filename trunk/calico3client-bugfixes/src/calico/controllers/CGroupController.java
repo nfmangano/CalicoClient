@@ -1385,7 +1385,9 @@ public class CGroupController
 								&& groupdb.get(uuid).getBoundsOfContents().isEmpty()
 								
 							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
-								&& groupdb.get(uuid).getChildGroups().length == 0)
+								&& groupdb.get(uuid).getChildGroups().length == 0
+							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupTextButton") == 0
+									&& groupdb.get(uuid).getText().length() > 0)
 						{
 							buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
 							continue;
@@ -1494,7 +1496,9 @@ public class CGroupController
 								&& groupdb.get(uuid).getBoundsOfContents().isEmpty()
 								
 							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.ListCreateButton") == 0
-								&& groupdb.get(uuid).getChildGroups().length == 0)
+								&& groupdb.get(uuid).getChildGroups().length == 0
+							|| pieMenuButtons.get(i).getName().compareTo("calico.components.piemenu.groups.GroupTextButton") == 0
+								&& groupdb.get(uuid).getText().length() == 0)
 						{
 							buttons.add(new PieMenuButton(new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB)));
 							continue;
