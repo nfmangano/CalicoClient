@@ -241,6 +241,10 @@ public class CIntentionTopology implements PerspectiveChangeListener
 						clusterTitle.recomputeLayout();
 						clusterTitle.setBounds(clusterTitle.getBounds());
 						
+						if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER
+								&& IntentionGraph.getInstance().getClusterInFocus() == rootCanvasId)
+							layoutCreateCanvas();
+						
 					}});
 
 			
@@ -312,16 +316,14 @@ public class CIntentionTopology implements PerspectiveChangeListener
 						if (activeCluster != null)
 							activeCluster.deactivateCluster();
 						
-						PBounds localBounds = new PBounds(outerBox.getBounds());
-						Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
-						
-						canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
-								globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
-						CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+						layoutCreateCanvas();
 						
 						CanvasTitlePanel.getInstance().refresh();
 						CalicoDraw.repaint(canvasCreate);
-					}});
+					}
+
+					
+					});
 
 		}
 		
@@ -329,7 +331,18 @@ public class CIntentionTopology implements PerspectiveChangeListener
 		{
 			canvasCreate.getParent().removeChild(canvasCreate);
 		}
+		
+		private void layoutCreateCanvas() {
+			PBounds localBounds = new PBounds(outerBox.getBounds());
+			Rectangle2D globalBounds = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOPOLOGY).localToGlobal(localBounds);
+			
+			canvasCreate.setBounds(globalBounds.getX() + globalBounds.getWidth() - canvasCreate.getWidth() - 20,
+					globalBounds.getY()+10, canvasCreate.getWidth(), canvasCreate.getHeight());
+			CalicoDraw.addChildToNode(IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS), canvasCreate);
+		}
 	}
+	
+	
 
 	private final Map<Long, Cluster> clusters = new HashMap<Long, Cluster>();
 
@@ -410,6 +423,23 @@ public class CIntentionTopology implements PerspectiveChangeListener
 					CalicoDraw.setVisible(c.clusterTitle, true);
 			}
 			
+		}
+	}
+	
+	public void hideTitles()
+	{
+		for (Cluster c : clusters.values())
+		{
+			if (!c.wallTitle.getVisible())
+			{
+				CalicoDraw.setVisible(c.wallTitle, false);
+				CalicoDraw.repaint(c.wallTitle);
+			}
+			if (!c.clusterTitle.getVisible())
+			{
+				CalicoDraw.setVisible(c.clusterTitle, false);
+				CalicoDraw.repaint(c.clusterTitle);
+			}
 		}
 	}
 	

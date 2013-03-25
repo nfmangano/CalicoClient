@@ -286,6 +286,7 @@ public class IntentionGraph
 		if (BubbleMenu.isBubbleMenuActive()) {
 			BubbleMenu.clearMenu();
 		}
+		refreshTopologyTitles();
 	}
 
 	public void translateGlobal(double x, double y) {
@@ -362,6 +363,16 @@ public class IntentionGraph
 		if (BubbleMenu.isBubbleMenuActive()) {
 			BubbleMenu.clearMenu();
 		}
+//		if (scale > defaultScale)
+//		{
+//			if (topology != null)
+//				
+//				topology.hideTitles();
+//		}
+//		else
+//		{
+			refreshTopologyTitles();
+//		}
 	}
 
 	public void setViewTransform(final AffineTransform transform) {
