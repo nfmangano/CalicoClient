@@ -95,6 +95,12 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 
 		if (x < buttonSpan)
 		{
+			if (IntentionGraph.getInstance().getDefaultScale() == IntentionGraph.getInstance().getScale())
+			{
+				IntentionGraph.getInstance().setFocusToCluster(IntentionGraph.getInstance().getClusterInFocus(), false);
+				return;
+			}
+			
 			if (scale <= 0.2)
 			{
 				scale = 0.1;

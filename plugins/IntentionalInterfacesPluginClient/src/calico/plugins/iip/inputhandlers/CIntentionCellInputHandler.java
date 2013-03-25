@@ -21,6 +21,8 @@ import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.SetCanvasTitleButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToBranchButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToCenterRingButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -107,6 +109,16 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	 * Opens a dialog to set the name of the canvas
 	 */
 	private final SetCanvasTitleButton setCanvasTitleButton = new SetCanvasTitleButton();
+	/**
+	 * Simple button to zoom into the center ring of the cluster
+	 */
+	private final ZoomToCenterRingButton zoomToCenterRingButton = new ZoomToCenterRingButton();
+	/**
+	 * Simple button to zoom into the center ring of the cluster
+	 */
+	private final ZoomToBranchButton zoomToBranchButton = new ZoomToBranchButton();
+	
+	
 	
 	private Point lastLocalMousePoint = null;
 
@@ -392,12 +404,20 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 						state = State.MENU;
 						
 						boolean isRootCanvas = CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId());
-
+						boolean isRootChildCanvas = CIntentionCellController.getInstance().isRootCanvas(
+								CIntentionCellController.getInstance().getCIntentionCellParent(
+										CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId()));
+						
 						if (CCanvasController.canvasdb.size() > 1
+								&& isRootChildCanvas)
+						{
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton, zoomToCenterRingButton, zoomToBranchButton /*, zoomToClusterButton*/);
+						}
+						else if (CCanvasController.canvasdb.size() > 1
 								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton /*, zoomToClusterButton*/);
-						}
+							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton, zoomToBranchButton /*, zoomToClusterButton*/);
+						} 
 						else
 						{
 							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, /*linkButton,*/ setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
@@ -457,6 +477,14 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			if (buttonClassname.equals(SetCanvasTitleButton.class.getName()))
 			{
 				return 3;
+			}
+			if (buttonClassname.equals(ZoomToCenterRingButton.class.getName()))
+			{
+				return 7;
+			}
+			if (buttonClassname.equals(ZoomToBranchButton.class.getName()))
+			{
+				return 8;
 			}
 			
 			return 0;

@@ -619,6 +619,83 @@ public class IntentionGraph
 		zoomToRegion(maxRingBounds);
 	}
 	
+	public void zoomToInnerRing()
+	{
+		// 1) get all canvases that are children of the root node
+		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
+		long rootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(activeCanvasId);
+		Long[] rootAnchors = new Long[1];
+		//all anchors attached to the root will lead us to elements in the first ring
+		rootAnchors = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(rootCanvasId).toArray(rootAnchors);
+		
+		// 2) get their bounds
+		Point2D.Double min = new Point2D.Double(Double.MAX_VALUE, Double.MAX_VALUE), max = new Point2D.Double(Double.MIN_VALUE,Double.MIN_VALUE);
+		for (Long l : rootAnchors)
+		{
+			long canvasId = CCanvasLinkController.getInstance().getAnchor(l.longValue()).getLink().getAnchorB().getCanvasId();
+			PBounds bounds = CIntentionCellController.getInstance().getCellByCanvasId(canvasId).getBounds();
+			updateBoundPoints(bounds, min, max);
+		}
+
+		// 3) zoom to those bounds
+		if (getFocus() != Focus.CLUSTER)
+			IntentionGraph.getInstance().setFocusToCluster(rootCanvasId);
+		IntentionGraph.getInstance().zoomToRegion(new PBounds(min.x, min.y, max.x - min.x, max.y - min.y));
+	}
+	
+	public void zoomToSingleChildBranch()
+	{
+		// 1) get all canvases that are in branch
+		// simplest way is to traverse all the way to the leaf, then back up to the root
+		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
+		long rootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(activeCanvasId);
+		
+		//get leaf
+		long[] children;
+		long child = activeCanvasId;
+		do 
+		{
+			children = CIntentionCellController.getInstance().getCIntentionCellChildren(child);
+			if (children.length > 0)
+				child = children[0];
+		} while (children.length > 0);
+		long leaf = child;
+		
+		// 2) go up the branch and get bounds of all nodes
+		Point2D.Double min = new Point2D.Double(Double.MAX_VALUE, Double.MAX_VALUE), max = new Point2D.Double(Double.MIN_VALUE,Double.MIN_VALUE);
+		
+		long traversingCanvas = leaf;
+		while (!CIntentionCellController.getInstance().isRootCanvas(traversingCanvas))
+		{
+			PBounds bounds = CIntentionCellController.getInstance().getCellByCanvasId(traversingCanvas).getBounds();
+			updateBoundPoints(bounds, min, max);
+			traversingCanvas = CIntentionCellController.getInstance().getCIntentionCellParent(traversingCanvas);
+		}
+		
+		// 3) zoom to those bounds
+		if (getFocus() != Focus.CLUSTER)
+			IntentionGraph.getInstance().setFocusToCluster(rootCanvasId);
+		IntentionGraph.getInstance().zoomToRegion(new PBounds(min.x, min.y, max.x - min.x, max.y - min.y));
+	}
+	
+	/**
+	 * Updates min and max to include boundaries of bounds
+	 * @param bounds
+	 * @param min This value will be changed
+	 * @param max This value will be changed
+	 */
+	private void updateBoundPoints(PBounds bounds,
+			java.awt.geom.Point2D.Double min, java.awt.geom.Point2D.Double max) {
+		if (bounds.x < min.x)
+			min.x = bounds.x;
+		if (bounds.y < min.y)
+			min.y = bounds.y;
+		if (bounds.x + bounds.width > max.x)
+			max.x = bounds.x + bounds.width;
+		if (bounds.y + bounds.height > max.y)
+			max.y = bounds.y + bounds.height;
+	}
+	
 	public void initializeZoom(CalicoPacket p)
 	{
 		p.rewind();
@@ -1034,6 +1111,10 @@ public class IntentionGraph
 		
 		
 		IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterRoot);
+	}
+
+	public double getScale() {
+		return IntentionGraph.this.getLayer(Layer.CONTENT).getScale();
 	}
 	
 

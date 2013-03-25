@@ -170,6 +170,13 @@ public class CIntentionCellController
 		return getCIntentionCellParent(memberCanvasId) == 0l;
 	}
 	
+	public boolean isChildOfRootCanvas(long memberCanvasId)
+	{
+		boolean isRootChildCanvas = CIntentionCellController.getInstance().isRootCanvas(
+				CIntentionCellController.getInstance().getCIntentionCellParent(memberCanvasId));
+		return isRootChildCanvas;
+	}
+	
 	public long[] getCIntentionCellChildren(long memberCanvasId)
 	{
 		ArrayList<Long> children = new ArrayList<Long>();
