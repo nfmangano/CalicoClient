@@ -1048,7 +1048,9 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 				String tag = "";
 				if (this.canvasId != IntentionGraph.WALL
 						&& cell.getIntentionTypeId() != -1
-						&& IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()) != null)
+						&& IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()) != null
+						&& IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName().compareTo("no tag") != 0)
+					
 					tag = " (" + IntentionCanvasController.getInstance().getIntentionType(cell.getIntentionTypeId()).getName() + ")";
 				
 				//get number of children

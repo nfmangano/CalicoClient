@@ -31,7 +31,7 @@ public class TagPanelToolBarButton extends CanvasMenuButton
 			e.printStackTrace();
 		}
 
-		// CanvasPerspectiveController.getInstance().canvasIntentionToolBarCreated(toolbar);
+//		CanvasPerspectiveController.getInstance().canvasIntentionToolBarCreated(toolbar);
 	}
 
 	public void actionMouseClicked()

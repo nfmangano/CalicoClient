@@ -307,7 +307,7 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 		if (cell == null
 				|| canvasId == 0l
-				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId)
+//				|| canvasId == CIntentionCellController.getInstance().getClusterRootCanvasId(canvasId)
 				|| IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId() == 0l 
 						&& CIntentionCellController.getInstance().isRootCanvas(
 								CIntentionCellController.getInstance().getCIntentionCellParent(currentCanvasId)))
