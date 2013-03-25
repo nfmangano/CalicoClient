@@ -573,7 +573,7 @@ public class CIntentionCell implements CalicoEventListener
 			g.translate(thumbnailBounds.x, thumbnailBounds.y);
 
 						
-			drawHistoryHighlight(g);
+//			drawHistoryHighlight(g);
 
 			
 			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
@@ -719,16 +719,16 @@ public class CIntentionCell implements CalicoEventListener
 		{
 			int index = getSiblingIndex();
 			
-			String tag = "";
+//			String tag = "";
 			String titlePrefix = "";
 //			if (!CIntentionCellController.getInstance().isRootCanvas(canvas_uuid))
 				titlePrefix = getTitlePrefix() /*+ getSiblingIndex() + ". "*/;
 			
-			if (getIntentionTypeId() != -1
-					&&  IntentionCanvasController.getInstance().intentionTypeExists(getIntentionTypeId()))
-				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(getIntentionTypeId()).getName() + ")";
+//			if (getIntentionTypeId() != -1
+//					&&  IntentionCanvasController.getInstance().intentionTypeExists(getIntentionTypeId()))
+//				tag = " (" + IntentionCanvasController.getInstance().getIntentionType(getIntentionTypeId()).getName() + ")";
 			
-			title.setText(titlePrefix + getTitle() + tag);
+			title.setText(titlePrefix + getTitle() /* + tag*/);
 //			CalicoDraw.repaint(this);
 //			repaint();
 		}

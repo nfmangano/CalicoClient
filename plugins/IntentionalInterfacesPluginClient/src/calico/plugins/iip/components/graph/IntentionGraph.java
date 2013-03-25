@@ -26,6 +26,7 @@ import calico.Geometry;
 import calico.CalicoOptions.menu.menubar;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
+import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
@@ -36,6 +37,7 @@ import calico.inputhandlers.InputEventInfo;
 import calico.networking.netstuff.CalicoPacket;
 import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
+import calico.plugins.iip.components.CCanvasLinkArrow;
 import calico.plugins.iip.components.CIntentionCell;
 import calico.plugins.iip.components.canvas.CanvasInputProximity;
 import calico.plugins.iip.components.canvas.CanvasTitlePanel;
@@ -995,6 +997,16 @@ public class IntentionGraph
 				|| event == IntentionalInterfacesNetworkCommands.CIC_TOPOLOGY)
 		{
 			refreshTopologyTitles();
+			
+			
+			
+			long[] arrowKeySet = IntentionGraphController.getInstance().getArrowLinkKeySet();
+			for (int i = 0; i < arrowKeySet.length; i++)
+			{
+				if (IntentionGraphController.getInstance().getArrowByLinkId(arrowKeySet[i]) instanceof CCanvasLinkArrow)
+					CalicoDraw.moveNodeToFront(IntentionGraphController.getInstance().getArrowByLinkId(arrowKeySet[i]));
+			}
+			
 			
 		}		
 	}

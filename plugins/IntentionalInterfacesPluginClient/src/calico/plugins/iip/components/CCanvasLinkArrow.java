@@ -8,6 +8,8 @@ import calico.CalicoDraw;
 import calico.Geometry;
 import calico.components.arrow.AbstractArrow;
 import calico.plugins.iip.components.CCanvasLinkAnchor.ArrowEndpointType;
+import calico.plugins.iip.controllers.CIntentionCellController;
+import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -38,8 +40,7 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 		setHighlighted(false);
 	}
 
-	public long getId()
-	{
+	public long getId()	{
 		return link.getId();
 	}
 
@@ -69,9 +70,30 @@ public class CCanvasLinkArrow extends AbstractArrow<CCanvasLinkAnchor>
 	protected void addRenderingElements()
 	{
 		super.addRenderingElements();
-
-		PText label = IntentionalInterfacesGraphics.createLabelOnSegment(link.getLabel(), link.getAnchorA().getPoint(), link.getAnchorB().getPoint());
-		label.setTextPaint(getColor());
+		PText label = null;
+		
+		if (CIntentionCellController.getInstance().isRootCanvas(link.getAnchorA().getCanvasId()))
+		{
+			label = IntentionalInterfacesGraphics.createLabelOnSegment(link.getLabel(), link.getAnchorA().getPoint(), link.getAnchorB().getPoint());
+			label.setTextPaint(getColor());
+		}
+		else
+		{
+			//get intention type for target cavnas
+			CIntentionType type = IntentionCanvasController.getInstance().getIntentionType(CIntentionCellController.getInstance().getCellByCanvasId(link.getAnchorB().getCanvasId()).getIntentionTypeId());
+			String name = link.getLabel();
+			if (type != null)
+			{
+				name = type.getName();
+				
+			}
+			label = IntentionalInterfacesGraphics.createLabelOnSegment(name, link.getAnchorA().getPoint(), link.getAnchorB().getPoint());
+			if (type != null)
+				label.setPaint(type.getColor());
+			label.setTextPaint(getColor());
+			
+		}
+		
 		CalicoDraw.addChildToNode(this, label, 0);
 //		addChild(0, label);
 	}

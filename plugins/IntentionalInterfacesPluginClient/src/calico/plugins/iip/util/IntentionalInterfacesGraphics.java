@@ -99,6 +99,7 @@ public class IntentionalInterfacesGraphics
 	public static PText createLabelOnSegment(String text, Point2D segmentEndpoint1, Point2D segmentEndpoint2)
 	{
 		PText label = new PText(text);
+		label.setFont(new Font("Verdana", Font.PLAIN, 20));
 		PBounds bounds = label.computeFullBounds(null);
 		double[] center = Geometry.computePointOnLine(segmentEndpoint1.getX(), segmentEndpoint1.getY(), segmentEndpoint2.getX(), segmentEndpoint2.getY(), 0.5);
 
@@ -131,7 +132,7 @@ public class IntentionalInterfacesGraphics
 		}
 		double obliquenessPercent = (obliqueness / (double) OBLIQUE);
 
-		double baselineOffset = -2.0;
+		double baselineOffset = -10.0;
 		baselineOffset -= bounds.getHeight() * (0.5 + (0.5 * verticalityComplement));
 		baselineOffset -= 2.0 * obliquenessPercent;
 		label.translate(0.0, baselineOffset);
