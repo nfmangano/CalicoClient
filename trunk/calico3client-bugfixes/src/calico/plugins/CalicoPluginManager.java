@@ -237,7 +237,7 @@ public class CalicoPluginManager
 		try
 		{
 			registerPlugin(Class.forName("calico.plugins.palette.PalettePlugin"));
-			registerPlugin(Class.forName("calico.plugins.userlist.UserListPlugin"));
+//			registerPlugin(Class.forName("calico.plugins.userlist.UserListPlugin"));
 			registerPlugin(Class.forName("calico.plugins.iip.IntentionalInterfacesClientPlugin"));
 			
 		}
