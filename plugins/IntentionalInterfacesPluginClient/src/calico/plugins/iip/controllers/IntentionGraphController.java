@@ -7,6 +7,8 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import calico.Calico;
 import calico.CalicoDraw;
 import calico.Geometry;
@@ -261,9 +263,9 @@ public class IntentionGraphController
 	 * Notify this controller that <code>link</code> or any of its display-related components has changed in some way
 	 * that affects the display of the arrow, so that the display components can be updated accordingly.
 	 */
-	public void updateLinkArrow(CCanvasLink link)
+	public void updateLinkArrow(final CCanvasLink link)
 	{
-		CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
+		final CCanvasLinkArrow arrow = arrowsByLinkId.get(link.getId());
 		if (arrow == null)
 		{
 			System.out.println("Warning: arrow is null in IntentionGraphController.updateLinkArrow");
@@ -284,8 +286,12 @@ public class IntentionGraphController
 //			arrow.setVisible(true);
 		}
 
-		alignAnchors(link);
-		arrow.redraw(false);
+		SwingUtilities.invokeLater(
+				new Runnable() { public void run() { 
+					alignAnchors(link);
+					arrow.redraw(false);
+				}});
+
 	}
 
 	/**
