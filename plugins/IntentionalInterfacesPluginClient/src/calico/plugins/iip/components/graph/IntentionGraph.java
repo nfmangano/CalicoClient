@@ -633,6 +633,8 @@ public class IntentionGraph
 		for (Long l : rootAnchors)
 		{
 			long canvasId = CCanvasLinkController.getInstance().getAnchor(l.longValue()).getLink().getAnchorB().getCanvasId();
+			if (CIntentionCellController.getInstance().getCellByCanvasId(canvasId).getIsPinned())
+				continue;
 			PBounds bounds = CIntentionCellController.getInstance().getCellByCanvasId(canvasId).getBounds();
 			updateBoundPoints(bounds, min, max);
 		}
