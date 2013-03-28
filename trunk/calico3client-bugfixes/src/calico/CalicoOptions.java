@@ -171,7 +171,15 @@ public class CalicoOptions
 	
 	public static class menu
 	{
-		public static Color[] colorlist = {Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.MAGENTA};
+		public static Color[] colorlist = {
+			Color.BLACK, 
+			new Color(255,0,0), //Color.RED, 
+			new Color(0,128,0), //Color.GREEN, 
+			Color.BLUE, 
+			new Color(190,190,190), //Color.GRAY, 
+			new Color(255,192,0), //Color.ORANGE, 
+			new Color(225, 225, 28), //Color.YELLOW, 
+			new Color(181,50,181)}; //Color.MAGENTA};
 		public static String[] colorlist_icons = {"color.black", "color.red", "color.green", "color.blue", "color.silver", "color.orange", "color.yellow", "color.purple"};
 		public static float[] pensize = {1.0f, 3.0f, 5.0f};
 		public static String[] pensize_icons = {"size.small", "size.medium", "size.large"};
