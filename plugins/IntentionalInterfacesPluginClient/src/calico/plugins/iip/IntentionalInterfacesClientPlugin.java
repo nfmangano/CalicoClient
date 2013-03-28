@@ -189,6 +189,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 			case CIC_SET_PIN:
 				CIC_SET_PIN(p);
 				break;
+			case EXECUTE_II_EVENT_DISPATCHER_EVENTS:
+				EXECUTE_II_EVENT_DISPATCHER_EVENTS(p);
+				break;
 		}
 	}
 
@@ -479,6 +482,16 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		
 		CIntentionCellController.getInstance().getCellById(cic_id).setIsPinned(pinValue);
 	}
+	
+	private static void EXECUTE_II_EVENT_DISPATCHER_EVENTS(CalicoPacket p)
+	{
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.EXECUTE_II_EVENT_DISPATCHER_EVENTS.verify(p);
+		
+		executeEventDispatcherEvents();
+	}
+	
+	
 	
 	public Class<?> getNetworkCommandsClass()
 	{

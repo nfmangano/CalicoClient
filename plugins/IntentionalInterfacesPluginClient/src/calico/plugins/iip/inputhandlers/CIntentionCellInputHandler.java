@@ -13,6 +13,7 @@ import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.networking.Networking;
+import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesClientPlugin;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.CIntentionCell;
@@ -163,6 +164,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		else
 		{
 			CIntentionCellController.getInstance().moveCell(currentCellId, cellDragAnchor.getX() + xMouseDelta, cellDragAnchor.getY() + yMouseDelta);
+			Networking.send(CalicoPacket.getPacket(IntentionalInterfacesNetworkCommands.EXECUTE_II_EVENT_DISPATCHER_EVENTS, IntentionalInterfacesNetworkCommands.EXECUTE_II_EVENT_DISPATCHER_EVENTS));
 		}
 	}
 
