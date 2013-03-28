@@ -18,6 +18,7 @@ import calico.events.CalicoEventListener;
 import calico.networking.Networking;
 import calico.networking.netstuff.CalicoPacket;
 import calico.networking.netstuff.NetworkCommand;
+import calico.perspectives.CalicoPerspective;
 import calico.perspectives.CanvasPerspective;
 import calico.plugins.CalicoPlugin;
 import calico.plugins.iip.components.CCanvasLink;
@@ -68,6 +69,8 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.VIEWING_SINGLE_CANVAS, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.CONSISTENCY_FINISH, this, CalicoEventHandler.PASSIVE_LISTENER);
 		CalicoEventHandler.getInstance().addListener(NetworkCommand.PRESENCE_CANVAS_USERS, this, CalicoEventHandler.PASSIVE_LISTENER);
+		CalicoEventHandler.getInstance().addListener(NetworkCommand.CANVAS_DELETE, this, CalicoEventHandler.PASSIVE_LISTENER);
+		
 		for (Integer event : this.getNetworkCommands())
 		{
 			CalicoEventHandler.getInstance().addListener(event.intValue(), this, CalicoEventHandler.ACTION_PERFORMER_LISTENER);
@@ -128,6 +131,15 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 			case NetworkCommand.PRESENCE_CANVAS_USERS:
 				if (Networking.connectionState != Networking.ConnectionState.Connecting)
 					CIntentionCellController.getInstance().updateUserLists();
+				return;
+			case NetworkCommand.CANVAS_DELETE:
+				if (CalicoPerspective.Active.getCurrentPerspective() instanceof CanvasPerspective)
+				{
+					p.rewind();
+					p.getInt();
+					if (p.getLong() ==  CCanvasController.getCurrentUUID())
+						IntentionalInterfacesPerspective.getInstance().displayPerspective(IntentionGraph.WALL);
+				}
 				return;
 		}
 
