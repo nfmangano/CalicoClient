@@ -426,7 +426,7 @@ public class IntentionGraph
 		
 		focus = Focus.CLUSTER;
 		clusterFocus = cluster;
-		if (flagPerspectiveChanged == false)
+//		if (flagPerspectiveChanged == false)
 			updateZoom();
 		
 		CIntentionCellController.getInstance().hideCellsOutsideOfCluster(cluster);
@@ -437,7 +437,7 @@ public class IntentionGraph
 		
 		
 		topology.getCluster(cluster).activateCluster();
-		if (flagPerspectiveChanged == false)
+//		if (flagPerspectiveChanged == false)
 			setDefaultDimensions();
 		drawMenuBar();
 //		if (flagPerspectiveChanged)

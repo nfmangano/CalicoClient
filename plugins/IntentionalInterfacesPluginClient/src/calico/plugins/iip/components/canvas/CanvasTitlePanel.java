@@ -402,7 +402,13 @@ public class CanvasTitlePanel implements StickyItem, CalicoEventListener, Perspe
 							long tappedCanvas = ctnc.getCanvasAt(p);
 							if ((isChildContainerVisible(tappedCanvas) || !ctnc.canvasAtPointHasChildren(p)) 
 									&&  CIntentionCellController.getInstance().isRootCanvas(tappedCanvas))
-								IntentionalInterfacesPerspective.getInstance().displayPerspective(tappedCanvas);
+								// fix problem of loading from within II if ()
+								if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective)
+									IntentionGraph.getInstance().setFocusToCluster(CIntentionCellController.getInstance().getClusterRootCanvasId(
+										tappedCanvas), false);
+								else
+									IntentionalInterfacesPerspective.getInstance().displayPerspective(CIntentionCellController.getInstance().getClusterRootCanvasId(
+										tappedCanvas));
 							else if (isChildContainerVisible(tappedCanvas) || !ctnc.canvasAtPointHasChildren(p))
 								CCanvasController.loadCanvas(tappedCanvas);
 							else
