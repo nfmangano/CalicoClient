@@ -254,24 +254,23 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					moveCurrentCell(event.getGlobalPoint(), false);
 					Point2D local = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).globalToLocal(new Point(event.getPoint()));
 					final long clusterId = IntentionGraph.getInstance().getClusterAt(local);
-					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
+//					long potentialTargetCell = CIntentionCellController.getInstance().getCellAt(event.getPoint(), currentCellId);
 					long originalRoot = CIntentionCellController.getInstance().getClusterRootCanvasId(cell.getCanvasId());
-//					if (potentialTargetCell > 0l
-//							&& !CIntentionCellController.getInstance().isParent(
-//									CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId(), cell.getCanvasId()))
-//					{
-//						long targetCanvasId = CIntentionCellController.getInstance().getCellById(potentialTargetCell).getCanvasId();
-//						CCanvasLinkController.getInstance().createLink(targetCanvasId, cell.getCanvasId());
-//					}
-//					else 
-						if (clusterId == originalRoot
+					
+					if (clusterId == originalRoot
 							&& CIntentionCellController.getInstance().getCIntentionCellParent(cell.getCanvasId()) != originalRoot
 							&& IntentionGraph.getInstance().ringContainsPoint(originalRoot, event.getPoint(), 0))
 					{
 						CCanvasLinkController.getInstance().createLink(originalRoot, cell.getCanvasId());
 					}
+					//the CIC has been moved to a new cluster
 					else if (clusterId != 0l && clusterId != originalRoot)
 					{
+						if (cell.getIsPinned())
+						{
+							cell.setIsPinned(false);
+							Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 0);
+						}
 						
 						int numChildrenInOriginal = IntentionGraph.getInstance().getNumBaseClusterChildren(originalRoot);
 						int numChildrenInTarget = IntentionGraph.getInstance().getNumBaseClusterChildren(clusterId);
