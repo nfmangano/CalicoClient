@@ -28,6 +28,7 @@ import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
+import calico.controllers.CGroupController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.input.CalicoMouseListener;
@@ -622,11 +623,15 @@ public class IntentionGraph
 	public void zoomToInnerRing()
 	{
 		// 1) get all canvases that are children of the root node
-		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
-		long rootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(activeCanvasId);
+//		long activeCanvasId = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId();
+//		long rootCanvasId = CIntentionCellController.getInstance().getClusterRootCanvasId(activeCanvasId);
+		long rootCanvasId = IntentionGraph.getInstance().getClusterInFocus();
+		
 		Long[] rootAnchors = new Long[1];
 		//all anchors attached to the root will lead us to elements in the first ring
 		rootAnchors = CCanvasLinkController.getInstance().getAnchorIdsByCanvasId(rootCanvasId).toArray(rootAnchors);
+		if (rootAnchors.length == 0)
+			return;
 		
 		// 2) get their bounds
 		Point2D.Double min = new Point2D.Double(Double.MAX_VALUE, Double.MAX_VALUE), max = new Point2D.Double(Double.MIN_VALUE,Double.MIN_VALUE);

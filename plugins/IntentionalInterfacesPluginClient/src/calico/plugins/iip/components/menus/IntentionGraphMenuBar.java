@@ -43,6 +43,10 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 			addIcon(new ZoomOutButton());
 			addSpacer();
 			addIcon(new ZoomInButton());
+			addSpacer();
+			addIcon(new ZoomToClusterMenuButton());
+			addSpacer();
+			addIcon(new ZoomToCenterRingMenuButton());
 			
 			
 //			CalicoDraw.addChildToNode(this, zoomSlider);
