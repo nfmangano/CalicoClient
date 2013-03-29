@@ -54,7 +54,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	private static final CIntentionCellInputHandler INSTANCE = new CIntentionCellInputHandler();
 
 	private static final double DRAG_THRESHOLD = 20.0;
-	private static final int BUBBLE_MENU_TYPE_ID = BubbleMenu.registerType(new BubbleMenuComponentType());
+	
 
 	private enum State
 	{
@@ -95,40 +95,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	 * Time governing the display delay for the bubble menu.
 	 */
 	private final BubbleMenuTimer bubbleMenuTimer = new BubbleMenuTimer();
-
-	/**
-	 * Simple button to delete a canvas and its associated CIC.
-	 */
-	private final DeleteCanvasButton deleteCanvasButton = new DeleteCanvasButton();
-	/**
-	 * Button for initiating the arrow creation phase, which is governed by <code>CIntentionArrowPhase</code>.
-	 */
-	private final CreateLinkButton linkButton = new CreateLinkButton();
-	/**
-	 * Simple button to zoom and pan the Intention View such that the cluster containing the selected CIC fits neatly in
-	 * the Intention View.
-	 */
-	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
-	/**
-	 * Opens a dialog to set the name of the canvas
-	 */
-	private final SetCanvasTitleButton setCanvasTitleButton = new SetCanvasTitleButton();
-	/**
-	 * Simple button to zoom into the center ring of the cluster
-	 */
-	private final ZoomToCenterRingButton zoomToCenterRingButton = new ZoomToCenterRingButton();
-	/**
-	 * Simple button to zoom into the center ring of the cluster
-	 */
-	private final ZoomToBranchButton zoomToBranchButton = new ZoomToBranchButton();
-	/**
-	 * Unpin the currently selected CIC
-	 */
-	private final UnpinCanvas unpinCanvas = new UnpinCanvas();
-	
-	
 	
 	private Point lastLocalMousePoint = null;
+
+	private long mouseDownTime;
 
 	private CIntentionCellInputHandler()
 	{
@@ -234,14 +204,14 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionPressed(InputEventInfo event)
 	{
-		System.out.println("Mouse pressed called! " + System.currentTimeMillis());
 		lastLocalMousePoint = event.getPoint();
+		mouseDownTime = System.currentTimeMillis();
 		if (event.isLeftButtonPressed())
 		{
 			synchronized (stateLock)
 			{
 				if (state == State.MENU)
-					state = State.DRAG;
+					state = State.ACTIVATED;
 				else
 					state = State.PRESSED;
 //				state = State.ACTIVATED;
@@ -268,9 +238,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	@Override
 	public void actionReleased(InputEventInfo event)
 	{
-		System.out.println("Mouse released called! " + System.currentTimeMillis());
 		lastLocalMousePoint = event.getPoint();
 		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(currentCellId);
+		if (cell == null)
+			return;
 		cell.setDragging(false);
 		cell.setCellIcon(CIntentionCell.CellIconType.NONE);
 		cell.setPinHighlighted(false);
@@ -322,6 +293,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 							Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 1);
 						}
 					}
+					state = State.MENU;
 					break;
 				case PRESSED:
 					if (event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD
@@ -343,7 +315,12 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, currentCellId, 0);
 					break;
 				case ACTIVATED:
-					state = State.MENU;
+					if (System.currentTimeMillis() - mouseDownTime < 300l
+							&& event.getGlobalPoint().distance(mouseDragAnchor) < DRAG_THRESHOLD
+							&& cell.getVisible())
+						CCanvasController.loadCanvas(cell.getCanvasId());
+					else
+						state = State.MENU;
 					break;
 			}
 
@@ -416,36 +393,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					{
 						state = State.MENU;
 						
-						boolean isRootCanvas = CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId());
-						boolean isRootChildCanvas = CIntentionCellController.getInstance().isRootCanvas(
-								CIntentionCellController.getInstance().getCIntentionCellParent(
-										CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId()));
-						
-						ArrayList<PieMenuButton> buttons = new ArrayList<PieMenuButton>();
-						
-						buttons.add(setCanvasTitleButton);
-						
-						if (CCanvasController.canvasdb.size() > 1
-								&& isRootChildCanvas)
-						{
-							buttons.add(deleteCanvasButton);
-							buttons.add(linkButton);
-							buttons.add(zoomToCenterRingButton);
-							buttons.add(zoomToBranchButton);
-						}
-						else if (CCanvasController.canvasdb.size() > 1
-								&& !isRootCanvas)
-						{
-							buttons.add(deleteCanvasButton);
-							buttons.add(linkButton);
-							buttons.add(zoomToBranchButton);
-						}
-						
-						if (cell.getIsPinned())
-							buttons.add(unpinCanvas);
-						
-						BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, buttons.toArray(new PieMenuButton[buttons.size()]));
-						
+						cell.showBubbleMenu();
+
 						state = State.ACTIVATED;
 //						state = State.DRAG;
 //						CIntentionCellController.getInstance().getCellById(currentCellId).moveToFront();
@@ -455,67 +404,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 					}
 				}
 			}
+
+
 		}
 	}
 
-	/**
-	 * Integration point for a CIC with the bubble menu.
-	 * 
-	 * @author Byron Hawkins
-	 */
-	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
-	{
-		@Override
-		public PBounds getBounds(long uuid)
-		{
-			PBounds local = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
-			if (CCanvasController.exists(CCanvasController.getCurrentUUID()))	
-				return new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
-			else
-				return local;
-		}
 
-		@Override
-		public void highlight(boolean b, long uuid)
-		{
-			if (CIntentionCellController.getInstance().getCellById(uuid) != null)
-			CIntentionCellController.getInstance().getCellById(uuid).setHighlighted(b);
-		}
-
-		@Override
-		public int getButtonPosition(String buttonClassname)
-		{
-			if (buttonClassname.equals(DeleteCanvasButton.class.getName()))
-			{
-				return 1;
-			}
-			if (buttonClassname.equals(CreateLinkButton.class.getName()))
-			{
-				return 2;
-			}
-			if (buttonClassname.equals(ZoomToClusterButton.class.getName()))
-			{
-				return 3;
-			}
-			if (buttonClassname.equals(SetCanvasTitleButton.class.getName()))
-			{
-				return 3;
-			}
-			if (buttonClassname.equals(UnpinCanvas.class.getName()))
-			{
-				return 5;
-			} 
-			if (buttonClassname.equals(ZoomToCenterRingButton.class.getName()))
-			{
-				return 7;
-			}
-			if (buttonClassname.equals(ZoomToBranchButton.class.getName()))
-			{
-				return 8;
-			}
-			
-			
-			return 0;
-		}
-	}
 }

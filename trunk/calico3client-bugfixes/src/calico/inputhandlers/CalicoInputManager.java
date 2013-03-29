@@ -529,7 +529,10 @@ public class CalicoInputManager
 				//Need this if else in case group does not exist
 				if (BubbleMenu.isBubbleMenuActive())
 				{
-					if (!CGroupController.exists(BubbleMenu.activeUUID))
+					if (!CGroupController.exists(BubbleMenu.activeUUID)
+							&& (BubbleMenu.getContainerBounds() == null
+							|| !BubbleMenu.getContainerBounds().contains(ev.getGlobalPoint()))
+							)
 					{
 						BubbleMenu.clearMenu();
 						CCanvasStrokeModeInputHandler.deleteSmudge = true;

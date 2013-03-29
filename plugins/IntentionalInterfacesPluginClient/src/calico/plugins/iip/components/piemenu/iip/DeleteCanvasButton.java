@@ -59,6 +59,7 @@ public class DeleteCanvasButton extends PieMenuButton
 		IntentionGraph.getInstance().deleteCanvasAndRemoveExtraClusters(activeCanvasId);
 		
 		BubbleMenu.clearMenu();
+		CIntentionCellInputHandler.getInstance().setCurrentCellId(0l);
 	}
 
 

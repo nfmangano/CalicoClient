@@ -2,6 +2,8 @@ package calico.plugins.iip.components.piemenu.iip;
 
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
 import calico.inputhandlers.InputEventInfo;
@@ -34,11 +36,12 @@ public class UnpinCanvas extends PieMenuButton
 	{
 		super.onReleased(event);
 
-		CIntentionCell cell = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell());
+		final CIntentionCell cell = CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell());
 		if (cell == null)
 			return;
 		
 		cell.setIsPinned(false);
+		
 		Networking.send(IntentionalInterfacesNetworkCommands.CIC_SET_PIN, cell.getId(), 0);
 		
 //		BubbleMenu.clearMenu();

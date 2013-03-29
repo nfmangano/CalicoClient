@@ -17,6 +17,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 
 import javax.swing.SwingUtilities;
@@ -24,6 +25,8 @@ import javax.swing.SwingUtilities;
 import calico.CalicoDataStore;
 import calico.CalicoDraw;
 import calico.components.CCanvas;
+import calico.components.bubblemenu.BubbleMenu;
+import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.controllers.CHistoryController;
 import calico.controllers.CCanvasController.HistoryFrame;
@@ -33,10 +36,18 @@ import calico.networking.netstuff.CalicoPacket;
 import calico.plugins.iip.IntentionalInterfacesClientPlugin;
 import calico.plugins.iip.IntentionalInterfacesNetworkCommands;
 import calico.plugins.iip.components.graph.IntentionGraph;
+import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
+import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
+import calico.plugins.iip.components.piemenu.iip.SetCanvasTitleButton;
+import calico.plugins.iip.components.piemenu.iip.UnpinCanvas;
+import calico.plugins.iip.components.piemenu.iip.ZoomToBranchButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToCenterRingButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.iconsets.CalicoIconManager;
+import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.util.IntentionalInterfacesGraphics;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PImage;
@@ -72,6 +83,38 @@ public class CIntentionCell implements CalicoEventListener
 	public enum CellIconType {NONE, CREATE_LINK, DELETE_LINK};
 	
 	private CellIconType iconToShow = CellIconType.NONE;
+	
+	private static final int BUBBLE_MENU_TYPE_ID = BubbleMenu.registerType(new BubbleMenuComponentType());
+	
+	/**
+	 * Simple button to delete a canvas and its associated CIC.
+	 */
+	private final DeleteCanvasButton deleteCanvasButton = new DeleteCanvasButton();
+	/**
+	 * Button for initiating the arrow creation phase, which is governed by <code>CIntentionArrowPhase</code>.
+	 */
+	private final CreateLinkButton linkButton = new CreateLinkButton();
+	/**
+	 * Simple button to zoom and pan the Intention View such that the cluster containing the selected CIC fits neatly in
+	 * the Intention View.
+	 */
+	private final ZoomToClusterButton zoomToClusterButton = new ZoomToClusterButton();
+	/**
+	 * Opens a dialog to set the name of the canvas
+	 */
+	private final SetCanvasTitleButton setCanvasTitleButton = new SetCanvasTitleButton();
+	/**
+	 * Simple button to zoom into the center ring of the cluster
+	 */
+	private final ZoomToCenterRingButton zoomToCenterRingButton = new ZoomToCenterRingButton();
+	/**
+	 * Simple button to zoom into the center ring of the cluster
+	 */
+	private final ZoomToBranchButton zoomToBranchButton = new ZoomToBranchButton();
+	/**
+	 * Unpin the currently selected CIC
+	 */
+	private final UnpinCanvas unpinCanvas = new UnpinCanvas();
 
 	private enum BorderColor
 	{
@@ -180,7 +223,7 @@ public class CIntentionCell implements CalicoEventListener
 
 	private Color currentBorderColor()
 	{
-		if (highlighted)
+		if (false /*highlighted*/)
 		{
 			return BorderColor.HIGHLIGHTED.color;
 		}
@@ -342,6 +385,13 @@ public class CIntentionCell implements CalicoEventListener
 					shell.setX(x);
 					shell.setY(y);
 					shell.layoutChildren();
+					if (CIntentionCellInputHandler.getInstance().getActiveCell() == getId())
+						SwingUtilities.invokeLater(
+								new Runnable() { public void run() { 
+									if (getBounds() != null)
+										BubbleMenu.moveIconPositions(getBounds());
+								}});
+						
 //					shell.repaint();
 				}});
 
@@ -573,6 +623,8 @@ public class CIntentionCell implements CalicoEventListener
 			g.translate(thumbnailBounds.x, thumbnailBounds.y);
 
 						
+			if (highlighted)
+				drawHighlight(g);
 //			drawHistoryHighlight(g);
 
 			
@@ -585,6 +637,38 @@ public class CIntentionCell implements CalicoEventListener
 			g.setColor(c);
 			
 			
+		}
+		
+		private void drawHighlight(Graphics2D g) {
+			Stroke oldStroke = g.getStroke();
+			Color oldColor = g.getColor();
+			Paint oldPaint = g.getPaint();
+			Stroke borderStroke;
+
+
+			Color borderColor = Color.BLUE;
+			Point2D center = new Point2D.Float((float)thumbnailBounds.getWidth()/2, 
+					(float)thumbnailBounds.getHeight()/2);
+			float radius = (float)thumbnailBounds.getWidth() + 25;
+			float[] dist = {.2f, .8f};
+
+			borderStroke =
+					new BasicStroke(50f,
+							BasicStroke.CAP_BUTT,
+							BasicStroke.JOIN_MITER);
+			Color highlightColor = new Color(borderColor.getRed(),borderColor.getGreen(),borderColor.getBlue(), 255);
+			Color[] colors = {highlightColor, Color.WHITE};
+			RadialGradientPaint gradient =
+					new RadialGradientPaint(center, radius, dist, colors);
+			g.setPaint(gradient);
+
+			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
+			g.setStroke(borderStroke);
+			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
+
+			g.setStroke(oldStroke);
+			g.setPaint(oldPaint);
+			g.setColor(oldColor);
 		}
 
 		private void drawHistoryHighlight(Graphics2D g) {
@@ -1039,5 +1123,97 @@ public class CIntentionCell implements CalicoEventListener
 			shell.setTransparency(.7f);
 		else
 			shell.setTransparency(1.0f);
+	}
+	
+	public void showBubbleMenu() {
+		boolean isRootCanvas = CIntentionCellController.getInstance().isRootCanvas(getCanvasId());
+		boolean isRootChildCanvas = CIntentionCellController.getInstance().isRootCanvas(
+				CIntentionCellController.getInstance().getCIntentionCellParent(getCanvasId()));
+		
+		ArrayList<PieMenuButton> buttons = new ArrayList<PieMenuButton>();
+		
+		buttons.add(setCanvasTitleButton);
+		
+		if (CCanvasController.canvasdb.size() > 1
+				&& isRootChildCanvas)
+		{
+			buttons.add(deleteCanvasButton);
+			buttons.add(linkButton);
+			buttons.add(zoomToCenterRingButton);
+			buttons.add(zoomToBranchButton);
+		}
+		else if (CCanvasController.canvasdb.size() > 1
+				&& !isRootCanvas)
+		{
+			buttons.add(deleteCanvasButton);
+			buttons.add(linkButton);
+			buttons.add(zoomToBranchButton);
+		}
+		
+		if (getIsPinned())
+			buttons.add(unpinCanvas);
+		
+		BubbleMenu.displayBubbleMenu(getId(), true, BUBBLE_MENU_TYPE_ID, buttons.toArray(new PieMenuButton[buttons.size()]));
+	}
+	
+	/**
+	 * Integration point for a CIC with the bubble menu.
+	 * 
+	 * @author Byron Hawkins
+	 */
+	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
+	{
+		@Override
+		public PBounds getBounds(long uuid)
+		{
+			PBounds local = CIntentionCellController.getInstance().getCellById(uuid).getGlobalBounds();
+			if (CCanvasController.exists(CCanvasController.getCurrentUUID()))	
+				return new PBounds(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getLayer().globalToLocal(local));
+			else
+				return local;
+		}
+
+		@Override
+		public void highlight(boolean b, long uuid)
+		{
+			if (CIntentionCellController.getInstance().getCellById(uuid) != null)
+				CIntentionCellController.getInstance().getCellById(uuid).setHighlighted(b);
+		}
+
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			if (buttonClassname.equals(DeleteCanvasButton.class.getName()))
+			{
+				return 1;
+			}
+			if (buttonClassname.equals(CreateLinkButton.class.getName()))
+			{
+				return 2;
+			}
+			if (buttonClassname.equals(ZoomToClusterButton.class.getName()))
+			{
+				return 3;
+			}
+			if (buttonClassname.equals(SetCanvasTitleButton.class.getName()))
+			{
+				return 3;
+			}
+			if (buttonClassname.equals(UnpinCanvas.class.getName()))
+			{
+				return 5;
+			} 
+			if (buttonClassname.equals(ZoomToCenterRingButton.class.getName()))
+			{
+				return 7;
+			}
+			if (buttonClassname.equals(ZoomToBranchButton.class.getName()))
+			{
+				return 8;
+			}
+			
+			
+			return 0;
+		}
 	}
 }

@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 
 import calico.Calico;
 import calico.CalicoOptions;
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuBar;
 import calico.components.menus.CanvasStatusBar;
 import calico.components.menus.buttons.HistoryNavigationBackButton;
@@ -41,6 +42,7 @@ import calico.plugins.iip.controllers.IntentionCanvasController;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.controllers.IntentionalInterfacesCanvasContributor;
 import calico.plugins.iip.iconsets.CalicoIconManager;
+import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 
 /**
@@ -137,8 +139,20 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 				{
 					p.rewind();
 					p.getInt();
-					if (p.getLong() ==  CCanvasController.getCurrentUUID())
+					long canvasId = p.getLong(); 
+					if (canvasId ==  CCanvasController.getCurrentUUID())
 						IntentionalInterfacesPerspective.getInstance().displayPerspective(IntentionGraph.WALL);
+				}
+				if (CalicoPerspective.Active.getCurrentPerspective() instanceof IntentionalInterfacesPerspective)
+				{
+					p.rewind();
+					p.getInt();
+					long canvasId = p.getLong(); 
+					//If this is true, then someone across the network has deleted the CIC that local user
+					//	has select. We must deselect it or all hell breaks loose.
+					if (BubbleMenu.activeUUID == CIntentionCellInputHandler.getInstance().getActiveCell()
+							&& CIntentionCellController.getInstance().getCellById(CIntentionCellInputHandler.getInstance().getActiveCell()).getCanvasId() == canvasId)
+						BubbleMenu.clearMenu();
 				}
 				return;
 		}

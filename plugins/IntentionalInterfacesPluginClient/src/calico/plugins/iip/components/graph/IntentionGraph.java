@@ -381,9 +381,9 @@ public class IntentionGraph
 		getLayer(IntentionGraph.Layer.CONTENT).setTransform(transform);
 		getLayer(IntentionGraph.Layer.TOPOLOGY).setTransform(transform);
 
-		if (BubbleMenu.isBubbleMenuActive()) {
-			BubbleMenu.clearMenu();
-		}
+//		if (BubbleMenu.isBubbleMenuActive()) {
+//			BubbleMenu.clearMenu();
+//		}
 	}
 
 	public void activateIconifyMode(boolean b) {
@@ -751,6 +751,15 @@ public class IntentionGraph
 				CalicoDraw.repaint(getLayer(Layer.CONTENT));
 				refreshTopologyTitles();
 				CalicoDraw.repaint(menuBar);
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							if (CIntentionCellController.getInstance().getCellById(
+									CIntentionCellInputHandler.getInstance().getActiveCell()) != null)
+								BubbleMenu.moveIconPositions(
+										CIntentionCellController.getInstance().getCellById(
+												CIntentionCellInputHandler.getInstance().getActiveCell()).getBounds());
+						}});
+
 			}
 
 
@@ -947,7 +956,7 @@ public class IntentionGraph
 	
 	public void removeExtraCluster(long emptyClusterToIgnore) {
 		long[] clusterRoots = IntentionGraph.getInstance().getRootsOfAllClusters();
-		if (clusterRoots.length < 5)
+		if (clusterRoots.length < 6)
 			return;
 		
 		for (int i = 0; i < clusterRoots.length; i++)
