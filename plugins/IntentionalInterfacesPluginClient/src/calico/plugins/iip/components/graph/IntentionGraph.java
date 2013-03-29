@@ -776,7 +776,12 @@ public class IntentionGraph
 		SwingUtilities.invokeLater(
 				new Runnable() { public void run() { 
 					IntentionGraph.this.defaultScale = IntentionGraph.this.getLayer(Layer.CONTENT).getScale();
-					IntentionGraph.this.defaultBounds = getGlobalCoordinatesForVisibleBounds();
+					Cluster c = topology.getCluster(getClusterInFocus());
+					if (c != null)
+					{
+						IntentionGraph.this.defaultBounds = c.getVisualBoxBounds().getBounds2D(); 
+					}
+//					IntentionGraph.this.defaultBounds = getGlobalCoordinatesForVisibleBounds();
 //					IntentionGraph.this.defaultBounds = IntentionGraph.this.getLayer(Layer.TOPOLOGY).getCamera(0).getViewBounds();
 //					System.out.println("Default bounds are: " + IntentionGraph.this.defaultBounds.toString());
 //					System.out.println("Topology box bounds are: " + IntentionGraph.getInstance().topology.getCluster(getClusterInFocus()).getBounds().toString());
