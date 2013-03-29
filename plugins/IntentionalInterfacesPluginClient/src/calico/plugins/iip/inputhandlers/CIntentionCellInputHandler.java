@@ -2,6 +2,7 @@ package calico.plugins.iip.inputhandlers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Timer;
 
 import javax.swing.SwingUtilities;
@@ -9,6 +10,7 @@ import javax.swing.SwingUtilities;
 import calico.CalicoDraw;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.ContextMenu;
+import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
@@ -22,6 +24,7 @@ import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
 import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
 import calico.plugins.iip.components.piemenu.iip.SetCanvasTitleButton;
+import calico.plugins.iip.components.piemenu.iip.UnpinCanvas;
 import calico.plugins.iip.components.piemenu.iip.ZoomToBranchButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToCenterRingButton;
 import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
@@ -118,6 +121,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 	 * Simple button to zoom into the center ring of the cluster
 	 */
 	private final ZoomToBranchButton zoomToBranchButton = new ZoomToBranchButton();
+	/**
+	 * Unpin the currently selected CIC
+	 */
+	private final UnpinCanvas unpinCanvas = new UnpinCanvas();
 	
 	
 	
@@ -233,7 +240,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 		{
 			synchronized (stateLock)
 			{
-				state = state.PRESSED;
+				if (state == State.MENU)
+					state = State.DRAG;
+				else
+					state = State.PRESSED;
 //				state = State.ACTIVATED;
 			}
 
@@ -250,7 +260,8 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			cellDragAnchor = CIntentionCellController.getInstance().getCellById(currentCellId).getLocation();
 
 			Point2D point = IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.TOOLS).globalToLocal(event.getGlobalPoint());
-			bubbleMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
+			if (state == State.PRESSED)
+				bubbleMenuTimer.start(new Point((int) point.getX(), (int) point.getY()));
 		}
 	}
 
@@ -410,20 +421,30 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 								CIntentionCellController.getInstance().getCIntentionCellParent(
 										CIntentionCellController.getInstance().getCellById(getActiveCell()).getCanvasId()));
 						
+						ArrayList<PieMenuButton> buttons = new ArrayList<PieMenuButton>();
+						
+						buttons.add(setCanvasTitleButton);
+						
 						if (CCanvasController.canvasdb.size() > 1
 								&& isRootChildCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton, zoomToCenterRingButton, zoomToBranchButton /*, zoomToClusterButton*/);
+							buttons.add(deleteCanvasButton);
+							buttons.add(linkButton);
+							buttons.add(zoomToCenterRingButton);
+							buttons.add(zoomToBranchButton);
 						}
 						else if (CCanvasController.canvasdb.size() > 1
 								&& !isRootCanvas)
 						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, deleteCanvasButton, linkButton, setCanvasTitleButton, zoomToBranchButton /*, zoomToClusterButton*/);
-						} 
-						else
-						{
-							BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, /*linkButton,*/ setCanvasTitleButton /*xxxx, zoomToClusterButton*/);
+							buttons.add(deleteCanvasButton);
+							buttons.add(linkButton);
+							buttons.add(zoomToBranchButton);
 						}
+						
+						if (cell.getIsPinned())
+							buttons.add(unpinCanvas);
+						
+						BubbleMenu.displayBubbleMenu(currentCellId, true, BUBBLE_MENU_TYPE_ID, buttons.toArray(new PieMenuButton[buttons.size()]));
 						
 						state = State.ACTIVATED;
 //						state = State.DRAG;
@@ -480,6 +501,10 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				return 3;
 			}
+			if (buttonClassname.equals(UnpinCanvas.class.getName()))
+			{
+				return 5;
+			} 
 			if (buttonClassname.equals(ZoomToCenterRingButton.class.getName()))
 			{
 				return 7;
@@ -488,6 +513,7 @@ public class CIntentionCellInputHandler extends CalicoAbstractInputHandler imple
 			{
 				return 8;
 			}
+			
 			
 			return 0;
 		}
