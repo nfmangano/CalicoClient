@@ -27,7 +27,8 @@ public class GroupCopyDragButton extends PieMenuButton
 	private long new_guuid = 0L;
 	private boolean isActive = false;
 	Point prevPoint, mouseDownPoint;
-	long cuuid, oguuid; 
+	long cuuid, oguuid;
+	private Point mouseDownPoint2; 
 	
 	public GroupCopyDragButton(long uuid)
 	{
@@ -76,6 +77,7 @@ public class GroupCopyDragButton extends PieMenuButton
 		
 		prevPoint = new Point(0, 0);
 		mouseDownPoint = null;
+		mouseDownPoint2 = ev.getPoint();
 		cuuid = canvasUUID;
 
 		super.onPressed(ev);
@@ -130,10 +132,19 @@ public class GroupCopyDragButton extends PieMenuButton
 			CGroupController.groupdb.get(BubbleMenu.highlightedParentGroup).highlight_repaint();
 			BubbleMenu.highlightedParentGroup = 0l;
 		}
+		int deltaX = 0;
+		int deltaY = 0;
+		if (Math.abs(ev.getX() - mouseDownPoint2.getX()) < 5
+				&& Math.abs(ev.getY() - mouseDownPoint2.getY()) < 5)
+		{
+			deltaX = 20;
+			deltaY = 20;
+			CGroupController.move(uuid, deltaX, deltaY);
+		}
 		
 		//This threw a null pointer exception for some reason...
 		if (mouseDownPoint != null)
-			CGroupController.move_end(this.uuid, ev.getX(), ev.getY()); 
+			CGroupController.move_end(this.uuid, ev.getX() + deltaX, ev.getY() + deltaY); 
 		
 		//Update the menu location in case it was dropped into a list
 		//BubbleMenu.moveIconPositions(CGroupController.groupdb.get(guuid).getBounds());
