@@ -625,7 +625,7 @@ public class CIntentionCell implements CalicoEventListener
 						
 			if (highlighted)
 				drawHighlight(g);
-//			drawHistoryHighlight(g);
+			drawHistoryHighlight(g);
 
 			
 			g.drawRoundRect(0, 0, ((int) thumbnailBounds.width) - 1, ((int) thumbnailBounds.height) - 1, 10, 10);
@@ -676,7 +676,7 @@ public class CIntentionCell implements CalicoEventListener
 			Color oldColor = g.getColor();
 			Paint oldPaint = g.getPaint();
 			Stroke borderStroke;
-			long[] mostRecentFrames = new long[5];
+			long[] mostRecentFrames = new long[1];
 			for (int i = 0; i < mostRecentFrames.length; i++)
 			{
 				CHistoryController.Frame f = CHistoryController.getInstance().getFrame(i);
