@@ -8,6 +8,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.SwingUtilities;
 
 import calico.CalicoDraw;
+import calico.CalicoOptions;
 import calico.plugins.iip.components.graph.IntentionGraph;
 import calico.plugins.iip.iconsets.CalicoIconManager;
 import edu.umd.cs.piccolo.PNode;
@@ -26,7 +27,7 @@ import edu.umd.cs.piccolox.nodes.PComposite;
  */
 public class IntentionGraphZoomSlider extends PComposite implements PropertyChangeListener
 {
-	public static final int SPAN = 400;
+	public static final int SPAN = CalicoOptions.menu.menubar.defaultIconDimension;
 
 	private final PImage knob;
 	private final PImage zoomOutButton;
@@ -48,7 +49,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 //		addChild(zoomInButton);
 //		addChild(knob);
 		CalicoDraw.addChildToNode(this, zoomOutButton);
-		CalicoDraw.addChildToNode(this, slider);
+//		CalicoDraw.addChildToNode(this, slider);
 		CalicoDraw.addChildToNode(this, zoomInButton);
 		CalicoDraw.addChildToNode(this, knob);
 
@@ -139,7 +140,7 @@ public class IntentionGraphZoomSlider extends PComposite implements PropertyChan
 		}
 		else
 		{
-			scale = convertSlidePointToScale(point);
+//			scale = convertSlidePointToScale(point);
 		}
 
 		

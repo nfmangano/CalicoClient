@@ -33,27 +33,32 @@ public class IntentionGraphMenuBar extends CanvasGenericMenuBar
 		super(screenPosition, IntentionGraph.getInstance().getBounds());
 
 		addCap(CanvasGenericMenuBar.ALIGN_START);
-
+		
 //		addIcon(new ZoomToExtent());
 //		addIcon(new NewClusterButton());
 //		addIcon(new NewClusterCanvasButton());
 
+		if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
+		{
+			addIcon(new ZoomOutButton());
+			addSpacer();
+			addIcon(new ZoomInButton());
+			
+			
+//			CalicoDraw.addChildToNode(this, zoomSlider);
+			//		addChild(zoomSlider);
+//			CalicoDraw.setNodeBounds(zoomSlider, zoomSliderBounds);
+			//		zoomSlider.setBounds(zoomSliderBounds);
+//			CalicoDraw.repaintNode(zoomSlider);
+			//		zoomSlider.repaint();
+		}
+		
 		addSpacer();
 
 		zoomSliderBounds = addIcon(IntentionGraphZoomSlider.SPAN);
 		zoomSlider = new IntentionGraphZoomSlider();
 		
-		if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER)
-		{
-			
-			
-			CalicoDraw.addChildToNode(this, zoomSlider);
-			//		addChild(zoomSlider);
-			CalicoDraw.setNodeBounds(zoomSlider, zoomSliderBounds);
-			//		zoomSlider.setBounds(zoomSliderBounds);
-			CalicoDraw.repaintNode(zoomSlider);
-			//		zoomSlider.repaint();
-		}
+
 		
 		addTextEndAligned("  Exit  ", new Font("Verdana", Font.BOLD, 12), new ExitButton());
 		addSpacer(ALIGN_END);
