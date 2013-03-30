@@ -562,12 +562,12 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 	{
 		private final TitleRow titleRow = new TitleRow();
 		private final List<IntentionTypeRow> typeRows = new ArrayList<IntentionTypeRow>();
-		private final PText titleCaptionP1 = new PText("In relation (");
-		private final PText titleCaptionP2 = new PText(") to " + "" + ", this canvas is: ");
-		private final PImage arrowIcon =
-				new PImage(CalicoIconManager.getIconImage(
-						"intention.link-canvas"));
-		private final double arrowIconWidth = ROW_HEIGHT - (2 * ROW_TEXT_INSET);
+		private final PText titleCaptionP1 = new PText("In relation ");
+		private final PText titleCaptionP2 = new PText("to " + "" + ", this canvas is: ");
+//		private final PImage arrowIcon =
+//				new PImage(CalicoIconManager.getIconImage(
+//						"intention.link-canvas"));
+		private final double arrowIconWidth = 0; //ROW_HEIGHT - (2 * ROW_TEXT_INSET);
 		
 		private final MetaRow metaRow = new MetaRow();
 
@@ -640,7 +640,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			typeRows.clear();
 			
 			CalicoDraw.addChildToNode(this, titleCaptionP1);
-			CalicoDraw.addChildToNode(this, arrowIcon);
+//			CalicoDraw.addChildToNode(this, arrowIcon);
 			CalicoDraw.addChildToNode(this, titleCaptionP2);
 
 			for (CIntentionType type : IntentionCanvasController.getInstance().getActiveIntentionTypes())
@@ -671,17 +671,17 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			if (CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid) != 0l
 					&& !CIntentionCellController.getInstance().isRootCanvas(CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid)))
 			{
-				titleCaptionP2.setText(") to " + CIntentionCellController.getInstance().getCellByCanvasId(
+				titleCaptionP2.setText("to " + CIntentionCellController.getInstance().getCellByCanvasId(
 						CIntentionCellController.getInstance().getCIntentionCellParent(canvas_uuid)).getTitle() + ", this canvas is: ");
 			}
 			else if (IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId() != 0l)
 			{
-				titleCaptionP2.setText(") to " + CIntentionCellController.getInstance().getCellByCanvasId(
+				titleCaptionP2.setText("to " + CIntentionCellController.getInstance().getCellByCanvasId(
 								IntentionCanvasController.getInstance().getCurrentOriginatingCanvasId()).getTitle() + ", this canvas is: ");
 			}
 			else
 			{
-				titleCaptionP2.setText(") to " + "" + ", this canvas is: ");
+				titleCaptionP2.setText("to " + "" + ", this canvas is: ");
 			}
 			
 			titleCaptionP2.recomputeLayout();
@@ -710,7 +710,7 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			double y = bounds.y;
 			titleRow.setBounds(bounds.x, y, bounds.width, ROW_HEIGHT);
 			titleCaptionP1.setBounds(bounds.x, y, titleCaptionP1.getWidth(), ROW_HEIGHT);
-			arrowIcon.setBounds(bounds.x + titleCaptionP1.getWidth(), y, arrowIconWidth, arrowIconWidth);
+//			arrowIcon.setBounds(bounds.x + titleCaptionP1.getWidth(), y, arrowIconWidth, arrowIconWidth);
 			titleCaptionP2.setBounds(bounds.x + titleCaptionP1.getWidth() + arrowIconWidth, y, titleCaptionP2.getWidth(), ROW_HEIGHT);
 			y += ROW_HEIGHT;			
 			for (IntentionTypeRow row : typeRows)
