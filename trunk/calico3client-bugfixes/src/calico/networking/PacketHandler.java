@@ -192,6 +192,7 @@ public class PacketHandler
 //			case NetworkCommand.PALETTE_PACKET:PALETTE_PACKET(packet);break;
 			
 			case NetworkCommand.PRESENCE_CANVAS_USERS:PRESENCE_CANVAS_USERS(packet);break;
+			case NetworkCommand.DEFAULT_EMAIL:DEFAULT_EMAIL(packet);break;
 			
 		}//command switch
 		
@@ -1576,5 +1577,13 @@ public class PacketHandler
 //		long num = p.getLong();
 //		long total = p.getLong();
 		
+	}
+	
+	public static void DEFAULT_EMAIL(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		
+		CalicoDataStore.default_email = p.getString();
 	}
 }

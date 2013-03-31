@@ -42,6 +42,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import edu.umd.cs.piccolo.event.*;
 
@@ -67,7 +68,7 @@ public class EmailButton extends CanvasMenuButton
 		}
 		
 	}
-	
+
 	public void actionMouseClicked(InputEventInfo event)
 	{
 		if (event.getAction() == InputEventInfo.ACTION_PRESSED)
@@ -76,34 +77,48 @@ public class EmailButton extends CanvasMenuButton
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			String response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
-					  "Please enter the email address(es) you wish to send this canvas to",
-					  "Email Canvas",
-					  JOptionPane.QUESTION_MESSAGE);
+
+			final Object response = JOptionPane.showInputDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent(),
+					"Please enter the email address(es) you wish to send this canvas to",
+					"Email Canvas",
+					JOptionPane.QUESTION_MESSAGE, null, null, CalicoDataStore.default_email);
+			//			String responseText = response.toString();
 			if (response != null)
 			{
-				try
-				{
-					Calendar cal = new GregorianCalendar();
-					
-					// Get the components of the time
-					int hour12 = cal.get(Calendar.HOUR);            // 0..11
-					int min = cal.get(Calendar.MINUTE);             // 0..59
-					int ampm = cal.get(Calendar.AM_PM);             // 0=AM, 1=PM
-					String time = "" + hour12 + ":" + min + " " + ((ampm==0)?"AM":"PM") + ", " + cal.get(Calendar.MONTH)+1 + "/" + cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.YEAR);
-					
-					// Send a test message
-			        send("smtp.gmail.com", 465, CalicoDataStore.Username + " <ucicalicodev@gmail.com>", response,
-			        		"Calico Canvas " + CGrid.getCanvasCoord(CCanvasController.getCurrentUUID()) + " - " + time, "Screenshot of Calico Canvas\n\n");
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+				Calendar cal = new GregorianCalendar();
+
+				// Get the components of the time
+				int hour12 = cal.get(Calendar.HOUR);            // 0..11
+				int min = cal.get(Calendar.MINUTE);             // 0..59
+				int ampm = cal.get(Calendar.AM_PM);             // 0=AM, 1=PM
+				final String time = "" + hour12 + ":" + min + " " + ((ampm==0)?"AM":"PM") + ", " + cal.get(Calendar.MONTH)+1 + "/" + cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.YEAR);
+
+				// Send the message
+				(new Thread(
+						new Runnable() { public void run() { 
+							try {
+								send("smtp.gmail.com", 465, CalicoDataStore.Username + " <ucicalicodev@gmail.com>", response.toString(),
+										"Calico Canvas " + CGrid.getCanvasCoord(CCanvasController.getCurrentUUID()) + " - " + time, "Screenshot of Calico Canvas\n\n");
+							} catch (AddressException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (MessagingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}})
+						).start();
+
+				CalicoPacket packet = CalicoPacket.getPacket(NetworkCommand.DEFAULT_EMAIL, response.toString());
+				packet.rewind();
+				PacketHandler.receive(packet);
+				Networking.send(packet);
+
+
 			}
 			super.onMouseUp();
 		}
-		
+
 		//StatusMessage.popup("Not yet implemented");
 	}
 	

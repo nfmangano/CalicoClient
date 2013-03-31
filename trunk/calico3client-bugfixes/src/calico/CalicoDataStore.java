@@ -42,6 +42,8 @@ public class CalicoDataStore
 	public static long StressTestInterval = Integer.MAX_VALUE;
 	public static long timeLastStressPacketSent = 0;
 	
+	public static String default_email = "";
+	
 	/**
 	 * This is the current operating mode we are in
 	 */
