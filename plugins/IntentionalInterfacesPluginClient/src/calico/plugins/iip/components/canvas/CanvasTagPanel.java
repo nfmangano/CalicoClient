@@ -10,7 +10,10 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import calico.Calico;
@@ -370,11 +373,32 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 				{
 				case RENAME:
 				{
-					IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(type);
-					if (action == IntentionTypeNameDialog.Action.OK)
+					JTextField nameText = new JTextField(type.getName());
+					JTextField descriptionText = new JTextField(type.getDescription());
+					final JComponent[] inputs = new JComponent[] {
+							new JLabel("Name: "),
+							nameText,
+							new JLabel("Description: "),
+							descriptionText
+					};
+					
+					int action = JOptionPane.showConfirmDialog(null, inputs, "Please enter name and description", JOptionPane.OK_CANCEL_OPTION);
+					if (action == JOptionPane.OK_OPTION)
 					{
-						IntentionCanvasController.getInstance().renameIntentionType(type.getId(), IntentionTypeNameDialog.getInstance().getText());
+						if (nameText.getText().compareTo(type.getName()) != 0)
+							IntentionCanvasController.getInstance().renameIntentionType(type.getId(), nameText.getText());
+						if (descriptionText.getText().compareTo(type.getDescription()) != 0)
+							IntentionCanvasController.getInstance().setIntentionTypeDescription(type.getId(), descriptionText.getText());
 					}
+					
+//					IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(type);
+//					if (action == IntentionTypeNameDialog.Action.OK)
+//					{
+//
+//
+////						IntentionCanvasController.getInstance().renameIntentionType(type.getId(), IntentionTypeNameDialog.getInstance().getText());
+//						
+//					}
 				}
 				break;
 				case SET_COLOR:
@@ -553,10 +577,19 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 			{
 				if (point.x < removeButton.getBoundsReference().x)
 				{
-					IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(null);
-					if (action == IntentionTypeNameDialog.Action.OK)
+					JTextField nameText = new JTextField();
+					JTextField descriptionText = new JTextField();
+					final JComponent[] inputs = new JComponent[] {
+							new JLabel("Name: "),
+							nameText,
+							new JLabel("Description: "),
+							descriptionText
+					};
+					
+					int action = JOptionPane.showConfirmDialog(null, inputs, "Please enter name and description", JOptionPane.OK_CANCEL_OPTION);
+					if (action == JOptionPane.OK_OPTION)
 					{
-						IntentionCanvasController.getInstance().addIntentionType(IntentionTypeNameDialog.getInstance().getText());
+						IntentionCanvasController.getInstance().addIntentionType(nameText.getText(), descriptionText.getText());
 					}
 				}
 				else if (point.x < editButton.getBoundsReference().x)

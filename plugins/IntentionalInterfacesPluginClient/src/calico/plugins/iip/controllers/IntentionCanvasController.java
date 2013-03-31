@@ -143,6 +143,18 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 
 		CanvasTagPanel.getInstance().updateIntentionTypes();
 	}
+	
+	/**
+	 * Set a tag's description in this plugin's internal model
+	 * @param uuid
+	 * @param name
+	 */
+	public void localSetIntentionTypeDescription(long typeId, String descr) {
+		activeIntentionTypes.get(typeId).setDescription(descr);
+
+		CanvasTagPanel.getInstance().updateIntentionTypes();
+		
+	}
 
 	/**
 	 * Change the color of a tag in this plugin's internal model
@@ -170,13 +182,14 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 	/**
 	 * Create a new intention type, sending the command directly to the server without doing anything else.
 	 */
-	public void addIntentionType(String name)
+	public void addIntentionType(String name, String description)
 	{
 		CalicoPacket packet = new CalicoPacket();
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_CREATE);
 		packet.putLong(Calico.uuid());
 		packet.putString(name);
 		packet.putInt(-1); // request a color to be chosen on the server
+		packet.putString(description);
 
 		packet.rewind();
 		Networking.send(packet);
@@ -191,6 +204,18 @@ public class IntentionCanvasController implements CalicoPerspective.PerspectiveC
 		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_RENAME);
 		packet.putLong(typeId);
 		packet.putString(name);
+
+		packet.rewind();
+		PacketHandler.receive(packet);
+		Networking.send(packet);
+	}
+	
+	public void setIntentionTypeDescription(long typeId, String descr)
+	{
+		CalicoPacket packet = new CalicoPacket();
+		packet.putInt(IntentionalInterfacesNetworkCommands.CIT_SET_DESCRIPTION);
+		packet.putLong(typeId);
+		packet.putString(descr);
 
 		packet.rewind();
 		PacketHandler.receive(packet);

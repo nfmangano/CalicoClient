@@ -34,12 +34,49 @@ public class IntentionalInterfacesNetworkCommands
 	public static final int WALL_BOUNDS = Command.WALL_BOUNDS.id;
 	public static final int CIC_SET_PIN = Command.CIC_SET_PIN.id;
 	public static final int EXECUTE_II_EVENT_DISPATCHER_EVENTS = Command.EXECUTE_II_EVENT_DISPATCHER_EVENTS.id; 
+	public static final int CIT_SET_DESCRIPTION = Command.CIT_SET_DESCRIPTION.id;
 	
 	static {
 		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_CREATE.id, 
 				new NetCommandFormat("CIC_CREATE", "LLIIS"));
 		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_MOVE.id, 
 				new NetCommandFormat("CIC_MOVE", "LII"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_SET_TITLE.id, 
+				new NetCommandFormat("CIC_SET_TITLE", "LS"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_TAG.id, 
+				new NetCommandFormat("CIC_TAG", "LL"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_UNTAG.id, 
+				new NetCommandFormat("CIC_UNTAG", "LL"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_TOPOLOGY.id, 
+				new NetCommandFormat("CIC_TOPOLOGY", ""));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_CLUSTER_GRAPH.id, 
+				new NetCommandFormat("CIC_CLUSTER_GRAPH", "S"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_DELETE.id, 
+				new NetCommandFormat("CIC_DELETE", ""));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIT_RENAME.id, 
+				new NetCommandFormat("CIT_RENAME", "LS"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIT_SET_COLOR.id, 
+				new NetCommandFormat("CIT_SET_COLOR", "LI"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIT_DELETE.id, 
+				new NetCommandFormat("CIT_DELETE", "L"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIT_CREATE.id, 
+				new NetCommandFormat("CIT_CREATE", "LSI"));		
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CLINK_CREATE.id, 
+				new NetCommandFormat("CLINK_CREATE", "L"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CLINK_MOVE_ANCHOR.id, 
+				new NetCommandFormat("CLINK_MOVE_ANCHOR", "LLIII"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CLINK_LABEL.id, 
+				new NetCommandFormat("CLINK_LABEL", "LS"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CLINK_DELETE.id, 
+				new NetCommandFormat("CLINK_DELETE", "L"));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIC_UPDATE_FINISHED.id, 
+				new NetCommandFormat("CIC_UPDATE_FINISHED", ""));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.II_PERSPECTIVE_ACTIVATED.id, 
+				new NetCommandFormat("II_PERSPECTIVE_ACTIVATED", ""));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.EXECUTE_II_EVENT_DISPATCHER_EVENTS.id, 
+				new NetCommandFormat("EXECUTE_II_EVENT_DISPATCHER_EVENTS", ""));
+		NetworkCommand.formats.put(IntentionalInterfacesNetworkCommands.Command.CIT_SET_DESCRIPTION.id, 
+				new NetCommandFormat("CIT_SET_DESCRIPTION", ""));
 	}
 	
 	public enum Command
@@ -70,7 +107,8 @@ public class IntentionalInterfacesNetworkCommands
 		II_PERSPECTIVE_ACTIVATED, 
 		WALL_BOUNDS,
 		CIC_SET_PIN,
-		EXECUTE_II_EVENT_DISPATCHER_EVENTS;
+		EXECUTE_II_EVENT_DISPATCHER_EVENTS,
+		CIT_SET_DESCRIPTION;
 
 		public final int id;
 

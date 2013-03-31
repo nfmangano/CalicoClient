@@ -56,6 +56,11 @@ public class CIntentionType
 	{
 		return description;
 	}
+	
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
 
 	public void setName(String name)
 	{

@@ -218,6 +218,9 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 			case EXECUTE_II_EVENT_DISPATCHER_EVENTS:
 				EXECUTE_II_EVENT_DISPATCHER_EVENTS(p);
 				break;
+			case CIT_SET_DESCRIPTION:
+				CIT_SET_DESCRIPTION(p);
+				break;
 		}
 	}
 
@@ -382,6 +385,17 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		String name = p.getString();
 
 		IntentionCanvasController.getInstance().localRenameIntentionType(uuid, name);
+	}
+	
+	private static void CIT_SET_DESCRIPTION(CalicoPacket p)
+	{
+		
+		p.rewind();
+		IntentionalInterfacesNetworkCommands.Command.CIT_SET_DESCRIPTION.verify(p);
+
+		long uuid = p.getLong();
+		String name = p.getString();
+		IntentionCanvasController.getInstance().localSetIntentionTypeDescription(uuid, name);
 	}
 
 	private static void CIT_SET_COLOR(CalicoPacket p)
