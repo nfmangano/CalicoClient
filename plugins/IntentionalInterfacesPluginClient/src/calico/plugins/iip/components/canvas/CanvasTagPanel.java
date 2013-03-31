@@ -75,6 +75,9 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 	private final Image removeButtonImage;
 	private final Image editButtonImage;
 	private final Image paletteButtonImage;
+	private final Image closeButtonImage;
+	private final Image editTagsButtonImage;
+	private final Image doneButtonImage;
 	
 	private final long uuid;
 	private long canvas_uuid;
@@ -95,6 +98,10 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 		removeButtonImage = CalicoIconManager.getIconImage("intention.remove-button");
 		editButtonImage = CalicoIconManager.getIconImage("intention.edit-button");
 		paletteButtonImage = CalicoIconManager.getIconImage("intention.palette-button");
+		closeButtonImage = CalicoIconManager.getIconImage("intention.close");
+		editTagsButtonImage = CalicoIconManager.getIconImage("intention.edit-tags");
+		doneButtonImage = CalicoIconManager.getIconImage("intention.done");
+		
 		IntentionTypeRowEditMode.RENAME.image = editButtonImage;
 		IntentionTypeRowEditMode.SET_COLOR.image = paletteButtonImage;
 		IntentionTypeRowEditMode.REMOVE.image = removeButtonImage;
@@ -303,6 +310,12 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 		Image image;
 	}
+	
+	private enum IntentionTypeRowMetaRowMode
+	{
+		DEFAULT,
+		EDIT;
+	}
 
 	/**
 	 * Represents one tag row panel's Piccolo component hierarchy. Paints the selection highlight in
@@ -501,54 +514,127 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 
 	private class MetaRow extends PComposite
 	{
+		private final MetaButton closeButton = new MetaButton(closeButtonImage);
+		private final MetaButton editTagsButton = new MetaButton(editTagsButtonImage);
+		
 		private final MetaButton addButton = new MetaButton(addButtonImage);
 		private final MetaButton removeButton = new MetaButton(removeButtonImage);
 		private final MetaButton editButton = new MetaButton(editButtonImage);
 		private final MetaButton colorButton = new MetaButton(paletteButtonImage);
+		private final MetaButton doneButton = new MetaButton(doneButtonImage);
+		
+		private IntentionTypeRowMetaRowMode editMode = IntentionTypeRowMetaRowMode.DEFAULT;
 
 		public MetaRow()
 		{
-			addChild(addButton);
-			addChild(removeButton);
-			addChild(editButton);
-			addChild(colorButton);
+			addChild(closeButton);
+			addChild(editTagsButton);
+			
+//			addChild(addButton);
+//			addChild(removeButton);
+//			addChild(editButton);
+//			addChild(colorButton);
 		}
 
 		void tap(Point point)
 		{
-			if (point.x < removeButton.getBoundsReference().x)
+			if (editMode == IntentionTypeRowMetaRowMode.DEFAULT)
 			{
-				IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(null);
-				if (action == IntentionTypeNameDialog.Action.OK)
+				if (closeButton.getBoundsReference().contains(point))
 				{
-					IntentionCanvasController.getInstance().addIntentionType(IntentionTypeNameDialog.getInstance().getText());
+					IntentionCanvasController.getInstance().toggleTagPanelVisibility();
+				}
+				else if (editTagsButton.getBoundsReference().contains(point))
+				{
+					panel.activateIntentionRowTagEditMode(IntentionTypeRowMetaRowMode.EDIT);
 				}
 			}
-			else if (point.x < editButton.getBoundsReference().x)
+			else if (editMode == IntentionTypeRowMetaRowMode.EDIT)
 			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.REMOVE);
+				if (point.x < removeButton.getBoundsReference().x)
+				{
+					IntentionTypeNameDialog.Action action = IntentionTypeNameDialog.getInstance().queryUserForName(null);
+					if (action == IntentionTypeNameDialog.Action.OK)
+					{
+						IntentionCanvasController.getInstance().addIntentionType(IntentionTypeNameDialog.getInstance().getText());
+					}
+				}
+				else if (point.x < editButton.getBoundsReference().x)
+				{
+					panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.REMOVE);
+				}
+				else if (point.x < colorButton.getBoundsReference().x)
+				{
+					panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.RENAME);
+				}
+				else if (point.x < (colorButton.getBoundsReference().x + colorButton.getBoundsReference().width))
+				{
+					panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.SET_COLOR);
+				}
+				else if (doneButton.getBoundsReference().contains(point))
+				{
+					panel.activateIntentionRowTagEditMode(IntentionTypeRowMetaRowMode.DEFAULT);
+				}
 			}
-			else if (point.x < colorButton.getBoundsReference().x)
-			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.RENAME);
-			}
-			else if (point.x < (colorButton.getBoundsReference().x + colorButton.getBoundsReference().width))
-			{
-				panel.activateIntentionRowEditMode(IntentionTypeRowEditMode.SET_COLOR);
-			}
+
 		}
 
 		@Override
 		protected void layoutChildren()
 		{
 			PBounds rowBounds = getBounds();
-			double buttonWidth = (rowBounds.getBounds().width / 4.0);
-
 			double x = rowBounds.x;
-			addButton.setBounds(x, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			removeButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			editButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
-			colorButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+			
+			if (editMode == IntentionTypeRowMetaRowMode.DEFAULT)
+			{
+				double buttonWidth = (rowBounds.getBounds().width / 2.0);
+				
+				closeButton.setBounds(x, rowBounds.y, buttonWidth, ROW_HEIGHT);
+				editTagsButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+			}
+			else if (editMode == IntentionTypeRowMetaRowMode.EDIT)
+			{
+				double buttonWidth = (rowBounds.getBounds().width / 5.0);
+
+				addButton.setBounds(x, rowBounds.y, buttonWidth, ROW_HEIGHT);
+				removeButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+				editButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+				colorButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+				doneButton.setBounds(x += buttonWidth, rowBounds.y, buttonWidth, ROW_HEIGHT);
+			}
+		}
+
+		public void activateEditMode(IntentionTypeRowMetaRowMode mode) {
+
+			if (this.editMode == mode)
+				return;
+			
+			this.editMode = mode;
+			
+			CalicoDraw.removeAllChildrenFromNode(this);
+
+			if (mode == IntentionTypeRowMetaRowMode.DEFAULT)
+			{
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							addChild(closeButton);
+							addChild(editTagsButton);
+							layoutChildren();
+						}});
+			}
+			else if (mode == IntentionTypeRowMetaRowMode.EDIT)
+			{
+				SwingUtilities.invokeLater(
+						new Runnable() { public void run() { 
+							addChild(addButton);
+							addChild(removeButton);
+							addChild(editButton);
+							addChild(colorButton);
+							addChild(doneButton);
+							layoutChildren();
+						}});
+			}
+			
 		}
 	}
 
@@ -610,6 +696,13 @@ public class CanvasTagPanel implements StickyItem, PropertyChangeListener, Calic
 				row.activateEditMode(mode);
 			}
 		}
+		
+		void activateIntentionRowTagEditMode(IntentionTypeRowMetaRowMode mode)
+		{
+			metaRow.activateEditMode(mode);
+		}
+		
+		
 
 		double calculateWidth()
 		{
