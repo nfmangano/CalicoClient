@@ -72,6 +72,8 @@ public class CalicoDataStore
 	
 	public static Int2ObjectOpenHashMap<String> clientInfo = new Int2ObjectOpenHashMap<String>();
 	
+	public static String lastOpenedDirectory = "";
+	
 	/**
 	 * Sets the default options
 	 */

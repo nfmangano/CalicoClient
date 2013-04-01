@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 
 import calico.Calico;
+import calico.CalicoDataStore;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.CanvasMenuButton;
 import calico.controllers.CCanvasController;
@@ -41,12 +42,17 @@ public class ImageCreateButton extends CanvasMenuButton {
 		}
 		else if (event.getAction() == InputEventInfo.ACTION_RELEASED && isPressed)
 		{
-			final JFileChooser fc = new JFileChooser();
+			final JFileChooser fc;
+			if (CalicoDataStore.lastOpenedDirectory.compareTo("") == 0)
+				fc = new JFileChooser();
+			else
+				fc = new JFileChooser(CalicoDataStore.lastOpenedDirectory);
 			fc.setFileFilter(new ImageFileFilter());
 	        int returnVal = fc.showOpenDialog(CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).getComponent());
 	
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	            File file = fc.getSelectedFile();
+	            CalicoDataStore.lastOpenedDirectory = file.getPath();
 	            Networking.send(CImageController.getImageTransferPacket(Calico.uuid(), CCanvasController.getCurrentUUID(), 
 	            		50, 50, file));
 			}

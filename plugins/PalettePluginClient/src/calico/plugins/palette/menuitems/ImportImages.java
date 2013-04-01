@@ -1,6 +1,8 @@
 package calico.plugins.palette.menuitems;
 
 import java.io.File;
+
+import calico.CalicoDataStore;
 import calico.plugins.palette.*;
 import calico.plugins.palette.iconsets.CalicoIconManager;
 
@@ -18,13 +20,21 @@ public class ImportImages extends PaletteBarMenuItem {
 	
 	@Override
 	public void onClick(InputEventInfo ev) {
-		JFileChooser fileChooser = new JFileChooser("File Dialog");
+		final JFileChooser fileChooser;
+		if (CalicoDataStore.lastOpenedDirectory.compareTo("") == 0)
+			fileChooser = new JFileChooser();
+		else
+			fileChooser = new JFileChooser(CalicoDataStore.lastOpenedDirectory);
 		fileChooser.setFileFilter(new ImageFileFilter());
 		fileChooser.setMultiSelectionEnabled(true);
 		int returnVal = fileChooser.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File[] files = fileChooser.getSelectedFiles();
-			PalettePlugin.importImages(files);
+			if (files.length > 0)
+			{
+				PalettePlugin.importImages(files);
+				CalicoDataStore.lastOpenedDirectory = files[0].getPath();
+			}
 		}
 
 	}
