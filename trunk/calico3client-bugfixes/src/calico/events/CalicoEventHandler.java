@@ -140,7 +140,11 @@ public class CalicoEventHandler {
 		{
 			ArrayList<CalicoEventListener> listeners = eventListeners.get(event);
 			
-			for (CalicoEventListener listener : listeners)
+			//we create a clone because some listeners may want to stop listening, and if they remove themselves,
+			//	that may cause a java.util.ConcurrentModificationException if we use the same arraylist
+			ArrayList<CalicoEventListener> listenerClone = new ArrayList<CalicoEventListener>(listeners);
+			
+			for (CalicoEventListener listener : listenerClone)
 				listener.handleCalicoEvent(event, p);
 		}
 	}
