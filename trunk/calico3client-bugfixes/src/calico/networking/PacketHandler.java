@@ -193,6 +193,7 @@ public class PacketHandler
 			
 			case NetworkCommand.PRESENCE_CANVAS_USERS:PRESENCE_CANVAS_USERS(packet);break;
 			case NetworkCommand.DEFAULT_EMAIL:DEFAULT_EMAIL(packet);break;
+			case NetworkCommand.SERVER_HTTP_PORT:SERVER_HTTP_PORT(packet);break;
 			
 		}//command switch
 		
@@ -1585,5 +1586,13 @@ public class PacketHandler
 		p.getInt();
 		
 		CalicoDataStore.default_email = p.getString();
+	}
+	
+	public static void SERVER_HTTP_PORT(CalicoPacket p)
+	{
+		p.rewind();
+		p.getInt();
+		
+		CalicoDataStore.ServerHTTPPort = p.getInt();
 	}
 }

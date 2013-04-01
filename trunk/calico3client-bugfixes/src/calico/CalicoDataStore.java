@@ -37,6 +37,7 @@ public class CalicoDataStore
 	
 	public static String ServerHost = null;
 	public static int ServerPort = 0;
+	public static int ServerHTTPPort = 0;
 	
 	public static boolean RunStressTest = false;
 	public static long StressTestInterval = Integer.MAX_VALUE;

@@ -79,7 +79,7 @@ public class ShowCanvasLinkButton extends CanvasMenuButton implements ClipboardO
 			super.onMouseDown();
 		}
 		
-		String link = "http://" + CalicoDataStore.ServerHost + ":" + (CalicoDataStore.ServerPort-1) + "/canvas/getimage?uuid=" + cuid;
+		String link = "http://" + CalicoDataStore.ServerHost + ":" + (CalicoDataStore.ServerHTTPPort) + "/canvas/getimage?uuid=" + cuid;
 		String message = "You may view this canvas from a web browser using the following link:\n" + link; 
 		
 		Object[] options = {"Copy to clipboard", "Cancel"};
