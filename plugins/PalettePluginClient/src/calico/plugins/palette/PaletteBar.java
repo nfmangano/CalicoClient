@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import calico.CalicoDataStore;
+import calico.components.menus.CanvasStatusBar;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.controllers.CStrokeController;
@@ -32,8 +33,6 @@ import edu.umd.cs.piccolox.nodes.PComposite;
 public class PaletteBar extends PComposite 
 	implements CalicoEventListener, StickyItem {
 	
-	private int numItemsShown;
-	
 	int xLoc = 50, yLoc = 50;
 	int itemBuffer = 5;
 	int defaultHeight = 30;
@@ -45,13 +44,12 @@ public class PaletteBar extends PComposite
 //	Palette palette;
 	
 	
-	public PaletteBar(int numItemsShown, Palette p)
+	public PaletteBar(Palette p)
 	{
-		this.numItemsShown = numItemsShown;
 //		this.palette = p;
 		this.uuid = calico.Calico.uuid();
 		
-		setupPaletteItems(numItemsShown);
+		setupPaletteItems();
 //		CalicoEventHandler.getInstance().addListenerForType("PALETTE", this, CalicoEventHandler.PASSIVE_LISTENER);
 		for (Integer event : PalettePlugin.getNetworkCommands(PaletteNetworkCommands.class))
 			CalicoEventHandler.getInstance().addListener(event.intValue(), this, CalicoEventHandler.PASSIVE_LISTENER);
@@ -60,7 +58,9 @@ public class PaletteBar extends PComposite
 		CalicoInputManager.registerStickyItem(this);
 	}
 
-	private void setupPaletteItems(int numItemsShown) {
+	private void setupPaletteItems() {
+
+		this.removeAllChildren();
 		ArrayList<PNode> newChildren = new ArrayList<PNode>();
 		
 
@@ -69,11 +69,11 @@ public class PaletteBar extends PComposite
 		{
 			
 			newChildren.add(new NewPalette());
-			newChildren.add(new SavePalette());
-			newChildren.add(new OpenPalette());
+//			newChildren.add(new SavePalette());
+//			newChildren.add(new OpenPalette());
 			newChildren.add(new ClosePalette());
 			newChildren.add(new ImportImages());
-			newChildren.add(new AddCanvasToPalette());	
+//			newChildren.add(new AddCanvasToPalette());	
 //			newChildren.add(new HideMenuBarIcons());
 		}
 		else
@@ -86,26 +86,41 @@ public class PaletteBar extends PComposite
 		newChildren.add(new ShiftToRightPalette());
 		
 		
-		newChildren.addAll(addPaletteItems(numItemsShown));
+		newChildren.addAll(addPaletteItems(newChildren.size()));
+		
+		
+		this.addChildren(newChildren);
+		
+		int height = itemBuffer + (defaultHeight + itemBuffer) * (int) Math.ceil(((double)newChildren.size()) / this.maxChildrenPerRow);
+		
+		this.yLoc = (int)(CalicoDataStore.ScreenHeight 
+				- CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).statusBar.getBoundsReference().getHeight() 
+				- 50
+				- height);
 		
 		int numItemsToShowPerRow = /*(newChildren.size() < this.maxChildrenPerRow) ? newChildren.size() :*/ this.maxChildrenPerRow;
 		int widthOfItems = itemBuffer + (PalettePlugin.PALETTE_ITEM_WIDTH + itemBuffer) * numItemsToShowPerRow;
 		
-		int height = itemBuffer + (defaultHeight + itemBuffer) * (int) Math.ceil(((double)newChildren.size()) / this.maxChildrenPerRow);
+		
 		setBounds(xLoc, yLoc, widthOfItems, height);
 		
-		this.removeAllChildren();
-		this.addChildren(newChildren);
-		
+
+		layoutChildren();
+//		if (CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()) != null)
+//		{
+//			double y = CalicoDataStore.ScreenHeight - this.getBoundsReference().getHeight() - CCanvasController.canvasdb.get(CCanvasController.getCurrentUUID()).statusBar.getBoundsReference().getHeight() - 50;
+//			this.translate(0, -1 * getY() + y);
+//			this.setBounds(this.getBoundsReference().getX(), y, this.getBoundsReference().getWidth(), this.getBoundsReference().getHeight());
+//		}
 		this.setPaint(Color.GRAY);
 	}
 	
-	private ArrayList<PNode> addPaletteItems(int numItemsShown) {
+	private ArrayList<PNode> addPaletteItems(int numMenuItems) {
 
 		
 		ArrayList<PNode> ret = new ArrayList<PNode>();
 		ArrayList<CalicoPacket> paletteItems = PalettePlugin.getActivePalette().getPaletteItems();
-		int itemsToShow = (int) Math.ceil((double)(paletteItems.size() + 8) / this.maxChildrenPerRow) * this.maxChildrenPerRow - 8;
+		int itemsToShow = (int) Math.ceil((double)(paletteItems.size() + numMenuItems) / this.maxChildrenPerRow) * this.maxChildrenPerRow - numMenuItems;
 		for (int i = 0; i < itemsToShow; i++)
 		{
 			PNode item;
@@ -187,12 +202,12 @@ public class PaletteBar extends PComposite
 			p.getInt();
 			long itemUUID = p.getLong();
 			long paletteUUID = p.getLong();
-			setupPaletteItems(numItemsShown);
+			setupPaletteItems();
 			repaint();
 		}
 		else if (event == PaletteNetworkCommands.PALETTE_SWITCH_VISIBLE_PALETTE)
 		{
-			setupPaletteItems(numItemsShown);
+			setupPaletteItems();
 			repaint();
 		}
 		else if (event == PaletteNetworkCommands.PALETTE_HIDE_MENU_BAR_ICONS)
@@ -224,6 +239,9 @@ public class PaletteBar extends PComposite
 			CalicoInputManager.registerStickyItem(this);
 		else
 			CalicoInputManager.unregisterStickyItem(this);
+		
+		this.setupPaletteItems();
+		
 		super.setVisible(visible);
 	}
 	
@@ -255,7 +273,7 @@ public class PaletteBar extends PComposite
 //		
 //		if (getRoot() != null)
 //			getRoot().addActivity(flash);
-		setupPaletteItems(numItemsShown);
+		setupPaletteItems();
 		repaint();
 		
 		
@@ -264,7 +282,7 @@ public class PaletteBar extends PComposite
 	public void showMenuBarIcons()
 	{
 		menuBarIconsVisible = true;
-		setupPaletteItems(numItemsShown);
+		setupPaletteItems();
 		repaint();
 	}
 	

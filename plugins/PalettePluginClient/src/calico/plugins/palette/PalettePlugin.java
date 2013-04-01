@@ -581,7 +581,7 @@ public class PalettePlugin extends CalicoPlugin
 //		CalicoInputManager.unregisterStickyItem(paletteBar);
 		if (paletteBar == null)
 		{
-			paletteBar = new PaletteBar(5, PalettePlugin.getActivePalette());
+			paletteBar = new PaletteBar(PalettePlugin.getActivePalette());
 			paletteBar.setVisible(false);
 		}
 		
