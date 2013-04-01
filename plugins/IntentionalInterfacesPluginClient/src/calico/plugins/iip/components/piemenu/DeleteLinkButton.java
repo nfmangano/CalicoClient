@@ -1,6 +1,8 @@
 package calico.plugins.iip.components.piemenu;
 
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.piemenu.PieMenuButton;
+import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CCanvasLink;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
@@ -19,7 +21,8 @@ public class DeleteLinkButton extends PieMenuButton
 	public DeleteLinkButton()
 	{
 		// "" creates a big red X
-		super(CalicoIconManager.getIconImage(""));
+//		super(CalicoIconManager.getIconImage("intention.canvas-link-delete"));
+		super(CalicoIconManager.getIconImage("intention.delete-canvas"));
 	}
 
 	public void setContext(CCanvasLink link)
@@ -28,7 +31,7 @@ public class DeleteLinkButton extends PieMenuButton
 	}
 
 	@Override
-	public void onClick()
+	public void onReleased(InputEventInfo event)
 	{
 		if (link == null)
 		{
@@ -44,5 +47,6 @@ public class DeleteLinkButton extends PieMenuButton
 		CCanvasLinkController.getInstance().deleteLink(link.getId(), false);
 		CCanvasLinkController.getInstance().createLink(root, targetCanvas);
 		
+		BubbleMenu.clearMenu();
 	}
 }

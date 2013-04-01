@@ -1,11 +1,15 @@
 package calico.plugins.iip.inputhandlers;
 
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Timer;
 
+import calico.components.bubblemenu.BubbleMenu;
 import calico.components.menus.ContextMenu;
 import calico.components.piemenu.PieMenu;
+import calico.components.piemenu.PieMenuButton;
+import calico.controllers.CCanvasController;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.plugins.iip.components.CCanvasLink;
@@ -15,9 +19,17 @@ import calico.plugins.iip.components.piemenu.DeleteLinkButton;
 import calico.plugins.iip.components.piemenu.PieMenuTimerTask;
 import calico.plugins.iip.components.piemenu.SetLinkLabelButton;
 import calico.plugins.iip.components.piemenu.iip.CreateIntentionArrowPhase;
+import calico.plugins.iip.components.piemenu.iip.CreateLinkButton;
+import calico.plugins.iip.components.piemenu.iip.DeleteCanvasButton;
+import calico.plugins.iip.components.piemenu.iip.SetCanvasTitleButton;
+import calico.plugins.iip.components.piemenu.iip.UnpinCanvas;
+import calico.plugins.iip.components.piemenu.iip.ZoomToBranchButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToCenterRingButton;
+import calico.plugins.iip.components.piemenu.iip.ZoomToClusterButton;
 import calico.plugins.iip.controllers.CCanvasLinkController;
 import calico.plugins.iip.controllers.CIntentionCellController;
 import calico.plugins.iip.controllers.IntentionGraphController;
+import edu.umd.cs.piccolo.util.PBounds;
 
 /**
  * Custom <code>CalicoInputManager</code>handler for events related to arrows in the Intention View. The main Calico
@@ -89,6 +101,8 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 	 * flag has no meaning at times when no arrow input sequence is in progress.
 	 */
 	private boolean isNearestSideA;
+	
+	private static final int BUBBLE_MENU_TYPE_ID = BubbleMenu.registerType(new BubbleMenuComponentType());
 
 	private CCanvasLinkInputHandler()
 	{
@@ -222,11 +236,54 @@ public class CCanvasLinkInputHandler extends CalicoAbstractInputHandler implemen
 					boolean isAnchorACanvasRootCanvas = CIntentionCellController.getInstance().isRootCanvas(anchorACanvas);
 					
 					if (!isAnchorACanvasRootCanvas)
-						PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
-					else
-						PieMenu.displayPieMenu(point, setLinkLabelButton);
+						BubbleMenu.displayBubbleMenu(CCanvasLinkInputHandler.getInstance().getActiveLink(), 
+								true, BUBBLE_MENU_TYPE_ID, deleteLinkButton);
+//						PieMenu.displayPieMenu(point, setLinkLabelButton, deleteLinkButton);
+//					else
+//						PieMenu.displayPieMenu(point, setLinkLabelButton);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Integration point for a CICLink with the bubble menu.
+	 * 
+	 * @author Byron Hawkins
+	 */
+	private static class BubbleMenuComponentType implements BubbleMenu.ComponentType
+	{
+		@Override
+		public PBounds getBounds(long uuid)
+		{
+			CCanvasLink link = CCanvasLinkController.getInstance().getLinkById(CCanvasLinkInputHandler.getInstance().getActiveLink());
+			final Line2D hitTestLink = new Line2D.Double();
+			hitTestLink.setLine(
+					IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).localToGlobal(new Point(link.getAnchorA().getPoint())),
+					IntentionGraph.getInstance().getLayer(IntentionGraph.Layer.CONTENT).localToGlobal(new Point(link.getAnchorB().getPoint())));
+			PBounds bounds;
+			
+			bounds = new PBounds(hitTestLink.getBounds2D());
+			return bounds;
+		}
+
+		@Override
+		public void highlight(boolean b, long uuid)
+		{
+//			if ( CCanvasLinkController.getInstance().getLinkById(uuid) != null)
+//				CCanvasLinkInputHandler.getInstance().high(b, uuid);
+		}
+
+		@Override
+		public int getButtonPosition(String buttonClassname)
+		{
+			if (buttonClassname.equals(DeleteLinkButton.class.getName()))
+			{
+				return 1;
+			}
+			
+			
+			return 0;
 		}
 	}
 }
