@@ -188,8 +188,17 @@ public class CalicoKeyListener extends KeyAdapter {
 			else
 			{
 				new_uuid = Calico.uuid();
-				CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, xPos, yPos);
 				
+				if (CGroupController.exists(BubbleMenu.activeUUID) 
+						&& CGroupController.groupdb.get(BubbleMenu.activeUUID) instanceof CListDecorator)
+				{
+					CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, xPos, CalicoDataStore.ScreenHeight);
+					CGroupController.set_parent(new_uuid, BubbleMenu.activeUUID);
+				}
+				else
+				{
+					CGroupController.create_text_scrap(new_uuid, CCanvasController.getCurrentUUID(), response, xPos, yPos);
+				}
 				if (updateBubbleIcons)
 					BubbleMenu.moveIconPositions(CGroupController.groupdb.get(BubbleMenu.activeUUID).getBounds());
 			}
