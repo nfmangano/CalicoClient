@@ -451,6 +451,9 @@ public class CCanvasController
 	// Load all images in the canvas to memory to they are visible
 	public static void loadCanvasImages(long uuid)
 	{
+		if (Networking.connectionState == Networking.ConnectionState.Connecting)
+			return;
+		
 		// System.out.println("loading canvas: " + uuid);
 		if (uuid != 0)
 		{

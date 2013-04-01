@@ -155,7 +155,7 @@ public class Networking
 			udpChallenge = rand.nextLong();
 			
 			socket = new Socket();
-			socket.setReceiveBufferSize(10240);
+			socket.setReceiveBufferSize(10240000);
 			socket.connect(new InetSocketAddress(CalicoDataStore.ServerHost, CalicoDataStore.ServerPort));
 			socket.setSoLinger(false,0);
 			socket.setTcpNoDelay(true);
