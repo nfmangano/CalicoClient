@@ -1140,13 +1140,15 @@ public class CIntentionCell implements CalicoEventListener
 			buttons.add(deleteCanvasButton);
 			buttons.add(linkButton);
 			buttons.add(zoomToCenterRingButton);
-			buttons.add(zoomToBranchButton);
+			if (CIntentionCellController.getInstance().getCIntentionCellChildren(getCanvasId()).length > 0)
+				buttons.add(zoomToBranchButton);
 		}
 		else if (CCanvasController.canvasdb.size() > 1
 				&& !isRootCanvas)
 		{
 			buttons.add(deleteCanvasButton);
 			buttons.add(linkButton);
+			buttons.add(zoomToCenterRingButton);
 			buttons.add(zoomToBranchButton);
 		}
 		
