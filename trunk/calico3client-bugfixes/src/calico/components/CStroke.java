@@ -1,12 +1,9 @@
 package calico.components;
 
-import calico.components.CCanvas.Layer;
 import calico.controllers.CStrokeController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
 import calico.input.CInputMode;
-import calico.inputhandlers.CalicoInputManager;
-import calico.networking.*;
 import calico.networking.netstuff.*;
 import calico.utils.Geometry;
 
@@ -16,29 +13,16 @@ import edu.umd.cs.piccolo.*;
 import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.nodes.*;
 import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolox.util.LineShape;
 import edu.umd.cs.piccolo.util.PAffineTransform;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 import calico.*;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.*;
-import java.awt.geom.Point2D.Double;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
 
-import javax.swing.SwingUtilities;
-
 import org.apache.log4j.Logger;
-import org.shodor.util11.DataFitting;
-import org.shodor.util11.DataSetUtils;
-import org.shodor.util11.Drawing;
-import org.shodor.util11.PolygonUtils;
 
 import it.unimi.dsi.fastutil.objects.*;
 

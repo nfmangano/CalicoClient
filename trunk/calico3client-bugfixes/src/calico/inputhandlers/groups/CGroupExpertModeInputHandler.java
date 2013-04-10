@@ -2,40 +2,15 @@ package calico.inputhandlers.groups;
 
 import java.awt.*;
 
-import calico.*;
-import calico.components.*;
 import calico.components.bubblemenu.BubbleMenu;
 import calico.components.decorators.CListDecorator;
-import calico.components.piemenu.*;
-import calico.components.piemenu.canvas.DeleteAreaButton;
-import calico.components.piemenu.canvas.TextCreate;
-import calico.components.piemenu.groups.GroupSetPermanentButton;
-import calico.components.piemenu.groups.GroupShrinkToContentsButton;
 import calico.controllers.*;
 import calico.iconsets.*;
 import calico.input.CInputMode;
 import calico.inputhandlers.*;
-import calico.inputhandlers.canvas.CCanvasStrokeModeInputHandler;
-import calico.modules.*;
-import calico.networking.*;
-import calico.networking.netstuff.*;
 import calico.utils.*;
 
-import java.awt.Color;
-import java.awt.geom.*;
-import java.net.URL;
-import java.util.*;
-
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
-
-import sun.misc.PerformanceLogger;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolo.util.*;
-import edu.umd.cs.piccolox.nodes.PLine;
 
 
 public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
@@ -45,13 +20,9 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 	private long uuid = 0L;
 	
 	private Point currentMouseLocation = null;
-	private Point pressedMouseLocation = null;
-	private Point prevClickPoint = null;
 	
 	private boolean isWaitingRightHold = false;// are we waiting for the right click hold to set
 	private RightClickTimerTicker currentRightClickTimer = null;
-	
-	private InputEventInfo pressPoint = null;
 	
 	public static class RightClickTimerTicker extends TickerTask
 	{
@@ -108,9 +79,7 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 	
 	public void actionPressed(InputEventInfo e)
 	{
-		this.pressPoint = e;
 		this.currentMouseLocation = new Point(e.getX(), e.getY());
-		this.pressedMouseLocation = new Point(e.getX(), e.getY());
 		
 		this.canvas_uid = CGroupController.groupdb.get(this.uuid).getCanvasUID();
 		
@@ -249,7 +218,6 @@ public class CGroupExpertModeInputHandler extends CalicoAbstractInputHandler
 			CalicoInputManager.rerouteEvent(this.canvas_uid, e);
 		}
 		
-		prevClickPoint = e.getPoint();
 		this.isWaitingRightHold = false;
 		calico.inputhandlers.groups.CGroupScrapModeInputHandler.dragging = false;
 		

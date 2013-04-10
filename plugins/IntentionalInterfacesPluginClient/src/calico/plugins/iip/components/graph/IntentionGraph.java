@@ -29,6 +29,7 @@ import calico.components.menus.CanvasMenuBar;
 import calico.controllers.CArrowController;
 import calico.controllers.CCanvasController;
 import calico.controllers.CGroupController;
+import calico.controllers.CHistoryController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.input.CalicoMouseListener;
@@ -51,13 +52,11 @@ import calico.plugins.iip.controllers.CIntentionCellFactory;
 import calico.plugins.iip.controllers.IntentionGraphController;
 import calico.plugins.iip.inputhandlers.CIntentionCellInputHandler;
 import calico.plugins.iip.inputhandlers.IntentionGraphInputHandler;
-import calico.plugins.iip.perspectives.IntentionalInterfacesPerspective;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PAffineTransform;
 import edu.umd.cs.piccolo.util.PBounds;
-import edu.umd.cs.piccolo.util.PDimension;
 import edu.umd.cs.piccolox.nodes.PClip;
 
 /**
@@ -1122,7 +1121,7 @@ public class IntentionGraph
 		return topology.getCluster(clusterFocus);
 	}
 	
-	public void createNewClusterCanvas() {
+	public long createNewClusterCanvas() {
 		long clusterRoot = IntentionGraph.getInstance().getClusterInFocus();
 
 		long newCanvasId = CIntentionCellFactory.getInstance()
@@ -1130,13 +1129,12 @@ public class IntentionGraph
 		
 		CCanvasLinkController.getInstance().createLink(clusterRoot /*CIntentionCellController.getInstance().getClusterRootCanvasId(currentCell)*/, newCanvasId);
 		
-		
 		IntentionGraph.getInstance().createClusterIfNoEmptyClusterExists(clusterRoot);
+		
+		return newCanvasId;
 	}
 
 	public double getScale() {
 		return IntentionGraph.this.getLayer(Layer.CONTENT).getScale();
 	}
-	
-
 }

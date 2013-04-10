@@ -18,7 +18,6 @@ import java.awt.*;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
 
 public class CArrow extends PComposite
 {
@@ -236,8 +235,8 @@ public class CArrow extends PComposite
 	
 	public double getPointPercentage(Point point)
 	{
-		double dist = PolygonUtils.getLength(anchorA.getPoint(), anchorB.getPoint());
-		double pointDist = PolygonUtils.getLength(anchorA.getPoint(), point);
+		double dist = anchorA.getPoint().distance(anchorB.getPoint());
+		double pointDist = anchorA.getPoint().distance(point);
 		
 		return (100.0 * (pointDist/dist));
 	}

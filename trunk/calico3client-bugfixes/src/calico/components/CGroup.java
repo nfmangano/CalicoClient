@@ -22,6 +22,7 @@ import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
@@ -53,7 +54,6 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
 
 import calico.Calico;
 import calico.CalicoDraw;
@@ -750,7 +750,7 @@ public class CGroup extends PPath implements Serializable {
 		}
 		this.finished = true;
 
-		this.groupArea = PolygonUtils.PolygonArea(this.points);
+		this.groupArea = calico.Geometry.computePolygonArea(this.points);
 //		CalicoInputManager.addGroupInputHandler(this.uuid);
 		this.setInputHandler();
 //		smoothedPath = Geometry.getBezieredPoly(points);
@@ -1240,7 +1240,7 @@ public class CGroup extends PPath implements Serializable {
 			points.reset();
 		points = Geometry.getRoundedPolygon(newBounds, padding);
 
-		this.groupArea = PolygonUtils.PolygonArea(this.points);
+		this.groupArea = calico.Geometry.computePolygonArea(this.points);
 		GeneralPath bezieredPoly = Geometry.getBezieredPoly(points);
 		setPathTo(bezieredPoly);
 		
@@ -1859,7 +1859,7 @@ public class CGroup extends PPath implements Serializable {
 		{
 //			this.setBounds(p.getBounds());
 		}
-		this.groupArea = PolygonUtils.PolygonArea(Geometry.getPolyFromPath(p.getPathIterator(null)));
+		this.groupArea = calico.Geometry.computePolygonArea(Geometry.getPolyFromPath(p.getPathIterator(null)));
 		
 //		CCanvasController.canvasdb.get(cuid).getCamera().validateFullPaint();
 		/*a*/
@@ -2443,7 +2443,7 @@ public class CGroup extends PPath implements Serializable {
 	public boolean canParent(Shape s, double area)
 	{
 		if (area < -1)
-			area = PolygonUtils.PolygonArea(Geometry.getPolyFromPath(s.getPathIterator(null)));
+			area = calico.Geometry.computePolygonArea(Geometry.getPolyFromPath(s.getPathIterator(null)));
 		if (this.containsShape(s) && this.groupArea > area)
 			return true;
 		

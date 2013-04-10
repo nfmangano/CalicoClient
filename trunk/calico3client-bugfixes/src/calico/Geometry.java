@@ -19,6 +19,8 @@
  */
 package calico;
 
+import java.awt.Polygon;
+
 
 
 /**
@@ -699,6 +701,19 @@ public final class Geometry
 		area *= 0.5;
 
 		return area;
+	}
+	
+	public static double computePolygonArea (Polygon poly)
+	{
+		double[] x = new double[poly.npoints];
+		double[] y = new double[poly.npoints];
+		for (int i = 0;i < poly.npoints; i++)
+		{
+			x[i] = poly.xpoints[i];
+			y[i] = poly.ypoints[i];
+		}
+		
+		return computePolygonArea(x, y);
 	}
 
 

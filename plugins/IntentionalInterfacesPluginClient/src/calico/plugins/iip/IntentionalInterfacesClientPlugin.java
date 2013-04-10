@@ -14,6 +14,7 @@ import calico.components.menus.buttons.HistoryNavigationBackButton;
 import calico.components.menus.buttons.HistoryNavigationForwardButton;
 import calico.components.menus.buttons.SpacerButton;
 import calico.controllers.CCanvasController;
+import calico.controllers.CHistoryController;
 import calico.events.CalicoEventHandler;
 import calico.events.CalicoEventListener;
 import calico.networking.Networking;
@@ -30,8 +31,6 @@ import calico.plugins.iip.components.canvas.CanvasTagPanel;
 import calico.plugins.iip.components.canvas.CanvasTitlePanel;
 import calico.plugins.iip.components.canvas.CopyCanvasButton;
 import calico.plugins.iip.components.canvas.NewCanvasButton;
-import calico.plugins.iip.components.canvas.NewCanvasStepInto;
-import calico.plugins.iip.components.canvas.ShowIntentionGraphButton;
 import calico.plugins.iip.components.canvas.TagPanelToolBarButton;
 import calico.plugins.iip.components.graph.CIntentionTopology;
 import calico.plugins.iip.components.graph.IntentionGraph;
@@ -251,6 +250,7 @@ public class IntentionalInterfacesClientPlugin extends CalicoPlugin implements C
 		CIntentionCellController.getInstance().addCell(cell);
 		CIntentionCellFactory.getInstance().cellCreated(cell);
 		cell.setIsPinned(isPinned);
+		
 //		IntentionGraph.getInstance().repaint();
 	}
 

@@ -6,8 +6,6 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Arc2D;
 
-import org.shodor.util11.PolygonUtils;
-
 import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.components.CStroke;
@@ -324,7 +322,7 @@ public abstract class CalicoAbstractInputHandler
 		Point p1 = new Point(poly.xpoints[0], poly.ypoints[0]);
 		Point p2 = new Point(poly.xpoints[poly.npoints - 1], poly.ypoints[poly.npoints - 1]);
 
-		return PolygonUtils.getLength(p1, p2);
+		return p1.distance(p2);
 	}
 
 	public static void clickMenu(long potScrap, long group, Point point)

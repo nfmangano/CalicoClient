@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Polygon;
 
-import org.shodor.util11.PolygonUtils;
-
 import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.Geometry;
@@ -110,8 +108,8 @@ public abstract class AbstractArrow<AnchorType extends AbstractArrowAnchorPoint>
 
 	public double getPointPercentage(Point point)
 	{
-		double dist = PolygonUtils.getLength(anchorA.getPoint(), anchorB.getPoint());
-		double pointDist = PolygonUtils.getLength(anchorA.getPoint(), point);
+		double dist = anchorA.getPoint().distance(anchorB.getPoint());
+		double pointDist = anchorA.getPoint().distance(point);
 
 		return (100.0 * (pointDist / dist));
 	}

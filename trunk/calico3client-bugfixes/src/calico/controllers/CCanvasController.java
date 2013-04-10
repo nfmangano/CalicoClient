@@ -947,7 +947,7 @@ public class CCanvasController
 	{
 		long canvasId;
 
-		HistoryFrame(long canvasId)
+		public HistoryFrame(long canvasId)
 		{
 			this.canvasId = canvasId;
 		}

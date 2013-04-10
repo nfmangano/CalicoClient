@@ -17,7 +17,6 @@ import java.awt.*;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
 
 public class CArrow extends AbstractArrow<AnchorPoint>
 {

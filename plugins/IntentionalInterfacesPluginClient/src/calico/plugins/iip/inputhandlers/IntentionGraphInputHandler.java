@@ -3,12 +3,18 @@ package calico.plugins.iip.inputhandlers;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
+import javax.swing.SwingUtilities;
+
+import calico.CalicoDraw;
 import calico.CalicoOptions;
 import calico.controllers.CCanvasController;
+import calico.controllers.CHistoryController;
+import calico.controllers.CCanvasController.HistoryFrame;
 import calico.inputhandlers.CalicoAbstractInputHandler;
 import calico.inputhandlers.InputEventInfo;
 import calico.inputhandlers.PressAndHoldAction;
 import calico.inputhandlers.CalicoAbstractInputHandler.MenuTimer;
+import calico.perspectives.CalicoPerspective;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog;
 import calico.plugins.iip.components.canvas.CanvasTitleDialog.Action;
 import calico.plugins.iip.components.graph.CIntentionTopology;
@@ -81,7 +87,9 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 			if (IntentionGraph.getInstance().getFocus() == IntentionGraph.Focus.CLUSTER
 					&& IntentionGraph.getInstance().getClusterInFocus(this).createCanvasIconContainsPoint(event.getPoint()))
 			{
-				IntentionGraph.getInstance().createNewClusterCanvas();
+				final long newCanvasId = IntentionGraph.getInstance().createNewClusterCanvas();		
+
+				CHistoryController.getInstance().push(new CCanvasController.HistoryFrame(newCanvasId));
 			}
 			else if (clusterIdWithWallTextAtPoint > 0l)
 			{
@@ -198,5 +206,4 @@ public class IntentionGraphInputHandler extends CalicoAbstractInputHandler imple
 		
 	}
 	
-
 }

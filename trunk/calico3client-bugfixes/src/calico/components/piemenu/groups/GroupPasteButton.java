@@ -2,8 +2,10 @@ package calico.components.piemenu.groups;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 
 import calico.Calico;
+import calico.Geometry;
 import calico.components.CGroup;
 import calico.components.piemenu.PieMenuButton;
 import calico.controllers.CCanvasController;
@@ -31,9 +33,9 @@ public class GroupPasteButton extends PieMenuButton
 		
 			CGroup group = CGroupController.groupdb.get(this.uuid);
 			Rectangle rect = group.getCoordList().getBounds();
-			Point center = org.shodor.util11.PolygonUtils.polygonCenterOfMass(group.getCoordList());
-			int shift_x = ev.getPoint().x - center.x;
-			int shift_y = ev.getPoint().y - center.y;
+			Point2D center = calico.utils.Geometry.getMidPoint2D(group.getCoordList());
+			int shift_x = ev.getPoint().x - (int)center.getX();
+			int shift_y = ev.getPoint().y - (int)center.getY();
 		
 				
 			Networking.send(CalicoPacket.getPacket(NetworkCommand.GROUP_COPY_TO_CANVAS, 

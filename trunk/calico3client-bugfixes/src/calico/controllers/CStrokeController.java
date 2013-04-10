@@ -22,7 +22,6 @@ import java.util.*;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.shodor.util11.PolygonUtils;
 
 import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
@@ -157,7 +156,8 @@ public class CStrokeController
 			return 0;
 		
 		CStroke stroke = CStrokeController.strokes.get(suuid);
-		long parent = CGroupController.get_smallest_containing_group_for_point(stroke.getCanvasUUID(), PolygonUtils.polygonCenterOfMass(stroke.getPolygon()));
+		Point2D center = calico.utils.Geometry.getMidPoint2D(stroke.getPolygon());
+		long parent = CGroupController.get_smallest_containing_group_for_point(stroke.getCanvasUUID(), new Point((int)center.getX(), (int)center.getY()));
 		CGroupController.no_notify_start(new_guuid, stroke.getCanvasUUID(), parent, false);
 		
 		Polygon strokePoly = stroke.getPolygon();
@@ -824,7 +824,7 @@ public class CStrokeController
 		for (int i = 0; i < strokes.length; i++)
 		{
 			temp = CStrokeController.strokes.get(strokes[i]).getPolygon();
-			tempArea = PolygonUtils.PolygonArea(temp);
+			tempArea = Geometry.computePolygonArea(temp);
 			if (temp.contains(p) && tempArea < strokeArea)
 			{
 				smallestStroke = strokes[i];
