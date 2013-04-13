@@ -445,10 +445,11 @@ public class CCanvasLinkController
 	 */
 	public void createLink(long fromCanvasId, long toCanvasId)
 	{
+		if (canvasBisDescendentOfCanvasA(fromCanvasId, toCanvasId))
+			return;
+		
 		CalicoPacket packet = new CalicoPacket();
 		long[] originalChildren = CIntentionCellController.getInstance().getCIntentionCellChildren(fromCanvasId);
-
-		
 
 		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
 		packet.putLong(Calico.uuid());
@@ -504,9 +505,95 @@ public class CCanvasLinkController
 			}
 			
 		}
-		
-
 	}
+	
+	public boolean canvasBisDescendentOfCanvasA(long fromCanvasId, long toCanvasId)
+	{
+		//make original link child of final descendent of new child
+		long child = fromCanvasId;
+		while (child != 0l)
+		{
+			long[] children = CIntentionCellController.getInstance().getCIntentionCellChildren(child);
+			child = 0;
+			if (children.length > 0)
+			{	
+				child = children[0];
+			}
+			if (child == toCanvasId)
+				return true;
+		}
+		
+		return false;
+	}
+	
+//	Alternative code: steals one child rather than whole string.
+//	public void createLink(long fromCanvasId, long toCanvasId)
+//	{
+//		//In comments, Canvas A represents fromCanvasId, Canvas B represents toCanvasId.
+//		
+//		//Get some values that we will need later:
+//		//   get children of Canvas A (this preserves the original children of Canvas A, which get lost in the next command). 
+//		CalicoPacket packet;// = new CalicoPacket();
+//		long[] originalChildren = CIntentionCellController.getInstance().getCIntentionCellChildren(fromCanvasId);
+//		//  get canvas B's parent
+//		long toCanvasIdOriginalParent = CIntentionCellController.getInstance().getCIntentionCellParent(toCanvasId);
+//		//  get canvas B's children
+//		long[] toCanvasIdOriginalChildren = CIntentionCellController.getInstance().getCIntentionCellChildren(toCanvasId);
+//		
+//		//Create link from Canvas A to Canvas B. This command deletes the parent link for Canvas B.
+//		packet = new CalicoPacket();
+//		packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
+//		packet.putLong(Calico.uuid());
+//		packAnchor(packet, fromCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(fromCanvasId, toCanvasId));
+//		packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, fromCanvasId));
+//		packet.putString(""); // empty label
+//		
+//		packet.rewind();
+//		PacketHandler.receive(packet);
+//		Networking.send(packet);
+//		
+//		if (CIntentionCellController.getInstance().isRootCanvas(fromCanvasId))
+//			return;
+//				
+//		
+//		for (int i = 0; i < toCanvasIdOriginalChildren.length; i++)
+//		{
+//			if (toCanvasIdOriginalParent == 0l
+////					|| CIntentionCellController.getInstance().isRootCanvas(toCanvasIdOriginalParent)
+//					|| toCanvasIdOriginalChildren[i] == 0l)
+//				continue;
+//			
+//			//Make parent of Canvas B link to Canvas B's child. Do this for all children of Canvas B.			
+//			packet = new CalicoPacket();
+//			packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
+//			packet.putLong(Calico.uuid());
+//			packAnchor(packet, toCanvasIdOriginalParent, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasIdOriginalParent, toCanvasIdOriginalChildren[i]));
+//			packAnchor(packet, toCanvasIdOriginalChildren[i], IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasIdOriginalChildren[i], toCanvasIdOriginalParent));
+//			packet.putString(""); // empty label
+//			
+//			packet.rewind();
+//			PacketHandler.receive(packet);
+//			Networking.send(packet);
+//		}
+//		
+//		for (int i = 0; i < originalChildren.length; i++)
+//		{
+//			if (toCanvasId == 0l || originalChildren[i] == 0l)
+//				continue;
+//			
+//			//Move the children of Canvas A z 			
+//			packet = new CalicoPacket();
+//			packet.putInt(IntentionalInterfacesNetworkCommands.CLINK_CREATE);
+//			packet.putLong(Calico.uuid());
+//			packAnchor(packet, toCanvasId, IntentionGraphController.getInstance().getArrowAnchorPosition(toCanvasId, originalChildren[i]));
+//			packAnchor(packet, originalChildren[i], IntentionGraphController.getInstance().getArrowAnchorPosition(originalChildren[i], toCanvasId));
+//			packet.putString(""); // empty label
+//			
+//			packet.rewind();
+//			PacketHandler.receive(packet);
+//			Networking.send(packet);
+//		}
+//	}
 
 	private void packAnchor(CalicoPacket packet, long canvas_uuid, Point2D position)
 	{

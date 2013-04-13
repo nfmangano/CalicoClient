@@ -479,7 +479,8 @@ public class CreateIntentionArrowPhase implements MouseListener, MouseMotionList
 			return false;
 		}
 
-		if (incomingAnchor.getOpposite().getCanvasId() == target.getCanvasId())
+		if (CCanvasLinkController.getInstance().canvasBisDescendentOfCanvasA(incomingAnchor.getCanvasId(), target.getCanvasId()))
+//				incomingAnchor.getOpposite().getCanvasId() == target.getCanvasId())
 		{
 			System.out.println("Cycle detected on canvas id " + target.getCanvasId());
 			return true;
